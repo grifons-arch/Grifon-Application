@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grifon_ink">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/grifon_charcoal"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Grifon"
+                android:textAllCaps="true"
+                android:textColor="@color/grifon_sand"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Luxury fashion & lifestyle"
+                android:textColor="@color/grifon_sand"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/grifon_ink"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MENU"
+                android:textAllCaps="true"
+                android:textColor="@color/grifon_sand"
+                android:textSize="14sp" />
+
+            <TextView
+                style="@style/GrifonMenuItem"
+                android:text="Γυναικεία" />
+
+            <TextView
+                style="@style/GrifonMenuItem"
+                android:text="Ανδρικά" />
+
+            <TextView
+                style="@style/GrifonMenuItem"
+                android:text="Παπούτσια" />
+
+            <TextView
+                style="@style/GrifonMenuItem"
+                android:text="Τσάντες" />
+
+            <TextView
+                style="@style/GrifonMenuItem"
+                android:text="Αξεσουάρ" />
+
+            <TextView
+                style="@style/GrifonMenuItem"
+                android:text="Νέα Αφίξεις" />
+
+            <TextView
+                style="@style/GrifonMenuItem"
+                android:text="Brands" />
+
+            <TextView
+                style="@style/GrifonMenuItem"
+                android:text="Προσφορές" />
+
+            <TextView
+                style="@style/GrifonMenuItem"
+                android:text="Καταστήματα" />
+
+            <TextView
+                style="@style/GrifonMenuItem"
+                android:text="Επικοινωνία" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/grifon_charcoal"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quick Links"
+                android:textAllCaps="true"
+                android:textColor="@color/grifon_sand"
+                android:textSize="12sp" />
+
+            <TextView
+                style="@style/GrifonFooterItem"
+                android:text="Λογαριασμός" />
+
+            <TextView
+                style="@style/GrifonFooterItem"
+                android:text="Wishlist" />
+
+            <TextView
+                style="@style/GrifonFooterItem"
+                android:text="Οδηγός Μεγεθών" />
+
+            <TextView
+                style="@style/GrifonFooterItem"
+                android:text="Όροι & Πολιτική" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
