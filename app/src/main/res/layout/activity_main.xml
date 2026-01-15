@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grifon_ink">
+    android:background="@color/grifon_ink"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,26 +13,336 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/grifon_ink"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="GRIFON"
+                        android:textAllCaps="true"
+                        android:textColor="@color/grifon_sand"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Luxury fashion & lifestyle"
+                        android:textColor="@color/grifon_muted"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/GrifonIcon"
+                        android:text="🔍" />
+
+                    <TextView
+                        style="@style/GrifonIcon"
+                        android:text="♡" />
+
+                    <TextView
+                        style="@style/GrifonIcon"
+                        android:text="🛍" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/GrifonChip"
+                        android:text="Γυναικεία" />
+
+                    <TextView
+                        style="@style/GrifonChip"
+                        android:text="Ανδρικά" />
+
+                    <TextView
+                        style="@style/GrifonChip"
+                        android:text="Νέα Αφίξεις" />
+
+                    <TextView
+                        style="@style/GrifonChip"
+                        android:text="Brands" />
+
+                    <TextView
+                        style="@style/GrifonChip"
+                        android:text="Προσφορές" />
+
+                    <TextView
+                        style="@style/GrifonChip"
+                        android:text="Καταστήματα" />
+                </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:layout_margin="20dp"
+            android:background="@drawable/bg_hero">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="New Season 24"
+                    android:textColor="@color/grifon_sand"
+                    android:textSize="22sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Discover curated designer drops for women & men."
+                    android:textColor="@color/grifon_muted"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/bg_button"
+                    android:paddingHorizontal="18dp"
+                    android:paddingVertical="10dp"
+                    android:text="Shop the edit"
+                    android:textColor="@color/grifon_ink"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Free shipping over €100"
+                    android:textColor="@color/grifon_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                style="@style/GrifonHighlight">
+
+                <TextView
+                    style="@style/GrifonHighlightTitle"
+                    android:text="24h Delivery" />
+
+                <TextView
+                    style="@style/GrifonHighlightBody"
+                    android:text="Athens & Thessaloniki" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/GrifonHighlight">
+
+                <TextView
+                    style="@style/GrifonHighlightTitle"
+                    android:text="Authenticity" />
+
+                <TextView
+                    style="@style/GrifonHighlightBody"
+                    android:text="Official designer boutiques" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/GrifonHighlight">
+
+                <TextView
+                    style="@style/GrifonHighlightTitle"
+                    android:text="Premium Care" />
+
+                <TextView
+                    style="@style/GrifonHighlightBody"
+                    android:text="Personal styling" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:layout_marginHorizontal="20dp"
+            android:text="Shop by category"
+            android:textColor="@color/grifon_sand"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                style="@style/GrifonCard">
+
+                <TextView
+                    style="@style/GrifonCardTitle"
+                    android:text="Γυναικεία" />
+
+                <TextView
+                    style="@style/GrifonCardSubtitle"
+                    android:text="Ready-to-wear" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/GrifonCard">
+
+                <TextView
+                    style="@style/GrifonCardTitle"
+                    android:text="Ανδρικά" />
+
+                <TextView
+                    style="@style/GrifonCardSubtitle"
+                    android:text="Tailoring & street" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                style="@style/GrifonCard">
+
+                <TextView
+                    style="@style/GrifonCardTitle"
+                    android:text="Παπούτσια" />
+
+                <TextView
+                    style="@style/GrifonCardSubtitle"
+                    android:text="Heels, sneakers" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/GrifonCard">
+
+                <TextView
+                    style="@style/GrifonCardTitle"
+                    android:text="Τσάντες" />
+
+                <TextView
+                    style="@style/GrifonCardSubtitle"
+                    android:text="Signature leather" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:layout_marginHorizontal="20dp"
+            android:text="Featured designers"
+            android:textColor="@color/grifon_sand"
+            android:textSize="18sp" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp">
+
+                <TextView
+                    style="@style/GrifonBrand"
+                    android:text="Gucci" />
+
+                <TextView
+                    style="@style/GrifonBrand"
+                    android:text="Bottega" />
+
+                <TextView
+                    style="@style/GrifonBrand"
+                    android:text="Prada" />
+
+                <TextView
+                    style="@style/GrifonBrand"
+                    android:text="Balenciaga" />
+
+                <TextView
+                    style="@style/GrifonBrand"
+                    android:text="Saint Laurent" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
             android:background="@color/grifon_charcoal"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:text="Grifon"
-                android:textAllCaps="true"
+                android:text="The Grifon boutique"
                 android:textColor="@color/grifon_sand"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Luxury fashion &amp; lifestyle"
-                android:textColor="@color/grifon_sand"
-                android:textSize="12sp" />
+                android:text="Luxury fashion since 1952. Personal styling, exclusive edits, and seasonal drops."
+                android:textColor="@color/grifon_muted"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Book an appointment →"
+                android:textColor="@color/grifon_gold"
+                android:textSize="13sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -44,65 +355,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MENU"
-                android:textAllCaps="true"
-                android:textColor="@color/grifon_sand"
-                android:textSize="14sp" />
-
-            <TextView
-                style="@style/GrifonMenuItem"
-                android:text="Γυναικεία" />
-
-            <TextView
-                style="@style/GrifonMenuItem"
-                android:text="Ανδρικά" />
-
-            <TextView
-                style="@style/GrifonMenuItem"
-                android:text="Παπούτσια" />
-
-            <TextView
-                style="@style/GrifonMenuItem"
-                android:text="Τσάντες" />
-
-            <TextView
-                style="@style/GrifonMenuItem"
-                android:text="Αξεσουάρ" />
-
-            <TextView
-                style="@style/GrifonMenuItem"
-                android:text="Νέα Αφίξεις" />
-
-            <TextView
-                style="@style/GrifonMenuItem"
-                android:text="Brands" />
-
-            <TextView
-                style="@style/GrifonMenuItem"
-                android:text="Προσφορές" />
-
-            <TextView
-                style="@style/GrifonMenuItem"
-                android:text="Καταστήματα" />
-
-            <TextView
-                style="@style/GrifonMenuItem"
-                android:text="Επικοινωνία" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/grifon_charcoal"
-            android:orientation="vertical"
-            android:padding="20dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="Quick Links"
                 android:textAllCaps="true"
-                android:textColor="@color/grifon_sand"
+                android:textColor="@color/grifon_muted"
                 android:textSize="12sp" />
 
             <TextView
