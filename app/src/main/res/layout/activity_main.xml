@@ -42,7 +42,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Luxury fashion & lifestyle"
+                        android:text="Luxury fashion &amp; lifestyle"
                         android:textColor="@color/grifon_muted"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -129,7 +129,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Discover curated designer drops for women & men."
+                    android:text="Discover curated designer drops for women &amp; men."
                     android:textColor="@color/grifon_muted"
                     android:textSize="14sp" />
 
@@ -169,7 +169,7 @@
 
                 <TextView
                     style="@style/GrifonHighlightBody"
-                    android:text="Athens & Thessaloniki" />
+                    android:text="Athens &amp; Thessaloniki" />
             </LinearLayout>
 
             <LinearLayout
@@ -234,7 +234,7 @@
 
                 <TextView
                     style="@style/GrifonCardSubtitle"
-                    android:text="Tailoring & street" />
+                    android:text="Tailoring &amp; street" />
             </LinearLayout>
         </LinearLayout>
 
