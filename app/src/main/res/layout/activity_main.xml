@@ -35,12 +35,16 @@
         </LinearLayout>
     </ScrollView>
 
-    <ImageView
+    <TextView
         android:id="@+id/logo_top_left"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_gravity="top|start"
-        android:contentDescription="@string/app_name"
+        android:background="@drawable/logo_shape"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center"
         android:padding="8dp"
-        android:src="@drawable/logo_shape" />
+        android:text="G"
+        android:textColor="@color/grifon_ink"
+        android:textSize="24sp" />
 </FrameLayout>
