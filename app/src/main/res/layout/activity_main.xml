@@ -18,7 +18,8 @@
             android:fontFamily="sans-serif-medium"
             android:text="GRIFON"
             android:textAllCaps="true"
-            android:textColor="@color/grifon_ink"
+
+       
             android:textSize="22sp" />
 
         <TextView
@@ -27,9 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:lineSpacingExtra="6dp"
-            android:linksClickable="true"
-            android:text="@string/wholesale_intro"
-            android:textColor="@color/grifon_ink"
+
+
             android:textColorLink="@color/grifon_gold"
             android:textSize="16sp" />
     </LinearLayout>

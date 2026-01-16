@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Grifon Menu</string>
-    <string name="wholesale_intro"><![CDATA[Για να μπορείτε να παραγγείλετε ή να δείτε τιμές, θα πρέπει πρώτα να <u><a href="https://grifon-eshop.example/register">δημιουργήσετε ένα λογαριασμό</a></u> ή να <u><a href="https://grifon-eshop.example/login">συνδεθείτε με τον υπάρχον λογαριασμό σας</a></u>.
+
+    <string name="wholesale_intro"><![CDATA[Για να μπορείτε να παραγγείλετε ή να δείτε τιμές, θα πρέπει πρώτα να <a href="https://grifon-eshop.example/register">δημιουργήσετε ένα λογαριασμό</a> ή να <a href="https://grifon-eshop.example/login">συνδεθείτε με τον υπάρχον λογαριασμό σας</a>.
+
 
 Αν δημιουργήσετε ένα νέο λογαριασμό, θα πρέπει πρώτα να υποβάλετε αίτηση για λογαριασμό χονδρικής πώλησης. Αφού εγκρίνουμε το αίτημά σας, θα μπορείτε να παραγγείλετε και να δείτε τιμές χονδρικής.]]></string>
 </resources>
