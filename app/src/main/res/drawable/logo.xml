@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path
+        android:fillColor="@color/grifon_gold"
+        android:pathData="M32,2a30,30 0 1,0 0,60a30,30 0 1,0 0,-60z" />
+    <path
+        android:fillColor="@color/grifon_sand"
+        android:pathData="M32,12a20,20 0 1,0 0,40a20,20 0 1,0 0,-40z" />
+    <path
+        android:fillColor="@color/grifon_gold"
+        android:pathData="M32,32h14v6h-14z" />
+</vector>
