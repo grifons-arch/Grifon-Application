@@ -42,5 +42,5 @@
         android:layout_gravity="top|end"
         android:contentDescription="@string/app_name"
         android:padding="8dp"
-        android:src="@drawable/logo" />
+        android:src="@drawable/logo_placeholder" />
 </FrameLayout>
