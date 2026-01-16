@@ -24,7 +24,7 @@
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/app_name"
                 android:scaleType="fitCenter"
-                android:src="@drawable/logo_placeholder" />
+                android:src="@drawable/grifon_logo" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -45,16 +45,13 @@
         </LinearLayout>
     </ScrollView>
 
-    <TextView
+    <ImageView
         android:id="@+id/logo_top_left"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_gravity="top|start"
-        android:background="@drawable/logo_shape"
-        android:fontFamily="sans-serif-black"
-        android:gravity="center"
-        android:padding="8dp"
-        android:text="G"
-        android:textColor="@color/grifon_ink"
-        android:textSize="24sp" />
+        android:layout_margin="12dp"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitCenter"
+        android:src="@drawable/grifon_logo" />
 </FrameLayout>
