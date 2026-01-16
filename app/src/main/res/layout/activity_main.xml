@@ -36,11 +36,11 @@
     </ScrollView>
 
     <ImageView
-        android:id="@+id/logo_top_right"
+        android:id="@+id/logo_top_left"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_gravity="top|end"
+        android:layout_gravity="top|start"
         android:contentDescription="@string/app_name"
         android:padding="8dp"
-        android:src="@drawable/logo_placeholder" />
+        android:src="@drawable/logo" />
 </FrameLayout>
