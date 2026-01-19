@@ -50,6 +50,10 @@ class RegisterViewModel : ViewModel() {
         _uiState.update { it.copy(city = value) }
     }
 
+    fun onCountryChange(value: String) {
+        _uiState.update { it.copy(country = value) }
+    }
+
     fun onPostalCodeChange(value: String) {
         _uiState.update { it.copy(postalCode = value) }
     }
