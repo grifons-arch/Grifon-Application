@@ -207,7 +207,7 @@ private fun TopBarCollapsibleLine(scrollBehavior: androidx.compose.material3.Top
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Grifon Shop",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium.copy(letterSpacing = 0.sp),
                 )
             }
         },
