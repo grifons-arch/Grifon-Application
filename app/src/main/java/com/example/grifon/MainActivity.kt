@@ -152,7 +152,7 @@ private fun TopBarAccountNotice() {
         style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, top = 12.dp, bottom = 4.dp),
+            .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 4.dp),
     ) { offset ->
         linkText.getStringAnnotations(tag = "register", start = offset, end = offset)
             .firstOrNull()
