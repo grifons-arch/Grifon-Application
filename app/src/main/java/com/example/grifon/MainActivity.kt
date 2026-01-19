@@ -153,7 +153,7 @@ private fun TopBarAccountNotice() {
         style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 4.dp),
+            .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 0.dp),
     ) { offset ->
         linkText.getStringAnnotations(tag = "register", start = offset, end = offset)
             .firstOrNull()
@@ -207,6 +207,7 @@ private fun TopBarCollapsibleLine(scrollBehavior: androidx.compose.material3.Top
                 )
             }
         },
+        modifier = Modifier.offset(y = (-8).dp),
         scrollBehavior = scrollBehavior,
     )
 }
