@@ -46,6 +46,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -150,7 +151,10 @@ private fun TopBarAccountNotice() {
 
     ClickableText(
         text = linkText,
-        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface),
+        style = MaterialTheme.typography.bodySmall.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            letterSpacing = 0.sp,
+        ),
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 0.dp),
