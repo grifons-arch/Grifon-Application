@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -68,6 +69,16 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
             Text(
                 text = "Συμπληρώστε τα παρακάτω στοιχεία για να υποβάλετε αίτηση εγγραφής.",
                 style = MaterialTheme.typography.bodyMedium,
+            )
+            OutlinedButton(
+                onClick = registerViewModel::onRegisterWithGoogle,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(text = "Συνέχεια με Google")
+            }
+            Text(
+                text = "Εναλλακτικά, μπορείτε να δημιουργήσετε λογαριασμό με τα στοιχεία σας.",
+                style = MaterialTheme.typography.bodySmall,
             )
             SectionTitle(title = "Προσωπικά στοιχεία")
             OutlinedTextField(
