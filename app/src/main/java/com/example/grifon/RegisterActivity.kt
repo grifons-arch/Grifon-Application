@@ -3,6 +3,8 @@ package com.example.grifon
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,11 +29,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grifon.ui.theme.GrifonTheme
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 
 class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +56,19 @@ class RegisterActivity : ComponentActivity() {
 private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
     val state by registerViewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+    val signInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            registerViewModel.onGoogleAccountReceived(task.getResult(ApiException::class.java))
+        } catch (exception: ApiException) {
+            registerViewModel.onGoogleAccountError(
+                "Η σύνδεση με Google απέτυχε. Δοκιμάστε ξανά.",
+            )
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -68,6 +88,35 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
             Text(
                 text = "Συμπληρώστε τα παρακάτω στοιχεία για να υποβάλετε αίτηση εγγραφής.",
                 style = MaterialTheme.typography.bodyMedium,
+            )
+            OutlinedButton(
+                onClick = {
+                    val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestEmail()
+                        .build()
+                    val client = GoogleSignIn.getClient(context, options)
+                    signInLauncher.launch(client.signInIntent)
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(text = "Συνέχεια με Google")
+            }
+            state.googleAccountEmail?.let { email ->
+                Text(
+                    text = "Συνδεθήκατε ως $email.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            state.googleSignInError?.let { error ->
+                Text(
+                    text = error,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            Text(
+                text = "Εναλλακτικά, μπορείτε να δημιουργήσετε λογαριασμό με τα στοιχεία σας.",
+                style = MaterialTheme.typography.bodySmall,
             )
             SectionTitle(title = "Προσωπικά στοιχεία")
             OutlinedTextField(

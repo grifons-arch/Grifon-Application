@@ -1,6 +1,7 @@
 package com.example.grifon
 
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -71,5 +72,45 @@ class RegisterViewModel : ViewModel() {
 
     fun onSubmit() {
         // TODO: Hook into registration API.
+    }
+
+    fun onGoogleAccountReceived(account: GoogleSignInAccount) {
+        val displayName = account.displayName ?: ""
+        val (firstName, lastName) = parseNameParts(
+            account.givenName,
+            account.familyName,
+            displayName,
+        )
+        val email = account.email.orEmpty()
+        _uiState.update {
+            it.copy(
+                googleDisplayName = displayName.ifBlank { null },
+                googleAccountEmail = email.ifBlank { null },
+                googleSignInError = null,
+                firstName = firstName.ifBlank { it.firstName },
+                lastName = lastName.ifBlank { it.lastName },
+                email = if (email.isNotBlank()) email else it.email,
+            )
+        }
+    }
+
+    fun onGoogleAccountError(message: String) {
+        _uiState.update { it.copy(googleSignInError = message) }
+    }
+
+    private fun parseNameParts(
+        givenName: String?,
+        familyName: String?,
+        displayName: String,
+    ): Pair<String, String> {
+        if (!givenName.isNullOrBlank() || !familyName.isNullOrBlank()) {
+            return givenName.orEmpty() to familyName.orEmpty()
+        }
+        val parts = displayName.trim().split(" ").filter { it.isNotBlank() }
+        return when {
+            parts.isEmpty() -> "" to ""
+            parts.size == 1 -> parts.first() to ""
+            else -> parts.first() to parts.drop(1).joinToString(" ")
+        }
     }
 }

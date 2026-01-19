@@ -16,6 +16,9 @@ data class RegisterUiState(
     val notes: String = "",
     val acceptTerms: Boolean = false,
     val subscribeNewsletter: Boolean = false,
+    val googleDisplayName: String? = null,
+    val googleAccountEmail: String? = null,
+    val googleSignInError: String? = null,
 ) {
     val isSubmitEnabled: Boolean
         get() = firstName.isNotBlank() &&
