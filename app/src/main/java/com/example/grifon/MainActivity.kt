@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
@@ -36,8 +37,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -89,6 +95,7 @@ private fun GrifonApp() {
         topBar = {
             Column {
                 TopBarStickyLine()
+                TopBarAccountNotice()
                 TopBarCollapsibleLine(scrollBehavior = scrollBehavior)
             }
         },
@@ -100,6 +107,67 @@ private fun GrifonApp() {
             navController = navController,
             paddingValues = paddingValues,
         )
+    }
+}
+
+@Composable
+private fun TopBarAccountNotice() {
+    val context = LocalContext.current
+    val linkColor = MaterialTheme.colorScheme.primary
+    val linkText = buildAnnotatedString {
+        append("Για να μπορείτε να παραγγείλετε ή να δείτε τιμές, θα πρέπει πρώτα να ")
+        pushStringAnnotation(tag = "register", annotation = "register")
+        pushStyle(
+            SpanStyle(
+                color = linkColor,
+                fontWeight = FontWeight.SemiBold,
+                textDecoration = TextDecoration.Underline,
+            ),
+        )
+        append("δημιουργήσετε ένα λογαριασμό")
+        pop()
+        pop()
+        append(" Ή να ")
+        pushStringAnnotation(tag = "login", annotation = "login")
+        pushStyle(
+            SpanStyle(
+                color = linkColor,
+                fontWeight = FontWeight.SemiBold,
+                textDecoration = TextDecoration.Underline,
+            ),
+        )
+        append("συνδεθείτε με τον υπάρχον λογαριασμό σας")
+        pop()
+        pop()
+        append(".\n\n")
+        append(
+            "Αν δημιουργήσετε ένα νέο λογαριασμό, θα πρέπει πρώτα να υποβάλετε αίτηση για " +
+                "λογαριασμό χονδρικής πώλησης. Αφού εγκρίνουμε το αίτημά σας, θα μπορείτε " +
+                "να παραγγείλετε και να δείτε τιμές χονδρικής.",
+        )
+    }
+
+    ClickableText(
+        text = linkText,
+        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    ) { offset ->
+        linkText.getStringAnnotations(tag = "register", start = offset, end = offset)
+            .firstOrNull()
+            ?.let {
+                context.startActivity(
+                    android.content.Intent(context, RegisterActivity::class.java),
+                )
+            }
+        linkText.getStringAnnotations(tag = "login", start = offset, end = offset)
+            .firstOrNull()
+            ?.let {
+                context.startActivity(
+                    android.content.Intent(context, LoginActivity::class.java),
+                )
+            }
     }
 }
 
