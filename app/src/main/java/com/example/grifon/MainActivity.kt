@@ -207,7 +207,6 @@ private fun TopBarCollapsibleLine(scrollBehavior: androidx.compose.material3.Top
                 )
             }
         },
-        modifier = Modifier.offset(y = (-8).dp),
         scrollBehavior = scrollBehavior,
     )
 }
