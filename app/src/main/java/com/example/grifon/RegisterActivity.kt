@@ -94,12 +94,6 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
-                value = state.email,
-                onValueChange = registerViewModel::onEmailChange,
-                label = { Text(text = "Email") },
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedTextField(
                 value = state.phone,
                 onValueChange = registerViewModel::onPhoneChange,
                 label = { Text(text = "Τηλέφωνο") },
@@ -147,6 +141,18 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
             )
 
             SectionTitle(title = "Λεπτομέρειες λογαριασμού")
+            OutlinedTextField(
+                value = state.email,
+                onValueChange = registerViewModel::onEmailChange,
+                label = { Text(text = "Email") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                value = state.confirmEmail,
+                onValueChange = registerViewModel::onConfirmEmailChange,
+                label = { Text(text = "Επιβεβαίωση email") },
+                modifier = Modifier.fillMaxWidth(),
+            )
             OutlinedTextField(
                 value = state.password,
                 onValueChange = registerViewModel::onPasswordChange,

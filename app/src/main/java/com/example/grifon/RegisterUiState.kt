@@ -3,8 +3,9 @@ package com.example.grifon
 data class RegisterUiState(
     val firstName: String = "",
     val lastName: String = "",
-    val email: String = "",
     val phone: String = "",
+    val email: String = "",
+    val confirmEmail: String = "",
     val companyName: String = "",
     val vatNumber: String = "",
     val taxOffice: String = "",
@@ -20,7 +21,6 @@ data class RegisterUiState(
     val isSubmitEnabled: Boolean
         get() = firstName.isNotBlank() &&
             lastName.isNotBlank() &&
-            email.isNotBlank() &&
             phone.isNotBlank() &&
             companyName.isNotBlank() &&
             vatNumber.isNotBlank() &&
@@ -28,6 +28,9 @@ data class RegisterUiState(
             address.isNotBlank() &&
             city.isNotBlank() &&
             postalCode.isNotBlank() &&
+            email.isNotBlank() &&
+            confirmEmail.isNotBlank() &&
+            email == confirmEmail &&
             password.isNotBlank() &&
             confirmPassword.isNotBlank() &&
             password == confirmPassword &&
