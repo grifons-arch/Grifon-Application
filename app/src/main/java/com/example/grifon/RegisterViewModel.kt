@@ -21,6 +21,10 @@ class RegisterViewModel : ViewModel() {
         _uiState.update { it.copy(email = value) }
     }
 
+    fun onConfirmEmailChange(value: String) {
+        _uiState.update { it.copy(confirmEmail = value) }
+    }
+
     fun onPhoneChange(value: String) {
         _uiState.update { it.copy(phone = value) }
     }
