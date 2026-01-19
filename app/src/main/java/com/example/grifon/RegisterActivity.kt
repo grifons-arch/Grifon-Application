@@ -1,5 +1,6 @@
 package com.example.grifon
 
+import android.location.Geocoder
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -310,6 +312,34 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+    }
+
+    LaunchedEffect(state.address, state.country) {
+        val query = state.address.trim()
+        if (query.length < 3 || state.country.isBlank()) {
+            addressSuggestions = emptyList()
+            return@LaunchedEffect
+        }
+        delay(300)
+        addressSuggestions = lookupAddressSuggestions(
+            geocoder = geocoder,
+            query = query,
+            country = state.country,
+        )
+    }
+
+    LaunchedEffect(state.city, state.country) {
+        val query = state.city.trim()
+        if (query.length < 2 || state.country.isBlank()) {
+            citySuggestions = emptyList()
+            return@LaunchedEffect
+        }
+        delay(300)
+        citySuggestions = lookupCitySuggestions(
+            geocoder = geocoder,
+            query = query,
+            country = state.country,
+        )
     }
 }
 
