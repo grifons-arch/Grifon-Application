@@ -192,7 +192,7 @@ private fun TopBarCollapsibleLine(scrollBehavior: androidx.compose.material3.Top
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.offset(y = (-6).dp),
+                modifier = Modifier.offset(y = (-10).dp),
             ) {
                 Image(
                     painter = painterResource(R.drawable.logo),
