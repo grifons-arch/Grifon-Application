@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,9 +45,6 @@ import com.example.grifon.ui.theme.GrifonTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.delay
 import java.util.Locale
 
 class RegisterActivity : ComponentActivity() {
@@ -70,12 +66,7 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val countryOptions = remember { countryOptions() }
-    val geocoder = remember { Geocoder(context, Locale("el")) }
     var countryExpanded by remember { mutableStateOf(false) }
-    var cityExpanded by remember { mutableStateOf(false) }
-    var addressExpanded by remember { mutableStateOf(false) }
-    var citySuggestions by remember { mutableStateOf(emptyList<String>()) }
-    var addressSuggestions by remember { mutableStateOf(emptyList<String>()) }
     val signInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
@@ -179,76 +170,6 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
 
             SectionTitle(title = "Διεύθυνση")
             ExposedDropdownMenuBox(
-                expanded = addressExpanded && addressSuggestions.isNotEmpty(),
-                onExpandedChange = { addressExpanded = !addressExpanded },
-            ) {
-                OutlinedTextField(
-                    value = state.address,
-                    onValueChange = {
-                        registerViewModel.onAddressChange(it)
-                        addressExpanded = true
-                    },
-                    label = { Text(text = "Οδός & αριθμός") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            expanded = addressExpanded && addressSuggestions.isNotEmpty(),
-                        )
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth(),
-                )
-                ExposedDropdownMenu(
-                    expanded = addressExpanded && addressSuggestions.isNotEmpty(),
-                    onDismissRequest = { addressExpanded = false },
-                ) {
-                    addressSuggestions.forEach { suggestion ->
-                        DropdownMenuItem(
-                            text = { Text(suggestion) },
-                            onClick = {
-                                registerViewModel.onAddressChange(suggestion)
-                                addressExpanded = false
-                            },
-                        )
-                    }
-                }
-            }
-            ExposedDropdownMenuBox(
-                expanded = cityExpanded && citySuggestions.isNotEmpty(),
-                onExpandedChange = { cityExpanded = !cityExpanded },
-            ) {
-                OutlinedTextField(
-                    value = state.city,
-                    onValueChange = {
-                        registerViewModel.onCityChange(it)
-                        cityExpanded = true
-                    },
-                    label = { Text(text = "Πόλη") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            expanded = cityExpanded && citySuggestions.isNotEmpty(),
-                        )
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth(),
-                )
-                ExposedDropdownMenu(
-                    expanded = cityExpanded && citySuggestions.isNotEmpty(),
-                    onDismissRequest = { cityExpanded = false },
-                ) {
-                    citySuggestions.forEach { suggestion ->
-                        DropdownMenuItem(
-                            text = { Text(suggestion) },
-                            onClick = {
-                                registerViewModel.onCityChange(suggestion)
-                                cityExpanded = false
-                            },
-                        )
-                    }
-                }
-            }
-            ExposedDropdownMenuBox(
                 expanded = countryExpanded,
                 onExpandedChange = { countryExpanded = !countryExpanded },
             ) {
@@ -271,7 +192,7 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
                     onDismissRequest = { countryExpanded = false },
                 ) {
                     countryOptions.forEach { country ->
-                        DropdownMenuItem(
+                        androidx.compose.material3.DropdownMenuItem(
                             text = { Text(country) },
                             onClick = {
                                 registerViewModel.onCountryChange(country)
@@ -281,6 +202,31 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
                     }
                 }
             }
+            OutlinedTextField(
+                value = state.city,
+                onValueChange = registerViewModel::onCityChange,
+                label = { Text(text = "Πόλη") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = state.country.isNotBlank(),
+                supportingText = {
+                    if (state.country.isBlank()) {
+                        Text(text = "Επιλέξτε πρώτα χώρα.")
+                    }
+                },
+            )
+            OutlinedTextField(
+                value = state.address,
+                onValueChange = registerViewModel::onAddressChange,
+                label = { Text(text = "Οδός & αριθμός") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = state.country.isNotBlank() && state.city.isNotBlank(),
+                supportingText = {
+                    when {
+                        state.country.isBlank() -> Text(text = "Επιλέξτε πρώτα χώρα.")
+                        state.city.isBlank() -> Text(text = "Συμπληρώστε πρώτα πόλη.")
+                    }
+                },
+            )
             OutlinedTextField(
                 value = state.postalCode,
                 onValueChange = registerViewModel::onPostalCodeChange,
@@ -412,32 +358,4 @@ private fun countryOptions(): List<String> {
         .filter { it.isNotBlank() }
         .distinct()
         .sorted()
-}
-
-private suspend fun lookupAddressSuggestions(
-    geocoder: Geocoder,
-    query: String,
-    country: String,
-    maxResults: Int = 6,
-): List<String> = withContext(Dispatchers.IO) {
-    runCatching {
-        geocoder.getFromLocationName("$query, $country", maxResults)
-            ?.mapNotNull { it.getAddressLine(0) }
-            ?.distinct()
-            .orEmpty()
-    }.getOrElse { emptyList() }
-}
-
-private suspend fun lookupCitySuggestions(
-    geocoder: Geocoder,
-    query: String,
-    country: String,
-    maxResults: Int = 6,
-): List<String> = withContext(Dispatchers.IO) {
-    runCatching {
-        geocoder.getFromLocationName("$query, $country", maxResults)
-            ?.mapNotNull { it.locality ?: it.subAdminArea ?: it.adminArea }
-            ?.distinct()
-            .orEmpty()
-    }.getOrElse { emptyList() }
 }
