@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -191,6 +192,7 @@ private fun TopBarCollapsibleLine(scrollBehavior: androidx.compose.material3.Top
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.offset(y = (-6).dp),
             ) {
                 Image(
                     painter = painterResource(R.drawable.logo),
