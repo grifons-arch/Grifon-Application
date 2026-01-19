@@ -11,6 +11,7 @@ data class RegisterUiState(
     val taxOffice: String = "",
     val address: String = "",
     val city: String = "",
+    val country: String = "",
     val postalCode: String = "",
     val password: String = "",
     val confirmPassword: String = "",
@@ -30,6 +31,7 @@ data class RegisterUiState(
             taxOffice.isNotBlank() &&
             address.isNotBlank() &&
             city.isNotBlank() &&
+            country.isNotBlank() &&
             postalCode.isNotBlank() &&
             email.isNotBlank() &&
             confirmEmail.isNotBlank() &&
