@@ -72,4 +72,8 @@ class RegisterViewModel : ViewModel() {
     fun onSubmit() {
         // TODO: Hook into registration API.
     }
+
+    fun onRegisterWithGoogle() {
+        // TODO: Trigger Google sign-in flow for registration.
+    }
 }
