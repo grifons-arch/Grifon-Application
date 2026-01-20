@@ -4,6 +4,8 @@ import com.example.grifon.BuildConfig
 import com.example.grifon.data.auth.AuthApi
 import com.example.grifon.data.auth.RegisterRepositoryImpl
 import com.example.grifon.domain.auth.RegisterUseCase
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -14,10 +16,13 @@ object ServiceLocator {
     }
 
     private val retrofit: Retrofit by lazy {
+        val moshi = Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
         Retrofit.Builder()
             .baseUrl(BuildConfig.API_BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
     }
 
