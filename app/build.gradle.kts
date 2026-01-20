@@ -58,6 +58,7 @@ dependencies {
     ksp(libs.dagger.hilt.compiler)
     implementation(libs.retrofit)
     implementation(libs.retrofit.moshi)
+    implementation(libs.moshi.kotlin)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.coroutines.core)
