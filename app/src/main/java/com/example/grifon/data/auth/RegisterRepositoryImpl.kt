@@ -1,5 +1,6 @@
 package com.example.grifon.data.auth
 
+import android.util.Log
 import com.example.grifon.domain.auth.RegisterOutcome
 import com.example.grifon.domain.auth.RegisterParams
 import com.example.grifon.domain.auth.RegisterRepository
@@ -31,10 +32,13 @@ class RegisterRepositoryImpl(
                 ),
             )
         } catch (exception: HttpException) {
+            Log.w(TAG, "Register request failed with HTTP ${exception.code()}.", exception)
             RegisterOutcome.Error(mapHttpError(exception.code()))
         } catch (exception: IOException) {
+            Log.w(TAG, "Register request failed due to network error.", exception)
             RegisterOutcome.Error("Δεν ήταν δυνατή η σύνδεση με τον server. Δοκιμάστε ξανά.")
         } catch (exception: Exception) {
+            Log.e(TAG, "Register request failed with unexpected error.", exception)
             RegisterOutcome.Error("Η εγγραφή απέτυχε. Δοκιμάστε ξανά.")
         }
     }
@@ -45,5 +49,9 @@ class RegisterRepositoryImpl(
             409 -> "Το email χρησιμοποιείται ήδη."
             else -> "Η εγγραφή απέτυχε. Δοκιμάστε ξανά."
         }
+    }
+
+    private companion object {
+        private const val TAG = "RegisterRepository"
     }
 }
