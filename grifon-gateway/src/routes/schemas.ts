@@ -33,3 +33,13 @@ export const categoryIdSchema = z.object({
 export const productIdSchema = z.object({
   productId: z.preprocess(toNumber, z.number().int().positive())
 });
+
+export const registerBodySchema = z.object({
+  email: z.string().trim().email(),
+  password: z.string().min(8),
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1),
+  countryIso: z.string().trim().length(2),
+  phone: z.string().trim().min(1).optional(),
+  company: z.string().trim().min(1).optional()
+});

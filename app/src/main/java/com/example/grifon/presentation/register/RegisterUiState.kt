@@ -1,4 +1,4 @@
-package com.example.grifon
+package com.example.grifon.presentation.register
 
 data class RegisterUiState(
     val firstName: String = "",
@@ -11,7 +11,8 @@ data class RegisterUiState(
     val taxOffice: String = "",
     val address: String = "",
     val city: String = "",
-    val country: String = "",
+    val countryName: String = "",
+    val countryIso: String = "",
     val postalCode: String = "",
     val password: String = "",
     val confirmPassword: String = "",
@@ -21,23 +22,25 @@ data class RegisterUiState(
     val googleDisplayName: String? = null,
     val googleAccountEmail: String? = null,
     val googleSignInError: String? = null,
+    val status: RegisterStatus = RegisterStatus.Idle,
 ) {
     val isSubmitEnabled: Boolean
-        get() = firstName.isNotBlank() &&
+        get() = status !is RegisterStatus.Loading &&
+            firstName.isNotBlank() &&
             lastName.isNotBlank() &&
-            phone.isNotBlank() &&
-            companyName.isNotBlank() &&
-            vatNumber.isNotBlank() &&
-            taxOffice.isNotBlank() &&
-            address.isNotBlank() &&
-            city.isNotBlank() &&
-            country.isNotBlank() &&
-            postalCode.isNotBlank() &&
             email.isNotBlank() &&
             confirmEmail.isNotBlank() &&
             email == confirmEmail &&
             password.isNotBlank() &&
             confirmPassword.isNotBlank() &&
             password == confirmPassword &&
+            countryIso.isNotBlank() &&
             acceptTerms
+}
+
+sealed interface RegisterStatus {
+    data object Idle : RegisterStatus
+    data object Loading : RegisterStatus
+    data class Success(val message: String) : RegisterStatus
+    data class Error(val message: String) : RegisterStatus
 }

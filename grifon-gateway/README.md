@@ -45,6 +45,22 @@ curl http://localhost:3000/health
 curl http://localhost:3000/v1/shops
 ```
 
+### Register (wholesale approval pending)
+
+```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "secret123",
+    "firstName": "Γιώργος",
+    "lastName": "Παπαδόπουλος",
+    "countryIso": "GR",
+    "phone": "+30 2100000000",
+    "company": "Grifon SA"
+  }'
+```
+
 ### Categories (active only + tree)
 
 ```bash
@@ -87,3 +103,4 @@ curl "http://localhost:3000/v1/customers/123/price-access?shopId=4"
 - Prices are only returned when a customer is active and their default group has `show_prices=1`.
 - When prices are not allowed, price fields are set to `null`.
 - Product image URLs are constructed using the selected shop domain.
+- `/auth/register` creates customers with `PENDING_WHOLESALE_APPROVAL` status (inactive or in a pending group).

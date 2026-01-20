@@ -1,4 +1,4 @@
-import { XMLParser } from "fast-xml-parser";
+import { XMLBuilder, XMLParser } from "fast-xml-parser";
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -7,6 +7,15 @@ const parser = new XMLParser({
   allowBooleanAttributes: true
 });
 
+const builder = new XMLBuilder({
+  ignoreAttributes: false,
+  attributeNamePrefix: ""
+});
+
 export const parseXmlToJson = (xml: string): unknown => {
   return parser.parse(xml);
+};
+
+export const buildXmlFromJson = (payload: unknown): string => {
+  return builder.build(payload);
 };
