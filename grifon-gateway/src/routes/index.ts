@@ -1,12 +1,14 @@
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import { config, shops } from "../config/env";
-import { validateQuery, validateParams } from "../middleware/validate";
+import { validateQuery, validateParams, validateBody } from "../middleware/validate";
 import {
   categoryIdSchema,
   customerIdSchema,
   paginationSchema,
   productIdSchema,
   productPaginationSchema,
+  registerBodySchema,
   shopQuerySchema
 } from "./schemas";
 import { PrestaShopClient } from "../clients/PrestaShopClient";
@@ -16,8 +18,16 @@ import { listProductsByCategory, getProductDetail } from "../services/productSer
 import { listGroupsWithMembers } from "../services/groupService";
 import { cache, buildCacheKey } from "../utils/cache";
 import { getPriceAccess } from "../services/priceAccessService";
+import { registerCustomer } from "../services/authService";
 
 export const apiRouter = Router();
+
+const registerRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: config.registerRateLimitPerMin,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 apiRouter.get("/health", (_req, res) => {
   res.json({ ok: true });
@@ -26,6 +36,29 @@ apiRouter.get("/health", (_req, res) => {
 apiRouter.get("/v1/shops", (_req, res) => {
   res.json(shops);
 });
+
+apiRouter.post(
+  "/auth/register",
+  registerRateLimiter,
+  validateBody(registerBodySchema),
+  async (req, res, next) => {
+    try {
+      const { email, password, firstName, lastName, countryIso, phone, company } = req.body as any;
+      const response = await registerCustomer({
+        email,
+        password,
+        firstName,
+        lastName,
+        countryIso,
+        phone,
+        company
+      });
+      res.status(201).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 apiRouter.get(
   "/v1/categories",

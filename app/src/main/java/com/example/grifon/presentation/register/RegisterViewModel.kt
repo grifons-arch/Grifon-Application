@@ -1,12 +1,19 @@
-package com.example.grifon
+package com.example.grifon.presentation.register
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.grifon.domain.auth.RegisterOutcome
+import com.example.grifon.domain.auth.RegisterParams
+import com.example.grifon.domain.auth.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class RegisterViewModel : ViewModel() {
+class RegisterViewModel(
+    private val registerUseCase: RegisterUseCase,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState
 
@@ -50,10 +57,11 @@ class RegisterViewModel : ViewModel() {
         _uiState.update { it.copy(city = value) }
     }
 
-    fun onCountryChange(value: String) {
+    fun onCountryChange(name: String, iso: String) {
         _uiState.update {
             it.copy(
-                country = value,
+                countryName = name,
+                countryIso = iso,
                 city = "",
                 address = "",
             )
@@ -85,7 +93,33 @@ class RegisterViewModel : ViewModel() {
     }
 
     fun onSubmit() {
-        // TODO: Hook into registration API.
+        val currentState = _uiState.value
+        if (!currentState.isSubmitEnabled) return
+
+        _uiState.update { it.copy(status = RegisterStatus.Loading) }
+        viewModelScope.launch {
+            val result = registerUseCase(
+                RegisterParams(
+                    email = currentState.email.trim(),
+                    password = currentState.password,
+                    firstName = currentState.firstName.trim(),
+                    lastName = currentState.lastName.trim(),
+                    countryIso = currentState.countryIso.trim().uppercase(),
+                    phone = currentState.phone.trim().ifBlank { null },
+                    company = currentState.companyName.trim().ifBlank { null },
+                ),
+            )
+            _uiState.update {
+                when (result) {
+                    is RegisterOutcome.Success -> it.copy(
+                        status = RegisterStatus.Success(result.result.message),
+                    )
+                    is RegisterOutcome.Error -> it.copy(
+                        status = RegisterStatus.Error(result.message),
+                    )
+                }
+            }
+        }
     }
 
     fun onGoogleAccountReceived(account: GoogleSignInAccount) {

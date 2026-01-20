@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 import { config, ShopId } from "../config/env";
 import { parseXmlToJson } from "../utils/xml";
 
@@ -15,7 +15,10 @@ export class PrestaShopClient {
   constructor(options: PrestaShopClientOptions) {
     this.shopId = options.shopId;
     this.lang = options.lang;
-    const baseURL = config.shopBaseUrls[options.shopId];
+    const baseURL =
+      options.shopId === config.defaultShopId && config.prestashopBaseUrl
+        ? config.prestashopBaseUrl
+        : config.shopBaseUrls[options.shopId];
 
     this.client = axios.create({
       baseURL,
@@ -37,10 +40,23 @@ export class PrestaShopClient {
     return response;
   }
 
-  private async request(
-    method: "get",
-    url: string,
+  async postXml(
+    resource: string,
+    xmlBody: string,
     params?: Record<string, string | number>
+  ): Promise<unknown> {
+    const response = await this.request("post", `/${resource}`, params, xmlBody, {
+      "Content-Type": "application/xml"
+    });
+    return response;
+  }
+
+  private async request(
+    method: "get" | "post",
+    url: string,
+    params?: Record<string, string | number>,
+    data?: unknown,
+    headers?: Record<string, string>
   ): Promise<unknown> {
     const queryParams: Record<string, string | number> = {
       output_format: "JSON",
@@ -52,7 +68,7 @@ export class PrestaShopClient {
       queryParams["language"] = this.lang;
     }
 
-    const maxAttempts = 3;
+    const maxAttempts = method === "get" ? 3 : 1;
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -60,7 +76,9 @@ export class PrestaShopClient {
         const response: AxiosResponse = await this.client.request({
           method,
           url,
-          params: queryParams
+          params: queryParams,
+          data,
+          headers
         });
         if (typeof response.data === "string") {
           return parseXmlToJson(response.data);
@@ -68,7 +86,26 @@ export class PrestaShopClient {
         return response.data;
       } catch (error) {
         lastError = error;
+        const axiosError = error as AxiosError;
+        if (axiosError.response) {
+          const responseData = axiosError.response.data;
+          const parsed =
+            typeof responseData === "string" ? parseXmlToJson(responseData) : responseData;
+          const message =
+            (parsed as any)?.prestashop?.errors?.error?.message ??
+            (parsed as any)?.prestashop?.errors?.error?.[0]?.message ??
+            axiosError.message;
+          throw {
+            status: axiosError.response.status,
+            code: "PRESTASHOP_ERROR",
+            message,
+            details: parsed
+          };
+        }
         if (attempt === maxAttempts) {
+          break;
+        }
+        if (method !== "get") {
           break;
         }
         await new Promise((resolve) => setTimeout(resolve, 250 * attempt));

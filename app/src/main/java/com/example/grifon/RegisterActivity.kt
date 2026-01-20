@@ -43,6 +43,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grifon.ui.theme.GrifonTheme
+import com.example.grifon.core.ServiceLocator
+import com.example.grifon.presentation.register.RegisterStatus
+import com.example.grifon.presentation.register.RegisterViewModel
+import com.example.grifon.presentation.register.RegisterViewModelFactory
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -65,7 +69,11 @@ class RegisterActivity : ComponentActivity() {
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
+private fun RegisterScreen(
+    registerViewModel: RegisterViewModel = viewModel(
+        factory = RegisterViewModelFactory(ServiceLocator.provideRegisterUseCase()),
+    ),
+) {
     val state by registerViewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     val context = LocalContext.current
@@ -183,7 +191,7 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
                 onExpandedChange = { countryExpanded = !countryExpanded },
             ) {
                 OutlinedTextField(
-                    value = state.country,
+                    value = state.countryName,
                     onValueChange = {},
                     label = { Text(text = "Χώρα") },
                     readOnly = true,
@@ -202,9 +210,9 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
                 ) {
                     countryOptions.forEach { country ->
                         androidx.compose.material3.DropdownMenuItem(
-                            text = { Text(country) },
+                            text = { Text(country.displayName) },
                             onClick = {
-                                registerViewModel.onCountryChange(country)
+                                registerViewModel.onCountryChange(country.displayName, country.isoCode)
                                 countryExpanded = false
                             },
                         )
@@ -225,12 +233,12 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth(),
-                    enabled = state.country.isNotBlank(),
+                    enabled = state.countryName.isNotBlank(),
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = cityExpanded)
                     },
                     supportingText = {
-                        if (state.country.isBlank()) {
+                        if (state.countryName.isBlank()) {
                             Text(text = "Επιλέξτε πρώτα χώρα.")
                         }
                     },
@@ -264,13 +272,13 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth(),
-                    enabled = state.country.isNotBlank() && state.city.isNotBlank(),
+                    enabled = state.countryName.isNotBlank() && state.city.isNotBlank(),
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = addressExpanded)
                     },
                     supportingText = {
                         when {
-                            state.country.isBlank() -> Text(text = "Επιλέξτε πρώτα χώρα.")
+                            state.countryName.isBlank() -> Text(text = "Επιλέξτε πρώτα χώρα.")
                             state.city.isBlank() -> Text(text = "Συμπληρώστε πρώτα πόλη.")
                         }
                     },
@@ -366,6 +374,29 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
             ) {
                 Text(text = "Υποβολή αίτησης")
             }
+            when (val status = state.status) {
+                is RegisterStatus.Loading -> {
+                    Text(
+                        text = "Η αίτηση αποστέλλεται...",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                is RegisterStatus.Success -> {
+                    Text(
+                        text = status.message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                is RegisterStatus.Error -> {
+                    Text(
+                        text = status.message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                RegisterStatus.Idle -> Unit
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
             Text(
@@ -377,9 +408,9 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
         }
     }
 
-    LaunchedEffect(state.address, state.city, state.country) {
+    LaunchedEffect(state.address, state.city, state.countryName) {
         val query = state.address.trim()
-        if (query.length < 3 || state.country.isBlank() || state.city.isBlank()) {
+        if (query.length < 3 || state.countryName.isBlank() || state.city.isBlank()) {
             addressSuggestions = emptyList()
             return@LaunchedEffect
         }
@@ -388,13 +419,13 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
             geocoder = geocoder,
             query = query,
             city = state.city,
-            country = state.country,
+            country = state.countryName,
         )
     }
 
-    LaunchedEffect(state.city, state.country) {
+    LaunchedEffect(state.city, state.countryName) {
         val query = state.city.trim()
-        if (query.length < 2 || state.country.isBlank()) {
+        if (query.length < 2 || state.countryName.isBlank()) {
             citySuggestions = emptyList()
             return@LaunchedEffect
         }
@@ -402,11 +433,11 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
         citySuggestions = lookupCitySuggestions(
             geocoder = geocoder,
             query = query,
-            country = state.country,
+            country = state.countryName,
         )
     }
 
-    LaunchedEffect(state.country) {
+    LaunchedEffect(state.countryName) {
         cityExpanded = false
         addressExpanded = false
         citySuggestions = emptyList()
@@ -422,13 +453,23 @@ private fun SectionTitle(title: String) {
     )
 }
 
-private fun countryOptions(): List<String> {
+private data class CountryOption(
+    val displayName: String,
+    val isoCode: String,
+)
+
+private fun countryOptions(): List<CountryOption> {
     val locale = Locale("el")
     return Locale.getISOCountries()
-        .map { Locale("", it).getDisplayCountry(locale) }
-        .filter { it.isNotBlank() }
-        .distinct()
-        .sorted()
+        .map { iso ->
+            CountryOption(
+                displayName = Locale("", iso).getDisplayCountry(locale),
+                isoCode = iso,
+            )
+        }
+        .filter { it.displayName.isNotBlank() }
+        .distinctBy { it.isoCode }
+        .sortedBy { it.displayName }
 }
 
 private suspend fun lookupAddressSuggestions(

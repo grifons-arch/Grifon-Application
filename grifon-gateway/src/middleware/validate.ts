@@ -34,3 +34,20 @@ export const validateParams = <T>(schema: ZodSchema<T>) => {
     next();
   };
 };
+
+export const validateBody = <T>(schema: ZodSchema<T>) => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      next({
+        status: 400,
+        code: "VALIDATION_ERROR",
+        message: "Invalid request body",
+        details: result.error.flatten()
+      });
+      return;
+    }
+    req.body = result.data as Record<string, unknown>;
+    next();
+  };
+};
