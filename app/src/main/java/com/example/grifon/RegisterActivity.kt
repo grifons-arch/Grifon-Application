@@ -46,7 +46,9 @@ import com.example.grifon.ui.theme.GrifonTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class RegisterActivity : ComponentActivity() {
@@ -67,8 +69,11 @@ private fun RegisterScreen(registerViewModel: RegisterViewModel = viewModel()) {
     val state by registerViewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     val context = LocalContext.current
+    val geocoder = remember { Geocoder(context, Locale.getDefault()) }
     val countryOptions = remember { countryOptions() }
     var countryExpanded by remember { mutableStateOf(false) }
+    var addressSuggestions by remember { mutableStateOf(emptyList<String>()) }
+    var citySuggestions by remember { mutableStateOf(emptyList<String>()) }
     val signInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
@@ -360,4 +365,30 @@ private fun countryOptions(): List<String> {
         .filter { it.isNotBlank() }
         .distinct()
         .sorted()
+}
+
+private suspend fun lookupAddressSuggestions(
+    geocoder: Geocoder,
+    query: String,
+    country: String,
+): List<String> = withContext(Dispatchers.IO) {
+    runCatching {
+        geocoder.getFromLocationName("$query, $country", 5)
+            ?.mapNotNull { address -> address.getAddressLine(0) }
+            ?.distinct()
+            .orEmpty()
+    }.getOrDefault(emptyList())
+}
+
+private suspend fun lookupCitySuggestions(
+    geocoder: Geocoder,
+    query: String,
+    country: String,
+): List<String> = withContext(Dispatchers.IO) {
+    runCatching {
+        geocoder.getFromLocationName("$query, $country", 5)
+            ?.mapNotNull { address -> address.locality ?: address.subAdminArea }
+            ?.distinct()
+            .orEmpty()
+    }.getOrDefault(emptyList())
 }
