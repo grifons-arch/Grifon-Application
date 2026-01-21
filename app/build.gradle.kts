@@ -30,7 +30,7 @@ android {
         create("se") {
             dimension = "shop"
             val apiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
-                ?: "https://your-se-gateway-domain/"
+                ?: "https://grifon.se/api/"
             buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
             buildConfigField("String", "SHOP_ID", "\"1\"")
         }
