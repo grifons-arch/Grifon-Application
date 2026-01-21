@@ -25,12 +25,14 @@ android {
             val apiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
                 ?: "https://your-gr-gateway-domain/"
             buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+            buildConfigField("String", "SHOP_ID", "\"4\"")
         }
         create("se") {
             dimension = "shop"
             val apiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
                 ?: "https://your-se-gateway-domain/"
             buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+            buildConfigField("String", "SHOP_ID", "\"1\"")
         }
     }
 
