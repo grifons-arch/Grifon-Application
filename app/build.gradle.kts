@@ -16,7 +16,24 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:3000/\"")
+    }
+
+    flavorDimensions += "shop"
+    productFlavors {
+        create("gr") {
+            dimension = "shop"
+            val apiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
+                ?: "https://your-gr-gateway-domain/"
+            buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+            buildConfigField("String", "SHOP_ID", "\"4\"")
+        }
+        create("se") {
+            dimension = "shop"
+            val apiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
+                ?: "https://grifon.se/api/"
+            buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+            buildConfigField("String", "SHOP_ID", "\"1\"")
+        }
     }
 
     buildTypes {
