@@ -46,6 +46,7 @@ class RegisterRepositoryImpl(
     private fun mapHttpError(code: Int): String {
         return when (code) {
             400 -> "Ελέγξτε τα στοιχεία που συμπληρώσατε."
+            401 -> "Δεν επιτρέπεται η εγγραφή με αυτά τα στοιχεία."
             409 -> "Το email χρησιμοποιείται ήδη."
             else -> "Η εγγραφή απέτυχε. Δοκιμάστε ξανά."
         }
