@@ -70,11 +70,11 @@ androidComponents {
             "se" -> seApiBaseUrl to "1"
             else -> grApiBaseUrl to "4"
         }
-        variant.buildConfigFields.put(
+        variant.buildConfigFields?.put(
             "API_BASE_URL",
             BuildConfigField("String", "\"$apiBaseUrl\"", "Gateway base URL"),
         )
-        variant.buildConfigFields.put(
+        variant.buildConfigFields?.put(
             "SHOP_ID",
             BuildConfigField("String", "\"$shopId\"", "Gateway shop identifier"),
         )
