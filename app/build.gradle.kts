@@ -14,7 +14,7 @@ val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
     ?: "https://grifon.se/api/"
 
 android {
-    namespace = "com.grifon.eshop"
+    namespace = "com.example.grifon"
     compileSdk = 34
 
 
