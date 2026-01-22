@@ -1,3 +1,5 @@
+import com.android.build.api.variant.BuildConfigField
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -10,13 +12,27 @@ android {
     namespace = "com.example.grifon"
     compileSdk = 34
 
+    val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
+        ?: "https://grifon.gr/api/"
+    val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
+        ?: "https://grifon.se/api/"
+
     defaultConfig {
         applicationId = "com.example.grifon"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:3000/\"")
+    }
+
+    flavorDimensions += "shop"
+    productFlavors {
+        create("gr") {
+            dimension = "shop"
+        }
+        create("se") {
+            dimension = "shop"
+        }
     }
 
     buildTypes {
@@ -39,6 +55,24 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        val (apiBaseUrl, shopId) = when (variant.flavorName) {
+            "gr" -> grApiBaseUrl to "4"
+            "se" -> seApiBaseUrl to "1"
+            else -> grApiBaseUrl to "4"
+        }
+        variant.buildConfigFields.put(
+            "API_BASE_URL",
+            BuildConfigField("String", "\"$apiBaseUrl\"", "Gateway base URL"),
+        )
+        variant.buildConfigFields.put(
+            "SHOP_ID",
+            BuildConfigField("String", "\"$shopId\"", "Gateway shop identifier"),
+        )
     }
 }
 
