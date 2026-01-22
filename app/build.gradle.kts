@@ -14,16 +14,13 @@ val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
     ?: "https://grifon.se/api/"
 
 android {
-    namespace = "com.example.grifon"
+    namespace = "com.grifon.eshop"
     compileSdk = 34
 
-    val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
-        ?: "https://grifon.gr/api/"
-    val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
-        ?: "https://grifon.se/api/"
+
 
     defaultConfig {
-        applicationId = "com.example.grifon"
+        applicationId = "com.grifon.eshop"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
