@@ -1,3 +1,5 @@
+import com.android.build.api.variant.BuildConfigField
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,6 +11,11 @@ plugins {
 android {
     namespace = "com.example.grifon"
     compileSdk = 34
+
+    val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
+        ?: "https://grifon.gr/api/"
+    val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
+        ?: "https://grifon.se/api/"
 
     defaultConfig {
         applicationId = "com.example.grifon"
@@ -22,17 +29,9 @@ android {
     productFlavors {
         create("gr") {
             dimension = "shop"
-            val apiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
-                ?: "https://your-gr-gateway-domain/"
-            buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
-            buildConfigField("String", "SHOP_ID", "\"4\"")
         }
         create("se") {
             dimension = "shop"
-            val apiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
-                ?: "https://grifon.se/api/"
-            buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
-            buildConfigField("String", "SHOP_ID", "\"1\"")
         }
     }
 
@@ -56,6 +55,24 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        val (apiBaseUrl, shopId) = when (variant.flavorName) {
+            "gr" -> grApiBaseUrl to "4"
+            "se" -> seApiBaseUrl to "1"
+            else -> grApiBaseUrl to "4"
+        }
+        variant.buildConfigFields.put(
+            "API_BASE_URL",
+            BuildConfigField("String", "\"$apiBaseUrl\"", "Gateway base URL"),
+        )
+        variant.buildConfigFields.put(
+            "SHOP_ID",
+            BuildConfigField("String", "\"$shopId\"", "Gateway shop identifier"),
+        )
     }
 }
 
