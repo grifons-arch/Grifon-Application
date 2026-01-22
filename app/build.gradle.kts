@@ -8,6 +8,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
+    ?: "https://grifon.gr/api/"
+val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
+    ?: "https://grifon.se/api/"
+
 android {
     namespace = "com.example.grifon"
     compileSdk = 34
