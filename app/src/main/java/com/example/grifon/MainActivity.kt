@@ -199,7 +199,7 @@ private fun TopBarCollapsibleLine(scrollBehavior: androidx.compose.material3.Top
                 modifier = Modifier.offset(y = (-10).dp),
             ) {
                 Image(
-                    painter = painterResource(R.drawable.grifon_logo),
+                    painter = painterResource(R.drawable.logo),
                     contentDescription = "Grifon logo",
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.height(32.dp),
