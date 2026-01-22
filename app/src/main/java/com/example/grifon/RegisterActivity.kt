@@ -4,8 +4,6 @@ import android.location.Geocoder
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +21,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,9 +44,6 @@ import com.example.grifon.core.ServiceLocator
 import com.example.grifon.presentation.register.RegisterStatus
 import com.example.grifon.presentation.register.RegisterViewModel
 import com.example.grifon.presentation.register.RegisterViewModelFactory
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -84,23 +78,10 @@ private fun RegisterScreen(
     var addressExpanded by remember { mutableStateOf(false) }
     var addressSuggestions by remember { mutableStateOf(emptyList<String>()) }
     var citySuggestions by remember { mutableStateOf(emptyList<String>()) }
-    val signInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            registerViewModel.onGoogleAccountReceived(task.getResult(ApiException::class.java))
-        } catch (exception: ApiException) {
-            registerViewModel.onGoogleAccountError(
-                "Η σύνδεση με Google απέτυχε. Δοκιμάστε ξανά.",
-            )
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Δημιουργία λογαριασμού") },
+                title = { Text(text = "Εγγραφή") },
             )
         },
     ) { paddingValues ->
@@ -113,49 +94,24 @@ private fun RegisterScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                text = "Συμπληρώστε τα παρακάτω στοιχεία για να υποβάλετε αίτηση εγγραφής.",
+                text = "Συμπληρώστε την παρακάτω φόρμα για να ολοκληρώσετε την αίτηση εγγραφής.",
                 style = MaterialTheme.typography.bodyMedium,
             )
-            OutlinedButton(
-                onClick = {
-                    val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestEmail()
-                        .build()
-                    val client = GoogleSignIn.getClient(context, options)
-                    signInLauncher.launch(client.signInIntent)
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = "Συνέχεια με Google")
-            }
-            state.googleAccountEmail?.let { email ->
-                Text(
-                    text = "Συνδεθήκατε ως $email.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            state.googleSignInError?.let { error ->
-                Text(
-                    text = error,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
             Text(
-                text = "Εναλλακτικά, μπορείτε να δημιουργήσετε λογαριασμό με τα στοιχεία σας.",
+                text = "Τα πεδία με * είναι υποχρεωτικά.",
                 style = MaterialTheme.typography.bodySmall,
             )
-            SectionTitle(title = "Προσωπικά στοιχεία")
+            SectionTitle(title = "Στοιχεία πελάτη")
             OutlinedTextField(
                 value = state.firstName,
                 onValueChange = registerViewModel::onFirstNameChange,
-                label = { Text(text = "Όνομα") },
+                label = { Text(text = "Όνομα *") },
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = state.lastName,
                 onValueChange = registerViewModel::onLastNameChange,
-                label = { Text(text = "Επώνυμο") },
+                label = { Text(text = "Επώνυμο *") },
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
@@ -193,7 +149,7 @@ private fun RegisterScreen(
                 OutlinedTextField(
                     value = state.countryName,
                     onValueChange = {},
-                    label = { Text(text = "Χώρα") },
+                    label = { Text(text = "Χώρα *") },
                     readOnly = true,
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(
@@ -229,7 +185,7 @@ private fun RegisterScreen(
                         registerViewModel.onCityChange(it)
                         cityExpanded = true
                     },
-                    label = { Text(text = "Πόλη") },
+                    label = { Text(text = "Πόλη *") },
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth(),
@@ -309,25 +265,25 @@ private fun RegisterScreen(
             OutlinedTextField(
                 value = state.email,
                 onValueChange = registerViewModel::onEmailChange,
-                label = { Text(text = "Email") },
+                label = { Text(text = "Email *") },
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = state.confirmEmail,
                 onValueChange = registerViewModel::onConfirmEmailChange,
-                label = { Text(text = "Επιβεβαίωση email") },
+                label = { Text(text = "Επιβεβαίωση email *") },
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = state.password,
                 onValueChange = registerViewModel::onPasswordChange,
-                label = { Text(text = "Κωδικός") },
+                label = { Text(text = "Κωδικός *") },
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = state.confirmPassword,
                 onValueChange = registerViewModel::onConfirmPasswordChange,
-                label = { Text(text = "Επιβεβαίωση κωδικού") },
+                label = { Text(text = "Επιβεβαίωση κωδικού *") },
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -348,7 +304,7 @@ private fun RegisterScreen(
                     onCheckedChange = registerViewModel::onAcceptTermsChange,
                 )
                 Text(
-                    text = "Αποδέχομαι τους όρους χρήσης.",
+                    text = "Συμφωνώ με τους όρους χρήσης και την πολιτική απορρήτου.",
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
