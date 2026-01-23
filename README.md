@@ -1,13 +1,21 @@
 # Grifon Eshop
 
-Σύντομη περίληψη των μέχρι τώρα εργασιών για το project Grifon eShop.
+Συνοπτική καταγραφή των μέχρι τώρα εργασιών για το project **Grifon eShop**, με τα βασικά κομμάτια που έχουν ήδη υλοποιηθεί.
 
 ## Τι έχουμε υλοποιήσει μέχρι τώρα
 
-- **Android εφαρμογή (module `app`)**: βασική δομή του client για περιήγηση στο e-shop και σύνδεση με το gateway.
-- **Backend proxy (`backend/`)**: REST API που μεσολαβεί στο PrestaShop Webservice, με endpoints για κατηγορίες, προϊόντα, αναζήτηση και stock.
-- **Gateway υπηρεσία (`grifon-gateway/`)**: ασφαλές proxy για PrestaShop multishop με φιλτραρισμένα endpoints, έλεγχο τιμών ανά πελάτη και μηχανισμούς ασφάλειας.
-- **Ροή εγγραφής**: διαθέσιμο παράδειγμα `curl` για register και οδηγίες σύνδεσης του Android client με το gateway.
+- **Android εφαρμογή (module `app`)**
+  - Βασική δομή client για περιήγηση στο e‑shop.
+  - Σύνδεση με το gateway και ροή εγγραφής χρήστη.
+- **Backend proxy (`backend/`)**
+  - REST API που μεσολαβεί στο PrestaShop Webservice.
+  - Endpoints για κατηγορίες, προϊόντα, αναζήτηση και stock.
+- **Gateway υπηρεσία (`grifon-gateway/`)**
+  - Ασφαλές proxy για PrestaShop multishop.
+  - Φιλτραρισμένα endpoints, έλεγχος τιμών ανά πελάτη και μηχανισμοί ασφάλειας.
+- **Ροή εγγραφής**
+  - Παράδειγμα `curl` για register.
+  - Οδηγίες σύνδεσης του Android client με το gateway.
 
 ## Δομή αποθετηρίου
 
@@ -17,11 +25,11 @@
 
 ## Τεκμηρίωση
 
-Για αναλυτικές οδηγίες εκκίνησης και endpoints, δείτε τα README στα επιμέρους directories:
+Για αναλυτικές οδηγίες εκκίνησης, ρυθμίσεις και endpoints, δείτε τα README στα επιμέρους directories:
 - `backend/README.md`
 - `grifon-gateway/README.md`
 
-## How to test
+## Πώς να δοκιμάσεις
 
 ### Gateway (register)
 
