@@ -1,24 +1,17 @@
 package com.example.grifon.presentation.register
 
 data class RegisterUiState(
+    val socialTitle: String = "",
     val firstName: String = "",
     val lastName: String = "",
-    val phone: String = "",
     val email: String = "",
-    val confirmEmail: String = "",
     val companyName: String = "",
     val vatNumber: String = "",
-    val taxOffice: String = "",
-    val address: String = "",
-    val city: String = "",
-    val countryName: String = "",
-    val countryIso: String = "",
-    val postalCode: String = "",
+    val countryIso: String = "GR",
     val password: String = "",
-    val confirmPassword: String = "",
-    val notes: String = "",
+    val acceptPrivacy: Boolean = false,
     val acceptTerms: Boolean = false,
-    val subscribeNewsletter: Boolean = false,
+    val subscribeNewsletter: Boolean = true,
     val googleDisplayName: String? = null,
     val googleAccountEmail: String? = null,
     val googleSignInError: String? = null,
@@ -29,12 +22,8 @@ data class RegisterUiState(
             firstName.isNotBlank() &&
             lastName.isNotBlank() &&
             email.isNotBlank() &&
-            confirmEmail.isNotBlank() &&
-            email == confirmEmail &&
             password.isNotBlank() &&
-            confirmPassword.isNotBlank() &&
-            password == confirmPassword &&
-            countryIso.isNotBlank() &&
+            acceptPrivacy &&
             acceptTerms
 }
 

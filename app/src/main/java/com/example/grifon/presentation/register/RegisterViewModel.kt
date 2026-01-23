@@ -17,6 +17,10 @@ class RegisterViewModel(
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState
 
+    fun onSocialTitleChange(value: String) {
+        _uiState.update { it.copy(socialTitle = value) }
+    }
+
     fun onFirstNameChange(value: String) {
         _uiState.update { it.copy(firstName = value) }
     }
@@ -29,14 +33,6 @@ class RegisterViewModel(
         _uiState.update { it.copy(email = value) }
     }
 
-    fun onConfirmEmailChange(value: String) {
-        _uiState.update { it.copy(confirmEmail = value) }
-    }
-
-    fun onPhoneChange(value: String) {
-        _uiState.update { it.copy(phone = value) }
-    }
-
     fun onCompanyNameChange(value: String) {
         _uiState.update { it.copy(companyName = value) }
     }
@@ -45,47 +41,16 @@ class RegisterViewModel(
         _uiState.update { it.copy(vatNumber = value) }
     }
 
-    fun onTaxOfficeChange(value: String) {
-        _uiState.update { it.copy(taxOffice = value) }
-    }
-
-    fun onAddressChange(value: String) {
-        _uiState.update { it.copy(address = value) }
-    }
-
-    fun onCityChange(value: String) {
-        _uiState.update { it.copy(city = value) }
-    }
-
-    fun onCountryChange(name: String, iso: String) {
-        _uiState.update {
-            it.copy(
-                countryName = name,
-                countryIso = iso,
-                city = "",
-                address = "",
-            )
-        }
-    }
-
-    fun onPostalCodeChange(value: String) {
-        _uiState.update { it.copy(postalCode = value) }
-    }
-
     fun onPasswordChange(value: String) {
         _uiState.update { it.copy(password = value) }
     }
 
-    fun onConfirmPasswordChange(value: String) {
-        _uiState.update { it.copy(confirmPassword = value) }
-    }
-
-    fun onNotesChange(value: String) {
-        _uiState.update { it.copy(notes = value) }
-    }
-
     fun onAcceptTermsChange(value: Boolean) {
         _uiState.update { it.copy(acceptTerms = value) }
+    }
+
+    fun onAcceptPrivacyChange(value: Boolean) {
+        _uiState.update { it.copy(acceptPrivacy = value) }
     }
 
     fun onSubscribeNewsletterChange(value: Boolean) {
@@ -105,7 +70,6 @@ class RegisterViewModel(
                     firstName = currentState.firstName.trim(),
                     lastName = currentState.lastName.trim(),
                     countryIso = currentState.countryIso.trim().uppercase(),
-                    phone = currentState.phone.trim().ifBlank { null },
                     company = currentState.companyName.trim().ifBlank { null },
                 ),
             )
