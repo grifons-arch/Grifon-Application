@@ -28,12 +28,15 @@ class RegisterViewModelTest {
 
         viewModel.onFirstNameChange("Test")
         viewModel.onLastNameChange("User")
+        viewModel.onPhoneChange("2100000000")
+        viewModel.onCountryChange("Ελλάδα")
+        viewModel.onCityChange("Αθήνα")
+        viewModel.onStreetChange("Οδός 1")
+        viewModel.onPostalCodeChange("10435")
         viewModel.onEmailChange("test@example.com")
-        viewModel.onConfirmEmailChange("test@example.com")
+        viewModel.onEmailConfirmationChange("test@example.com")
         viewModel.onPasswordChange("secret123")
-        viewModel.onConfirmPasswordChange("secret123")
-        viewModel.onCountryChange("Ελλάδα", "GR")
-        viewModel.onAcceptTermsChange(true)
+        viewModel.onPasswordConfirmationChange("secret123")
 
         viewModel.onSubmit()
 
@@ -62,12 +65,15 @@ class RegisterViewModelTest {
 
         viewModel.onFirstNameChange("Test")
         viewModel.onLastNameChange("User")
+        viewModel.onPhoneChange("2100000000")
+        viewModel.onCountryChange("Ελλάδα")
+        viewModel.onCityChange("Αθήνα")
+        viewModel.onStreetChange("Οδός 1")
+        viewModel.onPostalCodeChange("10435")
         viewModel.onEmailChange("test@example.com")
-        viewModel.onConfirmEmailChange("test@example.com")
+        viewModel.onEmailConfirmationChange("test@example.com")
         viewModel.onPasswordChange("secret123")
-        viewModel.onConfirmPasswordChange("secret123")
-        viewModel.onCountryChange("Ελλάδα", "GR")
-        viewModel.onAcceptTermsChange(true)
+        viewModel.onPasswordConfirmationChange("secret123")
 
         viewModel.onSubmit()
 

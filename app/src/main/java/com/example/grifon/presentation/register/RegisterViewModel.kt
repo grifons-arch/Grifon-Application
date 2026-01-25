@@ -29,8 +29,20 @@ class RegisterViewModel(
         _uiState.update { it.copy(lastName = value) }
     }
 
+    fun onPhoneChange(value: String) {
+        _uiState.update { it.copy(phone = value) }
+    }
+
+    fun onIbanChange(value: String) {
+        _uiState.update { it.copy(iban = value) }
+    }
+
     fun onEmailChange(value: String) {
         _uiState.update { it.copy(email = value) }
+    }
+
+    fun onEmailConfirmationChange(value: String) {
+        _uiState.update { it.copy(emailConfirmation = value) }
     }
 
     fun onCompanyNameChange(value: String) {
@@ -41,20 +53,28 @@ class RegisterViewModel(
         _uiState.update { it.copy(vatNumber = value) }
     }
 
+    fun onCountryChange(value: String) {
+        _uiState.update { it.copy(country = value) }
+    }
+
+    fun onCityChange(value: String) {
+        _uiState.update { it.copy(city = value) }
+    }
+
+    fun onStreetChange(value: String) {
+        _uiState.update { it.copy(street = value) }
+    }
+
+    fun onPostalCodeChange(value: String) {
+        _uiState.update { it.copy(postalCode = value) }
+    }
+
     fun onPasswordChange(value: String) {
         _uiState.update { it.copy(password = value) }
     }
 
-    fun onAcceptTermsChange(value: Boolean) {
-        _uiState.update { it.copy(acceptTerms = value) }
-    }
-
-    fun onAcceptPrivacyChange(value: Boolean) {
-        _uiState.update { it.copy(acceptPrivacy = value) }
-    }
-
-    fun onSubscribeNewsletterChange(value: Boolean) {
-        _uiState.update { it.copy(subscribeNewsletter = value) }
+    fun onPasswordConfirmationChange(value: String) {
+        _uiState.update { it.copy(passwordConfirmation = value) }
     }
 
     fun onSubmit() {
@@ -69,7 +89,8 @@ class RegisterViewModel(
                     password = currentState.password,
                     firstName = currentState.firstName.trim(),
                     lastName = currentState.lastName.trim(),
-                    countryIso = currentState.countryIso.trim().uppercase(),
+                    countryIso = currentState.country.trim().uppercase(),
+                    phone = currentState.phone.trim().ifBlank { null },
                     company = currentState.companyName.trim().ifBlank { null },
                 ),
             )
@@ -102,6 +123,7 @@ class RegisterViewModel(
                 firstName = firstName.ifBlank { it.firstName },
                 lastName = lastName.ifBlank { it.lastName },
                 email = if (email.isNotBlank()) email else it.email,
+                emailConfirmation = if (email.isNotBlank()) email else it.emailConfirmation,
             )
         }
     }
