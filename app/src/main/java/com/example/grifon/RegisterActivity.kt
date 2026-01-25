@@ -278,7 +278,9 @@ private fun RegistrationTextField(
             null
         },
         colors = TextFieldDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
             focusedIndicatorColor = MaterialTheme.colorScheme.surfaceVariant,
             unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceVariant,
             disabledIndicatorColor = MaterialTheme.colorScheme.surfaceVariant,
