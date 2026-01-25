@@ -4,14 +4,18 @@ data class RegisterUiState(
     val socialTitle: String = "",
     val firstName: String = "",
     val lastName: String = "",
+    val phone: String = "",
+    val iban: String = "",
     val email: String = "",
+    val emailConfirmation: String = "",
     val companyName: String = "",
     val vatNumber: String = "",
-    val countryIso: String = "GR",
+    val country: String = "",
+    val city: String = "",
+    val street: String = "",
+    val postalCode: String = "",
     val password: String = "",
-    val acceptPrivacy: Boolean = false,
-    val acceptTerms: Boolean = false,
-    val subscribeNewsletter: Boolean = true,
+    val passwordConfirmation: String = "",
     val googleDisplayName: String? = null,
     val googleAccountEmail: String? = null,
     val googleSignInError: String? = null,
@@ -21,10 +25,15 @@ data class RegisterUiState(
         get() = status !is RegisterStatus.Loading &&
             firstName.isNotBlank() &&
             lastName.isNotBlank() &&
+            phone.isNotBlank() &&
+            country.isNotBlank() &&
+            city.isNotBlank() &&
+            street.isNotBlank() &&
+            postalCode.isNotBlank() &&
             email.isNotBlank() &&
+            email == emailConfirmation &&
             password.isNotBlank() &&
-            acceptPrivacy &&
-            acceptTerms
+            password == passwordConfirmation
 }
 
 sealed interface RegisterStatus {
