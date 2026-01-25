@@ -18,11 +18,17 @@ class RegisterRepositoryImpl(
                 RegisterRequestDto(
                     email = params.email,
                     password = params.password,
+                    socialTitle = params.socialTitle,
                     firstName = params.firstName,
                     lastName = params.lastName,
                     countryIso = params.countryIso,
+                    street = params.street,
+                    city = params.city,
+                    postalCode = params.postalCode,
                     phone = params.phone,
                     company = params.company,
+                    newsletter = params.newsletter,
+                    partnerOffers = params.partnerOffers,
                 ),
             )
             RegisterOutcome.Success(

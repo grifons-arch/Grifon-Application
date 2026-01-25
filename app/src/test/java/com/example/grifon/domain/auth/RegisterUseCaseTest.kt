@@ -23,6 +23,9 @@ class RegisterUseCaseTest {
                 firstName = "Test",
                 lastName = "User",
                 countryIso = "GR",
+                street = "Main 1",
+                city = "Athens",
+                postalCode = "10564",
             ),
         )
 
@@ -41,6 +44,9 @@ class RegisterUseCaseTest {
                 firstName = "Test",
                 lastName = "User",
                 countryIso = "GR",
+                street = "Main 1",
+                city = "Athens",
+                postalCode = "10564",
             ),
         )
 
