@@ -53,11 +53,17 @@ curl -X POST http://localhost:3000/auth/register \
   -d '{
     "email": "user@example.com",
     "password": "secret123",
+    "socialTitle": "mr",
     "firstName": "Γιώργος",
     "lastName": "Παπαδόπουλος",
     "countryIso": "GR",
+    "street": "Πανεπιστημίου 1",
+    "city": "Αθήνα",
+    "postalCode": "10564",
     "phone": "+30 2100000000",
-    "company": "Grifon SA"
+    "company": "Grifon SA",
+    "newsletter": true,
+    "partnerOffers": false
   }'
 ```
 

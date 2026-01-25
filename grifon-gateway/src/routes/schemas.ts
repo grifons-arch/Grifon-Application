@@ -6,6 +6,13 @@ const toNumber = (value: unknown) => {
   return Number.isNaN(parsed) ? value : parsed;
 };
 
+const toOptionalString = (value: unknown) => {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  return trimmed === "" ? undefined : trimmed;
+};
+
 export const shopQuerySchema = z.object({
   shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])).default(4),
   lang: z.preprocess(toNumber, z.number().int().positive().optional())
@@ -37,9 +44,15 @@ export const productIdSchema = z.object({
 export const registerBodySchema = z.object({
   email: z.string().trim().email(),
   password: z.string().min(8),
+  socialTitle: z.preprocess(toOptionalString, z.enum(["mr", "mrs"]).optional()),
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1),
   countryIso: z.string().trim().length(2),
+  street: z.string().trim().min(1),
+  city: z.string().trim().min(1),
+  postalCode: z.string().trim().min(1),
   phone: z.string().trim().min(1).optional(),
-  company: z.string().trim().min(1).optional()
+  company: z.string().trim().min(1).optional(),
+  newsletter: z.boolean().optional(),
+  partnerOffers: z.boolean().optional()
 });

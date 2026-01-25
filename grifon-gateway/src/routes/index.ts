@@ -43,15 +43,35 @@ apiRouter.post(
   validateBody(registerBodySchema),
   async (req, res, next) => {
     try {
-      const { email, password, firstName, lastName, countryIso, phone, company } = req.body as any;
-      const response = await registerCustomer({
+      const {
         email,
         password,
+        socialTitle,
         firstName,
         lastName,
         countryIso,
+        street,
+        city,
+        postalCode,
         phone,
-        company
+        company,
+        newsletter,
+        partnerOffers
+      } = req.body as any;
+      const response = await registerCustomer({
+        email,
+        password,
+        socialTitle,
+        firstName,
+        lastName,
+        countryIso,
+        street,
+        city,
+        postalCode,
+        phone,
+        company,
+        newsletter,
+        partnerOffers
       });
       res.status(201).json(response);
     } catch (error) {

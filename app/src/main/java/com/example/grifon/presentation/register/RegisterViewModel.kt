@@ -87,9 +87,13 @@ class RegisterViewModel(
                 RegisterParams(
                     email = currentState.email.trim(),
                     password = currentState.password,
+                    socialTitle = currentState.socialTitle.trim().ifBlank { null },
                     firstName = currentState.firstName.trim(),
                     lastName = currentState.lastName.trim(),
                     countryIso = currentState.country.trim().uppercase(),
+                    street = currentState.street.trim(),
+                    city = currentState.city.trim(),
+                    postalCode = currentState.postalCode.trim(),
                     phone = currentState.phone.trim().ifBlank { null },
                     company = currentState.companyName.trim().ifBlank { null },
                 ),
