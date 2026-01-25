@@ -7,6 +7,7 @@
 - **Android εφαρμογή (module `app`)**
   - Βασική δομή client για περιήγηση στο e‑shop.
   - Σύνδεση με το gateway και ροή εγγραφής χρήστη.
+  - Έκδοση εφαρμογής: **1.1.0**.
 - **Backend proxy (`backend/`)**
   - REST API που μεσολαβεί στο PrestaShop Webservice.
   - Endpoints για κατηγορίες, προϊόντα, αναζήτηση και stock.
