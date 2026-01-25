@@ -14,6 +14,14 @@ class RegisterRepositoryImpl(
 ) : RegisterRepository {
     override suspend fun register(params: RegisterParams): RegisterOutcome {
         return try {
+            Log.d(
+                TAG,
+                "Register request: email=${params.email}, socialTitle=${params.socialTitle}, " +
+                    "firstName=${params.firstName}, lastName=${params.lastName}, countryIso=${params.countryIso}, " +
+                    "street=${params.street}, city=${params.city}, postalCode=${params.postalCode}, " +
+                    "phone=${params.phone}, company=${params.company}, newsletter=${params.newsletter}, " +
+                    "partnerOffers=${params.partnerOffers}",
+            )
             val response = api.register(
                 RegisterRequestDto(
                     email = params.email,
@@ -53,6 +61,7 @@ class RegisterRepositoryImpl(
 
     private fun extractApiErrorMessage(exception: HttpException): String? {
         val errorBody = exception.response()?.errorBody()?.string() ?: return null
+        Log.w(TAG, "Register request error body: $errorBody")
         return try {
             val message = JSONObject(errorBody)
                 .optJSONObject("error")
@@ -60,6 +69,7 @@ class RegisterRepositoryImpl(
                 ?.trim()
             message?.takeIf { it.isNotEmpty() }
         } catch (_: Exception) {
+            Log.w(TAG, "Register request error body was not valid JSON.")
             null
         }
     }
