@@ -7,6 +7,7 @@ import com.example.grifon.domain.auth.RegisterRepository
 import com.example.grifon.domain.auth.RegisterResult
 import retrofit2.HttpException
 import java.io.IOException
+import org.json.JSONObject
 
 class RegisterRepositoryImpl(
     private val api: AuthApi,
@@ -33,13 +34,27 @@ class RegisterRepositoryImpl(
             )
         } catch (exception: HttpException) {
             Log.w(TAG, "Register request failed with HTTP ${exception.code()}.", exception)
-            RegisterOutcome.Error(mapHttpError(exception.code()))
+            val apiMessage = extractApiErrorMessage(exception)
+            RegisterOutcome.Error(apiMessage ?: mapHttpError(exception.code()))
         } catch (exception: IOException) {
             Log.w(TAG, "Register request failed due to network error.", exception)
             RegisterOutcome.Error("Δεν ήταν δυνατή η σύνδεση με τον server. Δοκιμάστε ξανά.")
         } catch (exception: Exception) {
             Log.e(TAG, "Register request failed with unexpected error.", exception)
             RegisterOutcome.Error("Η εγγραφή απέτυχε. Δοκιμάστε ξανά.")
+        }
+    }
+
+    private fun extractApiErrorMessage(exception: HttpException): String? {
+        val errorBody = exception.response()?.errorBody()?.string() ?: return null
+        return try {
+            val message = JSONObject(errorBody)
+                .optJSONObject("error")
+                ?.optString("message")
+                ?.trim()
+            message?.takeIf { it.isNotEmpty() }
+        } catch (_: Exception) {
+            null
         }
     }
 
