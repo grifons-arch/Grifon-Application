@@ -189,24 +189,25 @@ private fun RegisterScreen(
         ConsentOption(
             checked = state.customerDataPrivacyAccepted,
             onCheckedChange = registerViewModel::onCustomerDataPrivacyAcceptedChange,
-            title = "Kunddatasekretess",
-            description = "De personuppgifter du tillhandahåller används för att besvara " +
-                "förfrågningar, bearbeta beställningar eller möjliggöra åtkomst till specifik " +
-                "information. Du har rätt att ändra och radera all personlig information som " +
-                "finns på sidan \"Mitt konto\".",
+            title = "Προστασία δεδομένων πελάτη",
+            description = "Τα προσωπικά δεδομένα που παρέχετε χρησιμοποιούνται για την απάντηση " +
+                "σε αιτήματα, την επεξεργασία παραγγελιών ή την παροχή πρόσβασης σε συγκεκριμένες " +
+                "πληροφορίες. Έχετε το δικαίωμα να αλλάξετε και να διαγράψετε όλα τα προσωπικά " +
+                "σας δεδομένα που βρίσκονται στη σελίδα \"Ο λογαριασμός μου\".",
             required = true,
         )
         ConsentOption(
             checked = state.newsletterOptIn,
             onCheckedChange = registerViewModel::onNewsletterOptInChange,
-            title = "Anmäl dig till vårt nyhetsbrev",
-            description = "Du kan avbryta prenumerationen när som helst. För detta ändamål, " +
-                "vänligen hitta vår kontaktinformation i det rättsliga meddelandet.",
+            title = "Εγγραφείτε στο ενημερωτικό δελτίο μας",
+            description = "Μπορείτε να διακόψετε τη συνδρομή οποιαδήποτε στιγμή. " +
+                "Για αυτόν τον σκοπό, παρακαλούμε βρείτε τα στοιχεία επικοινωνίας μας " +
+                "στην νομική ειδοποίηση.",
         )
         ConsentOption(
             checked = state.termsAndPrivacyAccepted,
             onCheckedChange = registerViewModel::onTermsAndPrivacyAcceptedChange,
-            title = "Jag godkänner villkoren och integritetspolicyn",
+            title = "Αποδέχομαι τους όρους και την πολιτική απορρήτου",
             required = true,
         )
 
