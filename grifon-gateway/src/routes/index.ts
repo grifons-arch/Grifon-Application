@@ -55,7 +55,9 @@ apiRouter.post(
         postalCode,
         phone,
         company,
+        customerDataPrivacyAccepted,
         newsletter,
+        termsAndPrivacyAccepted,
         partnerOffers
       } = req.body as any;
       const response = await registerCustomer({
@@ -70,7 +72,9 @@ apiRouter.post(
         postalCode,
         phone,
         company,
+        customerDataPrivacyAccepted,
         newsletter,
+        termsAndPrivacyAccepted,
         partnerOffers
       });
       res.status(201).json(response);

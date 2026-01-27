@@ -15,7 +15,9 @@ export interface RegisterRequest {
   postalCode: string;
   phone?: string;
   company?: string;
+  customerDataPrivacyAccepted?: boolean;
   newsletter?: boolean;
+  termsAndPrivacyAccepted?: boolean;
   partnerOffers?: boolean;
 }
 
