@@ -12,6 +12,8 @@ val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
     ?: "https://gateway.grifon.gr/"
 val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
     ?: "https://gateway.grifon.se/"
+val debugApiBaseUrl = (project.findProperty("API_BASE_URL_DEBUG") as String?)
+    ?: "http://10.0.2.2:3000/"
 
 android {
     namespace = "com.example.grifon"
@@ -62,10 +64,13 @@ android {
 
 androidComponents {
     onVariants { variant ->
-        val (apiBaseUrl, shopId) = when (variant.flavorName) {
+        var (apiBaseUrl, shopId) = when (variant.flavorName) {
             "gr" -> grApiBaseUrl to "4"
             "se" -> seApiBaseUrl to "1"
             else -> grApiBaseUrl to "4"
+        }
+        if (variant.buildType == "debug") {
+            apiBaseUrl = debugApiBaseUrl
         }
         variant.buildConfigFields?.put(
             "API_BASE_URL",
