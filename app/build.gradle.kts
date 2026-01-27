@@ -9,9 +9,9 @@ plugins {
 }
 
 val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
-    ?: "https://grifon.gr/api/"
+    ?: "https://gateway.grifon.gr/"
 val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
-    ?: "https://grifon.se/api/"
+    ?: "https://gateway.grifon.se/"
 
 android {
     namespace = "com.example.grifon"
