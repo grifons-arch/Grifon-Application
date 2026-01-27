@@ -19,7 +19,8 @@ class RegisterRepositoryImpl(
                     "Register request: email=${params.email}, socialTitle=${params.socialTitle}, " +
                     "firstName=${params.firstName}, lastName=${params.lastName}, countryIso=${params.countryIso}, " +
                     "street=${params.street}, city=${params.city}, postalCode=${params.postalCode}, " +
-                    "phone=${params.phone}, company=${params.company}, " +
+                    "phone=${params.phone}, company=${params.company}, vatNumber=${params.vatNumber}, " +
+                    "iban=${params.iban}, " +
                     "customerDataPrivacyAccepted=${params.customerDataPrivacyAccepted}, " +
                     "newsletter=${params.newsletter}, termsAndPrivacyAccepted=${params.termsAndPrivacyAccepted}, " +
                     "partnerOffers=${params.partnerOffers}",
@@ -37,6 +38,8 @@ class RegisterRepositoryImpl(
                     postalCode = params.postalCode,
                     phone = params.phone,
                     company = params.company,
+                    vatNumber = params.vatNumber,
+                    iban = params.iban,
                     customerDataPrivacyAccepted = params.customerDataPrivacyAccepted,
                     newsletter = params.newsletter,
                     termsAndPrivacyAccepted = params.termsAndPrivacyAccepted,

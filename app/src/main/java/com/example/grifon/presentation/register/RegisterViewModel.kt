@@ -108,6 +108,8 @@ class RegisterViewModel(
                     postalCode = currentState.postalCode.trim(),
                     phone = currentState.phone.trim().ifBlank { null },
                     company = currentState.companyName.trim().ifBlank { null },
+                    vatNumber = currentState.vatNumber.trim().ifBlank { null },
+                    iban = currentState.iban.trim().ifBlank { null },
                     customerDataPrivacyAccepted = currentState.customerDataPrivacyAccepted,
                     newsletter = currentState.newsletterOptIn,
                     termsAndPrivacyAccepted = currentState.termsAndPrivacyAccepted,

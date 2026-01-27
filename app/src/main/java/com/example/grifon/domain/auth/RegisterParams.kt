@@ -12,6 +12,8 @@ data class RegisterParams(
     val postalCode: String,
     val phone: String? = null,
     val company: String? = null,
+    val vatNumber: String? = null,
+    val iban: String? = null,
     val customerDataPrivacyAccepted: Boolean = false,
     val newsletter: Boolean = false,
     val termsAndPrivacyAccepted: Boolean = false,

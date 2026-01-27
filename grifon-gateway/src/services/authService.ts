@@ -15,6 +15,8 @@ export interface RegisterRequest {
   postalCode: string;
   phone?: string;
   company?: string;
+  vatNumber?: string;
+  iban?: string;
   customerDataPrivacyAccepted?: boolean;
   newsletter?: boolean;
   termsAndPrivacyAccepted?: boolean;
@@ -101,6 +103,12 @@ const buildAddressPayload = (
 
   if ("company" in baseAddress && request.company) {
     addressPayload.company = request.company;
+  }
+  if ("vat_number" in baseAddress && request.vatNumber) {
+    addressPayload.vat_number = request.vatNumber;
+  }
+  if ("other" in baseAddress && request.iban) {
+    addressPayload.other = `IBAN: ${request.iban}`;
   }
   if (request.phone) {
     if ("phone" in baseAddress) {
