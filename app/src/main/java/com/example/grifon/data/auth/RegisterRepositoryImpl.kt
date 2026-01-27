@@ -16,10 +16,12 @@ class RegisterRepositoryImpl(
         return try {
             Log.d(
                 TAG,
-                "Register request: email=${params.email}, socialTitle=${params.socialTitle}, " +
+                    "Register request: email=${params.email}, socialTitle=${params.socialTitle}, " +
                     "firstName=${params.firstName}, lastName=${params.lastName}, countryIso=${params.countryIso}, " +
                     "street=${params.street}, city=${params.city}, postalCode=${params.postalCode}, " +
-                    "phone=${params.phone}, company=${params.company}, newsletter=${params.newsletter}, " +
+                    "phone=${params.phone}, company=${params.company}, " +
+                    "customerDataPrivacyAccepted=${params.customerDataPrivacyAccepted}, " +
+                    "newsletter=${params.newsletter}, termsAndPrivacyAccepted=${params.termsAndPrivacyAccepted}, " +
                     "partnerOffers=${params.partnerOffers}",
             )
             val response = api.register(
@@ -35,7 +37,9 @@ class RegisterRepositoryImpl(
                     postalCode = params.postalCode,
                     phone = params.phone,
                     company = params.company,
+                    customerDataPrivacyAccepted = params.customerDataPrivacyAccepted,
                     newsletter = params.newsletter,
+                    termsAndPrivacyAccepted = params.termsAndPrivacyAccepted,
                     partnerOffers = params.partnerOffers,
                 ),
             )

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -185,6 +186,30 @@ private fun RegisterScreen(
             },
         )
 
+        ConsentOption(
+            checked = state.customerDataPrivacyAccepted,
+            onCheckedChange = registerViewModel::onCustomerDataPrivacyAcceptedChange,
+            title = "Kunddatasekretess",
+            description = "De personuppgifter du tillhandahåller används för att besvara " +
+                "förfrågningar, bearbeta beställningar eller möjliggöra åtkomst till specifik " +
+                "information. Du har rätt att ändra och radera all personlig information som " +
+                "finns på sidan \"Mitt konto\".",
+            required = true,
+        )
+        ConsentOption(
+            checked = state.newsletterOptIn,
+            onCheckedChange = registerViewModel::onNewsletterOptInChange,
+            title = "Anmäl dig till vårt nyhetsbrev",
+            description = "Du kan avbryta prenumerationen när som helst. För detta ändamål, " +
+                "vänligen hitta vår kontaktinformation i det rättsliga meddelandet.",
+        )
+        ConsentOption(
+            checked = state.termsAndPrivacyAccepted,
+            onCheckedChange = registerViewModel::onTermsAndPrivacyAcceptedChange,
+            title = "Jag godkänner villkoren och integritetspolicyn",
+            required = true,
+        )
+
         Button(
             onClick = registerViewModel::onSubmit,
             enabled = state.isSubmitEnabled,
@@ -306,5 +331,40 @@ private fun SocialTitleOption(
             onClick = onSelect,
         )
         Text(text = label, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+private fun ConsentOption(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    title: String,
+    description: String? = null,
+    required: Boolean = false,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+        )
+        Column(
+            modifier = Modifier.padding(top = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                text = if (required) "$title *" else title,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            if (!description.isNullOrBlank()) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
     }
 }

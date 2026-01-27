@@ -16,6 +16,9 @@ data class RegisterUiState(
     val postalCode: String = "",
     val password: String = "",
     val passwordConfirmation: String = "",
+    val customerDataPrivacyAccepted: Boolean = false,
+    val newsletterOptIn: Boolean = false,
+    val termsAndPrivacyAccepted: Boolean = false,
     val googleDisplayName: String? = null,
     val googleAccountEmail: String? = null,
     val googleSignInError: String? = null,
@@ -33,7 +36,9 @@ data class RegisterUiState(
             email.isNotBlank() &&
             email == emailConfirmation &&
             password.isNotBlank() &&
-            password == passwordConfirmation
+            password == passwordConfirmation &&
+            customerDataPrivacyAccepted &&
+            termsAndPrivacyAccepted
 }
 
 sealed interface RegisterStatus {

@@ -77,6 +77,18 @@ class RegisterViewModel(
         _uiState.update { it.copy(passwordConfirmation = value) }
     }
 
+    fun onCustomerDataPrivacyAcceptedChange(value: Boolean) {
+        _uiState.update { it.copy(customerDataPrivacyAccepted = value) }
+    }
+
+    fun onNewsletterOptInChange(value: Boolean) {
+        _uiState.update { it.copy(newsletterOptIn = value) }
+    }
+
+    fun onTermsAndPrivacyAcceptedChange(value: Boolean) {
+        _uiState.update { it.copy(termsAndPrivacyAccepted = value) }
+    }
+
     fun onSubmit() {
         val currentState = _uiState.value
         if (!currentState.isSubmitEnabled) return
@@ -96,6 +108,9 @@ class RegisterViewModel(
                     postalCode = currentState.postalCode.trim(),
                     phone = currentState.phone.trim().ifBlank { null },
                     company = currentState.companyName.trim().ifBlank { null },
+                    customerDataPrivacyAccepted = currentState.customerDataPrivacyAccepted,
+                    newsletter = currentState.newsletterOptIn,
+                    termsAndPrivacyAccepted = currentState.termsAndPrivacyAccepted,
                 ),
             )
             _uiState.update {

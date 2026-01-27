@@ -62,7 +62,9 @@ curl -X POST http://localhost:3000/auth/register \
     "postalCode": "10564",
     "phone": "+30 2100000000",
     "company": "Grifon SA",
+    "customerDataPrivacyAccepted": true,
     "newsletter": true,
+    "termsAndPrivacyAccepted": true,
     "partnerOffers": false
   }'
 ```
