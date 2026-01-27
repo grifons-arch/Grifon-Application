@@ -37,6 +37,8 @@ class RegisterViewModelTest {
         viewModel.onEmailConfirmationChange("test@example.com")
         viewModel.onPasswordChange("secret123")
         viewModel.onPasswordConfirmationChange("secret123")
+        viewModel.onCustomerDataPrivacyAcceptedChange(true)
+        viewModel.onTermsAndPrivacyAcceptedChange(true)
 
         viewModel.onSubmit()
 
@@ -74,6 +76,8 @@ class RegisterViewModelTest {
         viewModel.onEmailConfirmationChange("test@example.com")
         viewModel.onPasswordChange("secret123")
         viewModel.onPasswordConfirmationChange("secret123")
+        viewModel.onCustomerDataPrivacyAcceptedChange(true)
+        viewModel.onTermsAndPrivacyAcceptedChange(true)
 
         viewModel.onSubmit()
 
