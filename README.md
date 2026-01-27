@@ -48,6 +48,6 @@ curl -X POST http://localhost:3000/auth/register \
 
 ### Android flow
 
-1. Ρύθμισε το `API_BASE_URL` στο `app/build.gradle.kts` (π.χ. `http://10.0.2.2:3000/` για emulator).
+1. Ρύθμισε το `API_BASE_URL` στο `app/build.gradle.kts` (π.χ. `http://10.0.2.2:3000/` για emulator) ώστε να δείχνει στο gateway και όχι στο PrestaShop `/api`.
 2. Εκκίνησε την εφαρμογή και πήγαινε στη φόρμα εγγραφής.
 3. Συμπλήρωσε τα πεδία και πάτησε **Υποβολή αίτησης** ώστε να σταλεί το αίτημα στο gateway.
