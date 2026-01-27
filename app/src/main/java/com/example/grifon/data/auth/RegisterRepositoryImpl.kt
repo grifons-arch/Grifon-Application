@@ -68,8 +68,8 @@ class RegisterRepositoryImpl(
                 ?.optString("message")
                 ?.trim()
             message?.takeIf { it.isNotEmpty() }
-        } catch (_: Exception) {
-            Log.w(TAG, "Register request error body was not valid JSON.")
+        } catch (exception: Exception) {
+            Log.w(TAG, "Register request error body was not valid JSON.", exception)
             null
         }
     }
