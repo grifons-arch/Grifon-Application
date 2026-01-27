@@ -53,6 +53,8 @@ export const registerBodySchema = z.object({
   postalCode: z.string().trim().min(1),
   phone: z.string().trim().min(1).optional(),
   company: z.string().trim().min(1).optional(),
+  vatNumber: z.string().trim().min(1).optional(),
+  iban: z.string().trim().min(1).optional(),
   customerDataPrivacyAccepted: z.boolean().optional().default(false),
   newsletter: z.boolean().optional().default(false),
   termsAndPrivacyAccepted: z.boolean().optional().default(false),
