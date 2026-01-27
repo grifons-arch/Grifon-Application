@@ -114,7 +114,7 @@ private fun RegisterScreen(
         RegistrationTextField(
             value = state.phone,
             onValueChange = registerViewModel::onPhoneChange,
-            placeholder = "Τηλέφωνο *",
+            placeholder = "Τηλέφωνο",
         )
         RegistrationTextField(
             value = state.iban,
@@ -138,7 +138,7 @@ private fun RegisterScreen(
         RegistrationTextField(
             value = state.country,
             onValueChange = registerViewModel::onCountryChange,
-            placeholder = "Χώρα *",
+            placeholder = "Χώρα (ISO, π.χ. GR) *",
         )
         RegistrationTextField(
             value = state.city,

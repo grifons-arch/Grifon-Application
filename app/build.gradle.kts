@@ -8,12 +8,14 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val defaultGatewayUrl = (project.findProperty("API_BASE_URL") as String?)
+    ?: "http://10.0.2.2:3000/"
 val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
-    ?: "https://grifon.gr/api/"
+    ?: defaultGatewayUrl
 val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
-    ?: "https://grifon.se/api/"
+    ?: defaultGatewayUrl
 val debugApiBaseUrl = (project.findProperty("API_BASE_URL_DEBUG") as String?)
-    ?: "https://grifon.gr/api/"
+    ?: defaultGatewayUrl
 
 android {
     namespace = "com.example.grifon"

@@ -28,14 +28,13 @@ data class RegisterUiState(
         get() = status !is RegisterStatus.Loading &&
             firstName.isNotBlank() &&
             lastName.isNotBlank() &&
-            phone.isNotBlank() &&
-            country.isNotBlank() &&
+            country.trim().length == 2 &&
             city.isNotBlank() &&
             street.isNotBlank() &&
             postalCode.isNotBlank() &&
             email.isNotBlank() &&
             email == emailConfirmation &&
-            password.isNotBlank() &&
+            password.trim().length >= 8 &&
             password == passwordConfirmation &&
             customerDataPrivacyAccepted &&
             termsAndPrivacyAccepted
