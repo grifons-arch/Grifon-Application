@@ -46,6 +46,7 @@ apiRouter.post(
       const {
         email,
         password,
+        passwd,
         socialTitle,
         firstName,
         lastName,
@@ -62,9 +63,23 @@ apiRouter.post(
         termsAndPrivacyAccepted,
         partnerOffers
       } = req.body as any;
+      const resolvedPassword = password ?? passwd;
+      if (!resolvedPassword) {
+        throw {
+          status: 400,
+          code: "VALIDATION_ERROR",
+          message: "Invalid request body",
+          details: {
+            formErrors: [],
+            fieldErrors: {
+              password: ["Required"]
+            }
+          }
+        };
+      }
       const response = await registerCustomer({
         email,
-        password,
+        password: resolvedPassword,
         socialTitle,
         firstName,
         lastName,
