@@ -29,6 +29,7 @@ class RegisterRepositoryImpl(
                 RegisterRequestDto(
                     email = params.email,
                     password = params.password,
+                    legacyPassword = params.password,
                     socialTitle = params.socialTitle,
                     firstName = params.firstName,
                     lastName = params.lastName,
