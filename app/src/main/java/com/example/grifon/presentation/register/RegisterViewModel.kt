@@ -6,10 +6,12 @@ import com.example.grifon.domain.auth.RegisterOutcome
 import com.example.grifon.domain.auth.RegisterParams
 import com.example.grifon.domain.auth.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RegisterViewModel(
     private val registerUseCase: RegisterUseCase,
@@ -95,26 +97,27 @@ class RegisterViewModel(
 
         _uiState.update { it.copy(status = RegisterStatus.Loading) }
         viewModelScope.launch {
-            val result = registerUseCase(
-                RegisterParams(
-                    email = currentState.email.trim(),
-                    password = currentState.password,
-                    socialTitle = currentState.socialTitle.trim().ifBlank { null },
-                    firstName = currentState.firstName.trim(),
-                    lastName = currentState.lastName.trim(),
-                    countryIso = currentState.country.trim().uppercase(),
-                    street = currentState.street.trim(),
-                    city = currentState.city.trim(),
-                    postalCode = currentState.postalCode.trim(),
-                    phone = currentState.phone.trim().ifBlank { null },
-                    company = currentState.companyName.trim().ifBlank { null },
-                    vatNumber = currentState.vatNumber.trim().ifBlank { null },
-                    iban = currentState.iban.trim().ifBlank { null },
-                    customerDataPrivacyAccepted = currentState.customerDataPrivacyAccepted,
-                    newsletter = currentState.newsletterOptIn,
-                    termsAndPrivacyAccepted = currentState.termsAndPrivacyAccepted,
-                ),
+            val params = RegisterParams(
+                email = currentState.email.trim(),
+                password = currentState.password,
+                socialTitle = currentState.socialTitle.trim().ifBlank { null },
+                firstName = currentState.firstName.trim(),
+                lastName = currentState.lastName.trim(),
+                countryIso = currentState.country.trim().uppercase(),
+                street = currentState.street.trim(),
+                city = currentState.city.trim(),
+                postalCode = currentState.postalCode.trim(),
+                phone = currentState.phone.trim().ifBlank { null },
+                company = currentState.companyName.trim().ifBlank { null },
+                vatNumber = currentState.vatNumber.trim().ifBlank { null },
+                iban = currentState.iban.trim().ifBlank { null },
+                customerDataPrivacyAccepted = currentState.customerDataPrivacyAccepted,
+                newsletter = currentState.newsletterOptIn,
+                termsAndPrivacyAccepted = currentState.termsAndPrivacyAccepted,
             )
+            val result = withContext(Dispatchers.IO) {
+                registerUseCase(params)
+            }
             _uiState.update {
                 when (result) {
                     is RegisterOutcome.Success -> it.copy(
