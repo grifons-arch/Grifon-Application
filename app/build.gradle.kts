@@ -90,6 +90,26 @@ tasks.register("validateResourceNames") {
     group = "verification"
     description = "Ensures Android resource file names only contain lowercase letters, digits, or underscores."
     doLast {
+        fun suggestedResourceName(file: File): String {
+            val fileName = file.name
+            val baseName = fileName.substringBeforeLast('.')
+            val extension = fileName.substringAfterLast('.', "")
+            val isNinePatch = baseName.endsWith(".9")
+            val rawBase = if (isNinePatch) baseName.removeSuffix(".9") else baseName
+            val normalizedBase = rawBase
+                .lowercase()
+                .replace(Regex("[^a-z0-9_]"), "_")
+                .replace(Regex("_+"), "_")
+                .trim('_')
+                .ifBlank { "resource" }
+            val normalizedWithNinePatch = if (isNinePatch) "${normalizedBase}.9" else normalizedBase
+            return if (extension.isNotEmpty()) {
+                "$normalizedWithNinePatch.$extension"
+            } else {
+                normalizedWithNinePatch
+            }
+        }
+
         val invalidResources = fileTree("src/main/res") {
             include("**/*.*")
         }.files.filter { file ->
@@ -105,8 +125,15 @@ tasks.register("validateResourceNames") {
         if (invalidResources.isNotEmpty()) {
             val names = invalidResources.sortedBy { it.path }.joinToString(separator = "\n") { it.path }
             throw GradleException(
-                "Invalid Android resource file names detected:\n$names\n" +
-                    "Resource file names must contain only lowercase a-z, 0-9, or underscore."
+                buildString {
+                    append("Invalid Android resource file names detected:\n")
+                    append(names)
+                    append("\nResource file names must contain only lowercase a-z, 0-9, or underscore.\n")
+                    append("Suggested renames:\n")
+                    invalidResources.sortedBy { it.path }.forEach { file ->
+                        append("${file.path} -> ${suggestedResourceName(file)}\n")
+                    }
+                }
             )
         }
     }
