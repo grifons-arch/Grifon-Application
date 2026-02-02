@@ -85,6 +85,36 @@ androidComponents {
     }
 }
 
+val resourceNameRegex = Regex("^[a-z0-9_]+$")
+tasks.register("validateResourceNames") {
+    group = "verification"
+    description = "Ensures Android resource file names only contain lowercase letters, digits, or underscores."
+    doLast {
+        val invalidResources = fileTree("src/main/res") {
+            include("**/*.*")
+        }.files.filter { file ->
+            val fileName = file.name
+            val baseName = fileName.substringBeforeLast('.')
+            val sanitizedBaseName = if (baseName.endsWith(".9")) {
+                baseName.removeSuffix(".9")
+            } else {
+                baseName
+            }
+            !resourceNameRegex.matches(sanitizedBaseName)
+        }
+        if (invalidResources.isNotEmpty()) {
+            val names = invalidResources.sortedBy { it.path }.joinToString(separator = "\n") { it.path }
+            throw GradleException(
+                "Invalid Android resource file names detected:\n$names\n" +
+                    "Resource file names must contain only lowercase a-z, 0-9, or underscore."
+            )
+        }
+    }
+}
+tasks.named("preBuild") {
+    dependsOn("validateResourceNames")
+}
+
 dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
