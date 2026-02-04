@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.example.grifon.ui.screens.plp
 
 import androidx.compose.foundation.layout.Arrangement
