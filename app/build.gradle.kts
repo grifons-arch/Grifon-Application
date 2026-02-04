@@ -85,6 +85,10 @@ androidComponents {
     }
 }
 
+configurations.matching { it.name.startsWith("ksp") }.configureEach {
+    resolutionStrategy.force(libs.javapoet.get().toString())
+}
+
 val resourceNameRegex = Regex("^[a-z0-9_]+$")
 
 fun suggestedResourceName(file: File): String {
@@ -177,6 +181,7 @@ tasks.named("preBuild") {
 
 dependencies {
     constraints {
+        implementation(libs.javapoet)
         ksp(libs.javapoet)
     }
     testImplementation(libs.junit)
