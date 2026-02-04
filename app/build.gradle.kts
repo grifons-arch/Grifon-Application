@@ -176,6 +176,9 @@ tasks.named("preBuild") {
 }
 
 dependencies {
+    constraints {
+        ksp(libs.javapoet)
+    }
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     implementation(libs.androidx.core.ktx)
