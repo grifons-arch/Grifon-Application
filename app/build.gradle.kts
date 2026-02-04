@@ -85,7 +85,7 @@ androidComponents {
     }
 }
 
-configurations.configureEach {
+configurations.matching { it.name.startsWith("ksp") }.configureEach {
     resolutionStrategy.force(libs.javapoet.get().toString())
 }
 
@@ -181,6 +181,7 @@ tasks.named("preBuild") {
 
 dependencies {
     constraints {
+        implementation(libs.javapoet)
         ksp(libs.javapoet)
     }
     testImplementation(libs.junit)
