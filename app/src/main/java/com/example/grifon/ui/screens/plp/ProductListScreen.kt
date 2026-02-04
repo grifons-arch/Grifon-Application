@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.stickyHeader
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +36,7 @@ import com.example.grifon.ui.screens.ErrorScreen
 import com.example.grifon.ui.screens.LoadingScreen
 import com.example.grifon.viewmodel.PlpViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductListScreen(
     viewModel: PlpViewModel,
