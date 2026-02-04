@@ -112,11 +112,14 @@ export class PrestaShopClient {
       }
     }
 
+    const lastErrorMessage = (lastError as Error)?.message;
     throw {
       status: 502,
       code: "UPSTREAM_ERROR",
-      message: "Failed to fetch upstream data",
-      details: (lastError as Error)?.message
+      message: lastErrorMessage
+        ? `Failed to fetch upstream data: ${lastErrorMessage}`
+        : "Failed to fetch upstream data",
+      details: lastErrorMessage
     };
   }
 }
