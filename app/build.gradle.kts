@@ -85,6 +85,10 @@ androidComponents {
     }
 }
 
+configurations.configureEach {
+    resolutionStrategy.force(libs.javapoet.get().toString())
+}
+
 val resourceNameRegex = Regex("^[a-z0-9_]+$")
 
 fun suggestedResourceName(file: File): String {
