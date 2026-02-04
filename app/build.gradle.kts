@@ -86,29 +86,61 @@ androidComponents {
 }
 
 val resourceNameRegex = Regex("^[a-z0-9_]+$")
+
+fun suggestedResourceName(file: File): String {
+    val fileName = file.name
+    val baseName = fileName.substringBeforeLast('.')
+    val extension = fileName.substringAfterLast('.', "")
+    val isNinePatch = baseName.endsWith(".9")
+    val rawBase = if (isNinePatch) baseName.removeSuffix(".9") else baseName
+    val normalizedBase = rawBase
+        .lowercase()
+        .replace(Regex("[^a-z0-9_]"), "_")
+        .replace(Regex("_+"), "_")
+        .trim('_')
+        .ifBlank { "resource" }
+    val normalizedWithNinePatch = if (isNinePatch) "${normalizedBase}.9" else normalizedBase
+    return if (extension.isNotEmpty()) {
+        "$normalizedWithNinePatch.$extension"
+    } else {
+        normalizedWithNinePatch
+    }
+}
+
+tasks.register("normalizeResourceNames") {
+    group = "verification"
+    description = "Renames invalid Android resource files to lowercase underscore naming."
+    doLast {
+        val invalidResources = fileTree("src/main/res") {
+            include("**/*.*")
+        }.files.filter { file ->
+            val fileName = file.name
+            val baseName = fileName.substringBeforeLast('.')
+            val sanitizedBaseName = if (baseName.endsWith(".9")) {
+                baseName.removeSuffix(".9")
+            } else {
+                baseName
+            }
+            !resourceNameRegex.matches(sanitizedBaseName)
+        }
+
+        invalidResources.sortedBy { it.path }.forEach { file ->
+            val targetName = suggestedResourceName(file)
+            val targetFile = File(file.parentFile, targetName)
+            if (targetFile.exists()) {
+                throw GradleException("Cannot rename ${file.path} to ${targetFile.path}: target already exists.")
+            }
+            if (!file.renameTo(targetFile)) {
+                throw GradleException("Failed to rename ${file.path} to ${targetFile.path}.")
+            }
+        }
+    }
+}
+
 tasks.register("validateResourceNames") {
     group = "verification"
     description = "Ensures Android resource file names only contain lowercase letters, digits, or underscores."
     doLast {
-        fun suggestedResourceName(file: File): String {
-            val fileName = file.name
-            val baseName = fileName.substringBeforeLast('.')
-            val extension = fileName.substringAfterLast('.', "")
-            val isNinePatch = baseName.endsWith(".9")
-            val rawBase = if (isNinePatch) baseName.removeSuffix(".9") else baseName
-            val normalizedBase = rawBase
-                .lowercase()
-                .replace(Regex("[^a-z0-9_]"), "_")
-                .replace(Regex("_+"), "_")
-                .trim('_')
-                .ifBlank { "resource" }
-            val normalizedWithNinePatch = if (isNinePatch) "${normalizedBase}.9" else normalizedBase
-            return if (extension.isNotEmpty()) {
-                "$normalizedWithNinePatch.$extension"
-            } else {
-                normalizedWithNinePatch
-            }
-        }
 
         val invalidResources = fileTree("src/main/res") {
             include("**/*.*")
@@ -129,6 +161,7 @@ tasks.register("validateResourceNames") {
                     append("Invalid Android resource file names detected:\n")
                     append(names)
                     append("\nResource file names must contain only lowercase a-z, 0-9, or underscore.\n")
+                    append("Run ./gradlew :app:normalizeResourceNames to auto-rename them.\n")
                     append("Suggested renames:\n")
                     invalidResources.sortedBy { it.path }.forEach { file ->
                         append("${file.path} -> ${suggestedResourceName(file)}\n")
