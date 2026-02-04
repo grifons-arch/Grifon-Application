@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Badge
@@ -36,6 +37,7 @@ fun AppBottomNav(navController: NavHostController, cartCount: Int) {
         BottomItem(Routes.CATEGORIES, "Categories", Icons.Default.List),
         BottomItem(Routes.CART, "Cart", Icons.Default.ShoppingCart, badgeCount = cartCount),
         BottomItem(Routes.ACCOUNT, "Account", Icons.Default.AccountCircle),
+        BottomItem(Routes.SETTINGS, "Settings", Icons.Default.Settings),
     )
 
     NavigationBar {
