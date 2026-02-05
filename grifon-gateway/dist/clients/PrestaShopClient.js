@@ -99,7 +99,14 @@ class PrestaShopClient {
                 await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
             }
         }
-        const lastErrorMessage = lastError?.message;
+        // eslint-disable-next-line no-console
+        console.error("PrestaShop upstream request failed", {
+            method,
+            url,
+            shopId: this.shopId,
+            attempts: maxAttempts,
+            error: lastError?.message
+        });
         throw {
             status: 502,
             code: "UPSTREAM_ERROR",

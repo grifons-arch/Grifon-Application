@@ -123,7 +123,15 @@ export class PrestaShopClient {
       }
     }
 
-    const lastErrorMessage = (lastError as Error)?.message;
+    // eslint-disable-next-line no-console
+    console.error("PrestaShop upstream request failed", {
+      method,
+      url,
+      shopId: this.shopId,
+      attempts: maxAttempts,
+      error: (lastError as Error)?.message
+    });
+
     throw {
       status: 502,
       code: "UPSTREAM_ERROR",
