@@ -30,6 +30,21 @@ export class PrestaShopClient {
     });
   }
 
+  private parsePayload(payload: unknown): unknown {
+    if (typeof payload !== "string") {
+      return payload;
+    }
+    const trimmed = payload.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try {
+        return JSON.parse(payload);
+      } catch {
+        // Fall back to XML parsing below.
+      }
+    }
+    return parseXmlToJson(payload);
+  }
+
   async get(resource: string, params?: Record<string, string | number>): Promise<unknown> {
     const response = await this.request("get", `/${resource}`, params);
     return response;
@@ -80,17 +95,13 @@ export class PrestaShopClient {
           data,
           headers
         });
-        if (typeof response.data === "string") {
-          return parseXmlToJson(response.data);
-        }
-        return response.data;
+        return this.parsePayload(response.data);
       } catch (error) {
         lastError = error;
         const axiosError = error as AxiosError;
         if (axiosError.response) {
           const responseData = axiosError.response.data;
-          const parsed =
-            typeof responseData === "string" ? parseXmlToJson(responseData) : responseData;
+          const parsed = this.parsePayload(responseData);
           const message =
             (parsed as any)?.prestashop?.errors?.error?.message ??
             (parsed as any)?.prestashop?.errors?.error?.[0]?.message ??
