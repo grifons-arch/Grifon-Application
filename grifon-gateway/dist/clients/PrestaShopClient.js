@@ -23,6 +23,21 @@ class PrestaShopClient {
             }
         });
     }
+    parsePayload(payload) {
+        if (typeof payload !== "string") {
+            return payload;
+        }
+        const trimmed = payload.trim();
+        if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+            try {
+                return JSON.parse(payload);
+            }
+            catch {
+                // Fall back to XML parsing below.
+            }
+        }
+        return (0, xml_1.parseXmlToJson)(payload);
+    }
     async get(resource, params) {
         const response = await this.request("get", `/${resource}`, params);
         return response;
@@ -57,17 +72,14 @@ class PrestaShopClient {
                     data,
                     headers
                 });
-                if (typeof response.data === "string") {
-                    return (0, xml_1.parseXmlToJson)(response.data);
-                }
-                return response.data;
+                return this.parsePayload(response.data);
             }
             catch (error) {
                 lastError = error;
                 const axiosError = error;
                 if (axiosError.response) {
                     const responseData = axiosError.response.data;
-                    const parsed = typeof responseData === "string" ? (0, xml_1.parseXmlToJson)(responseData) : responseData;
+                    const parsed = this.parsePayload(responseData);
                     const message = parsed?.prestashop?.errors?.error?.message ??
                         parsed?.prestashop?.errors?.error?.[0]?.message ??
                         axiosError.message;
@@ -87,6 +99,14 @@ class PrestaShopClient {
                 await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
             }
         }
+        // eslint-disable-next-line no-console
+        console.error("PrestaShop upstream request failed", {
+            method,
+            url,
+            shopId: this.shopId,
+            attempts: maxAttempts,
+            error: lastError?.message
+        });
         throw {
             status: 502,
             code: "UPSTREAM_ERROR",
