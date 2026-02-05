@@ -110,8 +110,10 @@ class PrestaShopClient {
         throw {
             status: 502,
             code: "UPSTREAM_ERROR",
-            message: "Failed to fetch upstream data",
-            details: lastError?.message
+            message: lastErrorMessage
+                ? `Failed to fetch upstream data: ${lastErrorMessage}`
+                : "Failed to fetch upstream data",
+            details: lastErrorMessage
         };
     }
 }
