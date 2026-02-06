@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,6 +22,7 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -28,6 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.grifon.R
+
+data class AppMenuItem(
+    val label: String,
+    val route: String,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +47,9 @@ fun AppTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
+    menuItems: List<AppMenuItem>,
+    activeRoute: String?,
+    onMenuClick: (AppMenuItem) -> Unit,
 ) {
     val collapsed = scrollBehavior.state.collapsedFraction > 0.6f
 
@@ -89,11 +100,35 @@ fun AppTopBar(
         )
         LargeTopAppBar(
             title = {
-                AppSearchBar(
-                    query = searchQuery,
-                    onQueryChange = onSearchQueryChange,
-                    onScanClick = onScanClick,
-                )
+                Column {
+                    AppSearchBar(
+                        query = searchQuery,
+                        onQueryChange = onSearchQueryChange,
+                        onScanClick = onScanClick,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                    ) {
+                        items(menuItems.size) { index ->
+                            val item = menuItems[index]
+                            val isActive = activeRoute == item.route
+                            TextButton(onClick = { onMenuClick(item) }) {
+                                Text(
+                                    text = item.label,
+                                    style = if (isActive) {
+                                        MaterialTheme.typography.labelLarge
+                                    } else {
+                                        MaterialTheme.typography.labelMedium
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
             },
             scrollBehavior = scrollBehavior,
         )

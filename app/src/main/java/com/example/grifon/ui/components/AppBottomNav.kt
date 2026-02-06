@@ -33,11 +33,11 @@ fun AppBottomNav(navController: NavHostController, cartCount: Int) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val items = listOf(
-        BottomItem(Routes.HOME, "Home", Icons.Default.Home),
-        BottomItem(Routes.CATEGORIES, "Categories", Icons.Default.List),
-        BottomItem(Routes.CART, "Cart", Icons.Default.ShoppingCart, badgeCount = cartCount),
-        BottomItem(Routes.ACCOUNT, "Account", Icons.Default.AccountCircle),
-        BottomItem(Routes.SETTINGS, "Settings", Icons.Default.Settings),
+        BottomItem(Routes.HOME, "Αρχική", Icons.Default.Home),
+        BottomItem(Routes.CATEGORIES, "Κατηγορίες", Icons.Default.List),
+        BottomItem(Routes.CART, "Καλάθι", Icons.Default.ShoppingCart, badgeCount = cartCount),
+        BottomItem(Routes.ACCOUNT, "Λογαριασμός", Icons.Default.AccountCircle),
+        BottomItem(Routes.SETTINGS, "Ρυθμίσεις", Icons.Default.Settings),
     )
 
     NavigationBar {

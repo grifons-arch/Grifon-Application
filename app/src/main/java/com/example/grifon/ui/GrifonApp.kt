@@ -17,10 +17,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.grifon.navigation.AppNavHost
 import com.example.grifon.navigation.Routes
 import com.example.grifon.ui.components.AppBottomNav
+import com.example.grifon.ui.components.AppMenuItem
 import com.example.grifon.ui.components.AppSearchBar
 import com.example.grifon.ui.components.AppTopBar
 import com.example.grifon.viewmodel.AppViewModel
@@ -35,8 +37,17 @@ fun GrifonApp() {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val appViewModel: AppViewModel = hiltViewModel()
     val appState by appViewModel.state.collectAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val activeRoute = navBackStackEntry?.destination?.route
     var searchSheetOpen by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    val menuItems = listOf(
+        AppMenuItem("Αρχική", Routes.HOME),
+        AppMenuItem("Κατηγορίες", Routes.CATEGORIES),
+        AppMenuItem("Καλάθι", Routes.CART),
+        AppMenuItem("Λογαριασμός", Routes.ACCOUNT),
+        AppMenuItem("Ρυθμίσεις", Routes.SETTINGS),
+    )
 
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
@@ -60,6 +71,9 @@ fun GrifonApp() {
                 scrollBehavior = scrollBehavior,
                 searchQuery = searchQuery,
                 onSearchQueryChange = { searchQuery = it },
+                menuItems = menuItems,
+                activeRoute = activeRoute,
+                onMenuClick = { item -> navController.navigate(item.route) },
             )
         },
         bottomBar = {
