@@ -11,6 +11,19 @@ describe("normalizeNetworkErrorMessage", () => {
     expect(message).toBe("Unable to resolve upstream hostname: replica");
   });
 
+
+  it("uses fallback hostname when ENOTFOUND does not include one", () => {
+    const message = normalizeNetworkErrorMessage(
+      {
+        code: "ENOTFOUND"
+      },
+      {
+        fallbackHostname: "grifon.gr"
+      }
+    );
+
+    expect(message).toBe("Unable to resolve upstream hostname: grifon.gr");
+  });
   it("formats timeout and connection refused errors", () => {
     expect(normalizeNetworkErrorMessage({ code: "ETIMEDOUT" })).toBe(
       "Upstream service timed out"

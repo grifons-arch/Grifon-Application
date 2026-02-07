@@ -67,6 +67,19 @@ export class PrestaShopClient {
     return response;
   }
 
+  private resolveUpstreamHostname(urlPath: string): string | undefined {
+    const configuredBaseUrl = this.client.defaults.baseURL;
+    if (!configuredBaseUrl) {
+      return undefined;
+    }
+
+    try {
+      return new URL(urlPath, configuredBaseUrl).hostname;
+    } catch {
+      return undefined;
+    }
+  }
+
   private async request(
     method: "get" | "post",
     url: string,
@@ -124,7 +137,10 @@ export class PrestaShopClient {
       }
     }
 
-    const networkMessage = normalizeNetworkErrorMessage(lastError);
+    const upstreamHostname = this.resolveUpstreamHostname(url);
+    const networkMessage = normalizeNetworkErrorMessage(lastError, {
+      fallbackHostname: upstreamHostname
+    });
 
     // eslint-disable-next-line no-console
     console.error("PrestaShop upstream request failed", {

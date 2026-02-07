@@ -1,6 +1,13 @@
 import { AxiosError } from "axios";
 
-export const normalizeNetworkErrorMessage = (error: unknown): string | undefined => {
+interface NormalizeNetworkErrorOptions {
+  fallbackHostname?: string;
+}
+
+export const normalizeNetworkErrorMessage = (
+  error: unknown,
+  options: NormalizeNetworkErrorOptions = {}
+): string | undefined => {
   const axiosError = error as AxiosError & {
     code?: string;
     hostname?: string;
@@ -8,7 +15,7 @@ export const normalizeNetworkErrorMessage = (error: unknown): string | undefined
   };
 
   const code = axiosError.code ?? axiosError.cause?.code;
-  const hostname = axiosError.hostname ?? axiosError.cause?.hostname;
+  const hostname = axiosError.hostname ?? axiosError.cause?.hostname ?? options.fallbackHostname;
 
   if (code === "ENOTFOUND") {
     return hostname
