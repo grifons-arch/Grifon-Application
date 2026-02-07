@@ -7,6 +7,7 @@ exports.PrestaShopClient = void 0;
 const axios_1 = __importDefault(require("axios"));
 const env_1 = require("../config/env");
 const xml_1 = require("../utils/xml");
+const networkErrors_1 = require("../utils/networkErrors");
 class PrestaShopClient {
     constructor(options) {
         this.shopId = options.shopId;
@@ -99,26 +100,22 @@ class PrestaShopClient {
                 await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
             }
         }
+        const networkMessage = (0, networkErrors_1.normalizeNetworkErrorMessage)(lastError);
         // eslint-disable-next-line no-console
         console.error("PrestaShop upstream request failed", {
             method,
             url,
             shopId: this.shopId,
             attempts: maxAttempts,
-            error: lastError?.message
+            error: networkMessage
         });
-        const lastErrorMessage = lastError instanceof Error
-            ? lastError.message
-            : typeof lastError === "string"
-                ? lastError
-                : undefined;
         throw {
             status: 502,
             code: "UPSTREAM_ERROR",
-            message: lastErrorMessage
-                ? `Failed to fetch upstream data: ${lastErrorMessage}`
+            message: networkMessage
+                ? `Failed to fetch upstream data: ${networkMessage}`
                 : "Failed to fetch upstream data",
-            details: lastErrorMessage
+            details: networkMessage
         };
     }
 }

@@ -114,3 +114,17 @@ curl "http://localhost:3000/v1/customers/123/price-access?shopId=4"
 - When prices are not allowed, price fields are set to `null`.
 - Product image URLs are constructed using the selected shop domain.
 - `/auth/register` creates customers with `PENDING_WHOLESALE_APPROVAL` status (inactive or in a pending group).
+
+## Troubleshooting
+
+### `UPSTREAM_ERROR: Failed to fetch upstream data: getaddrinfo ENOTFOUND ...`
+
+This error means the gateway process cannot resolve the hostname in your configured shop URL.
+
+Quick checks:
+
+- Verify `SHOP_GR_BASE_URL`, `SHOP_SE_BASE_URL`, and `PRESTASHOP_BASE_URL` in `.env` are valid URLs.
+- Make sure the hostname exists in DNS (or in your Docker/network aliases if running locally).
+- If you accidentally used a placeholder host (for example `replica`), replace it with the real PrestaShop host.
+- The API now normalizes this case as `Unable to resolve upstream hostname: <host>` to make root cause clearer.
+- Restart the gateway after changing environment variables.
