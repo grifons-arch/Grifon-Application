@@ -1,3 +1,11 @@
+"""Backend-only PrestaShop customer sync client.
+
+Usage boundary:
+- Android app calls your backend only.
+- This script (or equivalent backend service code) calls each PrestaShop store endpoint:
+  POST https://<SHOP_DOMAIN>/module/grifoncustomersync/sync
+"""
+
 from __future__ import annotations
 
 import base64
@@ -9,6 +17,8 @@ from typing import Any, Dict, Tuple
 
 import requests
 from passlib.hash import bcrypt
+
+SYNC_PATH = "/module/grifoncustomersync/sync"
 
 SHOPS: Dict[str, Dict[str, str]] = {
     "shopA": {
@@ -95,7 +105,7 @@ def sync_customer(
         "X-Grifon-Timestamp": str(ts),
         "X-Grifon-Signature": signature,
     }
-    url = f"{base_url}/module/grifoncustomersync/sync"
+    url = f"{base_url}{SYNC_PATH}"
 
     try:
         response = requests.post(url, data=raw_body.encode("utf-8"), headers=headers, timeout=timeout)
@@ -121,8 +131,8 @@ def sync_customer(
 
 
 if __name__ == "__main__":
-    # Example: password arrives from your backend register flow.
-    # Android app -> backend only; backend -> PrestaShop sync endpoint only.
+    # Password arrives from backend registration flow.
+    # Android app -> backend only; backend -> PrestaShop sync endpoint.
     register_password = "PasswordFromRegisterFlow"
     password_hashed = make_bcrypt_2y(register_password)
 
