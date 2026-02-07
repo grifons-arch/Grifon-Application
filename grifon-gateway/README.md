@@ -126,4 +126,5 @@ Quick checks:
 - Verify `SHOP_GR_BASE_URL`, `SHOP_SE_BASE_URL`, and `PRESTASHOP_BASE_URL` in `.env` are valid URLs.
 - Make sure the hostname exists in DNS (or in your Docker/network aliases if running locally).
 - If you accidentally used a placeholder host (for example `replica`), replace it with the real PrestaShop host.
+- The API now normalizes this case as `Unable to resolve upstream hostname: <host>` to make root cause clearer.
 - Restart the gateway after changing environment variables.

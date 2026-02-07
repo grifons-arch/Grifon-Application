@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 import { config, ShopId } from "../config/env";
 import { parseXmlToJson } from "../utils/xml";
+import { normalizeNetworkErrorMessage } from "../utils/networkErrors";
 
 export interface PrestaShopClientOptions {
   shopId: ShopId;
@@ -123,29 +124,24 @@ export class PrestaShopClient {
       }
     }
 
+    const networkMessage = normalizeNetworkErrorMessage(lastError);
+
     // eslint-disable-next-line no-console
     console.error("PrestaShop upstream request failed", {
       method,
       url,
       shopId: this.shopId,
       attempts: maxAttempts,
-      error: (lastError as Error)?.message
+      error: networkMessage
     });
-
-    const lastErrorMessage =
-      lastError instanceof Error
-        ? lastError.message
-        : typeof lastError === "string"
-          ? lastError
-          : undefined;
 
     throw {
       status: 502,
       code: "UPSTREAM_ERROR",
-      message: lastErrorMessage
-        ? `Failed to fetch upstream data: ${lastErrorMessage}`
+      message: networkMessage
+        ? `Failed to fetch upstream data: ${networkMessage}`
         : "Failed to fetch upstream data",
-      details: lastErrorMessage
+      details: networkMessage
     };
   }
 }
