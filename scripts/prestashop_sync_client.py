@@ -11,12 +11,20 @@ import requests
 from passlib.hash import bcrypt
 
 SHOPS: Dict[str, Dict[str, str]] = {
-    "shopA": {"base_url": "https://replica.grifon.gr", "secret": "SECRET_A"},
-    "shopB": {"base_url": "https://replica.grifon.se", "secret": "SECRET_B"},
+    "shopA": {
+        "base_url": "https://shopA.gr",
+        "secret": "SECRET_A",
+        "allowed_ip": "203.0.113.10",  # Optional: configured in module whitelist.
+    },
+    "shopB": {
+        "base_url": "https://shopB.gr",
+        "secret": "SECRET_B",
+    },
 }
 
 
 def make_bcrypt_2y(plain_password: str, rounds: int = 12) -> str:
+    """Return a PHP-compatible bcrypt hash string with a $2y$ prefix."""
     return bcrypt.using(rounds=rounds, ident="2y").hash(plain_password)
 
 
@@ -33,6 +41,7 @@ def build_payload(
     groups_list: list[int],
     addresses: list[dict[str, Any]],
 ) -> dict[str, Any]:
+    """Build the expected customer payload for the sync endpoint."""
     customer: dict[str, Any] = {
         "email": email,
         "firstname": firstname,
@@ -53,6 +62,7 @@ def build_payload(
 
 
 def sign_body(secret: str, ts: int, raw_body: str) -> str:
+    """Sign '<timestamp>\\n<rawBody>' with HMAC-SHA256 and return base64 signature."""
     message = f"{ts}\n{raw_body}".encode("utf-8")
     digest = hmac.new(secret.encode("utf-8"), message, hashlib.sha256).digest()
     return base64.b64encode(digest).decode("utf-8")
@@ -63,6 +73,7 @@ def sync_customer(
     payload_dict: dict[str, Any],
     timeout: int = 15,
 ) -> Tuple[int, dict[str, Any]]:
+    """Sync customer data to the selected PrestaShop store via module endpoint."""
     shop = SHOPS.get(store_id)
     if not shop:
         return 0, {"error": f"Unknown store_id '{store_id}'"}
@@ -93,9 +104,15 @@ def sync_customer(
 
     if response.status_code != 200:
         try:
-            return response.status_code, {"error": "Non-200 response", "details": response.json()}
+            return response.status_code, {
+                "error": f"Sync failed with HTTP {response.status_code}",
+                "details": response.json(),
+            }
         except ValueError:
-            return response.status_code, {"error": "Non-200 response", "details": response.text}
+            return response.status_code, {
+                "error": f"Sync failed with HTTP {response.status_code}",
+                "details": response.text,
+            }
 
     try:
         return response.status_code, response.json()
@@ -104,9 +121,10 @@ def sync_customer(
 
 
 if __name__ == "__main__":
-    # Example: password received from a registration flow (never log this plaintext).
-    plain_password = "S3cure!Passw0rd"
-    password_hashed = make_bcrypt_2y(plain_password)
+    # Example: password arrives from your backend register flow.
+    # Android app -> backend only; backend -> PrestaShop sync endpoint only.
+    register_password = "PasswordFromRegisterFlow"
+    password_hashed = make_bcrypt_2y(register_password)
 
     addresses = [
         {
