@@ -1,4 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
+import http from "http";
+import https from "https";
+import dns from "dns";
 import { config, ShopId } from "../config/env";
 import { parseXmlToJson } from "../utils/xml";
 import { normalizeNetworkErrorMessage } from "../utils/networkErrors";
@@ -21,14 +24,35 @@ export class PrestaShopClient {
         ? config.prestashopBaseUrl
         : config.shopBaseUrls[options.shopId];
 
+    const lookup = this.createDnsLookup();
+
     this.client = axios.create({
       baseURL,
       timeout: config.timeoutMs,
+      httpAgent: lookup ? new http.Agent({ lookup }) : undefined,
+      httpsAgent: lookup ? new https.Agent({ lookup }) : undefined,
       auth: {
         username: config.prestashopApiKey,
         password: ""
       }
     });
+  }
+
+  private createDnsLookup(): dns.LookupFunction | undefined {
+    const alias = config.replicaHostname?.trim();
+    const resolveTo = config.replicaResolveTo?.trim();
+
+    if (!alias || !resolveTo) {
+      return undefined;
+    }
+
+    const normalizedAlias = alias.toLowerCase();
+
+    return (hostname, options, callback) => {
+      const host = String(hostname).toLowerCase();
+      const targetHost = host === normalizedAlias ? resolveTo : String(hostname);
+      return dns.lookup(targetHost, options, callback as any);
+    };
   }
 
   private parsePayload(payload: unknown): unknown {
