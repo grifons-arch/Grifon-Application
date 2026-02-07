@@ -107,6 +107,11 @@ class PrestaShopClient {
             attempts: maxAttempts,
             error: lastError?.message
         });
+        const lastErrorMessage = lastError instanceof Error
+            ? lastError.message
+            : typeof lastError === "string"
+                ? lastError
+                : undefined;
         throw {
             status: 502,
             code: "UPSTREAM_ERROR",
