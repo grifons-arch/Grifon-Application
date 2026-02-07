@@ -15,8 +15,10 @@ const envSchema = zod_1.z.object({
     DEFAULT_SHOP_ID: zod_1.z.enum(["1", "4"]).default("4"),
     PENDING_WHOLESALE_GROUP_ID: zod_1.z.string().optional().default(""),
     COUNTRY_GROUP_MAP: zod_1.z.string().optional().default("{}"),
-    SHOP_GR_BASE_URL: zod_1.z.string().url().default("https://grifon.gr/api"),
-    SHOP_SE_BASE_URL: zod_1.z.string().url().default("http://grifon.se/api"),
+    SHOP_GR_BASE_URL: zod_1.z.string().url().default("https://replica/grifon.gr/api"),
+    SHOP_SE_BASE_URL: zod_1.z.string().url().default("https://replica/grifon.se/api"),
+    REPLICA_HOSTNAME: zod_1.z.string().default("replica"),
+    REPLICA_RESOLVE_TO: zod_1.z.string().optional().default(""),
     CACHE_TTL_CATEGORIES_SECONDS: zod_1.z.string().default("600"),
     CACHE_TTL_PRODUCTS_SECONDS: zod_1.z.string().default("120"),
     TIMEOUT_MS: zod_1.z.string().default("8000"),
@@ -61,6 +63,8 @@ exports.config = {
         4: env.SHOP_GR_BASE_URL,
         1: env.SHOP_SE_BASE_URL
     },
+    replicaHostname: env.REPLICA_HOSTNAME,
+    replicaResolveTo: env.REPLICA_RESOLVE_TO,
     defaultShopId: env.DEFAULT_SHOP_ID === "1" ? 1 : 4,
     pendingWholesaleGroupId: env.PENDING_WHOLESALE_GROUP_ID
         ? Number(env.PENDING_WHOLESALE_GROUP_ID)
