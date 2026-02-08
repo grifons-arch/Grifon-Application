@@ -5,6 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PrestaShopClient = void 0;
 const axios_1 = __importDefault(require("axios"));
+const http_1 = __importDefault(require("http"));
+const https_1 = __importDefault(require("https"));
+const dns_1 = __importDefault(require("dns"));
 const env_1 = require("../config/env");
 const xml_1 = require("../utils/xml");
 const networkErrors_1 = require("../utils/networkErrors");
@@ -15,14 +18,30 @@ class PrestaShopClient {
         const baseURL = options.shopId === env_1.config.defaultShopId && env_1.config.prestashopBaseUrl
             ? env_1.config.prestashopBaseUrl
             : env_1.config.shopBaseUrls[options.shopId];
+        const lookup = this.createDnsLookup();
         this.client = axios_1.default.create({
             baseURL,
             timeout: env_1.config.timeoutMs,
+            httpAgent: lookup ? new http_1.default.Agent({ lookup }) : undefined,
+            httpsAgent: lookup ? new https_1.default.Agent({ lookup }) : undefined,
             auth: {
                 username: env_1.config.prestashopApiKey,
                 password: ""
             }
         });
+    }
+    createDnsLookup() {
+        const alias = env_1.config.replicaHostname?.trim();
+        const resolveTo = env_1.config.replicaResolveTo?.trim();
+        if (!alias || !resolveTo) {
+            return undefined;
+        }
+        const normalizedAlias = alias.toLowerCase();
+        return (hostname, options, callback) => {
+            const host = String(hostname).toLowerCase();
+            const targetHost = host === normalizedAlias ? resolveTo : String(hostname);
+            return dns_1.default.lookup(targetHost, options, callback);
+        };
     }
     parsePayload(payload) {
         if (typeof payload !== "string") {
@@ -52,6 +71,18 @@ class PrestaShopClient {
             "Content-Type": "application/xml"
         });
         return response;
+    }
+    resolveUpstreamHostname(urlPath) {
+        const configuredBaseUrl = this.client.defaults.baseURL;
+        if (!configuredBaseUrl) {
+            return undefined;
+        }
+        try {
+            return new URL(urlPath, configuredBaseUrl).hostname;
+        }
+        catch {
+            return undefined;
+        }
     }
     async request(method, url, params, data, headers) {
         const queryParams = {
@@ -100,7 +131,10 @@ class PrestaShopClient {
                 await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
             }
         }
-        const networkMessage = (0, networkErrors_1.normalizeNetworkErrorMessage)(lastError);
+        const upstreamHostname = this.resolveUpstreamHostname(url);
+        const networkMessage = (0, networkErrors_1.normalizeNetworkErrorMessage)(lastError, {
+            fallbackHostname: upstreamHostname
+        });
         // eslint-disable-next-line no-console
         console.error("PrestaShop upstream request failed", {
             method,

@@ -10,6 +10,14 @@ const networkErrors_1 = require("../src/utils/networkErrors");
         });
         (0, vitest_1.expect)(message).toBe("Unable to resolve upstream hostname: replica");
     });
+    (0, vitest_1.it)("uses fallback hostname when ENOTFOUND does not include one", () => {
+        const message = (0, networkErrors_1.normalizeNetworkErrorMessage)({
+            code: "ENOTFOUND"
+        }, {
+            fallbackHostname: "grifon.gr"
+        });
+        (0, vitest_1.expect)(message).toBe("Unable to resolve upstream hostname: grifon.gr");
+    });
     (0, vitest_1.it)("formats timeout and connection refused errors", () => {
         (0, vitest_1.expect)((0, networkErrors_1.normalizeNetworkErrorMessage)({ code: "ETIMEDOUT" })).toBe("Upstream service timed out");
         (0, vitest_1.expect)((0, networkErrors_1.normalizeNetworkErrorMessage)({ code: "ECONNREFUSED" })).toBe("Upstream service refused the connection");
