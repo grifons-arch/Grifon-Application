@@ -19,6 +19,8 @@ const envSchema = zod_1.z.object({
     SHOP_SE_BASE_URL: zod_1.z.string().url().default("https://replica/grifon.se/api"),
     REPLICA_HOSTNAME: zod_1.z.string().default("replica"),
     REPLICA_RESOLVE_TO: zod_1.z.string().default(""),
+    GRIFON_CUSTOMER_SYNC_SECRET: zod_1.z.string().optional().default(""),
+    GRIFON_CUSTOMER_SYNC_PATH: zod_1.z.string().default("/module/grifoncustomersync/sync"),
     CACHE_TTL_CATEGORIES_SECONDS: zod_1.z.string().default("600"),
     CACHE_TTL_PRODUCTS_SECONDS: zod_1.z.string().default("120"),
     TIMEOUT_MS: zod_1.z.string().default("8000"),
@@ -65,6 +67,8 @@ exports.config = {
     },
     replicaHostname: env.REPLICA_HOSTNAME,
     replicaResolveTo: env.REPLICA_RESOLVE_TO,
+    customerSyncSecret: env.GRIFON_CUSTOMER_SYNC_SECRET,
+    customerSyncPath: env.GRIFON_CUSTOMER_SYNC_PATH,
     defaultShopId: env.DEFAULT_SHOP_ID === "1" ? 1 : 4,
     pendingWholesaleGroupId: env.PENDING_WHOLESALE_GROUP_ID
         ? Number(env.PENDING_WHOLESALE_GROUP_ID)

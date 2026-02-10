@@ -1,98 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerCustomer = void 0;
+const axios_1 = require("axios");
+const crypto_1 = require("crypto");
+const dns_1 = require("dns");
+const http_1 = require("http");
+const https_1 = require("https");
 const PrestaShopClient_1 = require("../clients/PrestaShopClient");
 const env_1 = require("../config/env");
 const prestashopParser_1 = require("./prestashopParser");
-const xml_1 = require("../utils/xml");
 const PENDING_STATUS = "PENDING_WHOLESALE_APPROVAL";
-const buildCustomerPayload = (schema, request, groupIds) => {
-    const root = schema?.prestashop ?? schema;
-    const baseCustomer = root?.customer ?? {};
-    const associations = groupIds.length
-        ? {
-            groups: {
-                group: groupIds.map((id) => ({ id }))
-            }
-        }
-        : undefined;
-    const customerPayload = {
-        ...baseCustomer,
-        firstname: request.firstName,
-        lastname: request.lastName,
-        email: request.email,
-        passwd: request.password,
-        active: "0",
-        id_default_group: env_1.config.pendingWholesaleGroupId ?? baseCustomer.id_default_group,
-        id_shop: env_1.config.defaultShopId,
-        associations
-    };
-    const genderId = resolveGenderId(request.socialTitle);
-    if (genderId) {
-        customerPayload.id_gender = genderId;
-    }
-    if (request.newsletter !== undefined) {
-        customerPayload.newsletter = request.newsletter ? "1" : "0";
-    }
-    if (request.partnerOffers !== undefined) {
-        customerPayload.optin = request.partnerOffers ? "1" : "0";
-    }
-    if ("company" in baseCustomer && request.company) {
-        customerPayload.company = request.company;
-    }
-    if ("phone" in baseCustomer && request.phone) {
-        customerPayload.phone = request.phone;
-    }
-    return {
-        prestashop: {
-            customer: customerPayload
-        }
-    };
-};
-const buildAddressPayload = (schema, request, customerId, countryId) => {
-    const root = schema?.prestashop ?? schema;
-    const baseAddress = root?.address ?? {};
-    const addressPayload = {
-        ...baseAddress,
-        id_customer: customerId,
-        id_country: countryId,
-        firstname: request.firstName,
-        lastname: request.lastName,
-        address1: request.street,
-        city: request.city,
-        postcode: request.postalCode,
-        alias: "Default"
-    };
-    if ("company" in baseAddress && request.company) {
-        addressPayload.company = request.company;
-    }
-    if ("vat_number" in baseAddress && request.vatNumber) {
-        addressPayload.vat_number = request.vatNumber;
-    }
-    if ("other" in baseAddress && request.iban) {
-        addressPayload.other = `IBAN: ${request.iban}`;
-    }
-    if (request.phone) {
-        if ("phone" in baseAddress) {
-            addressPayload.phone = request.phone;
-        }
-        if ("phone_mobile" in baseAddress) {
-            addressPayload.phone_mobile = request.phone;
-        }
-    }
-    return {
-        prestashop: {
-            address: addressPayload
-        }
-    };
-};
-const resolveGenderId = (socialTitle) => {
-    if (socialTitle === "mr")
-        return 1;
-    if (socialTitle === "mrs")
-        return 2;
-    return undefined;
-};
 const resolveGroupIds = (countryIso) => {
     const groupIds = new Set();
     if (env_1.config.pendingWholesaleGroupId) {
@@ -113,22 +30,87 @@ const findCustomerByEmail = async (client, email) => {
     const customers = (0, prestashopParser_1.extractResourceList)("customers", payload);
     return customers.length > 0;
 };
-const resolveCountryId = async (client, countryIso) => {
-    const payload = await client.get("countries", {
-        "filter[iso_code]": `[${countryIso.toUpperCase()}]`,
-        display: "[id,iso_code]",
-        limit: 1
-    });
-    const countries = (0, prestashopParser_1.extractResourceList)("countries", payload);
-    const countryId = countries?.[0]?.id;
-    if (!countryId) {
+const createDnsLookup = () => {
+    const alias = env_1.config.replicaHostname?.trim();
+    const resolveTo = env_1.config.replicaResolveTo?.trim();
+    if (!alias || !resolveTo) {
+        return undefined;
+    }
+    const normalizedAlias = alias.toLowerCase();
+    return (hostname, options, callback) => {
+        const host = String(hostname).toLowerCase();
+        const targetHost = host === normalizedAlias ? resolveTo : String(hostname);
+        return dns_1.lookup(targetHost, options, callback);
+    };
+};
+const resolveSyncUrl = () => {
+    const baseUrl = env_1.config.prestashopBaseUrl || env_1.config.shopBaseUrls[env_1.config.defaultShopId];
+    const url = new URL(baseUrl);
+    const configuredPath = env_1.config.customerSyncPath.startsWith("/")
+        ? env_1.config.customerSyncPath
+        : `/${env_1.config.customerSyncPath}`;
+    const pathname = url.pathname.replace(/\/+$/, "");
+    if (pathname.endsWith("/api")) {
+        url.pathname = `${pathname.slice(0, -4)}${configuredPath}`;
+    }
+    else {
+        url.pathname = `${pathname}${configuredPath}`;
+    }
+    return url.toString();
+};
+const createModuleHeaders = (payload) => {
+    if (!env_1.config.customerSyncSecret) {
         throw {
-            status: 400,
-            code: "INVALID_COUNTRY",
-            message: "Invalid country ISO code"
+            status: 500,
+            code: "CONFIG_ERROR",
+            message: "GRIFON_CUSTOMER_SYNC_SECRET is required for customer registration sync"
         };
     }
-    return Number(countryId);
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const signatureBase = `${timestamp}\n${payload}`;
+    const signature = crypto_1.default
+        .createHmac("sha256", env_1.config.customerSyncSecret)
+        .update(signatureBase, "utf8")
+        .digest("base64");
+    return {
+        "Content-Type": "application/json",
+        "X-Grifon-Timestamp": timestamp,
+        "X-Grifon-Signature": signature
+    };
+};
+const buildSyncPayload = (request) => {
+    const groupIds = resolveGroupIds(request.countryIso);
+    return {
+        externalCustomerId: request.email.trim().toLowerCase(),
+        customer: {
+            email: request.email.trim().toLowerCase(),
+            firstname: request.firstName,
+            lastname: request.lastName,
+            password: request.password,
+            company: request.company,
+            newsletter: request.newsletter ? 1 : 0,
+            optin: request.partnerOffers ? 1 : 0,
+            active: 0
+        },
+        groups: {
+            default: env_1.config.pendingWholesaleGroupId,
+            list: groupIds
+        },
+        addresses: [
+            {
+                externalAddressId: `${request.email.trim().toLowerCase()}::default`,
+                alias: "Default",
+                address1: request.street,
+                postcode: request.postalCode,
+                city: request.city,
+                countryIso: request.countryIso,
+                vat_number: request.vatNumber,
+                phone: request.phone,
+                other: request.iban ? `IBAN: ${request.iban}` : undefined,
+                company: request.company
+            }
+        ]
+    };
 };
 const registerCustomer = async (request) => {
     const client = new PrestaShopClient_1.PrestaShopClient({ shopId: env_1.config.defaultShopId });
@@ -141,37 +123,27 @@ const registerCustomer = async (request) => {
             message: "Email already registered"
         };
     }
-    const schema = await client.get("customers", { schema: "blank" });
-    const countryId = await resolveCountryId(client, request.countryIso);
-    const groupIds = resolveGroupIds(request.countryIso);
-    const payload = buildCustomerPayload(schema, {
-        ...request,
-        email
-    }, groupIds);
-    const xmlBody = (0, xml_1.buildXmlFromJson)(payload);
+    const payload = buildSyncPayload({ ...request, email });
+    const body = JSON.stringify(payload);
+    const headers = createModuleHeaders(body);
+    const lookup = createDnsLookup();
     try {
-        const created = await client.postXml("customers", xmlBody);
-        const customer = (0, prestashopParser_1.extractResourceItem)("customer", created);
-        const customerId = customer?.id ?? customer?.id_customer;
-        if (!customerId) {
-            throw {
-                status: 502,
-                code: "UPSTREAM_ERROR",
-                message: "Missing customer id in Prestashop response"
+        const response = await axios_1.default.post(resolveSyncUrl(), body, {
+            timeout: env_1.config.timeoutMs,
+            headers,
+            httpAgent: lookup ? new http_1.default.Agent({ lookup }) : undefined,
+            httpsAgent: lookup ? new https_1.default.Agent({ lookup }) : undefined,
+            validateStatus: () => true
+        });
+        if (response.status >= 200 && response.status < 300) {
+            const customerId = String(response.data?.customerId ?? response.data?.id_customer ?? response.data?.id ?? email);
+            return {
+                customerId,
+                status: response.data?.status ?? PENDING_STATUS,
+                message: response.data?.message ?? "Η αίτηση καταχωρήθηκε και βρίσκεται σε αναμονή έγκρισης."
             };
         }
-        const addressSchema = await client.get("addresses", { schema: "blank" });
-        const addressPayload = buildAddressPayload(addressSchema, request, String(customerId), countryId);
-        const addressBody = (0, xml_1.buildXmlFromJson)(addressPayload);
-        await client.postXml("addresses", addressBody);
-        return {
-            customerId: String(customerId),
-            status: PENDING_STATUS,
-            message: "Η αίτηση καταχωρήθηκε και βρίσκεται σε αναμονή έγκρισης."
-        };
-    }
-    catch (error) {
-        const message = String(error?.message ?? "Prestashop error");
+        const message = String(response.data?.message ?? "Failed to create customer");
         if (message.toLowerCase().includes("email") && message.toLowerCase().includes("exists")) {
             throw {
                 status: 409,
@@ -179,13 +151,22 @@ const registerCustomer = async (request) => {
                 message: "Email already registered"
             };
         }
+        throw {
+            status: response.status || 502,
+            code: "UPSTREAM_ERROR",
+            message,
+            details: response.data
+        };
+    }
+    catch (error) {
         if (error?.status) {
             throw error;
         }
         throw {
             status: 502,
             code: "UPSTREAM_ERROR",
-            message: "Failed to create customer"
+            message: "Failed to create customer",
+            details: String(error?.message ?? "Unknown error")
         };
     }
 };
