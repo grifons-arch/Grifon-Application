@@ -4,8 +4,9 @@ import com.squareup.moshi.Json
 
 data class RegisterRequestDto(
     val email: String,
-    @field:Json(name = "passwd")
     val password: String,
+    @field:Json(name = "passwd")
+    val passwd: String = password,
     val socialTitle: String? = null,
     val firstName: String,
     val lastName: String,
