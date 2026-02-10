@@ -8,7 +8,7 @@ describe("normalizeNetworkErrorMessage", () => {
       hostname: "replica"
     });
 
-    expect(message).toBe("Unable to resolve upstream hostname: replica");
+    expect(message).toBe("Unable to resolve upstream: replica");
   });
 
 
@@ -22,7 +22,7 @@ describe("normalizeNetworkErrorMessage", () => {
       }
     );
 
-    expect(message).toBe("Unable to resolve upstream hostname: grifon.gr");
+    expect(message).toBe("Unable to resolve upstream: grifon.gr");
   });
   it("formats timeout and connection refused errors", () => {
     expect(normalizeNetworkErrorMessage({ code: "ETIMEDOUT" })).toBe(
