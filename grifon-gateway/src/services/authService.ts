@@ -3,9 +3,8 @@ import crypto from "crypto";
 import dns from "dns";
 import http from "http";
 import https from "https";
-import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { config } from "../config/env";
-import { extractResourceList } from "./prestashopParser";
+import { normalizeNetworkErrorMessage } from "../utils/networkErrors";
 
 export interface RegisterRequest {
   email: string;
@@ -47,16 +46,6 @@ const resolveGroupIds = (countryIso: string): number[] => {
   return Array.from(groupIds);
 };
 
-const findCustomerByEmail = async (client: PrestaShopClient, email: string): Promise<boolean> => {
-  const payload = await client.get("customers", {
-    "filter[email]": `[${email}]`,
-    display: "[id,email]",
-    limit: 1
-  });
-  const customers = extractResourceList<any>("customers", payload);
-  return customers.length > 0;
-};
-
 const createDnsLookup = (): dns.LookupFunction | undefined => {
   const alias = config.replicaHostname?.trim();
   const resolveTo = config.replicaResolveTo?.trim();
@@ -89,6 +78,15 @@ const resolveSyncUrl = (): string => {
   }
 
   return url.toString();
+};
+
+
+const resolveSyncHostname = (syncUrl: string): string | undefined => {
+  try {
+    return new URL(syncUrl).hostname;
+  } catch {
+    return undefined;
+  }
 };
 
 const createModuleHeaders = (payload: string): Record<string, string> => {
@@ -151,25 +149,16 @@ const buildSyncPayload = (request: RegisterRequest): Record<string, unknown> => 
 };
 
 export const registerCustomer = async (request: RegisterRequest): Promise<RegisterResponse> => {
-  const client = new PrestaShopClient({ shopId: config.defaultShopId });
   const email = request.email.trim().toLowerCase();
-
-  const exists = await findCustomerByEmail(client, email);
-  if (exists) {
-    throw {
-      status: 409,
-      code: "EMAIL_EXISTS",
-      message: "Email already registered"
-    };
-  }
 
   const payload = buildSyncPayload({ ...request, email });
   const body = JSON.stringify(payload);
   const headers = createModuleHeaders(body);
   const lookup = createDnsLookup();
+  const syncUrl = resolveSyncUrl();
 
   try {
-    const response = await axios.post(resolveSyncUrl(), body, {
+    const response = await axios.post(syncUrl, body, {
       timeout: config.timeoutMs,
       headers,
       httpAgent: lookup ? new http.Agent({ lookup }) : undefined,
@@ -210,11 +199,17 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
       throw error;
     }
 
+    const networkMessage = normalizeNetworkErrorMessage(error, {
+      fallbackHostname: resolveSyncHostname(syncUrl)
+    });
+
     throw {
       status: 502,
       code: "UPSTREAM_ERROR",
-      message: "Failed to create customer",
-      details: String(error?.message ?? "Unknown error")
+      message: networkMessage
+        ? `Failed to create customer: ${networkMessage}`
+        : "Failed to create customer",
+      details: networkMessage ?? String(error?.message ?? "Unknown error")
     };
   }
 };

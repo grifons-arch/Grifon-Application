@@ -1,14 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerCustomer = void 0;
-const axios_1 = require("axios");
-const crypto_1 = require("crypto");
-const dns_1 = require("dns");
-const http_1 = require("http");
-const https_1 = require("https");
-const PrestaShopClient_1 = require("../clients/PrestaShopClient");
+const axios_1 = __importDefault(require("axios"));
+const crypto_1 = __importDefault(require("crypto"));
+const dns_1 = __importDefault(require("dns"));
+const http_1 = __importDefault(require("http"));
+const https_1 = __importDefault(require("https"));
 const env_1 = require("../config/env");
-const prestashopParser_1 = require("./prestashopParser");
+const networkErrors_1 = require("../utils/networkErrors");
 const PENDING_STATUS = "PENDING_WHOLESALE_APPROVAL";
 const resolveGroupIds = (countryIso) => {
     const groupIds = new Set();
@@ -21,15 +23,6 @@ const resolveGroupIds = (countryIso) => {
     }
     return Array.from(groupIds);
 };
-const findCustomerByEmail = async (client, email) => {
-    const payload = await client.get("customers", {
-        "filter[email]": `[${email}]`,
-        display: "[id,email]",
-        limit: 1
-    });
-    const customers = (0, prestashopParser_1.extractResourceList)("customers", payload);
-    return customers.length > 0;
-};
 const createDnsLookup = () => {
     const alias = env_1.config.replicaHostname?.trim();
     const resolveTo = env_1.config.replicaResolveTo?.trim();
@@ -40,7 +33,7 @@ const createDnsLookup = () => {
     return (hostname, options, callback) => {
         const host = String(hostname).toLowerCase();
         const targetHost = host === normalizedAlias ? resolveTo : String(hostname);
-        return dns_1.lookup(targetHost, options, callback);
+        return dns_1.default.lookup(targetHost, options, callback);
     };
 };
 const resolveSyncUrl = () => {
@@ -57,6 +50,14 @@ const resolveSyncUrl = () => {
         url.pathname = `${pathname}${configuredPath}`;
     }
     return url.toString();
+};
+const resolveSyncHostname = (syncUrl) => {
+    try {
+        return new URL(syncUrl).hostname;
+    }
+    catch {
+        return undefined;
+    }
 };
 const createModuleHeaders = (payload) => {
     if (!env_1.config.customerSyncSecret) {
@@ -113,22 +114,14 @@ const buildSyncPayload = (request) => {
     };
 };
 const registerCustomer = async (request) => {
-    const client = new PrestaShopClient_1.PrestaShopClient({ shopId: env_1.config.defaultShopId });
     const email = request.email.trim().toLowerCase();
-    const exists = await findCustomerByEmail(client, email);
-    if (exists) {
-        throw {
-            status: 409,
-            code: "EMAIL_EXISTS",
-            message: "Email already registered"
-        };
-    }
     const payload = buildSyncPayload({ ...request, email });
     const body = JSON.stringify(payload);
     const headers = createModuleHeaders(body);
     const lookup = createDnsLookup();
+    const syncUrl = resolveSyncUrl();
     try {
-        const response = await axios_1.default.post(resolveSyncUrl(), body, {
+        const response = await axios_1.default.post(syncUrl, body, {
             timeout: env_1.config.timeoutMs,
             headers,
             httpAgent: lookup ? new http_1.default.Agent({ lookup }) : undefined,
@@ -162,11 +155,16 @@ const registerCustomer = async (request) => {
         if (error?.status) {
             throw error;
         }
+        const networkMessage = (0, networkErrors_1.normalizeNetworkErrorMessage)(error, {
+            fallbackHostname: resolveSyncHostname(syncUrl)
+        });
         throw {
             status: 502,
             code: "UPSTREAM_ERROR",
-            message: "Failed to create customer",
-            details: String(error?.message ?? "Unknown error")
+            message: networkMessage
+                ? `Failed to create customer: ${networkMessage}`
+                : "Failed to create customer",
+            details: networkMessage ?? String(error?.message ?? "Unknown error")
         };
     }
 };
