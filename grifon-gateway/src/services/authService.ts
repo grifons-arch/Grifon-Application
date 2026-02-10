@@ -3,7 +3,7 @@ import crypto from "crypto";
 import dns from "dns";
 import http from "http";
 import https from "https";
-import { config } from "../config/env";
+import { config, shops } from "../config/env";
 import { normalizeNetworkErrorMessage } from "../utils/networkErrors";
 
 export interface RegisterRequest {
@@ -88,6 +88,11 @@ const resolveSyncUrl = (): string => {
     if (candidateDomain && candidateDomain.includes(".")) {
       url.hostname = candidateDomain;
       url.pathname = `/${segments.slice(1).join("/")}`;
+    } else {
+      const defaultShop = shops.find((shop) => shop.id === config.defaultShopId);
+      if (defaultShop?.domain) {
+        url.hostname = defaultShop.domain;
+      }
     }
   }
 

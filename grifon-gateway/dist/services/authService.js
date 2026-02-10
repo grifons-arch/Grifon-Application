@@ -59,6 +59,12 @@ const resolveSyncUrl = () => {
             url.hostname = candidateDomain;
             url.pathname = `/${segments.slice(1).join("/")}`;
         }
+        else {
+            const defaultShop = env_1.shops.find((shop) => shop.id === env_1.config.defaultShopId);
+            if (defaultShop?.domain) {
+                url.hostname = defaultShop.domain;
+            }
+        }
     }
     return url.toString();
 };
