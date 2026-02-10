@@ -95,6 +95,14 @@ class RegisterViewModel(
         val currentState = _uiState.value
         if (!currentState.isSubmitEnabled) return
 
+        val countryIso = normalizeCountryIso(currentState.country)
+        if (countryIso == null) {
+            _uiState.update {
+                it.copy(status = RegisterStatus.Error("Συμπληρώστε έγκυρο κωδικό χώρας (π.χ. GR)."))
+            }
+            return
+        }
+
         _uiState.update { it.copy(status = RegisterStatus.Loading) }
         viewModelScope.launch {
             val params = RegisterParams(
@@ -103,7 +111,7 @@ class RegisterViewModel(
                 socialTitle = currentState.socialTitle.trim().ifBlank { null },
                 firstName = currentState.firstName.trim(),
                 lastName = currentState.lastName.trim(),
-                countryIso = currentState.country.trim().uppercase(),
+                countryIso = countryIso,
                 street = currentState.street.trim(),
                 city = currentState.city.trim(),
                 postalCode = currentState.postalCode.trim(),
@@ -154,6 +162,20 @@ class RegisterViewModel(
 
     fun onGoogleAccountError(message: String) {
         _uiState.update { it.copy(googleSignInError = message) }
+    }
+
+    private fun normalizeCountryIso(rawCountry: String): String? {
+        val country = rawCountry.trim()
+        if (country.isBlank()) return null
+
+        if (country.length == 2) {
+            return country.uppercase()
+        }
+
+        return when (country.lowercase()) {
+            "ελλάδα", "ελλαδα", "greece", "ellada", "hellas" -> "GR"
+            else -> null
+        }
     }
 
     private fun parseNameParts(

@@ -88,6 +88,32 @@ class RegisterViewModelTest {
 
         assertTrue(viewModel.uiState.value.status is RegisterStatus.Error)
     }
+
+    @Test
+    fun `onSubmit with invalid country shows error without request`() = runTest {
+        val deferred = CompletableDeferred<RegisterOutcome>()
+        val viewModel = RegisterViewModel(
+            RegisterUseCase(DeferredRegisterRepository(deferred)),
+        )
+
+        viewModel.onFirstNameChange("Test")
+        viewModel.onLastNameChange("User")
+        viewModel.onCountryChange("Unknown Country")
+        viewModel.onCityChange("Αθήνα")
+        viewModel.onStreetChange("Οδός 1")
+        viewModel.onPostalCodeChange("10435")
+        viewModel.onEmailChange("test@example.com")
+        viewModel.onEmailConfirmationChange("test@example.com")
+        viewModel.onPasswordChange("secret123")
+        viewModel.onPasswordConfirmationChange("secret123")
+        viewModel.onCustomerDataPrivacyAcceptedChange(true)
+        viewModel.onTermsAndPrivacyAcceptedChange(true)
+
+        viewModel.onSubmit()
+
+        assertTrue(viewModel.uiState.value.status is RegisterStatus.Error)
+    }
+
 }
 
 private class DeferredRegisterRepository(
