@@ -13,6 +13,29 @@ const toOptionalString = (value: unknown) => {
   return trimmed === "" ? undefined : trimmed;
 };
 
+const toOptionalSocialTitle = (value: unknown) => {
+  const normalizedValue = toOptionalString(value);
+  if (normalizedValue === undefined || typeof normalizedValue !== "string") {
+    return normalizedValue;
+  }
+
+  switch (normalizedValue.toLowerCase()) {
+    case "mr":
+    case "m":
+    case "κος":
+    case "κος.":
+      return "mr";
+    case "mrs":
+    case "ms":
+    case "f":
+    case "κα":
+    case "κα.":
+      return "mrs";
+    default:
+      return normalizedValue;
+  }
+};
+
 export const shopQuerySchema = z.object({
   shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])).default(4),
   lang: z.preprocess(toNumber, z.number().int().positive().optional())
@@ -46,7 +69,7 @@ export const registerBodySchema = z
     email: z.string().trim().email(),
     password: z.string().min(8).optional(),
     passwd: z.string().min(8).optional(),
-    socialTitle: z.preprocess(toOptionalString, z.enum(["mr", "mrs"]).optional()),
+    socialTitle: z.preprocess(toOptionalSocialTitle, z.enum(["mr", "mrs"]).optional()),
     firstName: z.string().trim().min(1),
     lastName: z.string().trim().min(1),
     countryIso: z.string().trim().length(2),
