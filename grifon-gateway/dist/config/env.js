@@ -18,7 +18,7 @@ const envSchema = zod_1.z.object({
     SHOP_GR_BASE_URL: zod_1.z.string().url().default("https://replica/grifon.gr/api"),
     SHOP_SE_BASE_URL: zod_1.z.string().url().default("https://replica/grifon.se/api"),
     REPLICA_HOSTNAME: zod_1.z.string().default("replica"),
-    REPLICA_RESOLVE_TO: zod_1.z.string().default("prestashop-demo"),
+    REPLICA_RESOLVE_TO: zod_1.z.string().default(""),
     CACHE_TTL_CATEGORIES_SECONDS: zod_1.z.string().default("600"),
     CACHE_TTL_PRODUCTS_SECONDS: zod_1.z.string().default("120"),
     TIMEOUT_MS: zod_1.z.string().default("8000"),
