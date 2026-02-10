@@ -10,6 +10,7 @@ const dns_1 = __importDefault(require("dns"));
 const http_1 = __importDefault(require("http"));
 const https_1 = __importDefault(require("https"));
 const env_1 = require("../config/env");
+const networkErrors_1 = require("../utils/networkErrors");
 const PENDING_STATUS = "PENDING_WHOLESALE_APPROVAL";
 const resolveGroupIds = (countryIso) => {
     const groupIds = new Set();
@@ -49,6 +50,14 @@ const resolveSyncUrl = () => {
         url.pathname = `${pathname}${configuredPath}`;
     }
     return url.toString();
+};
+const resolveSyncHostname = (syncUrl) => {
+    try {
+        return new URL(syncUrl).hostname;
+    }
+    catch {
+        return undefined;
+    }
 };
 const createModuleHeaders = (payload) => {
     if (!env_1.config.customerSyncSecret) {
@@ -110,8 +119,9 @@ const registerCustomer = async (request) => {
     const body = JSON.stringify(payload);
     const headers = createModuleHeaders(body);
     const lookup = createDnsLookup();
+    const syncUrl = resolveSyncUrl();
     try {
-        const response = await axios_1.default.post(resolveSyncUrl(), body, {
+        const response = await axios_1.default.post(syncUrl, body, {
             timeout: env_1.config.timeoutMs,
             headers,
             httpAgent: lookup ? new http_1.default.Agent({ lookup }) : undefined,
@@ -145,11 +155,16 @@ const registerCustomer = async (request) => {
         if (error?.status) {
             throw error;
         }
+        const networkMessage = (0, networkErrors_1.normalizeNetworkErrorMessage)(error, {
+            fallbackHostname: resolveSyncHostname(syncUrl)
+        });
         throw {
             status: 502,
             code: "UPSTREAM_ERROR",
-            message: "Failed to create customer",
-            details: String(error?.message ?? "Unknown error")
+            message: networkMessage
+                ? `Failed to create customer: ${networkMessage}`
+                : "Failed to create customer",
+            details: networkMessage ?? String(error?.message ?? "Unknown error")
         };
     }
 };

@@ -4,6 +4,7 @@ import dns from "dns";
 import http from "http";
 import https from "https";
 import { config } from "../config/env";
+import { normalizeNetworkErrorMessage } from "../utils/networkErrors";
 
 export interface RegisterRequest {
   email: string;
@@ -79,6 +80,15 @@ const resolveSyncUrl = (): string => {
   return url.toString();
 };
 
+
+const resolveSyncHostname = (syncUrl: string): string | undefined => {
+  try {
+    return new URL(syncUrl).hostname;
+  } catch {
+    return undefined;
+  }
+};
+
 const createModuleHeaders = (payload: string): Record<string, string> => {
   if (!config.customerSyncSecret) {
     throw {
@@ -145,9 +155,10 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
   const body = JSON.stringify(payload);
   const headers = createModuleHeaders(body);
   const lookup = createDnsLookup();
+  const syncUrl = resolveSyncUrl();
 
   try {
-    const response = await axios.post(resolveSyncUrl(), body, {
+    const response = await axios.post(syncUrl, body, {
       timeout: config.timeoutMs,
       headers,
       httpAgent: lookup ? new http.Agent({ lookup }) : undefined,
@@ -188,11 +199,17 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
       throw error;
     }
 
+    const networkMessage = normalizeNetworkErrorMessage(error, {
+      fallbackHostname: resolveSyncHostname(syncUrl)
+    });
+
     throw {
       status: 502,
       code: "UPSTREAM_ERROR",
-      message: "Failed to create customer",
-      details: String(error?.message ?? "Unknown error")
+      message: networkMessage
+        ? `Failed to create customer: ${networkMessage}`
+        : "Failed to create customer",
+      details: networkMessage ?? String(error?.message ?? "Unknown error")
     };
   }
 };
