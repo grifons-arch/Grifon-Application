@@ -3,9 +3,7 @@ import crypto from "crypto";
 import dns from "dns";
 import http from "http";
 import https from "https";
-import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { config } from "../config/env";
-import { extractResourceList } from "./prestashopParser";
 
 export interface RegisterRequest {
   email: string;
@@ -45,16 +43,6 @@ const resolveGroupIds = (countryIso: string): number[] => {
     groupIds.add(countryGroupId);
   }
   return Array.from(groupIds);
-};
-
-const findCustomerByEmail = async (client: PrestaShopClient, email: string): Promise<boolean> => {
-  const payload = await client.get("customers", {
-    "filter[email]": `[${email}]`,
-    display: "[id,email]",
-    limit: 1
-  });
-  const customers = extractResourceList<any>("customers", payload);
-  return customers.length > 0;
 };
 
 const createDnsLookup = (): dns.LookupFunction | undefined => {
@@ -151,17 +139,7 @@ const buildSyncPayload = (request: RegisterRequest): Record<string, unknown> => 
 };
 
 export const registerCustomer = async (request: RegisterRequest): Promise<RegisterResponse> => {
-  const client = new PrestaShopClient({ shopId: config.defaultShopId });
   const email = request.email.trim().toLowerCase();
-
-  const exists = await findCustomerByEmail(client, email);
-  if (exists) {
-    throw {
-      status: 409,
-      code: "EMAIL_EXISTS",
-      message: "Email already registered"
-    };
-  }
 
   const payload = buildSyncPayload({ ...request, email });
   const body = JSON.stringify(payload);

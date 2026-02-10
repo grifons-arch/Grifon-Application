@@ -19,8 +19,8 @@ export const normalizeNetworkErrorMessage = (
 
   if (code === "ENOTFOUND") {
     return hostname
-      ? `Unable to resolve upstream hostname: ${hostname}`
-      : "Unable to resolve upstream hostname";
+      ? `Unable to resolve upstream: ${hostname}`
+      : "Unable to resolve upstream";
   }
 
   if (code === "ECONNREFUSED") {
