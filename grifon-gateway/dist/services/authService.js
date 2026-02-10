@@ -49,6 +49,17 @@ const resolveSyncUrl = () => {
     else {
         url.pathname = `${pathname}${configuredPath}`;
     }
+    const replicaHost = env_1.config.replicaHostname?.trim().toLowerCase();
+    const replicaResolveTo = env_1.config.replicaResolveTo?.trim();
+    const currentHost = url.hostname.toLowerCase();
+    if (replicaHost && !replicaResolveTo && currentHost === replicaHost) {
+        const segments = url.pathname.split("/").filter(Boolean);
+        const candidateDomain = segments[0]?.toLowerCase();
+        if (candidateDomain && candidateDomain.includes(".")) {
+            url.hostname = candidateDomain;
+            url.pathname = `/${segments.slice(1).join("/")}`;
+        }
+    }
     return url.toString();
 };
 const resolveSyncHostname = (syncUrl) => {
