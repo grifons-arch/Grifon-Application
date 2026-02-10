@@ -126,7 +126,7 @@ Quick checks:
 - Verify `SHOP_GR_BASE_URL`, `SHOP_SE_BASE_URL`, and `PRESTASHOP_BASE_URL` in `.env` are valid URLs.
 - Make sure the hostname exists in DNS (or in your Docker/network aliases if running locally).
 - For Docker setups, you can route through an internal reverse-proxy host such as `https://replica/grifon.gr/api`.
-- If you need to keep the hostname as `replica` but resolve it locally to another host/IP, set `REPLICA_HOSTNAME` (default: `replica`) and `REPLICA_RESOLVE_TO` (default: `prestashop-demo`, or your own host/IP like `127.0.0.1`).
+- If you need to keep the hostname as `replica` but resolve it locally to another host/IP, set `REPLICA_HOSTNAME` (default: `replica`) and `REPLICA_RESOLVE_TO` (no default; set it to your own host/IP like `127.0.0.1` or a Docker alias such as `prestashop-demo`).
 - For non-Docker/local runs, you can still use directly resolvable hosts in `SHOP_GR_BASE_URL`, `SHOP_SE_BASE_URL`, and `PRESTASHOP_BASE_URL`.
 - The API now normalizes this case as `Unable to resolve upstream hostname: <host>` to make root cause clearer.
 - Restart the gateway after changing environment variables.
