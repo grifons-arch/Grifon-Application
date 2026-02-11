@@ -3,6 +3,26 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const readEnvWithAliases = (...keys: string[]): string | undefined => {
+  for (const key of keys) {
+    const value = process.env[key];
+    if (typeof value === "string" && value.length > 0) {
+      return value;
+    }
+  }
+  return undefined;
+};
+
+const customerSyncSecret = readEnvWithAliases(
+  "GRIFON_CUSTOMER_SYNC_SECRET",
+  "GRIFON.CUSTOMER.SYNC.SECRET"
+);
+
+const customerSyncPath = readEnvWithAliases(
+  "GRIFON_CUSTOMER_SYNC_PATH",
+  "GRIFON.CUSTOMER.SYNC.PATH"
+);
+
 const envSchema = z.object({
   PORT: z.string().default("3000"),
   ALLOWED_ORIGINS: z.string().default("*"),
@@ -15,8 +35,10 @@ const envSchema = z.object({
   SHOP_SE_BASE_URL: z.string().url().default("https://replica/grifon.se/api"),
   REPLICA_HOSTNAME: z.string().default("replica"),
   REPLICA_RESOLVE_TO: z.string().default(""),
-  GRIFON_CUSTOMER_SYNC_SECRET: z.string().optional().default(""),
-  GRIFON_CUSTOMER_SYNC_PATH: z.string().default("/module/grifoncustomersync/sync"),
+  GRIFON_CUSTOMER_SYNC_SECRET: z.string().optional().default(customerSyncSecret ?? ""),
+  GRIFON_CUSTOMER_SYNC_PATH: z
+    .string()
+    .default(customerSyncPath ?? "/module/grifoncustomersync/sync"),
   CACHE_TTL_CATEGORIES_SECONDS: z.string().default("600"),
   CACHE_TTL_PRODUCTS_SECONDS: z.string().default("120"),
   TIMEOUT_MS: z.string().default("8000"),
