@@ -3,24 +3,41 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const normalizeEnvKey = (key: string): string =>
+  key.replace(/[^A-Za-z0-9]/g, "_").replace(/_+/g, "_").toUpperCase();
+
 const readEnvWithAliases = (...keys: string[]): string | undefined => {
+  const normalizedCandidates = new Set(keys.map(normalizeEnvKey));
+
   for (const key of keys) {
     const value = process.env[key];
-    if (typeof value === "string" && value.length > 0) {
-      return value;
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value.trim();
     }
   }
+
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!normalizedCandidates.has(normalizeEnvKey(key))) {
+      continue;
+    }
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+
   return undefined;
 };
 
 const customerSyncSecret = readEnvWithAliases(
   "GRIFON_CUSTOMER_SYNC_SECRET",
-  "GRIFON.CUSTOMER.SYNC.SECRET"
+  "GRIFON.CUSTOMER.SYNC.SECRET",
+  "GRIFON__CUSTOMER__SYNC__SECRET"
 );
 
 const customerSyncPath = readEnvWithAliases(
   "GRIFON_CUSTOMER_SYNC_PATH",
-  "GRIFON.CUSTOMER.SYNC.PATH"
+  "GRIFON.CUSTOMER.SYNC.PATH",
+  "GRIFON__CUSTOMER__SYNC__PATH"
 );
 
 const envSchema = z.object({
