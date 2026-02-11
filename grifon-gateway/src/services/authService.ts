@@ -120,7 +120,8 @@ const createModuleHeaders = (payload: string): Record<string, string> => {
     throw {
       status: 500,
       code: "CONFIG_ERROR",
-      message: "GRIFON_CUSTOMER_SYNC_SECRET is required for customer registration sync"
+      message:
+        "Customer sync secret is missing. Set GRIFON_CUSTOMER_SYNC_SECRET, GRIFON.CUSTOMER.SYNC.SECRET, or GRIFON__CUSTOMER__SYNC__SECRET"
     };
   }
 
