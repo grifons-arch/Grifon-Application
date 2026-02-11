@@ -7,6 +7,34 @@ exports.shops = exports.config = void 0;
 const zod_1 = require("zod");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+const normalizeEnvKey = (key) => key.replace(/[^A-Za-z0-9]/g, "_").replace(/_+/g, "_").toUpperCase();
+const readEnvWithAliases = (...keys) => {
+    const normalizedCandidates = new Set(keys.map(normalizeEnvKey));
+    for (const key of keys) {
+        const value = process.env[key];
+        if (typeof value === "string" && value.trim().length > 0) {
+            return value.trim();
+        }
+    }
+    for (const [key, value] of Object.entries(process.env)) {
+        if (!normalizedCandidates.has(normalizeEnvKey(key))) {
+            continue;
+        }
+        if (typeof value === "string" && value.trim().length > 0) {
+            return value.trim();
+        }
+    }
+    return undefined;
+};
+const trimToUndefined = (value) => {
+    if (typeof value !== "string") {
+        return undefined;
+    }
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+};
+const customerSyncSecret = readEnvWithAliases("GRIFON_CUSTOMER_SYNC_SECRET", "GRIFON.CUSTOMER.SYNC.SECRET", "GRIFON__CUSTOMER__SYNC__SECRET");
+const customerSyncPath = readEnvWithAliases("GRIFON_CUSTOMER_SYNC_PATH", "GRIFON.CUSTOMER.SYNC.PATH", "GRIFON__CUSTOMER__SYNC__PATH");
 const envSchema = zod_1.z.object({
     PORT: zod_1.z.string().default("3000"),
     ALLOWED_ORIGINS: zod_1.z.string().default("*"),
@@ -19,8 +47,10 @@ const envSchema = zod_1.z.object({
     SHOP_SE_BASE_URL: zod_1.z.string().url().default("https://replica/grifon.se/api"),
     REPLICA_HOSTNAME: zod_1.z.string().default("replica"),
     REPLICA_RESOLVE_TO: zod_1.z.string().default(""),
-    GRIFON_CUSTOMER_SYNC_SECRET: zod_1.z.string().optional().default(""),
-    GRIFON_CUSTOMER_SYNC_PATH: zod_1.z.string().default("/module/grifoncustomersync/sync"),
+    GRIFON_CUSTOMER_SYNC_SECRET: zod_1.z.string().optional().default(customerSyncSecret ?? ""),
+    GRIFON_CUSTOMER_SYNC_PATH: zod_1.z
+        .string()
+        .default(customerSyncPath ?? "/module/grifoncustomersync/sync"),
     CACHE_TTL_CATEGORIES_SECONDS: zod_1.z.string().default("600"),
     CACHE_TTL_PRODUCTS_SECONDS: zod_1.z.string().default("120"),
     TIMEOUT_MS: zod_1.z.string().default("8000"),
@@ -67,8 +97,8 @@ exports.config = {
     },
     replicaHostname: env.REPLICA_HOSTNAME,
     replicaResolveTo: env.REPLICA_RESOLVE_TO,
-    customerSyncSecret: env.GRIFON_CUSTOMER_SYNC_SECRET,
-    customerSyncPath: env.GRIFON_CUSTOMER_SYNC_PATH,
+    customerSyncSecret: trimToUndefined(env.GRIFON_CUSTOMER_SYNC_SECRET) ?? customerSyncSecret ?? "",
+    customerSyncPath: trimToUndefined(env.GRIFON_CUSTOMER_SYNC_PATH) ?? customerSyncPath ?? "/module/grifoncustomersync/sync",
     defaultShopId: env.DEFAULT_SHOP_ID === "1" ? 1 : 4,
     pendingWholesaleGroupId: env.PENDING_WHOLESALE_GROUP_ID
         ? Number(env.PENDING_WHOLESALE_GROUP_ID)
