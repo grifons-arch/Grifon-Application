@@ -36,8 +36,10 @@ const createDnsLookup = () => {
         return dns_1.default.lookup(targetHost, options, callback);
     };
 };
-const resolveSyncUrl = () => {
-    const baseUrl = env_1.config.prestashopBaseUrl || env_1.config.shopBaseUrls[env_1.config.defaultShopId];
+const resolveShopIdForCountry = (countryIso) => countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
+const resolveSyncUrl = (countryIso) => {
+    const shopId = resolveShopIdForCountry(countryIso);
+    const baseUrl = env_1.config.shopBaseUrls[shopId] || env_1.config.shopBaseUrls[env_1.config.defaultShopId] || env_1.config.prestashopBaseUrl;
     const url = new URL(baseUrl);
     const configuredPath = env_1.config.customerSyncPath.startsWith("/")
         ? env_1.config.customerSyncPath
@@ -48,6 +50,25 @@ const resolveSyncUrl = () => {
     }
     else {
         url.pathname = `${pathname}${configuredPath}`;
+    }
+    const replicaHost = env_1.config.replicaHostname?.trim().toLowerCase();
+    const replicaResolveTo = env_1.config.replicaResolveTo?.trim();
+    const currentHost = url.hostname.toLowerCase();
+    if (replicaHost && !replicaResolveTo && currentHost === replicaHost) {
+        const segments = url.pathname.split("/").filter(Boolean);
+        const candidateDomain = segments[0]?.toLowerCase();
+        if (candidateDomain && candidateDomain.includes(".")) {
+            url.hostname = candidateDomain;
+            url.pathname = `/${segments.slice(1).join("/")}`;
+        }
+        else {
+            const selectedShop = env_1.shops.find((shop) => shop.id === shopId);
+            const defaultShop = env_1.shops.find((shop) => shop.id === env_1.config.defaultShopId);
+            const fallbackDomain = selectedShop?.domain ?? defaultShop?.domain;
+            if (fallbackDomain) {
+                url.hostname = fallbackDomain;
+            }
+        }
     }
     return url.toString();
 };
@@ -119,7 +140,7 @@ const registerCustomer = async (request) => {
     const body = JSON.stringify(payload);
     const headers = createModuleHeaders(body);
     const lookup = createDnsLookup();
-    const syncUrl = resolveSyncUrl();
+    const syncUrl = resolveSyncUrl(request.countryIso);
     try {
         const response = await axios_1.default.post(syncUrl, body, {
             timeout: env_1.config.timeoutMs,

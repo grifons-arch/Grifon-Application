@@ -3,7 +3,7 @@ import crypto from "crypto";
 import dns from "dns";
 import http from "http";
 import https from "https";
-import { config } from "../config/env";
+import { config, shops } from "../config/env";
 import { normalizeNetworkErrorMessage } from "../utils/networkErrors";
 
 export interface RegisterRequest {
@@ -63,8 +63,12 @@ const createDnsLookup = (): dns.LookupFunction | undefined => {
   };
 };
 
-const resolveSyncUrl = (): string => {
-  const baseUrl = config.prestashopBaseUrl || config.shopBaseUrls[config.defaultShopId];
+const resolveShopIdForCountry = (countryIso: string): 1 | 4 =>
+  countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
+
+const resolveSyncUrl = (countryIso: string): string => {
+  const shopId = resolveShopIdForCountry(countryIso);
+  const baseUrl = config.shopBaseUrls[shopId] || config.shopBaseUrls[config.defaultShopId] || config.prestashopBaseUrl;
   const url = new URL(baseUrl);
   const configuredPath = config.customerSyncPath.startsWith("/")
     ? config.customerSyncPath
@@ -75,6 +79,28 @@ const resolveSyncUrl = (): string => {
     url.pathname = `${pathname.slice(0, -4)}${configuredPath}`;
   } else {
     url.pathname = `${pathname}${configuredPath}`;
+  }
+
+  const replicaHost = config.replicaHostname?.trim().toLowerCase();
+  const replicaResolveTo = config.replicaResolveTo?.trim();
+  const currentHost = url.hostname.toLowerCase();
+
+  if (replicaHost && !replicaResolveTo && currentHost === replicaHost) {
+    const segments = url.pathname.split("/").filter(Boolean);
+    const candidateDomain = segments[0]?.toLowerCase();
+
+    if (candidateDomain && candidateDomain.includes(".")) {
+      url.hostname = candidateDomain;
+      url.pathname = `/${segments.slice(1).join("/")}`;
+    } else {
+      const selectedShop = shops.find((shop) => shop.id === shopId);
+      const defaultShop = shops.find((shop) => shop.id === config.defaultShopId);
+      const fallbackDomain = selectedShop?.domain ?? defaultShop?.domain;
+
+      if (fallbackDomain) {
+        url.hostname = fallbackDomain;
+      }
+    }
   }
 
   return url.toString();
@@ -155,7 +181,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
   const body = JSON.stringify(payload);
   const headers = createModuleHeaders(body);
   const lookup = createDnsLookup();
-  const syncUrl = resolveSyncUrl();
+  const syncUrl = resolveSyncUrl(request.countryIso);
 
   try {
     const response = await axios.post(syncUrl, body, {
