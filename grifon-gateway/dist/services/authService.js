@@ -36,8 +36,10 @@ const createDnsLookup = () => {
         return dns_1.default.lookup(targetHost, options, callback);
     };
 };
-const resolveSyncUrl = () => {
-    const baseUrl = env_1.config.prestashopBaseUrl || env_1.config.shopBaseUrls[env_1.config.defaultShopId];
+const resolveShopIdForCountry = (countryIso) => countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
+const resolveSyncUrl = (countryIso) => {
+    const shopId = resolveShopIdForCountry(countryIso);
+    const baseUrl = env_1.config.shopBaseUrls[shopId] || env_1.config.shopBaseUrls[env_1.config.defaultShopId] || env_1.config.prestashopBaseUrl;
     const url = new URL(baseUrl);
     const configuredPath = env_1.config.customerSyncPath.startsWith("/")
         ? env_1.config.customerSyncPath
@@ -60,9 +62,11 @@ const resolveSyncUrl = () => {
             url.pathname = `/${segments.slice(1).join("/")}`;
         }
         else {
+            const selectedShop = env_1.shops.find((shop) => shop.id === shopId);
             const defaultShop = env_1.shops.find((shop) => shop.id === env_1.config.defaultShopId);
-            if (defaultShop?.domain) {
-                url.hostname = defaultShop.domain;
+            const fallbackDomain = selectedShop?.domain ?? defaultShop?.domain;
+            if (fallbackDomain) {
+                url.hostname = fallbackDomain;
             }
         }
     }
@@ -136,7 +140,7 @@ const registerCustomer = async (request) => {
     const body = JSON.stringify(payload);
     const headers = createModuleHeaders(body);
     const lookup = createDnsLookup();
-    const syncUrl = resolveSyncUrl();
+    const syncUrl = resolveSyncUrl(request.countryIso);
     try {
         const response = await axios_1.default.post(syncUrl, body, {
             timeout: env_1.config.timeoutMs,
