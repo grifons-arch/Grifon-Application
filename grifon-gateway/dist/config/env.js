@@ -28,6 +28,12 @@ const readEnvWithAliases = (...keys) => {
 };
 const customerSyncSecret = readEnvWithAliases("GRIFON_CUSTOMER_SYNC_SECRET", "GRIFON.CUSTOMER.SYNC.SECRET", "GRIFON__CUSTOMER__SYNC__SECRET");
 const customerSyncPath = readEnvWithAliases("GRIFON_CUSTOMER_SYNC_PATH", "GRIFON.CUSTOMER.SYNC.PATH", "GRIFON__CUSTOMER__SYNC__PATH");
+if (customerSyncSecret) {
+    process.env.GRIFON_CUSTOMER_SYNC_SECRET = customerSyncSecret;
+}
+if (customerSyncPath) {
+    process.env.GRIFON_CUSTOMER_SYNC_PATH = customerSyncPath;
+}
 const envSchema = zod_1.z.object({
     PORT: zod_1.z.string().default("3000"),
     ALLOWED_ORIGINS: zod_1.z.string().default("*"),

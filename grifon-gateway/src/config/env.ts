@@ -40,6 +40,14 @@ const customerSyncPath = readEnvWithAliases(
   "GRIFON__CUSTOMER__SYNC__PATH"
 );
 
+if (customerSyncSecret) {
+  process.env.GRIFON_CUSTOMER_SYNC_SECRET = customerSyncSecret;
+}
+
+if (customerSyncPath) {
+  process.env.GRIFON_CUSTOMER_SYNC_PATH = customerSyncPath;
+}
+
 const envSchema = z.object({
   PORT: z.string().default("3000"),
   ALLOWED_ORIGINS: z.string().default("*"),
