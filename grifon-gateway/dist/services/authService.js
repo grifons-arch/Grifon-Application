@@ -85,7 +85,7 @@ const createModuleHeaders = (payload) => {
         throw {
             status: 500,
             code: "CONFIG_ERROR",
-            message: "GRIFON_CUSTOMER_SYNC_SECRET is required for customer registration sync"
+            message: "GRIFON.CUSTOMER.SYNC.SECRET is required for customer registration sync (aliases: GRIFON_CUSTOMER_SYNC_SECRET, GRIFON__CUSTOMER__SYNC__SECRET)"
         };
     }
     const timestamp = Math.floor(Date.now() / 1000).toString();
