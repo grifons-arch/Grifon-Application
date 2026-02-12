@@ -19,6 +19,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavHostController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.grifon.navigation.AppNavHost
 import com.example.grifon.navigation.Routes
 import com.example.grifon.ui.components.AppBottomNav
@@ -65,7 +67,7 @@ fun GrifonApp() {
         topBar = {
             AppTopBar(
                 shopLabel = if (appState.activeShopId == "shop_a") "Shop A" else "Shop B",
-                onLogoClick = { navController.navigate(Routes.HOME) },
+                onLogoClick = { navController.navigateToTopLevel(Routes.HOME) },
                 onSearchClick = { searchSheetOpen = true },
                 onScanClick = { navController.navigate(Routes.SCAN) },
                 scrollBehavior = scrollBehavior,
@@ -73,7 +75,7 @@ fun GrifonApp() {
                 onSearchQueryChange = { searchQuery = it },
                 menuItems = menuItems,
                 activeRoute = activeRoute,
-                onMenuClick = { item -> navController.navigate(item.route) },
+                onMenuClick = { item -> navController.navigateToTopLevel(item.route) },
             )
         },
         bottomBar = {
@@ -93,5 +95,15 @@ fun GrifonApp() {
                 onScanClick = { navController.navigate(Routes.SCAN) },
             )
         }
+    }
+}
+
+private fun NavHostController.navigateToTopLevel(route: String) {
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
     }
 }
