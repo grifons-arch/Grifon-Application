@@ -39,18 +39,15 @@ export class PrestaShopClient {
   }
 
   private createDnsLookup(): dns.LookupFunction | undefined {
-    const alias = config.replicaHostname?.trim();
-    const resolveTo = config.replicaResolveTo?.trim();
+    const aliases = config.upstreamHostAliases;
 
-    if (!alias || !resolveTo) {
+    if (!aliases || Object.keys(aliases).length === 0) {
       return undefined;
     }
 
-    const normalizedAlias = alias.toLowerCase();
-
     return (hostname, options, callback) => {
       const host = String(hostname).toLowerCase();
-      const targetHost = host === normalizedAlias ? resolveTo : String(hostname);
+      const targetHost = aliases[host] ?? String(hostname);
       return dns.lookup(targetHost, options, callback as any);
     };
   }

@@ -35,6 +35,7 @@ Important for registration sync through the PrestaShop module:
 
 - `GRIFON_CUSTOMER_SYNC_SECRET` (recommended): shared secret configured in the `grifoncustomersync` module. If omitted, the gateway falls back to `PRESTASHOP_API_KEY`.
 - `GRIFON_CUSTOMER_SYNC_PATH`: module endpoint path (default: `/module/grifoncustomersync/sync`).
+- `UPSTREAM_HOST_ALIASES` (optional): JSON map of upstream hostname aliases to DNS-resolvable targets for local/dev networking.
 
 ## API Endpoints
 
@@ -134,6 +135,7 @@ Quick checks:
 - Make sure the hostname exists in DNS (or in your Docker/network aliases if running locally).
 - For Docker setups, you can route through an internal reverse-proxy host such as `https://replica/grifon.gr/api`.
 - If you need to keep the hostname as `replica` but resolve it locally to another host/IP, set `REPLICA_HOSTNAME` (default: `replica`) and `REPLICA_RESOLVE_TO` (empty by default; set it to your own host/IP like `127.0.0.1` or a Docker alias when needed).
+- If multiple upstream names must resolve locally (for example `prestashop-demo`), set `UPSTREAM_HOST_ALIASES` as JSON, e.g. `{"prestashop-demo":"host.docker.internal"}`.
 - For non-Docker/local runs, you can still use directly resolvable hosts in `SHOP_GR_BASE_URL`, `SHOP_SE_BASE_URL`, and `PRESTASHOP_BASE_URL`.
-- The API now normalizes this case as `Unable to resolve upstream hostname: <host>` to make root cause clearer.
+- The API normalizes this case as `Unable to resolve upstream: <host>` to make root cause clearer.
 - Restart the gateway after changing environment variables.
