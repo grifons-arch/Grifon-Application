@@ -6,6 +6,7 @@ import com.example.grifon.core.UiState
 import com.example.grifon.data.catalog.HomeProductsWebService
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
+import com.example.grifon.domain.usecase.SearchProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
