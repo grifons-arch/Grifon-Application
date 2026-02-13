@@ -33,7 +33,7 @@ See `.env.example` for full list.
 
 Important for registration sync through the PrestaShop module:
 
-- `GRIFON_CUSTOMER_SYNC_SECRET` (**required**): shared secret configured in the `grifoncustomersync` module.
+- `GRIFON_CUSTOMER_SYNC_SECRET` (recommended): shared secret configured in the `grifoncustomersync` module. If omitted, the gateway falls back to `PRESTASHOP_API_KEY`.
 - `GRIFON_CUSTOMER_SYNC_PATH`: module endpoint path (default: `/module/grifoncustomersync/sync`).
 
 ## API Endpoints
