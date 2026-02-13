@@ -36,14 +36,40 @@ const createDnsLookup = () => {
         return dns_1.default.lookup(targetHost, options, callback);
     };
 };
+
+const normalizeEnvKey = (key) => key.replace(/[^A-Za-z0-9]/g, "_").replace(/_+/g, "_").toUpperCase();
+const readEnvAliasRuntime = (...keys) => {
+    for (const key of keys) {
+        const value = process.env[key];
+        if (typeof value === "string" && value.trim().length > 0) {
+            return value.trim();
+        }
+    }
+    const normalizedCandidates = new Set(keys.map(normalizeEnvKey));
+    for (const [key, value] of Object.entries(process.env)) {
+        if (!normalizedCandidates.has(normalizeEnvKey(key))) {
+            continue;
+        }
+        if (typeof value === "string" && value.trim().length > 0) {
+            return value.trim();
+        }
+    }
+    return undefined;
+};
+const resolveCustomerSyncSecret = () => { var _a; return (_a = (typeof env_1.config.customerSyncSecret === "string" && env_1.config.customerSyncSecret.trim().length > 0
+    ? env_1.config.customerSyncSecret.trim()
+    : undefined)) !== null && _a !== void 0 ? _a : readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_SECRET", "GRIFON.CUSTOMER.SYNC.SECRET", "GRIFON__CUSTOMER__SYNC__SECRET"); };
+const resolveCustomerSyncPath = () => { var _a, _b; return (_b = (_a = readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_PATH", "GRIFON.CUSTOMER.SYNC.PATH", "GRIFON__CUSTOMER__SYNC__PATH")) !== null && _a !== void 0 ? _a : env_1.config.customerSyncPath) !== null && _b !== void 0 ? _b : "/module/grifoncustomersync/sync"; };
+
 const resolveShopIdForCountry = (countryIso) => countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
 const resolveSyncUrl = (countryIso) => {
     const shopId = resolveShopIdForCountry(countryIso);
     const baseUrl = env_1.config.shopBaseUrls[shopId] || env_1.config.shopBaseUrls[env_1.config.defaultShopId] || env_1.config.prestashopBaseUrl;
     const url = new URL(baseUrl);
-    const configuredPath = env_1.config.customerSyncPath.startsWith("/")
-        ? env_1.config.customerSyncPath
-        : `/${env_1.config.customerSyncPath}`;
+    const customerSyncPath = resolveCustomerSyncPath();
+    const configuredPath = customerSyncPath.startsWith("/")
+        ? customerSyncPath
+        : `/${customerSyncPath}`;
     const pathname = url.pathname.replace(/\/+$/, "");
     if (pathname.endsWith("/api")) {
         url.pathname = `${pathname.slice(0, -4)}${configuredPath}`;
@@ -81,17 +107,18 @@ const resolveSyncHostname = (syncUrl) => {
     }
 };
 const createModuleHeaders = (payload) => {
-    if (!env_1.config.customerSyncSecret) {
+    const customerSyncSecret = resolveCustomerSyncSecret();
+    if (!customerSyncSecret) {
         throw {
             status: 500,
             code: "CONFIG_ERROR",
-            message: "GRIFON_CUSTOMER_SYNC_SECRET is required for customer registration sync"
+            message: "GRIFON.CUSTOMER.SYNC.SECRET is required for customer registration sync (aliases: GRIFON_CUSTOMER_SYNC_SECRET, GRIFON__CUSTOMER__SYNC__SECRET)"
         };
     }
     const timestamp = Math.floor(Date.now() / 1000).toString();
     const signatureBase = `${timestamp}\n${payload}`;
     const signature = crypto_1.default
-        .createHmac("sha256", env_1.config.customerSyncSecret)
+                .createHmac("sha256", customerSyncSecret)
         .update(signatureBase, "utf8")
         .digest("base64");
     return {
