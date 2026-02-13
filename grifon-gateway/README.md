@@ -33,7 +33,7 @@ See `.env.example` for full list.
 
 Important for registration sync through the PrestaShop module:
 
-- `GRIFON_CUSTOMER_SYNC_SECRET`: shared secret configured in the `grifoncustomersync` module.
+- `GRIFON_CUSTOMER_SYNC_SECRET` (**required**): shared secret configured in the `grifoncustomersync` module.
 - `GRIFON_CUSTOMER_SYNC_PATH`: module endpoint path (default: `/module/grifoncustomersync/sync`).
 
 ## API Endpoints
@@ -119,6 +119,7 @@ curl "http://localhost:3000/v1/customers/123/price-access?shopId=4"
 - When prices are not allowed, price fields are set to `null`.
 - Product image URLs are constructed using the selected shop domain.
 - `/auth/register` uses the `grifoncustomersync` PrestaShop module endpoint to create/update customer + address records.
+- `/auth/register` hashes the submitted password with bcrypt before syncing it to the module endpoint.
 - `/auth/register` creates customers with `PENDING_WHOLESALE_APPROVAL` status (inactive or in a pending group).
 
 ## Troubleshooting
