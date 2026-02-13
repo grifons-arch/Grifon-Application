@@ -1,5 +1,6 @@
 package com.example.grifon.data.fake
 
+import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.CatalogRepository
 import com.example.grifon.data.repository.CartRepository
@@ -13,17 +14,32 @@ import com.example.grifon.domain.model.Shop
 import com.example.grifon.domain.model.SortOption
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
-class FakeShopRepository(private val preferences: ShopPreferences) : ShopRepository {
-    private val shops = listOf(
-        Shop("shop_a", "Shop A"),
-        Shop("shop_b", "Shop B"),
-    )
+class FakeShopRepository(
+    private val preferences: ShopPreferences,
+    private val catalogApi: CatalogApi,
+) : ShopRepository {
+    override fun getShops(): Flow<List<Shop>> = flow {
+        val remoteShops = runCatching { catalogApi.getShops() }
+            .getOrDefault(listOf())
 
-    override fun getShops(): Flow<List<Shop>> = flowOf(shops)
+        val mapped = if (remoteShops.isNotEmpty()) {
+            remoteShops.map { shop ->
+                val shopCode = shop.code?.lowercase() ?: shop.id.toString()
+                Shop(id = "shop_$shopCode", name = shop.code ?: "Shop ${shop.id}")
+            }
+        } else {
+            listOf(
+                Shop("shop_a", "Shop A"),
+                Shop("shop_b", "Shop B"),
+            )
+        }
+
+        emit(mapped)
+    }
 
     override fun getActiveShopId(): Flow<String> = preferences.activeShopId
 
