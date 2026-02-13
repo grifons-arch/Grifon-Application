@@ -10,13 +10,10 @@ class HomeProductsWebService @Inject constructor(
         val shops = catalogApi.getShops()
         val selectedShop = resolveShop(shops, shopKey) ?: return emptyList()
 
-        val categories = catalogApi.getCategories(shopId = selectedShop.id).items
-        val products = categories.flatMap { category ->
-            catalogApi.getCategoryProducts(categoryId = category.id, shopId = selectedShop.id).items
-                .map { it.toDomain(selectedShop.id, selectedShop.code) }
-        }
-
-        return products.distinctBy { it.id }
+        // Πλέον φέρνουμε όλα τα προϊόντα του καταστήματος (όχι μόνο μιας κατηγορίας)
+        val response = catalogApi.getProducts(shopId = selectedShop.id, pageSize = 50)
+        
+        return response.items.map { it.toDomain(selectedShop.id, selectedShop.code) }
     }
 
     private fun resolveShop(shops: List<ShopDto>, shopKey: String): ShopDto? {
@@ -37,7 +34,7 @@ class HomeProductsWebService @Inject constructor(
             title = name ?: "Προϊόν #$id",
             price = price ?: 0.0,
             currency = "EUR",
-            imageUrl = "",
+            imageUrl = defaultImage?.url ?: "",
             brand = normalizedShopCode,
             rating = 0.0,
             inStock = true,

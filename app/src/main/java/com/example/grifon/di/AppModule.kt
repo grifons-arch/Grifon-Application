@@ -4,28 +4,11 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.grifon.data.fake.FakeBarcodeScannerService
-import com.example.grifon.data.fake.FakeCartRepository
-import com.example.grifon.data.fake.FakeCatalogRepository
-import com.example.grifon.data.fake.FakeShopRepository
-import com.example.grifon.data.fake.FakeUserRepository
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.local.ShopPreferences
-import com.example.grifon.data.repository.BarcodeScannerService
-import com.example.grifon.data.repository.CatalogRepository
-import com.example.grifon.data.repository.CartRepository
-import com.example.grifon.data.repository.ShopRepository
-import com.example.grifon.data.repository.UserRepository
-import com.example.grifon.domain.usecase.AddToCartUseCase
-import com.example.grifon.domain.usecase.ApplyFiltersUseCase
-import com.example.grifon.domain.usecase.GetActiveShopUseCase
-import com.example.grifon.domain.usecase.GetCartUseCase
-import com.example.grifon.domain.usecase.GetCategoryTreeUseCase
-import com.example.grifon.domain.usecase.GetProductByIdUseCase
-import com.example.grifon.domain.usecase.GetProductsByCategoryUseCase
-import com.example.grifon.domain.usecase.RemoveFromCartUseCase
-import com.example.grifon.domain.usecase.SearchProductsUseCase
-import com.example.grifon.domain.usecase.SetActiveShopUseCase
+import com.example.grifon.data.repository.*
+import com.example.grifon.data.fake.*
+import com.example.grifon.domain.usecase.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -51,7 +34,7 @@ object AppModule {
         val builder = OkHttpClient.Builder()
         if (BuildConfig.DEBUG) {
             val loggingInterceptor = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BASIC
+                level = HttpLoggingInterceptor.Level.BODY // BODY για να βλέπουμε τα JSON στα logs
             }
             builder.addInterceptor(loggingInterceptor)
         }
@@ -91,11 +74,12 @@ object AppModule {
     fun provideShopRepository(
         preferences: ShopPreferences,
         catalogApi: CatalogApi,
-    ): ShopRepository = FakeShopRepository(preferences, catalogApi)
+    ): ShopRepository = ApiShopRepository(preferences, catalogApi) // Πραγματικό Repo
 
     @Provides
     @Singleton
-    fun provideCatalogRepository(): CatalogRepository = FakeCatalogRepository()
+    fun provideCatalogRepository(catalogApi: CatalogApi): CatalogRepository = 
+        ApiCatalogRepository(catalogApi) // Πραγματικό Repo
 
     @Provides
     @Singleton

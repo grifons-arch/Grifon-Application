@@ -1,5 +1,6 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
+import axios from "axios";
 import { config, shops } from "../config/env";
 import { validateQuery, validateParams, validateBody } from "../middleware/validate";
 import {
@@ -14,7 +15,7 @@ import {
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { listCategories } from "../services/categoryService";
 import { listPages } from "../services/pageService";
-import { listProductsByCategory, getProductDetail } from "../services/productService";
+import { listProductsByCategory, getProductDetail, listAllProducts } from "../services/productService";
 import { listGroupsWithMembers } from "../services/groupService";
 import { cache, buildCacheKey } from "../utils/cache";
 import { getPriceAccess } from "../services/priceAccessService";
@@ -37,66 +38,36 @@ apiRouter.get("/v1/shops", (_req, res) => {
   res.json(shops);
 });
 
-apiRouter.post(
-  "/auth/register",
-  registerRateLimiter,
-  validateBody(registerBodySchema),
+// IMAGE PROXY
+apiRouter.get("/v1/images/products/:productId/:imageId", async (req, res, next) => {
+  try {
+    const { productId, imageId } = req.params;
+    const shopId = (req.query.shopId as string) || "4";
+    const base = config.shopBaseUrls[shopId as any];
+    const key = config.prestashopApiKey;
+
+    const response = await axios.get(`${base}/images/products/${productId}/${imageId}`, {
+      auth: { username: key, password: "" },
+      responseType: "stream"
+    });
+
+    res.setHeader("Content-Type", response.headers["content-type"]);
+    response.data.pipe(res);
+  } catch (error) {
+    res.status(404).end();
+  }
+});
+
+// NEW: ALL PRODUCTS ROUTE
+apiRouter.get(
+  "/v1/products",
+  validateQuery(shopQuerySchema.merge(productPaginationSchema)),
   async (req, res, next) => {
     try {
-      const {
-        email,
-        password,
-        passwd,
-        socialTitle,
-        firstName,
-        lastName,
-        countryIso,
-        street,
-        city,
-        postalCode,
-        phone,
-        company,
-        vatNumber,
-        iban,
-        customerDataPrivacyAccepted,
-        newsletter,
-        termsAndPrivacyAccepted,
-        partnerOffers
-      } = req.body as any;
-      const resolvedPassword = password ?? passwd;
-      if (!resolvedPassword) {
-        throw {
-          status: 400,
-          code: "VALIDATION_ERROR",
-          message: "Invalid request body",
-          details: {
-            formErrors: [],
-            fieldErrors: {
-              password: ["Required"]
-            }
-          }
-        };
-      }
-      const response = await registerCustomer({
-        email,
-        password: resolvedPassword,
-        socialTitle,
-        firstName,
-        lastName,
-        countryIso,
-        street,
-        city,
-        postalCode,
-        phone,
-        company,
-        vatNumber,
-        iban,
-        customerDataPrivacyAccepted,
-        newsletter,
-        termsAndPrivacyAccepted,
-        partnerOffers
-      });
-      res.status(201).json(response);
+      const { shopId, lang, page, pageSize, sort } = req.query as any;
+      const client = new PrestaShopClient({ shopId, lang });
+      const items = await listAllProducts(client, shopId, page, pageSize, sort, lang);
+      res.json({ page, pageSize, items });
     } catch (error) {
       next(error);
     }
@@ -109,24 +80,9 @@ apiRouter.get(
   async (req, res, next) => {
     try {
       const { shopId, lang, page, pageSize } = req.query as any;
-      const cacheKey = buildCacheKey({
-        route: "categories",
-        shopId,
-        lang,
-        page,
-        pageSize
-      });
-      const cached = await cache.get(cacheKey);
-      if (cached) {
-        res.json(cached);
-        return;
-      }
-
       const client = new PrestaShopClient({ shopId, lang });
       const { items, tree } = await listCategories(client, page, pageSize, lang);
-      const response = { page, pageSize, items, tree };
-      await cache.set(cacheKey, response, config.cacheTtlCategoriesSeconds);
-      res.json(response);
+      res.json({ page, pageSize, items, tree });
     } catch (error) {
       next(error);
     }
@@ -141,34 +97,9 @@ apiRouter.get(
     try {
       const { shopId, lang, page, pageSize, sort } = req.query as any;
       const { categoryId } = req.params as any;
-
-      const cacheKey = buildCacheKey({
-        route: `categories/${categoryId}/products`,
-        shopId,
-        lang,
-        page,
-        pageSize,
-        sort
-      });
-      const cached = await cache.get(cacheKey);
-      if (cached) {
-        res.json(cached);
-        return;
-      }
-
       const client = new PrestaShopClient({ shopId, lang });
-      const items = await listProductsByCategory(
-        client,
-        shopId,
-        Number(categoryId),
-        page,
-        pageSize,
-        sort,
-        lang
-      );
-      const response = { page, pageSize, items };
-      await cache.set(cacheKey, response, config.cacheTtlProductsSeconds);
-      res.json(response);
+      const items = await listProductsByCategory(client, shopId, Number(categoryId), page, pageSize, sort, lang);
+      res.json({ page, pageSize, items });
     } catch (error) {
       next(error);
     }
@@ -183,33 +114,8 @@ apiRouter.get(
     try {
       const { shopId, lang, customerId } = req.query as any;
       const { productId } = req.params as any;
-
-      const cacheKey = buildCacheKey({
-        route: `products/${productId}`,
-        shopId,
-        lang,
-        customerId
-      });
-      const cached = await cache.get(cacheKey);
-      if (cached) {
-        res.json(cached);
-        return;
-      }
-
       const client = new PrestaShopClient({ shopId, lang });
-      let allowPrice = false;
-      if (customerId) {
-        const access = await getPriceAccess(client, Number(customerId));
-        allowPrice = access.allowed;
-      }
-      const item = await getProductDetail(client, shopId, Number(productId), lang, allowPrice);
-      if (!item) {
-        res.status(404).json({
-          error: { code: "NOT_FOUND", message: "Product not found", details: { productId } }
-        });
-        return;
-      }
-      await cache.set(cacheKey, item, config.cacheTtlProductsSeconds);
+      const item = await getProductDetail(client, shopId, Number(productId), lang, true);
       res.json(item);
     } catch (error) {
       next(error);
@@ -217,58 +123,4 @@ apiRouter.get(
   }
 );
 
-apiRouter.get(
-  "/v1/pages",
-  validateQuery(shopQuerySchema),
-  async (req, res, next) => {
-    try {
-      const { shopId, lang } = req.query as any;
-      const cacheKey = buildCacheKey({ route: "pages", shopId, lang });
-      const cached = await cache.get(cacheKey);
-      if (cached) {
-        res.json(cached);
-        return;
-      }
-
-      const client = new PrestaShopClient({ shopId, lang });
-      const items = await listPages(client, lang);
-      const response = { items };
-      await cache.set(cacheKey, response, config.cacheTtlCategoriesSeconds);
-      res.json(response);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-apiRouter.get(
-  "/v1/customer-groups",
-  validateQuery(shopQuerySchema),
-  async (req, res, next) => {
-    try {
-      const { shopId, lang } = req.query as any;
-      const client = new PrestaShopClient({ shopId, lang });
-      const items = await listGroupsWithMembers(client, lang);
-      res.json({ items });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-apiRouter.get(
-  "/v1/customers/:customerId/price-access",
-  validateParams(customerIdSchema),
-  validateQuery(shopQuerySchema),
-  async (req, res, next) => {
-    try {
-      const { shopId, lang } = req.query as any;
-      const { customerId } = req.params as any;
-      const client = new PrestaShopClient({ shopId, lang });
-      const result = await getPriceAccess(client, Number(customerId));
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+export default apiRouter;

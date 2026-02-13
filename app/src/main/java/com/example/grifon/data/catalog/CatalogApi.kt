@@ -9,6 +9,15 @@ interface CatalogApi {
     @GET("v1/shops")
     suspend fun getShops(): List<ShopDto>
 
+    @GET("v1/products")
+    suspend fun getProducts(
+        @Query("shopId") shopId: Int,
+        @Query("lang") lang: Int = 1,
+        @Query("page") page: Int = 1,
+        @Query("pageSize") pageSize: Int = 50,
+        @Query("sort") sort: String = "[id_DESC]",
+    ): ProductsResponseDto
+
     @GET("v1/categories")
     suspend fun getCategories(
         @Query("shopId") shopId: Int,
@@ -56,4 +65,11 @@ data class ProductDto(
     val name: String? = null,
     val price: Double? = null,
     val reference: String? = null,
+    val defaultImage: ImageDto? = null,
+)
+
+@JsonClass(generateAdapter = true)
+data class ImageDto(
+    val id: Int,
+    val url: String? = null,
 )
