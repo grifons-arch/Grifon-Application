@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 class HomeViewModel @Inject constructor(
     getActiveShopUseCase: GetActiveShopUseCase,
     private val homeProductsWebService: HomeProductsWebService,
+    private val searchProductsUseCase: SearchProductsUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<HomeState>>(UiState.Loading)
     val uiState: StateFlow<UiState<HomeState>> = _uiState
@@ -25,20 +26,25 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             val shopId = getActiveShopUseCase().first()
-            runCatching { homeProductsWebService.fetchAllProductsFromShops() }
-                .onSuccess { products ->
-                    _uiState.value = UiState.Success(
-                        HomeState(
-                            shopId = shopId,
-                            banners = listOf("Back to school", "Mega Sale"),
-                            popular = products.take(10),
-                            recent = products.takeLast(10),
-                        ),
-                    )
+            val products = runCatching { homeProductsWebService.fetchAllProductsFromShops() }
+                .getOrDefault(emptyList())
+                .ifEmpty {
+                    searchProductsUseCase(
+                        shopId,
+                        "",
+                        HomeState.defaultFilters,
+                        HomeState.defaultSort,
+                    ).first()
                 }
-                .onFailure { error ->
-                    _uiState.value = UiState.Error(error.message ?: "Αποτυχία φόρτωσης προϊόντων")
-                }
+
+            _uiState.value = UiState.Success(
+                HomeState(
+                    shopId = shopId,
+                    banners = listOf("Back to school", "Mega Sale"),
+                    popular = products.take(10),
+                    recent = products.takeLast(10),
+                ),
+            )
         }
     }
 }

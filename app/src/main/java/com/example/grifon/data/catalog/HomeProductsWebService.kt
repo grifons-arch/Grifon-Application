@@ -7,21 +7,26 @@ class HomeProductsWebService @Inject constructor(
     private val catalogApi: CatalogApi,
 ) {
     suspend fun fetchAllProductsFromShops(): List<Product> {
-        val shops = catalogApi.getShops()
+        val shops = runCatching { catalogApi.getShops() }
+            .getOrDefault(listOf(ShopDto(id = 4, code = "GR"), ShopDto(id = 1, code = "SE")))
+
         val allProducts = mutableListOf<Product>()
 
         shops.forEach { shop ->
-            val categories = catalogApi.getCategories(shopId = shop.id).items
+            val categories = runCatching { catalogApi.getCategories(shopId = shop.id).items }
+                .getOrDefault(emptyList())
+
             categories.forEach { category ->
-                val categoryProducts = catalogApi
-                    .getCategoryProducts(categoryId = category.id, shopId = shop.id)
-                    .items
+                val categoryProducts = runCatching {
+                    catalogApi.getCategoryProducts(categoryId = category.id, shopId = shop.id).items
+                }.getOrDefault(emptyList())
                     .map { it.toDomain(shop.id, shop.code) }
+
                 allProducts += categoryProducts
             }
         }
 
-        return allProducts.distinctBy { "${it.id}_${it.brand}" }
+        return allProducts.distinctBy { it.id }
     }
 
     private fun ProductDto.toDomain(shopId: Int, shopCode: String?): Product {
