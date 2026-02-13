@@ -61,6 +61,7 @@ const envSchema = z.object({
   SHOP_SE_BASE_URL: z.string().url().default("https://replica/grifon.se/api"),
   REPLICA_HOSTNAME: z.string().default("replica"),
   REPLICA_RESOLVE_TO: z.string().default(""),
+  UPSTREAM_HOST_ALIASES: z.string().optional().default("{}"),
   GRIFON_CUSTOMER_SYNC_SECRET: z.string().optional().default(customerSyncSecret ?? ""),
   GRIFON_CUSTOMER_SYNC_PATH: z
     .string()
@@ -103,6 +104,44 @@ const parseCountryGroupMap = (value: string): Record<string, number> => {
   }
 };
 
+const parseHostAliases = (
+  value: string,
+  legacyAlias?: string,
+  legacyResolveTo?: string
+): Record<string, string> => {
+  const aliases: Record<string, string> = {};
+
+  if (legacyAlias && legacyResolveTo) {
+    const normalizedLegacyResolveTo = legacyResolveTo.trim();
+    aliases[legacyAlias.trim().toLowerCase()] = normalizedLegacyResolveTo;
+    aliases["prestashop-demo"] = normalizedLegacyResolveTo;
+  }
+
+  if (!value) {
+    return aliases;
+  }
+
+  try {
+    const parsedMap = JSON.parse(value) as Record<string, unknown>;
+    if (typeof parsedMap !== "object" || parsedMap === null) {
+      return aliases;
+    }
+
+    for (const [hostname, resolveTo] of Object.entries(parsedMap)) {
+      const normalizedHostname = hostname.trim().toLowerCase();
+      const normalizedResolveTo = typeof resolveTo === "string" ? resolveTo.trim() : "";
+      if (!normalizedHostname || !normalizedResolveTo) {
+        continue;
+      }
+      aliases[normalizedHostname] = normalizedResolveTo;
+    }
+  } catch {
+    return aliases;
+  }
+
+  return aliases;
+};
+
 export const config = {
   port: Number(env.PORT),
   allowedOrigins: env.ALLOWED_ORIGINS,
@@ -114,6 +153,11 @@ export const config = {
   },
   replicaHostname: env.REPLICA_HOSTNAME,
   replicaResolveTo: env.REPLICA_RESOLVE_TO,
+  upstreamHostAliases: parseHostAliases(
+    env.UPSTREAM_HOST_ALIASES,
+    env.REPLICA_HOSTNAME,
+    env.REPLICA_RESOLVE_TO
+  ),
   customerSyncSecret: trimToUndefined(env.GRIFON_CUSTOMER_SYNC_SECRET) ?? customerSyncSecret ?? "",
   customerSyncPath:
     trimToUndefined(env.GRIFON_CUSTOMER_SYNC_PATH) ??
