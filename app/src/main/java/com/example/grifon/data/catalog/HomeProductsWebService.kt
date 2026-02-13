@@ -6,27 +6,28 @@ import javax.inject.Inject
 class HomeProductsWebService @Inject constructor(
     private val catalogApi: CatalogApi,
 ) {
-    suspend fun fetchAllProductsFromShops(): List<Product> {
-        val shops = runCatching { catalogApi.getShops() }
-            .getOrDefault(listOf(ShopDto(id = 4, code = "GR"), ShopDto(id = 1, code = "SE")))
+    suspend fun fetchProductsForShop(shopKey: String): List<Product> {
+        val shops = catalogApi.getShops()
+        val selectedShop = resolveShop(shops, shopKey) ?: return emptyList()
 
-        val allProducts = mutableListOf<Product>()
-
-        shops.forEach { shop ->
-            val categories = runCatching { catalogApi.getCategories(shopId = shop.id).items }
-                .getOrDefault(emptyList())
-
-            categories.forEach { category ->
-                val categoryProducts = runCatching {
-                    catalogApi.getCategoryProducts(categoryId = category.id, shopId = shop.id).items
-                }.getOrDefault(emptyList())
-                    .map { it.toDomain(shop.id, shop.code) }
-
-                allProducts += categoryProducts
-            }
+        val categories = catalogApi.getCategories(shopId = selectedShop.id).items
+        val products = categories.flatMap { category ->
+            catalogApi.getCategoryProducts(categoryId = category.id, shopId = selectedShop.id).items
+                .map { it.toDomain(selectedShop.id, selectedShop.code) }
         }
 
-        return allProducts.distinctBy { it.id }
+        return products.distinctBy { it.id }
+    }
+
+    private fun resolveShop(shops: List<ShopDto>, shopKey: String): ShopDto? {
+        val normalizedKey = shopKey.trim()
+        val asNumericId = normalizedKey.toIntOrNull()
+
+        return shops.firstOrNull { it.id == asNumericId }
+            ?: shops.firstOrNull { it.code.equals(normalizedKey, ignoreCase = true) }
+            ?: shops.firstOrNull { "shop_${it.code}".equals(normalizedKey, ignoreCase = true) }
+            ?: shops.firstOrNull { "shop_${it.id}".equals(normalizedKey, ignoreCase = true) }
+            ?: shops.firstOrNull()
     }
 
     private fun ProductDto.toDomain(shopId: Int, shopCode: String?): Product {
