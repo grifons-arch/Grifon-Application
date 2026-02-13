@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerCustomer = void 0;
 const axios_1 = __importDefault(require("axios"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const crypto_1 = __importDefault(require("crypto"));
 const dns_1 = __importDefault(require("dns"));
 const http_1 = __importDefault(require("http"));
@@ -12,6 +13,7 @@ const https_1 = __importDefault(require("https"));
 const env_1 = require("../config/env");
 const networkErrors_1 = require("../utils/networkErrors");
 const PENDING_STATUS = "PENDING_WHOLESALE_APPROVAL";
+const PASSWORD_SALT_ROUNDS = 10;
 const resolveGroupIds = (countryIso) => {
     const groupIds = new Set();
     if (env_1.config.pendingWholesaleGroupId) {
@@ -36,7 +38,6 @@ const createDnsLookup = () => {
         return dns_1.default.lookup(targetHost, options, callback);
     };
 };
-
 const normalizeEnvKey = (key) => key.replace(/[^A-Za-z0-9]/g, "_").replace(/_+/g, "_").toUpperCase();
 const readEnvAliasRuntime = (...keys) => {
     for (const key of keys) {
@@ -56,11 +57,11 @@ const readEnvAliasRuntime = (...keys) => {
     }
     return undefined;
 };
-const resolveCustomerSyncSecret = () => { var _a; return (_a = (typeof env_1.config.customerSyncSecret === "string" && env_1.config.customerSyncSecret.trim().length > 0
+const resolveCustomerSyncSecret = () => (typeof env_1.config.customerSyncSecret === "string" && env_1.config.customerSyncSecret.trim().length > 0
     ? env_1.config.customerSyncSecret.trim()
-    : undefined)) !== null && _a !== void 0 ? _a : readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_SECRET", "GRIFON.CUSTOMER.SYNC.SECRET", "GRIFON__CUSTOMER__SYNC__SECRET"); };
-const resolveCustomerSyncPath = () => { var _a, _b; return (_b = (_a = readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_PATH", "GRIFON.CUSTOMER.SYNC.PATH", "GRIFON__CUSTOMER__SYNC__PATH")) !== null && _a !== void 0 ? _a : env_1.config.customerSyncPath) !== null && _b !== void 0 ? _b : "/module/grifoncustomersync/sync"; };
-
+    : undefined) ??
+    readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_SECRET", "GRIFON.CUSTOMER.SYNC.SECRET", "GRIFON__CUSTOMER__SYNC__SECRET");
+const resolveCustomerSyncPath = () => readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_PATH", "GRIFON.CUSTOMER.SYNC.PATH", "GRIFON__CUSTOMER__SYNC__PATH") ?? env_1.config.customerSyncPath ?? "/module/grifoncustomersync/sync";
 const resolveShopIdForCountry = (countryIso) => countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
 const resolveSyncUrl = (countryIso) => {
     const shopId = resolveShopIdForCountry(countryIso);
@@ -118,7 +119,7 @@ const createModuleHeaders = (payload) => {
     const timestamp = Math.floor(Date.now() / 1000).toString();
     const signatureBase = `${timestamp}\n${payload}`;
     const signature = crypto_1.default
-                .createHmac("sha256", customerSyncSecret)
+        .createHmac("sha256", customerSyncSecret)
         .update(signatureBase, "utf8")
         .digest("base64");
     return {
@@ -127,7 +128,8 @@ const createModuleHeaders = (payload) => {
         "X-Grifon-Signature": signature
     };
 };
-const buildSyncPayload = (request) => {
+const hashCustomerPassword = async (password) => bcryptjs_1.default.hash(password, PASSWORD_SALT_ROUNDS);
+const buildSyncPayload = (request, hashedPassword) => {
     const groupIds = resolveGroupIds(request.countryIso);
     return {
         externalCustomerId: request.email.trim().toLowerCase(),
@@ -135,7 +137,7 @@ const buildSyncPayload = (request) => {
             email: request.email.trim().toLowerCase(),
             firstname: request.firstName,
             lastname: request.lastName,
-            password: request.password,
+            password: hashedPassword,
             company: request.company,
             newsletter: request.newsletter ? 1 : 0,
             optin: request.partnerOffers ? 1 : 0,
@@ -163,7 +165,8 @@ const buildSyncPayload = (request) => {
 };
 const registerCustomer = async (request) => {
     const email = request.email.trim().toLowerCase();
-    const payload = buildSyncPayload({ ...request, email });
+    const hashedPassword = await hashCustomerPassword(request.password);
+    const payload = buildSyncPayload({ ...request, email }, hashedPassword);
     const body = JSON.stringify(payload);
     const headers = createModuleHeaders(body);
     const lookup = createDnsLookup();

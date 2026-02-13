@@ -1,4 +1,5 @@
 import axios from "axios";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import dns from "dns";
 import http from "http";
@@ -33,6 +34,7 @@ export interface RegisterResponse {
 }
 
 const PENDING_STATUS = "PENDING_WHOLESALE_APPROVAL";
+const PASSWORD_SALT_ROUNDS = 10;
 
 const resolveGroupIds = (countryIso: string): number[] => {
   const groupIds = new Set<number>();
@@ -184,7 +186,10 @@ const createModuleHeaders = (payload: string): Record<string, string> => {
   };
 };
 
-const buildSyncPayload = (request: RegisterRequest): Record<string, unknown> => {
+const hashCustomerPassword = async (password: string): Promise<string> =>
+  bcrypt.hash(password, PASSWORD_SALT_ROUNDS);
+
+const buildSyncPayload = (request: RegisterRequest, hashedPassword: string): Record<string, unknown> => {
   const groupIds = resolveGroupIds(request.countryIso);
 
   return {
@@ -193,7 +198,7 @@ const buildSyncPayload = (request: RegisterRequest): Record<string, unknown> => 
       email: request.email.trim().toLowerCase(),
       firstname: request.firstName,
       lastname: request.lastName,
-      password: request.password,
+      password: hashedPassword,
       company: request.company,
       newsletter: request.newsletter ? 1 : 0,
       optin: request.partnerOffers ? 1 : 0,
@@ -223,7 +228,8 @@ const buildSyncPayload = (request: RegisterRequest): Record<string, unknown> => 
 export const registerCustomer = async (request: RegisterRequest): Promise<RegisterResponse> => {
   const email = request.email.trim().toLowerCase();
 
-  const payload = buildSyncPayload({ ...request, email });
+  const hashedPassword = await hashCustomerPassword(request.password);
+  const payload = buildSyncPayload({ ...request, email }, hashedPassword);
   const body = JSON.stringify(payload);
   const headers = createModuleHeaders(body);
   const lookup = createDnsLookup();
