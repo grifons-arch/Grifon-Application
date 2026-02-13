@@ -88,8 +88,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideShopRepository(preferences: ShopPreferences): ShopRepository =
-        FakeShopRepository(preferences)
+    fun provideShopRepository(
+        preferences: ShopPreferences,
+        catalogApi: CatalogApi,
+    ): ShopRepository = FakeShopRepository(preferences, catalogApi)
 
     @Provides
     @Singleton
