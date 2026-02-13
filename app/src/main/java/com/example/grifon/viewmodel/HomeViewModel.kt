@@ -27,16 +27,16 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             val shopId = getActiveShopUseCase().first()
-            val products = runCatching { homeProductsWebService.fetchAllProductsFromShops() }
-                .getOrDefault(emptyList())
-                .ifEmpty {
-                    searchProductsUseCase(
-                        shopId,
-                        "",
-                        HomeState.defaultFilters,
-                        HomeState.defaultSort,
-                    ).first()
-                }
+            val products = runCatching {
+                homeProductsWebService.fetchProductsForShop(shopId)
+            }.getOrElse {
+                searchProductsUseCase(
+                    shopId,
+                    "",
+                    HomeState.defaultFilters,
+                    HomeState.defaultSort,
+                ).first()
+            }
 
             _uiState.value = UiState.Success(
                 HomeState(
