@@ -60,7 +60,10 @@ const readEnvAliasRuntime = (...keys) => {
 const resolveCustomerSyncSecret = () => (typeof env_1.config.customerSyncSecret === "string" && env_1.config.customerSyncSecret.trim().length > 0
     ? env_1.config.customerSyncSecret.trim()
     : undefined) ??
-    readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_SECRET", "GRIFON.CUSTOMER.SYNC.SECRET", "GRIFON__CUSTOMER__SYNC__SECRET");
+    readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_SECRET", "GRIFON.CUSTOMER.SYNC.SECRET", "GRIFON__CUSTOMER__SYNC__SECRET") ??
+    (typeof env_1.config.prestashopApiKey === "string" && env_1.config.prestashopApiKey.trim().length > 0
+        ? env_1.config.prestashopApiKey.trim()
+        : undefined);
 const resolveCustomerSyncPath = () => readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_PATH", "GRIFON.CUSTOMER.SYNC.PATH", "GRIFON__CUSTOMER__SYNC__PATH") ?? env_1.config.customerSyncPath ?? "/module/grifoncustomersync/sync";
 const resolveShopIdForCountry = (countryIso) => countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
 const resolveSyncUrl = (countryIso) => {
@@ -113,7 +116,7 @@ const createModuleHeaders = (payload) => {
         throw {
             status: 500,
             code: "CONFIG_ERROR",
-            message: "GRIFON.CUSTOMER.SYNC.SECRET is required for customer registration sync (aliases: GRIFON_CUSTOMER_SYNC_SECRET, GRIFON__CUSTOMER__SYNC__SECRET)"
+            message: "GRIFON.CUSTOMER.SYNC.SECRET is required for customer registration sync (aliases: GRIFON_CUSTOMER_SYNC_SECRET, GRIFON__CUSTOMER__SYNC__SECRET). Fallback uses PRESTASHOP_API_KEY when provided."
         };
     }
     const timestamp = Math.floor(Date.now() / 1000).toString();

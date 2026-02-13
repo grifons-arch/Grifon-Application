@@ -98,7 +98,10 @@ const resolveCustomerSyncSecret = (): string | undefined =>
     "GRIFON_CUSTOMER_SYNC_SECRET",
     "GRIFON.CUSTOMER.SYNC.SECRET",
     "GRIFON__CUSTOMER__SYNC__SECRET"
-  );
+  ) ??
+  (typeof config.prestashopApiKey === "string" && config.prestashopApiKey.trim().length > 0
+    ? config.prestashopApiKey.trim()
+    : undefined);
 
 const resolveCustomerSyncPath = (): string =>
   readEnvAliasRuntime(
@@ -168,7 +171,7 @@ const createModuleHeaders = (payload: string): Record<string, string> => {
       status: 500,
       code: "CONFIG_ERROR",
       message:
-        "GRIFON.CUSTOMER.SYNC.SECRET is required for customer registration sync (aliases: GRIFON_CUSTOMER_SYNC_SECRET, GRIFON__CUSTOMER__SYNC__SECRET)"
+        "GRIFON.CUSTOMER.SYNC.SECRET is required for customer registration sync (aliases: GRIFON_CUSTOMER_SYNC_SECRET, GRIFON__CUSTOMER__SYNC__SECRET). Fallback uses PRESTASHOP_API_KEY when provided."
     };
   }
 
