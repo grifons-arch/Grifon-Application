@@ -2,15 +2,17 @@ package com.example.grifon.data.catalog
 
 import com.example.grifon.domain.model.Product
 import javax.inject.Inject
+import com.example.grifon.BuildConfig
 
 class HomeProductsWebService @Inject constructor(
     private val catalogApi: CatalogApi,
 ) {
+    private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
+
     suspend fun fetchProductsForShop(shopKey: String): List<Product> {
         val shops = catalogApi.getShops()
         val selectedShop = resolveShop(shops, shopKey) ?: return emptyList()
 
-        // Πλέον φέρνουμε όλα τα προϊόντα του καταστήματος (όχι μόνο μιας κατηγορίας)
         val response = catalogApi.getProducts(shopId = selectedShop.id, pageSize = 50)
         
         return response.items.map { it.toDomain(selectedShop.id, selectedShop.code) }
@@ -29,12 +31,20 @@ class HomeProductsWebService @Inject constructor(
 
     private fun ProductDto.toDomain(shopId: Int, shopCode: String?): Product {
         val normalizedShopCode = shopCode ?: "SHOP"
+        
+        val rawUrl = defaultImage?.url ?: ""
+        val fullImageUrl = if (rawUrl.startsWith("/")) {
+            "$gatewayBaseUrl$rawUrl"
+        } else {
+            rawUrl
+        }
+
         return Product(
             id = "${shopId}_$id",
             title = name ?: "Προϊόν #$id",
             price = price ?: 0.0,
             currency = "EUR",
-            imageUrl = defaultImage?.url ?: "",
+            imageUrl = fullImageUrl,
             brand = normalizedShopCode,
             rating = 0.0,
             inStock = true,

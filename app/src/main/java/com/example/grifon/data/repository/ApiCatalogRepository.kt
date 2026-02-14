@@ -13,16 +13,20 @@ class ApiCatalogRepository @Inject constructor(
 ) : CatalogRepository {
 
     override fun getCategoryTree(shopId: String): Flow<List<Category>> = flow {
-        val id = shopId.toIntOrNull() ?: 1
-        val response = catalogApi.getCategories(shopId = id)
-        emit(response.items.map { 
-            Category(
-                id = it.id.toString(), 
-                name = it.name ?: "",
-                parentId = null,
-                childrenCount = 0
-            ) 
-        })
+        try {
+            val id = shopId.toIntOrNull() ?: 4
+            val response = catalogApi.getCategories(shopId = id)
+            emit(response.items.map { 
+                Category(
+                    id = it.id.toString(), 
+                    name = it.name ?: "",
+                    parentId = null,
+                    childrenCount = 0
+                ) 
+            })
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
     }
 
     override fun getProductsByCategory(
@@ -31,10 +35,18 @@ class ApiCatalogRepository @Inject constructor(
         filters: FilterState,
         sortOption: SortOption
     ): Flow<List<Product>> = flow {
-        val sId = shopId.toIntOrNull() ?: 1
-        val cId = categoryId.toIntOrNull() ?: 2
-        val response = catalogApi.getCategoryProducts(categoryId = cId, shopId = sId)
-        emit(response.items.map { it.toDomain(sId) })
+        try {
+            val sId = shopId.toIntOrNull() ?: 4
+            // Αν ζητάμε την "αρχική" (συνήθως ID 2), φέρνουμε όλα τα προϊόντα για καλύτερο αποτέλεσμα
+            val response = if (categoryId == "2" || categoryId.isBlank()) {
+                catalogApi.getProducts(shopId = sId, pageSize = 50)
+            } else {
+                catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = sId)
+            }
+            emit(response.items.map { it.toDomain(sId) })
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
     }
 
     override fun searchProducts(
@@ -43,10 +55,17 @@ class ApiCatalogRepository @Inject constructor(
         filters: FilterState,
         sortOption: SortOption
     ): Flow<List<Product>> = flow {
-        val sId = shopId.toIntOrNull() ?: 1
-        val response = catalogApi.getCategoryProducts(categoryId = 2, shopId = sId)
-        val filtered = response.items.filter { it.name?.contains(query, ignoreCase = true) == true }
-        emit(filtered.map { it.toDomain(sId) })
+        try {
+            val sId = shopId.toIntOrNull() ?: 4
+            val response = catalogApi.getProducts(shopId = sId, pageSize = 100)
+            val filtered = response.items.filter { 
+                it.name?.contains(query, ignoreCase = true) == true || 
+                it.reference?.contains(query, ignoreCase = true) == true
+            }
+            emit(filtered.map { it.toDomain(sId) })
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
     }
 
     override fun getProductById(shopId: String, productId: String): Flow<Product?> = flow {
@@ -60,7 +79,7 @@ class ApiCatalogRepository @Inject constructor(
             price = price ?: 0.0,
             currency = "EUR",
             imageUrl = defaultImage?.url ?: "",
-            brand = "Shop $shopId",
+            brand = if (shopId == 4) "Grifon GR" else "Grifon SE",
             rating = 0.0,
             inStock = true,
             attributesMap = mapOf("reference" to (reference ?: ""))

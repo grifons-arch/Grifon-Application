@@ -31,6 +31,7 @@ import com.example.grifon.viewmodel.AppViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.debounce
 import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.filter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,12 +49,12 @@ fun GrifonApp() {
         AppMenuItem("Κατηγορίες", Routes.CATEGORIES),
         AppMenuItem("Καλάθι", Routes.CART),
         AppMenuItem("Λογαριασμός", Routes.ACCOUNT),
-        AppMenuItem("Ρυθμίσεις", Routes.SETTINGS),
     )
 
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
-            .debounce(350)
+            .filter { it.isNotBlank() } // Μόνο αν γράψεις κάτι θα σε πάει στην αναζήτηση
+            .debounce(500)
             .distinctUntilChanged()
             .collect { query ->
                 navController.navigate(Routes.plpRoute(query = query))
@@ -66,7 +67,7 @@ fun GrifonApp() {
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             AppTopBar(
-                shopLabel = if (appState.activeShopId == "shop_a") "Shop A" else "Shop B",
+                shopLabel = if (appState.activeShopId == "1") "Grifon SE" else "Grifon GR",
                 onLogoClick = { navController.navigateToTopLevel(Routes.HOME) },
                 onSearchClick = { searchSheetOpen = true },
                 onScanClick = { navController.navigate(Routes.SCAN) },

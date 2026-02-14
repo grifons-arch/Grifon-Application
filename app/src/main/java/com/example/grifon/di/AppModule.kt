@@ -34,7 +34,7 @@ object AppModule {
         val builder = OkHttpClient.Builder()
         if (BuildConfig.DEBUG) {
             val loggingInterceptor = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY // BODY για να βλέπουμε τα JSON στα logs
+                level = HttpLoggingInterceptor.Level.BODY
             }
             builder.addInterceptor(loggingInterceptor)
         }
@@ -74,12 +74,12 @@ object AppModule {
     fun provideShopRepository(
         preferences: ShopPreferences,
         catalogApi: CatalogApi,
-    ): ShopRepository = ApiShopRepository(preferences, catalogApi) // Πραγματικό Repo
+    ): ShopRepository = ApiShopRepository(preferences, catalogApi)
 
     @Provides
     @Singleton
     fun provideCatalogRepository(catalogApi: CatalogApi): CatalogRepository = 
-        ApiCatalogRepository(catalogApi) // Πραγματικό Repo
+        ApiCatalogRepository(catalogApi)
 
     @Provides
     @Singleton
