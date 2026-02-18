@@ -7,18 +7,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items as listItems
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,10 +46,7 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     var zoomedImageUrl by remember { mutableStateOf<String?>(null) }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.White
-    ) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         when (val state = uiState) {
             UiState.Loading -> LoadingScreen()
             is UiState.Error -> ErrorScreen(message = state.message)
@@ -61,13 +54,12 @@ fun HomeScreen(
                 val data = state.data
                 val products = data.products
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    contentPadding = PaddingValues(bottom = 100.dp), // Padding για το Bottom Nav
-                    modifier = Modifier.fillMaxSize()
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    // 1. Ενότητα Στατικών Κατηγοριών με Εικόνες
-                    item(span = { GridItemSpan(3) }) {
+                    // 1. Κατηγορίες (Οριζόντια)
+                    item {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
                                 "Κατηγορίες", 
@@ -78,7 +70,7 @@ fun HomeScreen(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                                 contentPadding = PaddingValues(bottom = 16.dp)
                             ) {
-                                listItems(viewModel.staticCategoryIcons) { item ->
+                                items(viewModel.staticCategoryIcons) { item ->
                                     CategoryIconComponent(
                                         label = item.label,
                                         resId = item.resId,
@@ -91,23 +83,67 @@ fun HomeScreen(
                         }
                     }
 
-                    // 2. Πλέγμα Πραγματικών Προϊόντων
-                    items(products, key = { it.id }) { product ->
-                        Box(modifier = Modifier.padding(4.dp)) {
-                            SmallProductCard(
-                                product = product, 
-                                onClick = { onProductClick(product.id) },
-                                onImageClick = { zoomedImageUrl = product.imageUrl }
+                    // 2. Προτεινόμενα Προϊόντα (ΟΡΙΖΟΝΤΙΑ ΚΥΛΙΣΗ)
+                    item {
+                        Column(modifier = Modifier.padding(vertical = 16.dp)) {
+                            Text(
+                                "Προτεινόμενα για εσάς",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 12.dp)
                             )
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                contentPadding = PaddingValues(horizontal = 16.dp)
+                            ) {
+                                items(products) { product ->
+                                    Box(modifier = Modifier.width(160.dp)) {
+                                        SmallProductCard(
+                                            product = product, 
+                                            onClick = { onProductClick(product.id) },
+                                            onImageClick = { zoomedImageUrl = product.imageUrl }
+                                        )
+                                    }
+                                }
+                            }
                         }
+                    }
+
+                    // 3. Τελευταία Παραλαβές (Δεύτερη ΟΡΙΖΟΝΤΙΑ ΣΕΙΡΑ)
+                    item {
+                        Column(modifier = Modifier.padding(vertical = 16.dp)) {
+                            Text(
+                                "Νέες Παραλαβές",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 12.dp)
+                            )
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                contentPadding = PaddingValues(horizontal = 16.dp)
+                            ) {
+                                items(products.reversed()) { product ->
+                                    Box(modifier = Modifier.width(160.dp)) {
+                                        SmallProductCard(
+                                            product = product, 
+                                            onClick = { onProductClick(product.id) },
+                                            onImageClick = { zoomedImageUrl = product.imageUrl }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 4. Προσθήκη επιπλέον κάθετου χώρου για να φαίνονται όλα τα προϊόντα
+                    items(5) { // Dummy items για να μεγαλώσει η λίστα κάθετα
+                         Spacer(modifier = Modifier.height(20.dp))
                     }
                 }
             }
         }
-    }
 
-    if (zoomedImageUrl != null) {
-        ImageZoomDialog(model = zoomedImageUrl!!, onDismiss = { zoomedImageUrl = null })
+        if (zoomedImageUrl != null) {
+            ImageZoomDialog(model = zoomedImageUrl!!, onDismiss = { zoomedImageUrl = null })
+        }
     }
 }
 
