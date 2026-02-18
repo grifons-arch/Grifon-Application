@@ -29,6 +29,7 @@ const normalizeProduct = (
     const images = extractResourceList<any>("images", product.associations);
     if (images.length > 0) idImage = Number(images[0].id);
   }
+
   return {
     id,
     name: getLocalizedValue(product.name, lang),
@@ -51,7 +52,7 @@ export const listAllProducts = async (
   const data = await client.get("products", {
     "filter[active]": 1,
     sort,
-    limit: toLimitParam(page, pageSize), // Χρήση δυναμικού limit για σελιδοποίηση
+    limit: toLimitParam(page, pageSize),
     display: "full" 
   });
 
@@ -69,6 +70,7 @@ export const listProductsByCategory = async (
   lang?: number,
   allowPrice = true
 ): Promise<ProductListItem[]> => {
+  // ΑΝ ΕΙΝΑΙ Η ΑΡΧΙΚΗ ΚΑΤΗΓΟΡΙΑ (2), ΦΕΡΝΟΥΜΕ ΟΛΑ ΤΑ ΠΡΟΪΟΝΤΑ
   if (categoryId === 2) {
     return listAllProducts(client, shopId, page, pageSize, sort, lang, allowPrice);
   }
