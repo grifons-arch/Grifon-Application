@@ -83,6 +83,22 @@ curl -X POST http://localhost:3000/auth/register \
 curl "http://localhost:3000/v1/categories?shopId=4&lang=1&page=1&pageSize=50"
 ```
 
+### Export Categories/Subcategories to JSON + CSV
+
+If your `.env` already contains `PRESTASHOP_API_KEY`, you can export all active categories and subcategories:
+
+```bash
+npm run export:categories -- --shopId=4 --lang=1 --output=exports/categories-tree.json
+```
+
+Optional flags:
+- `--shopId=1|4` (default `4`)
+- `--lang=<id>` (optional)
+- `--pageSize=<number>` (default `200`)
+- `--output=<path>.json` (default `exports/categories-tree.json`)
+
+This command also writes a CSV next to the JSON file with columns: `id,name,parent_name,level`.
+
 ### Products in Category (active only)
 
 ```bash
