@@ -25,7 +25,7 @@ fun AppNavHost(
     NavHost(
         navController = navController,
         startDestination = Routes.HOME,
-        modifier = Modifier.padding(paddingValues), // Εφαρμογή padding εδώ
+        modifier = Modifier.padding(paddingValues),
     ) {
         composable(Routes.HOME) {
             HomeScreen(
