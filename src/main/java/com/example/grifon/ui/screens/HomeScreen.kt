@@ -8,8 +8,11 @@ import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items as listItems
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -57,14 +60,14 @@ fun HomeScreen(
                 val data = state.data
                 val products = data.products
 
-                // LazyVerticalGrid παρέχει αυτόματα κάθετο scroll
+                // Χρήση Grid για να φαίνονται ΟΛΑ τα προϊόντα προς τα κάτω
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
+                    columns = GridCells.Fixed(2), // 2 στήλες για μεγαλύτερες εικόνες
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 100.dp)
                 ) {
-                    // 1. Ενότητα Κατηγοριών (Οριζόντιο Scroll μέσα στο Grid)
-                    item(span = { GridItemSpan(3) }) {
+                    // 1. Ενότητα Κατηγοριών (Οριζόντιο Scroll στην κορυφή)
+                    item(span = { GridItemSpan(2) }) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
                                 "Κατηγορίες", 
@@ -73,9 +76,9 @@ fun HomeScreen(
                             )
                             LazyRow(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                contentPadding = PaddingValues(bottom = 8.dp)
+                                contentPadding = PaddingValues(bottom = 16.dp)
                             ) {
-                                items(viewModel.staticCategoryIcons) { item ->
+                                listItems(viewModel.staticCategoryIcons) { item ->
                                     CategoryIconComponent(
                                         label = item.label,
                                         resId = item.resId,
@@ -88,43 +91,18 @@ fun HomeScreen(
                         }
                     }
 
-                    // 2. Προτεινόμενα (Οριζόντια σειρά)
-                    item(span = { GridItemSpan(3) }) {
-                        Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                            Text(
-                                "Προτεινόμενα για εσάς",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
-                            )
-                            LazyRow(
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                contentPadding = PaddingValues(horizontal = 16.dp)
-                            ) {
-                                items(products.take(10)) { product ->
-                                    Box(modifier = Modifier.width(140.dp)) {
-                                        SmallProductCard(
-                                            product = product, 
-                                            onClick = { onProductClick(product.id) },
-                                            onImageClick = { zoomedImageUrl = product.imageUrl }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // 3. Τίτλος για το κυρίως Πλέγμα (Κάθετο)
-                    item(span = { GridItemSpan(3) }) {
+                    // 2. Τίτλος Προϊόντων
+                    item(span = { GridItemSpan(2) }) {
                         Text(
-                            "Όλα τα Προϊόντα",
+                            text = if (data.selectedCategoryId == null) "Προτεινόμενα Προϊόντα" else "Προϊόντα Κατηγορίας",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                     }
 
-                    // 4. Το κυρίως Πλέγμα Προϊόντων που σκρολάρει κάθετα
-                    items(products.drop(10)) { product ->
-                        Box(modifier = Modifier.padding(4.dp)) {
+                    // 3. Εμφάνιση ΟΛΩΝ των προϊόντων σε Πλέγμα
+                    items(products, key = { it.id }) { product ->
+                        Box(modifier = Modifier.padding(8.dp)) {
                             SmallProductCard(
                                 product = product, 
                                 onClick = { onProductClick(product.id) },
@@ -164,7 +142,14 @@ fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClic
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = label, fontSize = 10.sp, textAlign = TextAlign.Center, maxLines = 1, color = Color.Black)
+        Text(
+            text = label, 
+            fontSize = 10.sp, 
+            textAlign = TextAlign.Center, 
+            maxLines = 1, 
+            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Black,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+        )
     }
 }
 
@@ -173,9 +158,9 @@ fun SmallProductCard(product: Product, onClick: () -> Unit, onImageClick: () -> 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.85f)
+            .aspectRatio(0.8f) // Ελαφρώς πιο ψηλή κάρτα
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(4.dp),
+        shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFAFAFA))
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -192,13 +177,19 @@ fun SmallProductCard(product: Product, onClick: () -> Unit, onImageClick: () -> 
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.4f))
-                    .padding(4.dp),
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .padding(6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = product.title, color = Color.White, fontSize = 9.sp, maxLines = 1, modifier = Modifier.weight(1f))
-                Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.White, modifier = Modifier.size(10.dp))
+                Text(
+                    text = product.title, 
+                    color = Color.White, 
+                    fontSize = 11.sp, 
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
             }
         }
     }
