@@ -47,7 +47,6 @@ fun GrifonApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Ενημερωμένη δομή από το JSON
     val categories = listOf(
         DrawerCategory("Κεραμικά", "4000", listOf(
             DrawerCategory("Διακοσμητικά Κεραμικά", "4025"),
@@ -56,39 +55,9 @@ fun GrifonApp() {
         DrawerCategory("Αγαλματίδια κ.α.", "4500", listOf(
             DrawerCategory("Veronese", "4504"),
             DrawerCategory("Αλαβαστρίνα", "4510"),
-            DrawerCategory("Μπρούτζινα", "4520"),
-            DrawerCategory("Πολυεστερικά", "4530"),
-            DrawerCategory("Γύψινα, Μάρμαρα", "4550")
-        )),
-        DrawerCategory("Διακοσμητικά", "5000", listOf(
-            DrawerCategory("Φωτιστικά", "5040"),
-            DrawerCategory("Ρολόγια", "5080"),
-            DrawerCategory("Επιτραπέζια", "5030")
-        )),
-        DrawerCategory("Χόμπι και παιχνίδια", "7000", listOf(
-            DrawerCategory("Τάβλι, Σκάκι", "7025"),
-            DrawerCategory("Λούτρινα", "7040")
-        )),
-        DrawerCategory("Για χρήση", "7500", listOf(
-            DrawerCategory("Κουζίνα & Γυαλικά", "7540"),
-            DrawerCategory("Σαπούνια", "7545")
-        )),
-        DrawerCategory("Αξεσουάρ", "8000", listOf(
-            DrawerCategory("Υφασμάτινα & Τσάντες", "8030")
+            DrawerCategory("Μπρούτζινα", "4520")
         ))
     )
-
-    LaunchedEffect(Unit) {
-        snapshotFlow { searchQuery }
-            .filter { it.length >= 2 }
-            .debounce(700)
-            .distinctUntilChanged()
-            .collect { query ->
-                navController.navigate(Routes.plpRoute(query = query)) {
-                    launchSingleTop = true 
-                }
-            }
-    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -97,32 +66,23 @@ fun GrifonApp() {
             ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     item {
-                        Text("Μενού Grifon", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
+                        Text("Κατηγορίες", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
                         HorizontalDivider()
                     }
                     categories.forEach { category ->
                         item {
+                            Text(category.name, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp))
+                        }
+                        items(category.subCategories) { subCategory ->
                             NavigationDrawerItem(
-                                label = { Text(category.name, fontWeight = FontWeight.Bold) },
+                                label = { Text("-- ${subCategory.name}") },
                                 selected = false,
                                 onClick = { 
                                     scope.launch { drawerState.close() }
-                                    navController.navigate(Routes.plpRoute(category = category.id))
+                                    navController.navigate(Routes.plpRoute(category = subCategory.id))
                                 }
                             )
                         }
-                        items(category.subCategories) { sub ->
-                            NavigationDrawerItem(
-                                label = { Text("-- ${sub.name}", fontSize = 14.sp) },
-                                selected = false,
-                                onClick = { 
-                                    scope.launch { drawerState.close() }
-                                    navController.navigate(Routes.plpRoute(category = sub.id))
-                                },
-                                modifier = Modifier.padding(start = 16.dp)
-                            )
-                        }
-                        item { HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = Color.Transparent) }
                     }
                 }
             }
@@ -137,16 +97,18 @@ fun GrifonApp() {
                         onMenuClick = { scope.launch { drawerState.open() } },
                         onHomeClick = { navController.navigateToTopLevel(Routes.HOME) },
                         onCartClick = { navController.navigateToTopLevel(Routes.CART) },
-                        onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) }
+                        onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) },
+                        onCategoriesClick = { scope.launch { drawerState.open() } }
                     )
                     AppSearchBar(query = searchQuery, onQueryChange = { searchQuery = it }, onScanClick = { navController.navigate(Routes.SCAN) })
                 }
             },
             bottomBar = { AppBottomNav(navController = navController) },
         ) { innerPadding ->
-            Surface(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-                AppNavHost(navController = navController, paddingValues = PaddingValues(0.dp))
-            }
+            AppNavHost(
+                navController = navController, 
+                paddingValues = innerPadding // Εφαρμογή του padding εδώ
+            )
         }
     }
 }

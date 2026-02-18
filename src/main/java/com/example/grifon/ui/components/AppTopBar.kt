@@ -19,11 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.grifon.R
 
-data class AppMenuItem(
-    val label: String,
-    val route: String,
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
@@ -31,7 +26,8 @@ fun AppTopBar(
     onMenuClick: () -> Unit,
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
-    onNotificationsClick: () -> Unit
+    onNotificationsClick: () -> Unit,
+    onCategoriesClick: () -> Unit // Προσθήκη παραμέτρου
 ) {
     val purpleColor = Color(0xFF6200EE)
 

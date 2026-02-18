@@ -1,9 +1,10 @@
 package com.example.grifon.data.repository
 
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.data.catalog.ProductDto
+import com.example.grifon.data.local.*
 import com.example.grifon.domain.model.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import android.util.Log
@@ -11,25 +12,39 @@ import com.example.grifon.BuildConfig
 
 @Singleton
 class ApiCatalogRepository @Inject constructor(
-    private val catalogApi: CatalogApi
+    private val catalogApi: CatalogApi,
+    private val productDao: ProductDao,
+    private val categoryDao: CategoryDao
 ) : CatalogRepository {
 
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
     override fun getCategoryTree(shopId: String): Flow<List<Category>> = flow {
+        // 1. Πάντα δείχνουμε πρώτα ό,τι έχουμε στη Room
+        val localCategories = categoryDao.getCategoriesByShop(shopId).first()
+        if (localCategories.isNotEmpty()) {
+            emit(localCategories.map { it.toDomain() })
+        }
+
+        // 2. Φέρνουμε φρέσκα δεδομένα και ενημερώνουμε τη Room
         try {
-            val id = shopId.toIntOrNull() ?: 4
-            val response = catalogApi.getCategories(shopId = id)
-            emit(response.items.map { 
-                Category(
-                    id = it.id.toString(), 
-                    name = it.name ?: "",
-                    parentId = null,
-                    childrenCount = 0
-                ) 
-            })
+            val response = catalogApi.getCategories(shopId = shopId.toInt())
+            if (response.items.isNotEmpty()) {
+                val entities = response.items.map { dto ->
+                    CategoryEntity(
+                        id = dto.id.toString(),
+                        name = dto.name ?: "",
+                        parentId = null,
+                        position = 0,
+                        active = true,
+                        shopId = shopId
+                    )
+                }
+                categoryDao.insertCategories(entities)
+                emit(entities.map { it.toDomain() })
+            }
         } catch (e: Exception) {
-            emit(emptyList())
+            Log.e("ApiCatalogRepo", "Error fetching categories: ${e.message}")
         }
     }
 
@@ -39,41 +54,33 @@ class ApiCatalogRepository @Inject constructor(
         filters: FilterState,
         sortOption: SortOption
     ): Flow<List<Product>> = flow {
+        // 1. Έλεγχος στη Room
+        val localProducts = productDao.getProductsByCategory(categoryId, shopId).first()
+        if (localProducts.isNotEmpty()) {
+            emit(localProducts.map { it.toDomain() })
+        }
+
+        // 2. Φέρνουμε από το API
         try {
-            val sId = shopId.toIntOrNull() ?: 4
-            val response = if (categoryId == "2" || categoryId.isBlank()) {
-                catalogApi.getProducts(shopId = sId, pageSize = 100)
+            // Διόρθωση ID: Αν το ID είναι 4000.1, παίρνουμε το 4000
+            val cleanId = categoryId.split(".").first().toIntOrNull() ?: 2
+            
+            val response = if (cleanId == 2) {
+                catalogApi.getProducts(shopId = shopId.toInt(), pageSize = 100)
             } else {
-                catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = sId)
+                catalogApi.getCategoryProducts(categoryId = cleanId, shopId = shopId.toInt())
             }
             
-            // ΕΦΑΡΜΟΓΗ ΦΙΛΤΡΩΝ ΣΤΗ ΛΙΣΤΑ
-            val filteredProducts = response.items
-                .map { it.toDomain(sId) }
-                .filter { product ->
-                    val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
-                    val matchesStock = if (filters.inStockOnly) product.inStock else true
-                    
-                    // Φιλτράρισμα βάσει ονόματος για τις κατηγορίες (π.χ. Μινωικά) αν δεν έχουμε attributes
-                    val selectedMinoan = filters.attributes["minoan"] ?: emptySet()
-                    val matchesMinoan = if (selectedMinoan.isNotEmpty()) {
-                        selectedMinoan.any { product.title.contains(it, ignoreCase = true) }
-                    } else true
-
-                    matchesPrice && matchesStock && matchesMinoan
-                }
-                .let { list ->
-                    // ΕΦΑΡΜΟΓΗ ΤΑΞΙΝΟΜΗΣΗΣ
-                    when (sortOption) {
-                        SortOption.PRICE_LOW_HIGH -> list.sortedBy { it.price }
-                        SortOption.PRICE_HIGH_LOW -> list.sortedByDescending { it.price }
-                        else -> list
-                    }
-                }
-
-            emit(filteredProducts)
+            if (response.items.isNotEmpty()) {
+                val entities = response.items.map { it.toEntity(shopId, categoryId) }
+                productDao.insertProducts(entities)
+                emit(entities.map { it.toDomain() })
+            } else if (localProducts.isEmpty()) {
+                emit(emptyList<Product>())
+            }
         } catch (e: Exception) {
-            emit(emptyList())
+            Log.e("ApiCatalogRepo", "Error fetching products for $categoryId: ${e.message}")
+            if (localProducts.isEmpty()) emit(emptyList<Product>())
         }
     }
 
@@ -84,18 +91,11 @@ class ApiCatalogRepository @Inject constructor(
         sortOption: SortOption
     ): Flow<List<Product>> = flow {
         try {
-            val sId = shopId.toIntOrNull() ?: 4
-            val response = catalogApi.getProducts(shopId = sId, pageSize = 100)
-            val allProducts = response.items.map { it.toDomain(sId) }
-            
-            val filtered = allProducts.filter { product ->
-                val matchesQuery = product.title.contains(query, ignoreCase = true) || 
-                                 product.attributesMap["reference"]?.contains(query, ignoreCase = true) == true
-                
-                val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
-                
-                matchesQuery && matchesPrice
-            }
+            val response = catalogApi.getProducts(shopId = shopId.toInt(), pageSize = 100)
+            val filtered = response.items
+                .filter { it.name?.contains(query, ignoreCase = true) == true || 
+                         it.reference?.contains(query, ignoreCase = true) == true }
+                .map { it.toEntity(shopId, null).toDomain() }
             emit(filtered)
         } catch (e: Exception) {
             emit(emptyList())
@@ -103,23 +103,33 @@ class ApiCatalogRepository @Inject constructor(
     }
 
     override fun getProductById(shopId: String, productId: String): Flow<Product?> = flow {
-        emit(null)
+        val local = productDao.getProductById(productId)
+        if (local != null) {
+            emit(local.toDomain())
+        } else {
+            emit(null)
+        }
     }
 
-    private fun com.example.grifon.data.catalog.ProductDto.toDomain(shopId: Int): Product {
-        val rawUrl = defaultImage?.url ?: ""
-        val fullImageUrl = if (rawUrl.startsWith("/")) "$gatewayBaseUrl$rawUrl" else rawUrl
+    // MAPPERS
+    private fun CategoryEntity.toDomain() = Category(id, name, parentId, 0)
+    
+    private fun ProductEntity.toDomain() = Product(
+        id = id, title = title, price = price, currency = currency,
+        imageUrl = imageUrl, brand = brand, rating = 0.0, inStock = inStock,
+        attributesMap = mapOf("reference" to reference)
+    )
 
-        return Product(
-            id = "${shopId}_$id",
-            title = name ?: "",
-            price = price ?: 0.0,
-            currency = "EUR",
-            imageUrl = fullImageUrl,
-            brand = if (shopId == 4) "Grifon GR" else "Grifon SE",
-            rating = 0.0,
-            inStock = true,
-            attributesMap = mapOf("reference" to (reference ?: ""))
-        )
-    }
+    private fun ProductDto.toEntity(shopId: String, categoryId: String?) = ProductEntity(
+        id = "${shopId}_$id",
+        title = name ?: "",
+        price = price ?: 0.0,
+        currency = "EUR",
+        imageUrl = if (defaultImage?.url?.startsWith("/") == true) "$gatewayBaseUrl${defaultImage.url}" else defaultImage?.url ?: "",
+        brand = "Grifon",
+        inStock = true,
+        reference = reference ?: "",
+        shopId = shopId,
+        categoryId = categoryId
+    )
 }
