@@ -1,33 +1,38 @@
 package com.example.grifon.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.grifon.navigation.AppNavHost
 import com.example.grifon.navigation.Routes
 import com.example.grifon.ui.components.AppBottomNav
 import com.example.grifon.ui.components.AppSearchBar
 import com.example.grifon.ui.components.AppTopBar
 import com.example.grifon.viewmodel.AppViewModel
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.debounce
-import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+
+private data class DrawerCategory(
+    val name: String,
+    val id: String,
+    val subCategories: List<DrawerCategory> = emptyList()
+)
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
@@ -41,14 +46,36 @@ fun GrifonApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Λίστα Κατηγοριών από το Mockup
+    // Αντιστοίχιση Κατηγοριών βάσει PrestaShop & Screenshot
     val categories = listOf(
-        "Κεραμικά",
-        "Αγαλματίδια κ.α.",
-        "Διακοσμητικά",
-        "Για χρήση",
-        "Χόμπι και παιχνίδια",
-        "Αξεσουάρ"
+        DrawerCategory("Κεραμικά", "4000", listOf(
+            DrawerCategory("Διακοσμητικά Κεραμικά", "4001"),
+            DrawerCategory("Φανάρια, Καντήλια", "4002")
+        )),
+        DrawerCategory("Αγαλματίδια κ.α.", "4500", listOf(
+            DrawerCategory("Βερονέζ", "4501"),
+            DrawerCategory("Αλαβαστρίνα", "4502"),
+            DrawerCategory("Μπρούτζινα", "4503"),
+            DrawerCategory("Πολυεστερικά", "4504"),
+            DrawerCategory("Γύψινα, Πωρόλιθος, Μαρμάρινα", "4505")
+        )),
+        DrawerCategory("Διακοσμητικά", "5000", listOf(
+            DrawerCategory("Φανάρια, Καντήλια", "5001"),
+            DrawerCategory("Φωτιστικά", "5002"),
+            DrawerCategory("Ρολόγια", "5003"),
+            DrawerCategory("Επιτραπέζια", "5004")
+        )),
+        DrawerCategory("Για χρήση", "7500", listOf(
+            DrawerCategory("Κουζίνας κ υαλικά", "7501"),
+            DrawerCategory("Σαπούνια", "7502")
+        )),
+        DrawerCategory("Χόμπι και παιχνίδια", "7000", listOf(
+            DrawerCategory("Τάβλι, Σκάκι", "7001"),
+            DrawerCategory("Παιχνίδια, Λούτρινα", "7002")
+        )),
+        DrawerCategory("Αξεσουάρ", "8000", listOf(
+            DrawerCategory("Υφασμάτινα και τσάντες", "8001")
+        ))
     )
 
     LaunchedEffect(Unit) {
@@ -67,66 +94,50 @@ fun GrifonApp() {
         drawerState = drawerState,
         gesturesEnabled = true,
         drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier.width(300.dp)
-            ) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    "Ψωνίστε Ανά Κατηγορία", 
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp), 
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
-                HorizontalDivider()
-                
+            ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(categories) { category ->
-                        NavigationDrawerItem(
-                            label = { 
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(category, fontSize = 16.sp)
-                                    Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
-                                }
-                            },
-                            selected = false,
-                            onClick = { 
-                                scope.launch { drawerState.close() }
-                                // Πλοήγηση στην PLP με την κατηγορία
-                                navController.navigate(Routes.plpRoute(category = category))
-                            },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                        )
-                    }
-                    
                     item {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                        NavigationDrawerItem(
-                            label = { Text("Ο Λογαριασμός μου") },
-                            selected = false,
-                            onClick = { 
-                                scope.launch { drawerState.close() }
-                                navController.navigateToTopLevel(Routes.ACCOUNT) 
-                            },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        Text(
+                            "Ψωνίστε Ανά Κατηγορία", 
+                            modifier = Modifier.padding(16.dp), 
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
+                        HorizontalDivider()
+                    }
+                    categories.forEach { category ->
+                        item {
+                            NavigationDrawerItem(
+                                label = { Text(category.name, fontWeight = FontWeight.Bold) },
+                                selected = false,
+                                onClick = { 
+                                    scope.launch { drawerState.close() }
+                                    navController.navigate(Routes.plpRoute(category = category.id))
+                                }
+                            )
+                        }
+                        items(category.subCategories) { sub ->
+                            NavigationDrawerItem(
+                                label = { Text("-- ${sub.name}", fontSize = 14.sp) },
+                                selected = false,
+                                onClick = { 
+                                    scope.launch { drawerState.close() }
+                                    navController.navigate(Routes.plpRoute(category = sub.id))
+                                },
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                        }
                     }
                 }
             }
         }
     ) {
         Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
+            modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 Column {
                     AppTopBar(
                         shopLabel = if (appState.activeShopId == "1") "SE" else "GR",
-                        onMenuClick = { 
-                            scope.launch { drawerState.open() } 
-                        },
+                        onMenuClick = { scope.launch { drawerState.open() } },
                         onHomeClick = { navController.navigateToTopLevel(Routes.HOME) },
                         onCartClick = { navController.navigateToTopLevel(Routes.CART) },
                         onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) }
@@ -138,20 +149,13 @@ fun GrifonApp() {
                     )
                 }
             },
-            bottomBar = {
-                AppBottomNav(navController = navController)
-            },
+            bottomBar = { AppBottomNav(navController = navController) },
         ) { innerPadding ->
             Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
                 color = MaterialTheme.colorScheme.background
             ) {
-                AppNavHost(
-                    navController = navController,
-                    paddingValues = PaddingValues(0.dp)
-                )
+                AppNavHost(navController = navController, paddingValues = PaddingValues(0.dp))
             }
         }
     }
@@ -159,9 +163,7 @@ fun GrifonApp() {
 
 private fun NavHostController.navigateToTopLevel(route: String) {
     navigate(route) {
-        popUpTo(graph.findStartDestination().id) {
-            saveState = true
-        }
+        popUpTo(graph.findStartDestination().id) { saveState = true }
         launchSingleTop = true
         restoreState = true
     }
