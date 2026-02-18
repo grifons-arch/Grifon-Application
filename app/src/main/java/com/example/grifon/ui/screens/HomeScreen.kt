@@ -71,6 +71,7 @@ fun HomeScreen(
             is UiState.Success -> {
                 val data = state.data
                 val products = data.popular
+                val recommendedProducts = data.recent
 
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
@@ -106,21 +107,42 @@ fun HomeScreen(
                         }
                     }
 
-                    // 2. Πλέγμα Πραγματικών Προϊόντων (Χωρίς προκαθορισμένες φωτο)
-                    itemsIndexed(
-                        items = products,
-                        span = { index, _ -> if (index == 0) GridItemSpan(3) else GridItemSpan(1) }
-                    ) { index, product ->
-                        Box(modifier = Modifier.padding(4.dp)) {
-                            if (index == 0) {
-                                FeaturedProductCard(product, null, { onProductClick(product.id) }) { 
-                                    zoomedImageUrl = product.imageUrl 
-                                }
-                            } else {
-                                SmallProductCard(product, null, { onProductClick(product.id) }) { 
-                                    zoomedImageUrl = product.imageUrl 
+                    item(span = { GridItemSpan(3) }) {
+                        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                            Text(
+                                text = "Προτεινόμενα",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(recommendedProducts) { product ->
+                                    Box(modifier = Modifier.width(170.dp).height(180.dp)) {
+                                        SmallProductCard(
+                                            product = product,
+                                            onClick = { onProductClick(product.id) },
+                                            onImageClick = { zoomedImageUrl = product.imageUrl },
+                                        )
+                                    }
                                 }
                             }
+                        }
+                    }
+
+                    item(span = { GridItemSpan(3) }) {
+                        Text(
+                            text = "Όλα τα προϊόντα",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        )
+                    }
+
+                    itemsIndexed(items = products) { _, product ->
+                        Box(modifier = Modifier.padding(4.dp)) {
+                            SmallProductCard(
+                                product = product,
+                                onClick = { onProductClick(product.id) },
+                                onImageClick = { zoomedImageUrl = product.imageUrl },
+                            )
                         }
                     }
                 }
