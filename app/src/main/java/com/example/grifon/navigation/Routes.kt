@@ -5,6 +5,7 @@ object Routes {
     const val CATEGORIES = "categories"
     const val CART = "cart"
     const val ACCOUNT = "account"
+    const val FAVORITES = "favorites"
     const val PRODUCT = "product/{id}"
     const val PLP = "plp?query={query}&category={category}"
     const val SETTINGS = "settings"

@@ -10,12 +10,18 @@ class HomeProductsWebService @Inject constructor(
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
     suspend fun fetchProductsForShop(shopKey: String): List<Product> {
-        val shops = catalogApi.getShops()
-        val selectedShop = resolveShop(shops, shopKey) ?: return emptyList()
+        try {
+            val shops = catalogApi.getShops()
+            val selectedShop = resolveShop(shops, shopKey) ?: return emptyList()
 
-        val response = catalogApi.getProducts(shopId = selectedShop.id, pageSize = 50)
-        
-        return response.items.map { it.toDomain(selectedShop.id, selectedShop.code) }
+            // Αντί για το γενικό getProducts, χρησιμοποιούμε την κατηγορία 2 (Home) 
+            // που είναι πιο σίγουρο ότι επιστρέφει αποτελέσματα στο PrestaShop
+            val response = catalogApi.getCategoryProducts(categoryId = 2, shopId = selectedShop.id, pageSize = 50)
+            
+            return response.items.map { it.toDomain(selectedShop.id, selectedShop.code) }
+        } catch (e: Exception) {
+            return emptyList()
+        }
     }
 
     private fun resolveShop(shops: List<ShopDto>, shopKey: String): ShopDto? {

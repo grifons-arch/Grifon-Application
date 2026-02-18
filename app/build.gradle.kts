@@ -21,8 +21,6 @@ android {
     namespace = "com.example.grifon"
     compileSdk = 34
 
-
-
     defaultConfig {
         applicationId = "com.grifon.eshop"
         minSdk = 24
@@ -33,21 +31,14 @@ android {
 
     flavorDimensions += "shop"
     productFlavors {
-        create("gr") {
-            dimension = "shop"
-        }
-        create("se") {
-            dimension = "shop"
-        }
+        create("gr") { dimension = "shop" }
+        create("se") { dimension = "shop" }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
@@ -55,9 +46,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    kotlinOptions { jvmTarget = "17" }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -71,112 +60,10 @@ androidComponents {
             "se" -> seApiBaseUrl to "1"
             else -> grApiBaseUrl to "4"
         }
-        if (variant.buildType == "debug") {
-            apiBaseUrl = debugApiBaseUrl
-        }
-        variant.buildConfigFields?.put(
-            "API_BASE_URL",
-            BuildConfigField("String", "\"$apiBaseUrl\"", "Gateway base URL"),
-        )
-        variant.buildConfigFields?.put(
-            "SHOP_ID",
-            BuildConfigField("String", "\"$shopId\"", "Gateway shop identifier"),
-        )
+        if (variant.buildType == "debug") apiBaseUrl = debugApiBaseUrl
+        variant.buildConfigFields?.put("API_BASE_URL", BuildConfigField("String", "\"$apiBaseUrl\"", "Gateway base URL"))
+        variant.buildConfigFields?.put("SHOP_ID", BuildConfigField("String", "\"$shopId\"", "Gateway shop identifier"))
     }
-}
-
-configurations.matching { it.name.startsWith("ksp") }.configureEach {
-    resolutionStrategy.force(libs.javapoet.get().toString())
-}
-
-val resourceNameRegex = Regex("^[a-z0-9_]+$")
-
-fun suggestedResourceName(file: File): String {
-    val fileName = file.name
-    val baseName = fileName.substringBeforeLast('.')
-    val extension = fileName.substringAfterLast('.', "")
-    val isNinePatch = baseName.endsWith(".9")
-    val rawBase = if (isNinePatch) baseName.removeSuffix(".9") else baseName
-    val normalizedBase = rawBase
-        .lowercase()
-        .replace(Regex("[^a-z0-9_]"), "_")
-        .replace(Regex("_+"), "_")
-        .trim('_')
-        .ifBlank { "resource" }
-    val normalizedWithNinePatch = if (isNinePatch) "${normalizedBase}.9" else normalizedBase
-    return if (extension.isNotEmpty()) {
-        "$normalizedWithNinePatch.$extension"
-    } else {
-        normalizedWithNinePatch
-    }
-}
-
-tasks.register("normalizeResourceNames") {
-    group = "verification"
-    description = "Renames invalid Android resource files to lowercase underscore naming."
-    doLast {
-        val invalidResources = fileTree("src/main/res") {
-            include("**/*.*")
-        }.files.filter { file ->
-            val fileName = file.name
-            val baseName = fileName.substringBeforeLast('.')
-            val sanitizedBaseName = if (baseName.endsWith(".9")) {
-                baseName.removeSuffix(".9")
-            } else {
-                baseName
-            }
-            !resourceNameRegex.matches(sanitizedBaseName)
-        }
-
-        invalidResources.sortedBy { it.path }.forEach { file ->
-            val targetName = suggestedResourceName(file)
-            val targetFile = File(file.parentFile, targetName)
-            if (targetFile.exists()) {
-                throw GradleException("Cannot rename ${file.path} to ${targetFile.path}: target already exists.")
-            }
-            if (!file.renameTo(targetFile)) {
-                throw GradleException("Failed to rename ${file.path} to ${targetFile.path}.")
-            }
-        }
-    }
-}
-
-tasks.register("validateResourceNames") {
-    group = "verification"
-    description = "Ensures Android resource file names only contain lowercase letters, digits, or underscores."
-    doLast {
-
-        val invalidResources = fileTree("src/main/res") {
-            include("**/*.*")
-        }.files.filter { file ->
-            val fileName = file.name
-            val baseName = fileName.substringBeforeLast('.')
-            val sanitizedBaseName = if (baseName.endsWith(".9")) {
-                baseName.removeSuffix(".9")
-            } else {
-                baseName
-            }
-            !resourceNameRegex.matches(sanitizedBaseName)
-        }
-        if (invalidResources.isNotEmpty()) {
-            val names = invalidResources.sortedBy { it.path }.joinToString(separator = "\n") { it.path }
-            throw GradleException(
-                buildString {
-                    append("Invalid Android resource file names detected:\n")
-                    append(names)
-                    append("\nResource file names must contain only lowercase a-z, 0-9, or underscore.\n")
-                    append("Run ./gradlew :app:normalizeResourceNames to auto-rename them.\n")
-                    append("Suggested renames:\n")
-                    invalidResources.sortedBy { it.path }.forEach { file ->
-                        append("${file.path} -> ${suggestedResourceName(file)}\n")
-                    }
-                }
-            )
-        }
-    }
-}
-tasks.named("preBuild") {
-    dependsOn("validateResourceNames")
 }
 
 dependencies {
@@ -218,4 +105,10 @@ dependencies {
     
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // Room Database
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
 }

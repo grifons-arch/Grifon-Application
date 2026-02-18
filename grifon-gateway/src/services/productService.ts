@@ -1,8 +1,8 @@
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { extractResourceItem, extractResourceList } from "./prestashopParser";
-import { chunkArray, toLimitParam } from "../utils/pagination";
-import { getLocalizedValue, toNumber, toBooleanFlag } from "../utils/prestashopFields";
-import { config, ShopId } from "../config/env";
+import { toLimitParam } from "../utils/pagination";
+import { getLocalizedValue, toNumber } from "../utils/prestashopFields";
+import { ShopId } from "../config/env";
 
 export interface ProductListItem {
   id: number;
@@ -11,19 +11,6 @@ export interface ProductListItem {
   reference: string | null;
   defaultImage: { id: number; url: string } | null;
   active: number | null;
-}
-
-export interface ProductDetail {
-  id: number;
-  name: string | null;
-  descriptionShort: string | null;
-  description: string | null;
-  reference: string | null;
-  price: number | null;
-  images: { id: number; url: string }[];
-  manufacturer?: { id: number; name: string | null };
-  categories?: { id: number }[];
-  stock?: { quantity: number | null };
 }
 
 const buildImageUrl = (shopId: ShopId, productId: number, imageId: number): string => {
@@ -37,22 +24,21 @@ const normalizeProduct = (
   allowPrice = true
 ): ProductListItem => {
   const id = Number(product.id);
-  const idDefaultImage = toNumber(product.id_default_image);
-  const priceValue = toNumber(product.price);
-
+  let idImage = toNumber(product.id_default_image);
+  if (!idImage && product.associations?.images) {
+    const images = extractResourceList<any>("images", product.associations);
+    if (images.length > 0) idImage = Number(images[0].id);
+  }
   return {
     id,
     name: getLocalizedValue(product.name, lang),
-    price: allowPrice ? priceValue : null,
+    price: allowPrice ? toNumber(product.price) : null,
     reference: product.reference ?? null,
-    defaultImage: idDefaultImage
-      ? { id: idDefaultImage, url: buildImageUrl(shopId, id, idDefaultImage) }
-      : null,
+    defaultImage: idImage ? { id: idImage, url: buildImageUrl(shopId, id, idImage) } : null,
     active: toNumber(product.active)
   };
 };
 
-// ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Φέρνει όλα τα προϊόντα ανεξαρτήτως κατηγορίας
 export const listAllProducts = async (
   client: PrestaShopClient,
   shopId: ShopId,
@@ -65,8 +51,8 @@ export const listAllProducts = async (
   const data = await client.get("products", {
     "filter[active]": 1,
     sort,
-    limit: toLimitParam(page, pageSize),
-    display: "[id,name,price,reference,active,id_default_image]"
+    limit: toLimitParam(page, pageSize), // Χρήση δυναμικού limit για σελιδοποίηση
+    display: "full" 
   });
 
   const items = extractResourceList<any>("products", data);
@@ -81,25 +67,22 @@ export const listProductsByCategory = async (
   pageSize: number,
   sort: string,
   lang?: number,
-  allowPrice = false
+  allowPrice = true
 ): Promise<ProductListItem[]> => {
-  const baseParams = {
+  if (categoryId === 2) {
+    return listAllProducts(client, shopId, page, pageSize, sort, lang, allowPrice);
+  }
+
+  const data = await client.get("products", {
     "filter[active]": 1,
+    "filter[id_category_default]": categoryId,
     sort,
     limit: toLimitParam(page, pageSize),
-    display: "[id,name,price,reference,active,id_default_image]"
-  } as Record<string, string | number>;
-
-  const filteredData = await client.get("products", {
-    ...baseParams,
-    "filter[id_category_default]": categoryId
+    display: "full"
   });
 
-  const filteredItems = extractResourceList<any>("products", filteredData);
-  if (filteredItems.length > 0) {
-    return filteredItems.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
-  }
-  return [];
+  const items = extractResourceList<any>("products", data);
+  return items.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
 };
 
 export const getProductDetail = async (
@@ -107,36 +90,10 @@ export const getProductDetail = async (
   shopId: ShopId,
   productId: number,
   lang?: number,
-  allowPrice = false
-): Promise<ProductDetail | null> => {
-  const data = await client.getById("products", productId, {
-    display: "full"
-  });
+  allowPrice = true
+): Promise<any> => {
+  const data = await client.getById("products", productId, { display: "full" });
   const product = extractResourceItem<any>("products", data);
   if (!product) return null;
-  return normalizeProductDetail(product, shopId, lang, allowPrice);
-};
-
-const normalizeProductDetail = (
-  product: any,
-  shopId: ShopId,
-  lang?: number,
-  allowPrice = true
-): ProductDetail => {
-  const id = Number(product.id);
-  const images = extractResourceList<any>("images", product?.associations ?? {});
-  const imageItems = images.map((image) => ({
-    id: Number(image.id),
-    url: buildImageUrl(shopId, id, Number(image.id))
-  }));
-
-  return {
-    id,
-    name: getLocalizedValue(product.name, lang),
-    descriptionShort: getLocalizedValue(product.description_short, lang),
-    description: getLocalizedValue(product.description, lang),
-    reference: product.reference ?? null,
-    price: allowPrice ? toNumber(product.price) : null,
-    images: imageItems
-  };
+  return normalizeProduct(product, shopId, lang, allowPrice);
 };

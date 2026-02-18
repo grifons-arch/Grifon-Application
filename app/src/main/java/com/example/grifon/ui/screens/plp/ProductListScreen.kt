@@ -3,22 +3,23 @@
 package com.example.grifon.ui.screens.plp
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -45,17 +46,14 @@ fun ProductListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var filtersOpen by remember { mutableStateOf(false) }
+    var sortOpen by remember { mutableStateOf(false) }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.White
-    ) {
+    Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
         when (val state = uiState) {
             UiState.Loading -> LoadingScreen()
             is UiState.Error -> ErrorScreen(message = state.message)
             is UiState.Success -> {
                 val data = state.data
-                
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     contentPadding = PaddingValues(12.dp),
@@ -65,45 +63,32 @@ fun ProductListScreen(
                 ) {
                     item(span = { GridItemSpan(2) }) {
                         FilterBar(
-                            filters = data.filters,
-                            sortOption = data.sortOption,
                             onFiltersClick = { filtersOpen = true },
-                            onSortSelected = viewModel::updateSort,
-                            onToggleInStock = {
-                                viewModel.updateFilters(data.filters.copy(inStockOnly = !data.filters.inStockOnly))
-                            },
-                            onToggleExpress = {
-                                val expressSet = data.filters.deliveryOptions
-                                val updated = if (expressSet.contains("express")) {
-                                    expressSet - "express"
-                                } else {
-                                    expressSet + "express"
-                                }
-                                viewModel.updateFilters(data.filters.copy(deliveryOptions = updated))
-                            },
+                            onSortClick = { sortOpen = true }
                         )
                     }
-
-                    item(span = { GridItemSpan(2) }) {
-                        ActiveFiltersRow(filters = data.filters)
-                    }
-
                     items(data.products) { product ->
-                        ProductGridItem(
-                            product = product,
-                            onClick = { onProductClick(product.id) }
-                        )
+                        ProductGridItem(product, onClick = { onProductClick(product.id) })
                     }
                 }
-
                 if (filtersOpen) {
                     FiltersSheet(
-                        initialState = data.filters,
+                        currentFilters = data.filters,
                         onDismiss = { filtersOpen = false },
                         onApply = { newFilters ->
                             viewModel.updateFilters(newFilters)
                             filtersOpen = false
                         },
+                    )
+                }
+                if (sortOpen) {
+                    SortDialog(
+                        currentSort = data.sortOption,
+                        onDismiss = { sortOpen = false },
+                        onSelect = { newSort ->
+                            viewModel.updateSort(newSort)
+                            sortOpen = false
+                        }
                     )
                 }
             }
@@ -112,16 +97,142 @@ fun ProductListScreen(
 }
 
 @Composable
+private fun FiltersSheet(
+    currentFilters: FilterState,
+    onDismiss: () -> Unit,
+    onApply: (FilterState) -> Unit,
+) {
+    val scrollState = rememberScrollState()
+    var tempFilters by remember { mutableStateOf(currentFilters) }
+    val colors = mapOf(
+        "Μπλε" to Color.Blue, "Κόκκινο" to Color.Red, "Κίτρινο" to Color.Yellow, 
+        "Πράσινο" to Color.Green, "Μαύρο" to Color.Black, "Λευκό" to Color.White
+    )
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(scrollState)
+        ) {
+            Text("Φιλτράρισμα κατά", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
+            Spacer(Modifier.height(16.dp))
+
+            // ΕΝΟΤΗΤΑ ΧΡΩΜΑΤΩΝ
+            FilterSectionTitle(title = "Χρωματισμοί")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                colors.forEach { (name, color) ->
+                    ColorCircle(name, color, tempFilters.colors.contains(name)) {
+                        val currentColors = tempFilters.colors
+                        val nextColors = if (currentColors.contains(name)) currentColors - name else currentColors + name
+                        tempFilters = tempFilters.copy(colors = nextColors)
+                    }
+                }
+            }
+
+            FilterSectionTitle(title = "Διαθεσιμότητα")
+            FilterItemRow(
+                label = "Σε απόθεμα", 
+                count = 77, 
+                selected = tempFilters.inStockOnly,
+                onToggle = { tempFilters = tempFilters.copy(inStockOnly = !tempFilters.inStockOnly) }
+            )
+
+            Spacer(Modifier.height(24.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = { onApply(FilterState()) }, modifier = Modifier.weight(1f)) { Text("Καθαρισμός") }
+                Button(onClick = { onApply(tempFilters) }, modifier = Modifier.weight(1f)) { Text("Εφαρμογή") }
+            }
+            Spacer(Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+private fun ColorCircle(name: String, color: Color, isSelected: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .clip(CircleShape)
+            .background(color)
+            .border(2.dp, if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent, CircleShape)
+            .clickable { onClick() }
+    )
+}
+
+// ... (τα υπόλοιπα composables παραμένουν ως έχουν)
+
+@Composable
+private fun FilterBar(onFiltersClick: () -> Unit, onSortClick: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Button(onClick = onFiltersClick, shape = RoundedCornerShape(20.dp), modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))) {
+            Text("Φίλτρα")
+        }
+        OutlinedButton(onClick = onSortClick, shape = RoundedCornerShape(20.dp), modifier = Modifier.weight(1f)) {
+            Text("Ταξινόμηση")
+        }
+    }
+}
+
+@Composable
+private fun SortDialog(currentSort: SortOption, onDismiss: () -> Unit, onSelect: (SortOption) -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Ταξινόμηση", fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                SortOption.entries.forEach { option ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { onSelect(option) }.padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(selected = currentSort == option, onClick = { onSelect(option) })
+                        Spacer(Modifier.width(12.dp))
+                        Text(option.label)
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Ακύρωση") } }
+    )
+}
+
+@Composable
+private fun FilterSectionTitle(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+    )
+    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+}
+
+@Composable
+private fun FilterItemRow(label: String, count: Int, selected: Boolean, onToggle: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().clickable { onToggle() }.padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = selected, onCheckedChange = { onToggle() })
+            Text(text = label, style = MaterialTheme.typography.bodyMedium)
+        }
+        Text(text = count.toString(), style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+    }
+}
+
+@Composable
 fun ProductGridItem(product: Product, onClick: () -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
+        modifier = Modifier.fillMaxWidth().background(Color.White)
     ) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f),
+            modifier = Modifier.fillMaxWidth().aspectRatio(1f),
             shape = RoundedCornerShape(4.dp),
             colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
             onClick = onClick
@@ -130,8 +241,7 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(product.imageUrl.ifEmpty { R.drawable.logo })
-                        .crossfade(true)
-                        .build(),
+                        .crossfade(true).build(),
                     contentDescription = product.title,
                     placeholder = painterResource(R.drawable.logo),
                     error = painterResource(R.drawable.logo),
@@ -140,119 +250,8 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
                 )
             }
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = product.title.uppercase(),
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                lineHeight = 16.sp
-            ),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            color = Color.Black
-        )
-
-        val reference = product.attributesMap["reference"] ?: ""
-        if (reference.isNotEmpty()) {
-            Text(
-                text = "Κωδικός: $reference",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 11.sp,
-                    color = Color.Gray
-                ),
-                modifier = Modifier.padding(top = 2.dp)
-            )
-        }
-
-        Text(
-            text = "${product.price} €",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            ),
-            modifier = Modifier.padding(top = 4.dp)
-        )
-    }
-}
-
-@Composable
-private fun FilterBar(
-    filters: FilterState,
-    sortOption: SortOption,
-    onFiltersClick: () -> Unit,
-    onSortSelected: (SortOption) -> Unit,
-    onToggleInStock: () -> Unit,
-    onToggleExpress: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        OutlinedButton(onClick = onFiltersClick, contentPadding = PaddingValues(horizontal = 8.dp)) {
-            Text(text = "Φίλτρα", fontSize = 12.sp)
-        }
-        FilterChip(
-            selected = filters.inStockOnly,
-            onClick = onToggleInStock,
-            label = { Text(text = "Διαθέσιμα", fontSize = 11.sp) },
-        )
-        FilterChip(
-            selected = filters.deliveryOptions.contains("express"),
-            onClick = onToggleExpress,
-            label = { Text(text = "Express", fontSize = 11.sp) },
-        )
-    }
-}
-
-@Composable
-private fun ActiveFiltersRow(filters: FilterState) {
-    // ... παραμένει το ίδιο
-}
-
-@Composable
-private fun FiltersSheet(
-    initialState: FilterState,
-    onDismiss: () -> Unit,
-    onApply: (FilterState) -> Unit,
-) {
-    // ... παραμένει το ίδιο αλλά με σωστά imports αν χρειαστεί
-    var range by remember { mutableStateOf(initialState.priceRange) }
-    var inStock by remember { mutableStateOf(initialState.inStockOnly) }
-    var saleOnly by remember { mutableStateOf(initialState.saleOnly) }
-    var rating by remember { mutableStateOf(initialState.ratingMin) }
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Τιμή", style = MaterialTheme.typography.titleMedium)
-            RangeSlider(
-                value = range.start.toFloat()..range.endInclusive.toFloat(),
-                onValueChange = { newRange ->
-                    range = newRange.start.toDouble()..newRange.endInclusive.toDouble()
-                },
-                valueRange = 0f..1500f,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = "Διαθεσιμότητα", style = MaterialTheme.typography.titleMedium)
-            FilterChip(selected = inStock, onClick = { inStock = !inStock }, label = { Text("Άμεσα διαθέσιμα") })
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                OutlinedButton(onClick = { onApply(FilterState()) }, modifier = Modifier.weight(1f)) {
-                    Text("Καθαρισμός")
-                }
-                Button(onClick = {
-                    onApply(initialState.copy(priceRange = range, inStockOnly = inStock, saleOnly = saleOnly))
-                }, modifier = Modifier.weight(1f)) {
-                    Text("Εφαρμογή")
-                }
-            }
-            Spacer(modifier = Modifier.height(32.dp))
-        }
+        Text(text = product.title.uppercase(), style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, fontWeight = FontWeight.Medium), maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color.Black)
+        Text(text = "${product.price} €", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary))
     }
 }

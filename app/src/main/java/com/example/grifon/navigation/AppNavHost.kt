@@ -9,10 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.grifon.ui.screens.AccountScreen
-import com.example.grifon.ui.screens.CartScreen
-import com.example.grifon.ui.screens.HomeScreen
-import com.example.grifon.ui.screens.SettingsScreen
+import com.example.grifon.ui.screens.*
 import com.example.grifon.ui.screens.categories.CategoriesScreen
 import com.example.grifon.ui.screens.plp.ProductDetailsScreen
 import com.example.grifon.ui.screens.plp.ProductListScreen
@@ -31,7 +28,12 @@ fun AppNavHost(
         modifier = Modifier.padding(paddingValues),
     ) {
         composable(Routes.HOME) {
-            HomeScreen(viewModel = hiltViewModel())
+            HomeScreen(
+                viewModel = hiltViewModel(),
+                onProductClick = { productId ->
+                    navController.navigate(Routes.productRoute(productId))
+                }
+            )
         }
         composable(Routes.CATEGORIES) {
             CategoriesScreen(viewModel = hiltViewModel()) { categoryId ->
@@ -46,23 +48,24 @@ fun AppNavHost(
                 navController.navigate(Routes.SETTINGS)
             }
         }
+        composable(Routes.FAVORITES) {
+            FavoritesScreen()
+        }
         composable(
             route = Routes.PLP,
             arguments = listOf(
                 navArgument("query") {
                     type = NavType.StringType
                     defaultValue = ""
-                    nullable = true
                 },
                 navArgument("category") {
                     type = NavType.StringType
                     defaultValue = ""
-                    nullable = true
                 },
             ),
         ) { backStackEntry ->
-            val query = backStackEntry.arguments?.getString("query").orEmpty()
-            val category = backStackEntry.arguments?.getString("category").orEmpty()
+            val query = backStackEntry.arguments?.getString("query") ?: ""
+            val category = backStackEntry.arguments?.getString("category") ?: ""
             val viewModel: PlpViewModel = hiltViewModel()
             viewModel.updateQuery(query)
             viewModel.updateCategory(category)
@@ -83,7 +86,10 @@ fun AppNavHost(
             SettingsScreen(viewModel = hiltViewModel())
         }
         composable(Routes.SCAN) {
-            ScanScreen(viewModel = hiltViewModel())
+            ScanScreen(
+                navController = navController,
+                viewModel = hiltViewModel()
+            )
         }
     }
 }

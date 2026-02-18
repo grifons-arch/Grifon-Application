@@ -1,19 +1,12 @@
 package com.example.grifon.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Badge
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
@@ -25,22 +18,27 @@ private data class BottomItem(
     val route: String,
     val label: String,
     val icon: ImageVector,
-    val badgeCount: Int? = null,
 )
 
 @Composable
-fun AppBottomNav(navController: NavHostController, cartCount: Int) {
+fun AppBottomNav(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    val purpleColor = Color(0xFF6200EE)
+
     val items = listOf(
-        BottomItem(Routes.HOME, "Αρχική", Icons.Default.Home),
-        BottomItem(Routes.CATEGORIES, "Κατηγορίες", Icons.Default.List),
-        BottomItem(Routes.CART, "Καλάθι", Icons.Default.ShoppingCart, badgeCount = cartCount),
-        BottomItem(Routes.ACCOUNT, "Λογαριασμός", Icons.Default.AccountCircle),
-        BottomItem(Routes.SETTINGS, "Ρυθμίσεις", Icons.Default.Settings),
+        BottomItem(Routes.SETTINGS, "Language", Icons.Default.Language),
+        BottomItem(Routes.ACCOUNT, "Profile", Icons.Default.Person),
+        BottomItem(Routes.HOME, "Favs", Icons.Outlined.FavoriteBorder), // Προσωρινά Home για το Favs
+        BottomItem(Routes.SETTINGS, "Settings", Icons.Default.Settings),
+        BottomItem(Routes.HOME, "Info", Icons.Default.Info),
+        BottomItem(Routes.HOME, "Chat", Icons.Default.Chat), // Chat icon
     )
 
-    NavigationBar {
+    NavigationBar(
+        containerColor = purpleColor,
+        contentColor = Color.White
+    ) {
         items.forEach { item ->
             val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
             NavigationBarItem(
@@ -55,17 +53,15 @@ fun AppBottomNav(navController: NavHostController, cartCount: Int) {
                     }
                 },
                 icon = {
-                    if (item.badgeCount != null && item.badgeCount > 0) {
-                        BadgedBox(
-                            badge = { Badge { Text(item.badgeCount.toString()) } },
-                        ) {
-                            Icon(imageVector = item.icon, contentDescription = item.label)
-                        }
-                    } else {
-                        Icon(imageVector = item.icon, contentDescription = item.label)
-                    }
+                    Icon(
+                        imageVector = item.icon, 
+                        contentDescription = item.label,
+                        tint = if (selected) Color.White else Color.White.copy(alpha = 0.7f)
+                    )
                 },
-                label = { Text(text = item.label) },
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.White.copy(alpha = 0.2f)
+                )
             )
         }
     }

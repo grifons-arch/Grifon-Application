@@ -1,30 +1,19 @@
 package com.example.grifon.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.grifon.navigation.AppNavHost
 import com.example.grifon.navigation.Routes
 import com.example.grifon.ui.components.AppBottomNav
-import com.example.grifon.ui.components.AppMenuItem
 import com.example.grifon.ui.components.AppSearchBar
 import com.example.grifon.ui.components.AppTopBar
 import com.example.grifon.viewmodel.AppViewModel
@@ -32,69 +21,138 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.debounce
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun GrifonApp() {
     val navController = rememberNavController()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val appViewModel: AppViewModel = hiltViewModel()
     val appState by appViewModel.state.collectAsState()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val activeRoute = navBackStackEntry?.destination?.route
-    var searchSheetOpen by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
-    val menuItems = listOf(
-        AppMenuItem("Αρχική", Routes.HOME),
-        AppMenuItem("Κατηγορίες", Routes.CATEGORIES),
-        AppMenuItem("Καλάθι", Routes.CART),
-        AppMenuItem("Λογαριασμός", Routes.ACCOUNT),
+    
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    // Λίστα Κατηγοριών από το Mockup
+    val categories = listOf(
+        "Κεραμικά",
+        "Αγαλματίδια κ.α.",
+        "Διακοσμητικά",
+        "Για χρήση",
+        "Χόμπι και παιχνίδια",
+        "Αξεσουάρ"
     )
 
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
-            .filter { it.isNotBlank() } // Μόνο αν γράψεις κάτι θα σε πάει στην αναζήτηση
-            .debounce(500)
+            .filter { it.length >= 2 }
+            .debounce(700)
             .distinctUntilChanged()
             .collect { query ->
-                navController.navigate(Routes.plpRoute(query = query))
+                navController.navigate(Routes.plpRoute(query = query)) {
+                    launchSingleTop = true 
+                }
             }
     }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            AppTopBar(
-                shopLabel = if (appState.activeShopId == "1") "Grifon SE" else "Grifon GR",
-                onLogoClick = { navController.navigateToTopLevel(Routes.HOME) },
-                onSearchClick = { searchSheetOpen = true },
-                onScanClick = { navController.navigate(Routes.SCAN) },
-                scrollBehavior = scrollBehavior,
-                searchQuery = searchQuery,
-                onSearchQueryChange = { searchQuery = it },
-                menuItems = menuItems,
-                activeRoute = activeRoute,
-                onMenuClick = { item -> navController.navigateToTopLevel(item.route) },
-            )
-        },
-        bottomBar = {
-            AppBottomNav(navController = navController, cartCount = appState.cartCount)
-        },
-    ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            AppNavHost(navController = navController, paddingValues = paddingValues)
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = true,
+        drawerContent = {
+            ModalDrawerSheet(
+                modifier = Modifier.width(300.dp)
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Ψωνίστε Ανά Κατηγορία", 
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp), 
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+                HorizontalDivider()
+                
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(categories) { category ->
+                        NavigationDrawerItem(
+                            label = { 
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(category, fontSize = 16.sp)
+                                    Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
+                                }
+                            },
+                            selected = false,
+                            onClick = { 
+                                scope.launch { drawerState.close() }
+                                // Πλοήγηση στην PLP με την κατηγορία
+                                navController.navigate(Routes.plpRoute(category = category))
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
+                    }
+                    
+                    item {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        NavigationDrawerItem(
+                            label = { Text("Ο Λογαριασμός μου") },
+                            selected = false,
+                            onClick = { 
+                                scope.launch { drawerState.close() }
+                                navController.navigateToTopLevel(Routes.ACCOUNT) 
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
+                    }
+                }
+            }
         }
-    }
-
-    if (searchSheetOpen) {
-        ModalBottomSheet(onDismissRequest = { searchSheetOpen = false }) {
-            AppSearchBar(
-                query = searchQuery,
-                onQueryChange = { query -> searchQuery = query },
-                onScanClick = { navController.navigate(Routes.SCAN) },
-            )
+    ) {
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                Column {
+                    AppTopBar(
+                        shopLabel = if (appState.activeShopId == "1") "SE" else "GR",
+                        onMenuClick = { 
+                            scope.launch { drawerState.open() } 
+                        },
+                        onHomeClick = { navController.navigateToTopLevel(Routes.HOME) },
+                        onCartClick = { navController.navigateToTopLevel(Routes.CART) },
+                        onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) }
+                    )
+                    AppSearchBar(
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onScanClick = { navController.navigate(Routes.SCAN) }
+                    )
+                }
+            },
+            bottomBar = {
+                AppBottomNav(navController = navController)
+            },
+        ) { innerPadding ->
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                AppNavHost(
+                    navController = navController,
+                    paddingValues = PaddingValues(0.dp)
+                )
+            }
         }
     }
 }

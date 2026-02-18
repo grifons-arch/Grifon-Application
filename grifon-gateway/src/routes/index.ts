@@ -58,7 +58,22 @@ apiRouter.get("/v1/images/products/:productId/:imageId", async (req, res, next) 
   }
 });
 
-// NEW: ALL PRODUCTS ROUTE
+// REGISTER ROUTE (V1)
+apiRouter.post(
+  "/v1/auth/register",
+  registerRateLimiter,
+  validateBody(registerBodySchema),
+  async (req, res, next) => {
+    try {
+      const response = await registerCustomer(req.body as any);
+      res.status(201).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// ALL PRODUCTS ROUTE
 apiRouter.get(
   "/v1/products",
   validateQuery(shopQuerySchema.merge(productPaginationSchema)),

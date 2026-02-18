@@ -18,6 +18,7 @@ data class Product(
     val price: Double,
     val currency: String,
     val imageUrl: String,
+    val images: List<String> = emptyList(),
     val brand: String,
     val rating: Double,
     val inStock: Boolean,
@@ -33,6 +34,7 @@ data class CartItem(
 data class FilterState(
     val priceRange: ClosedFloatingPointRange<Double> = 0.0..500.0,
     val brands: Set<String> = emptySet(),
+    val colors: Set<String> = emptySet(), // Προσθήκη για τα χρώματα
     val inStockOnly: Boolean = false,
     val ratingMin: Double = 0.0,
     val saleOnly: Boolean = false,
