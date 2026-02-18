@@ -7,154 +7,167 @@ import { extractResourceList } from "../services/prestashopParser";
 import { getLocalizedValue, toNumber } from "../utils/prestashopFields";
 import { toLimitParam } from "../utils/pagination";
 
+interface ProductItem {
+  id: number;
+  name: string | null;
+  reference: string | null;
+  price: number | null;
+  categories: number[];
+}
+
 interface CliOptions {
   shopId: ShopId;
   lang?: number;
   output: string;
   pageSize: number;
+  includeProducts: boolean;
 }
 
 interface ExportTreeNode extends CategoryItem {
+  products: ProductItem[];
   children: ExportTreeNode[];
 }
 
 const parseArgs = (argv: string[]): CliOptions => {
   const options: Record<string, string> = {};
-
   for (const arg of argv) {
-    if (!arg.startsWith("--")) {
-      continue;
-    }
-
+    if (!arg.startsWith("--")) continue;
     const [rawKey, rawValue] = arg.slice(2).split("=");
-    if (!rawKey) {
-      continue;
-    }
-
+    if (!rawKey) continue;
     options[rawKey] = rawValue ?? "";
   }
-
   const shopIdRaw = Number(options.shopId ?? "4");
-  const shopId: ShopId = shopIdRaw === 1 ? 1 : 4;
-
-  const langRaw = options.lang ? Number(options.lang) : undefined;
-  const lang = Number.isInteger(langRaw) && (langRaw as number) > 0 ? (langRaw as number) : undefined;
-
-  const pageSizeRaw = Number(options.pageSize ?? "200");
-  const pageSize = Number.isInteger(pageSizeRaw) && pageSizeRaw > 0 ? pageSizeRaw : 200;
-
-  const output = options.output?.trim() || "exports/categories-tree.json";
-
   return {
-    shopId,
-    lang,
-    output,
-    pageSize
+    shopId: shopIdRaw === 1 ? 1 : 4,
+    lang: options.lang ? Number(options.lang) : 1,
+    output: options.output?.trim() || "exports/catalog-export.json",
+    pageSize: Number(options.pageSize) || 200,
+    includeProducts: options.products !== "false"
   };
 };
 
-const buildRows = (nodes: ExportTreeNode[], level = 0, parentName = ""): string[] => {
-  const rows: string[] = [];
+const fetchAllProducts = async (client: PrestaShopClient, lang?: number): Promise<ProductItem[]> => {
+  const allProducts: ProductItem[] = [];
+  let page = 1;
+  const pageSize = 10; // ΠΟΛΥ ΜΙΚΡΟ BATCH ΓΙΑ ΜΕΓΙΣΤΗ ΣΤΑΘΕΡΟΤΗΤΑ
 
-  for (const node of nodes) {
-    const safeName = (node.name ?? "").replace(/"/g, '""');
-    const safeParentName = parentName.replace(/"/g, '""');
-    rows.push(`"${node.id}","${safeName}","${safeParentName}","${level}"`);
-    rows.push(...buildRows(node.children, level + 1, node.name ?? ""));
+  console.log("Fetching products from PrestaShop API (Small batches)...");
+
+  while (true) {
+    try {
+      const data = await client.get("products", {
+        display: "[id,name,reference,price,associations]",
+        limit: toLimitParam(page, pageSize)
+      });
+
+      const products = extractResourceList<any>("products", data);
+      if (!products.length) break;
+
+      const mapped = products.map((p: any) => ({
+        id: Number(p.id),
+        name: getLocalizedValue(p.name, lang),
+        reference: p.reference || null,
+        price: toNumber(p.price),
+        categories: extractResourceList<any>("categories", p.associations || {}).map((c: any) => Number(c.id))
+      }));
+
+      allProducts.push(...mapped);
+      process.stdout.write(`\rFetched ${allProducts.length} products...`);
+      
+      if (products.length < pageSize) break;
+      page++;
+    } catch (error: any) {
+      console.error(`\nError on page ${page}:`, error.message || error);
+      console.log("Waiting 3 seconds before retry...");
+      await new Promise(res => setTimeout(res, 3000));
+      // Αν αποτύχει πολλές φορές στην ίδια σελίδα, ίσως πρέπει να την προσπεράσουμε
+    }
   }
-
-  return rows;
+  console.log("\nProduct fetching complete.");
+  return allProducts;
 };
 
-const fetchCategoryPage = async (
-  client: PrestaShopClient,
-  page: number,
-  pageSize: number,
-  lang?: number
-): Promise<CategoryItem[]> => {
-  const data = await client.get("categories", {
-    "filter[active]": 1,
-    sort: "[position_ASC]",
-    limit: toLimitParam(page, pageSize)
-  });
+const fetchAllCategories = async (client: PrestaShopClient, pageSize: number, lang?: number): Promise<CategoryItem[]> => {
+  const allItems: CategoryItem[] = [];
+  let page = 1;
 
-  const categories = extractResourceList<Record<string, unknown>>("categories", data);
+  console.log("Fetching categories...");
 
-  return categories.map((category) => ({
-    id: Number(category.id),
-    parentId: toNumber(category.id_parent),
-    name: getLocalizedValue(category.name, lang),
-    position: toNumber(category.position),
-    active: toNumber(category.active),
-    slug: getLocalizedValue(category.link_rewrite, lang)
-  }));
+  while (true) {
+    try {
+        const data = await client.get("categories", {
+        sort: "[id_ASC]",
+        limit: toLimitParam(page, pageSize),
+        display: "full"
+      });
+
+      const categories = extractResourceList<any>("categories", data);
+      if (!categories.length) break;
+
+      allItems.push(...categories.map((category: any) => ({
+        id: Number(category.id),
+        parentId: toNumber(category.id_parent),
+        name: getLocalizedValue(category.name, lang),
+        position: toNumber(category.position),
+        active: toNumber(category.active),
+        slug: getLocalizedValue(category.link_rewrite, lang)
+      })));
+
+      if (categories.length < pageSize) break;
+      page++;
+    } catch(e) {
+        console.error('Error fetching categories batch.');
+        break;
+    }
+  }
+  console.log(`Fetched ${allItems.length} categories.`);
+  return allItems;
 };
 
 const run = async () => {
   const options = parseArgs(process.argv.slice(2));
   const client = new PrestaShopClient({ shopId: options.shopId, lang: options.lang });
 
-  const allItems: CategoryItem[] = [];
-  let page = 1;
-
-  while (true) {
-    const items = await fetchCategoryPage(client, page, options.pageSize, options.lang);
-    allItems.push(...items);
-
-    if (items.length < options.pageSize) {
-      break;
-    }
-
-    page += 1;
-  }
-
-  const uniqueById = new Map<number, CategoryItem>();
-  for (const item of allItems) {
-    uniqueById.set(item.id, item);
-  }
+  const categories = await fetchAllCategories(client, options.pageSize, options.lang);
+  const products = options.includeProducts ? await fetchAllProducts(client, options.lang) : [];
 
   const nodeMap = new Map<number, ExportTreeNode>();
-  uniqueById.forEach((item) => {
-    nodeMap.set(item.id, { ...item, children: [] });
+  categories.forEach((cat) => {
+    nodeMap.set(cat.id, { ...cat, products: [], children: [] });
   });
+
+  if (products.length > 0) {
+    products.forEach(product => {
+      product.categories.forEach(catId => {
+        const node = nodeMap.get(catId);
+        if (node) {
+          node.products.push(product);
+        }
+      });
+    });
+  }
 
   const tree: ExportTreeNode[] = [];
   nodeMap.forEach((node) => {
-    if (node.parentId && nodeMap.has(node.parentId)) {
+    if (node.parentId && nodeMap.has(node.parentId) && node.parentId !== node.id) {
       nodeMap.get(node.parentId)?.children.push(node);
-    } else {
+    } else if (node.id !== 1 && node.id !== 0) {
       tree.push(node);
     }
   });
 
   const outputPath = path.resolve(options.output);
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
-  await fs.writeFile(
-    outputPath,
-    JSON.stringify(
-      {
-        shopId: options.shopId,
-        lang: options.lang,
-        total: uniqueById.size,
-        items: Array.from(uniqueById.values()),
-        tree
-      },
-      null,
-      2
-    ),
-    "utf8"
-  );
+  await fs.writeFile(outputPath, JSON.stringify({ 
+    shopId: options.shopId, 
+    totalProducts: products.length,
+    tree 
+  }, null, 2), "utf8");
 
-  const csvOutputPath = outputPath.replace(/\.json$/i, ".csv");
-  const csvRows = ["id,name,parent_name,level", ...buildRows(tree)];
-  await fs.writeFile(csvOutputPath, `${csvRows.join("\n")}\n`, "utf8");
-
-  console.log(
-    `Exported ${uniqueById.size} active categories for shop ${options.shopId} to ${outputPath} and ${csvOutputPath}`
-  );
+  console.log(`Successfully exported to ${outputPath}`);
 };
 
-run().catch((error: unknown) => {
-  console.error("Category export failed", error);
+run().catch((error) => {
+  console.error("Fatal error:", error);
   process.exit(1);
 });
