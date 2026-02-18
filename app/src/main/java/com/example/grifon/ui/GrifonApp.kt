@@ -29,6 +29,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 
+private data class DrawerCategory(
+    val name: String,
+    val id: String,
+)
+
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun GrifonApp() {
@@ -41,14 +46,14 @@ fun GrifonApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Λίστα Κατηγοριών από το Mockup
+    // Κατηγορίες για το drawer (hamburger menu)
     val categories = listOf(
-        "Κεραμικά",
-        "Αγαλματίδια κ.α.",
-        "Διακοσμητικά",
-        "Για χρήση",
-        "Χόμπι και παιχνίδια",
-        "Αξεσουάρ"
+        DrawerCategory(name = "Κεραμικά", id = "3"),
+        DrawerCategory(name = "Φωτιστικά", id = "4"),
+        DrawerCategory(name = "Μπρούτζινα", id = "5"),
+        DrawerCategory(name = "Παιχνίδια", id = "6"),
+        DrawerCategory(name = "Σαπούνια", id = "7"),
+        DrawerCategory(name = "Υφασμάτινα", id = "8"),
     )
 
     LaunchedEffect(Unit) {
@@ -86,15 +91,14 @@ fun GrifonApp() {
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(category, fontSize = 16.sp)
+                                    Text(category.name, fontSize = 16.sp)
                                     Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
                                 }
                             },
                             selected = false,
                             onClick = { 
                                 scope.launch { drawerState.close() }
-                                // Πλοήγηση στην PLP με την κατηγορία
-                                navController.navigate(Routes.plpRoute(category = category))
+                                navController.navigate(Routes.plpRoute(category = category.id))
                             },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
