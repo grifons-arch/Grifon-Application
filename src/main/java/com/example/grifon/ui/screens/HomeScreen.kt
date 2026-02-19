@@ -47,6 +47,13 @@ import com.example.grifon.domain.model.Product
 import com.example.grifon.viewmodel.HomeViewModel
 
 
+/**
+ * The main entry point for the home screen of the application.
+ * Displays a list of categories and a grid of products.
+ *
+ * @param viewModel The [HomeViewModel] that provides the state and handles user actions.
+ * @param onProductClick Callback triggered when a product is clicked, providing the product ID.
+ */
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
@@ -142,9 +149,16 @@ fun HomeScreen(
     }
 }
 
+/**
+ * A component representing a single category icon with a label.
+ *
+ * @param label The text label for the category.
+ * @param resId The drawable resource ID for the category icon.
+ * @param isSelected Whether this category is currently selected.
+ * @param onClick Callback triggered when the category is clicked.
+ */
 @Composable
-
-fun CategoryIconComponent(item: CategoryShortcut, isSelected: Boolean, onClick: () -> Unit) {
+fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClick: () -> Unit) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -179,6 +193,13 @@ fun CategoryIconComponent(item: CategoryShortcut, isSelected: Boolean, onClick: 
     }
 }
 
+/**
+ * A compact card component for displaying product information in a grid.
+ *
+ * @param product The [Product] data to display.
+ * @param onClick Callback triggered when the card is clicked.
+ * @param onImageClick Callback triggered when the product image is clicked, typically to zoom.
+ */
 @Composable
 fun SmallProductCard(product: Product, onClick: () -> Unit, onImageClick: () -> Unit) {
     Card(
@@ -215,6 +236,12 @@ fun SmallProductCard(product: Product, onClick: () -> Unit, onImageClick: () -> 
     }
 }
 
+/**
+ * A dialog that displays an image with zoom and pan capabilities.
+ *
+ * @param model The image data (e.g., URL or resource) to load.
+ * @param onDismiss Callback triggered when the dialog is dismissed.
+ */
 @Composable
 fun ImageZoomDialog(model: Any, onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
