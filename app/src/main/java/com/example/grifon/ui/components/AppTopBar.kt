@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,7 +26,7 @@ data class AppMenuItem(
 @Composable
 fun AppTopBar(
     shopLabel: String,
-    onMenuClick: () -> Unit,
+    onCategoriesClick: () -> Unit,
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
     onNotificationsClick: () -> Unit
@@ -48,8 +46,8 @@ fun AppTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButton(onClick = onMenuClick) {
-                Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
+            IconButton(onClick = onCategoriesClick) {
+                Icon(Icons.Default.Dashboard, contentDescription = "Κατηγορίες", tint = Color.White)
             }
             
             Row(verticalAlignment = Alignment.CenterVertically) {
