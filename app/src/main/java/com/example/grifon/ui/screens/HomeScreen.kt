@@ -36,11 +36,12 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.grifon.R
+import com.example.grifon.ui.CategoryShortcut
+import com.example.grifon.ui.buildCategoryShortcuts
 import com.example.grifon.core.UiState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.viewmodel.HomeViewModel
 
-data class CategoryIconItem(val label: String, val resId: Int, val categoryId: String?)
 
 @Composable
 fun HomeScreen(
@@ -51,15 +52,10 @@ fun HomeScreen(
     var zoomedImageUrl by remember { mutableStateOf<String?>(null) }
     var filtersOpen by remember { mutableStateOf(false) }
 
-    val categoryIcons = listOf(
-        CategoryIconItem("Όλα", R.drawable.logo, null),
-        CategoryIconItem("Κεραμικά", R.drawable.kersmiks_diskodmhtiks, "3"),
-        CategoryIconItem("Φωτιστικά", R.drawable.fvthsthka, "4"),
-        CategoryIconItem("Μπρούτζινα", R.drawable.mproytzinna, "5"),
-        CategoryIconItem("Παιχνίδια", R.drawable.paixnidiarouytrina, "6"),
-        CategoryIconItem("Σαπούνια", R.drawable.sapounia, "7"),
-        CategoryIconItem("Υφασμάτινα", R.drawable.yfasmatina, "8")
-    )
+    val categoryIcons = remember(uiState) {
+        val categories = (uiState as? UiState.Success)?.data?.categories ?: emptyList()
+        buildCategoryShortcuts(categories)
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -156,7 +152,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun CategoryIconComponent(item: CategoryIconItem, isSelected: Boolean, onClick: () -> Unit) {
+fun CategoryIconComponent(item: CategoryShortcut, isSelected: Boolean, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(70.dp).clickable { onClick() }
@@ -170,7 +166,7 @@ fun CategoryIconComponent(item: CategoryIconItem, isSelected: Boolean, onClick: 
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = item.resId), 
+                painter = painterResource(id = item.iconResId), 
                 contentDescription = item.label, 
                 contentScale = ContentScale.Crop, 
                 modifier = Modifier.fillMaxSize()
