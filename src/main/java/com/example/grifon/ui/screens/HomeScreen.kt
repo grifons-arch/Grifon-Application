@@ -8,11 +8,13 @@ import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items as listItems
+
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -38,9 +40,12 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.grifon.R
+import com.example.grifon.ui.CategoryShortcut
+import com.example.grifon.ui.buildCategoryShortcuts
 import com.example.grifon.core.UiState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.viewmodel.HomeViewModel
+
 
 @Composable
 fun HomeScreen(
@@ -50,6 +55,11 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     var zoomedImageUrl by remember { mutableStateOf<String?>(null) }
     var filtersOpen by remember { mutableStateOf(false) }
+
+    val categoryIcons = remember(uiState) {
+        val categories = (uiState as? UiState.Success)?.data?.categories ?: emptyList()
+        buildCategoryShortcuts(categories)
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -61,6 +71,7 @@ fun HomeScreen(
             is UiState.Success -> {
                 val data = state.data
                 val products = data.products
+
 
                 // Κύρια δομή με LazyVerticalGrid για να έχουμε ΚΑΘΕΤΟ scroll
                 LazyVerticalGrid(
@@ -118,6 +129,7 @@ fun HomeScreen(
                                 onClick = { onProductClick(product.id) },
                                 onImageClick = { zoomedImageUrl = product.imageUrl }
                             )
+
                         }
                     }
                 }
@@ -131,7 +143,9 @@ fun HomeScreen(
 }
 
 @Composable
-fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClick: () -> Unit) {
+
+fun CategoryIconComponent(item: CategoryShortcut, isSelected: Boolean, onClick: () -> Unit) {
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(70.dp).clickable { onClick() }
@@ -145,9 +159,11 @@ fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClic
             contentAlignment = Alignment.Center
         ) {
             Image(
+
                 painter = painterResource(id = resId),
                 contentDescription = label,
                 contentScale = ContentScale.Crop,
+
                 modifier = Modifier.fillMaxSize()
             )
         }
