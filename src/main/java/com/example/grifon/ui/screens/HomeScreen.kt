@@ -63,11 +63,6 @@ fun HomeScreen(
     var zoomedImageUrl by remember { mutableStateOf<String?>(null) }
     var filtersOpen by remember { mutableStateOf(false) }
 
-    val categoryIcons = remember(uiState) {
-        val categories = (uiState as? UiState.Success)?.data?.categories ?: emptyList()
-        buildCategoryShortcuts(categories)
-    }
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.White
@@ -104,7 +99,8 @@ fun HomeScreen(
                             }
                             LazyRow(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                contentPadding = PaddingValues(bottom = 16.dp)
+                                contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 listItems(viewModel.staticCategoryIcons) { item ->
                                     CategoryIconComponent(
@@ -162,7 +158,7 @@ fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClic
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(70.dp).clickable { onClick() }
+        modifier = Modifier.width(75.dp).clickable { onClick() }
     ) {
         Box(
             modifier = Modifier
@@ -184,7 +180,7 @@ fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClic
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label, 
-            fontSize = 10.sp, 
+            fontSize = 11.sp, 
             textAlign = TextAlign.Center, 
             maxLines = 1, 
             color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Black,

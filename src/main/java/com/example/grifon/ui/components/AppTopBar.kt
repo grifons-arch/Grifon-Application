@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.grifon.R
+import com.example.grifon.domain.model.Category
 
 data class AppMenuItem(
     val label: String,
@@ -31,9 +30,12 @@ fun AppTopBar(
     onMenuClick: () -> Unit,
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
-    onNotificationsClick: () -> Unit
+    onNotificationsClick: () -> Unit,
+    categories: List<Category> = emptyList(),
+    onCategoryClick: (Category) -> Unit = {}
 ) {
     val purpleColor = Color(0xFF6200EE)
+    var showCategoryMenu by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -49,13 +51,41 @@ fun AppTopBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = onMenuClick) {
-                Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
+                Icon(Icons.Default.Menu, contentDescription = "Μενού", tint = Color.White)
             }
             
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onHomeClick) {
                     Icon(Icons.Default.Home, contentDescription = "Home", tint = Color.White)
                 }
+
+                Box {
+                    IconButton(onClick = { showCategoryMenu = true }) {
+                        Icon(Icons.Default.Dashboard, contentDescription = "Κατηγορίες", tint = Color.White)
+                    }
+                    DropdownMenu(
+                        expanded = showCategoryMenu,
+                        onDismissRequest = { showCategoryMenu = false }
+                    ) {
+                        if (categories.isEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("Φόρτωση κατηγοριών...") },
+                                onClick = { showCategoryMenu = false }
+                            )
+                        } else {
+                            categories.forEach { category ->
+                                DropdownMenuItem(
+                                    text = { Text(category.name) },
+                                    onClick = {
+                                        showCategoryMenu = false
+                                        onCategoryClick(category)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
                 IconButton(onClick = onNotificationsClick) {
                     Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = Color.White)
                 }
