@@ -8,17 +8,13 @@ import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-<<<<<<< HEAD
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.verticalScroll
-=======
+
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items as listItems
->>>>>>> 3ec92f5 (WIP)
+
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -50,10 +46,7 @@ import com.example.grifon.core.UiState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.viewmodel.HomeViewModel
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 3ec92f5 (WIP)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
@@ -63,14 +56,11 @@ fun HomeScreen(
     var zoomedImageUrl by remember { mutableStateOf<String?>(null) }
     var filtersOpen by remember { mutableStateOf(false) }
 
-<<<<<<< HEAD
     val categoryIcons = remember(uiState) {
         val categories = (uiState as? UiState.Success)?.data?.categories ?: emptyList()
         buildCategoryShortcuts(categories)
     }
 
-=======
->>>>>>> 3ec92f5 (WIP)
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.White
@@ -82,85 +72,7 @@ fun HomeScreen(
                 val data = state.data
                 val products = data.products
 
-<<<<<<< HEAD
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(bottom = 80.dp)
-                ) {
-                    // 1. Ενότητα Κατηγοριών με Συντόμευση Φίλτρου
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                "Κατηγορίες", 
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                            )
-                            IconButton(onClick = { filtersOpen = true }) {
-                                Icon(Icons.Default.FilterList, contentDescription = "Φίλτρα", tint = MaterialTheme.colorScheme.primary)
-                            }
-                        }
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
-                            items(categoryIcons) { item ->
-                                CategoryIconComponent(
-                                    item = item,
-                                    isSelected = data.selectedCategoryId == item.categoryId,
-                                    onClick = { viewModel.selectCategory(item.categoryId) }
-                                )
-                            }
-                        }
-                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-                    }
 
-                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                        Text(
-                            text = "Προτεινόμενα",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(recommendedProducts) { product ->
-                                Box(modifier = Modifier.width(170.dp).height(180.dp)) {
-                                    SmallProductCard(
-                                        product = product,
-                                        onClick = { onProductClick(product.id) },
-                                        onImageClick = { zoomedImageUrl = product.imageUrl },
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Text(
-                        text = "Όλα τα προϊόντα",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    )
-
-                    products.chunked(3).forEach { rowProducts ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            rowProducts.forEach { product ->
-                                Box(modifier = Modifier.weight(1f).padding(vertical = 4.dp)) {
-                                    SmallProductCard(
-                                        product = product,
-                                        onClick = { onProductClick(product.id) },
-                                        onImageClick = { zoomedImageUrl = product.imageUrl },
-                                    )
-                                }
-                            }
-                            repeat(3 - rowProducts.size) {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-=======
                 // Κύρια δομή με LazyVerticalGrid για να έχουμε ΚΑΘΕΤΟ scroll
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
@@ -217,7 +129,7 @@ fun HomeScreen(
                                 onClick = { onProductClick(product.id) },
                                 onImageClick = { zoomedImageUrl = product.imageUrl }
                             )
->>>>>>> 3ec92f5 (WIP)
+
                         }
                     }
                 }
@@ -231,11 +143,9 @@ fun HomeScreen(
 }
 
 @Composable
-<<<<<<< HEAD
+
 fun CategoryIconComponent(item: CategoryShortcut, isSelected: Boolean, onClick: () -> Unit) {
-=======
-fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClick: () -> Unit) {
->>>>>>> 3ec92f5 (WIP)
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(70.dp).clickable { onClick() }
@@ -249,15 +159,11 @@ fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClic
             contentAlignment = Alignment.Center
         ) {
             Image(
-<<<<<<< HEAD
-                painter = painterResource(id = item.iconResId), 
-                contentDescription = item.label, 
-                contentScale = ContentScale.Crop, 
-=======
+
                 painter = painterResource(id = resId),
                 contentDescription = label,
                 contentScale = ContentScale.Crop,
->>>>>>> 3ec92f5 (WIP)
+
                 modifier = Modifier.fillMaxSize()
             )
         }
