@@ -24,15 +24,15 @@ class ApiCatalogRepository @Inject constructor(
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
     override fun getCategoryTree(shopId: String): Flow<List<Category>> = 
-        categoryDao.getCategoriesByShop(shopId).map { entities ->
-            Log.d("Catalog", "DB Update: ${entities.size} categories found for shop $shopId")
+        categoryDao.getAllCategories().map { entities ->
+            Log.d("Catalog", "DB Update: ${entities.size} categories found in Room (total)")
             entities.map { it.toDomain() }
         }
 
     override suspend fun syncCatalog(shopId: String) {
         withContext(Dispatchers.IO) {
             try {
-                Log.d("Sync", "STARTING FULL SYNC for shop $shopId...")
+                Log.d("Sync", "STARTING SYNC for shop $shopId...")
                 val sId = shopId.toIntOrNull() ?: 4
                 
                 // 1. SYNC CATEGORIES
@@ -41,18 +41,16 @@ class ApiCatalogRepository @Inject constructor(
                     CategoryEntity(it.id.toString(), it.name ?: "", it.parentId?.toString(), 0, true, shopId)
                 }
                 categoryDao.insertCategories(catEntities)
-                Log.d("Sync", "Categories saved: ${catEntities.size}")
+                Log.d("Sync", "Stored ${catEntities.size} categories.")
 
-                // 2. SYNC PRODUCTS IN BATCHES
+                // 2. SYNC PRODUCTS (Two batches of 1000)
                 val allProducts = mutableListOf<ProductEntity>()
                 val allRefs = mutableListOf<ProductCategoryCrossRef>()
                 val limit = 1000
 
-                // Batch 1
                 val response1 = catalogApi.getProducts(shopId = sId, page = 1, pageSize = limit)
                 processBatch(response1, shopId, allProducts, allRefs)
 
-                // Batch 2
                 if (response1.items.size >= limit) {
                     val response2 = catalogApi.getProducts(shopId = sId, page = 2, pageSize = limit)
                     processBatch(response2, shopId, allProducts, allRefs)
@@ -62,10 +60,9 @@ class ApiCatalogRepository @Inject constructor(
                     productDao.clearProductsByShop(shopId)
                     productDao.insertProducts(allProducts)
                     categoryDao.insertProductCategoryRefs(allRefs)
-                    Log.d("Sync", "Products saved: ${allProducts.size} with ${allRefs.size} links.")
+                    Log.d("Sync", "SUCCESS: Saved ${allProducts.size} products and ${allRefs.size} links.")
                 }
                 
-                Log.d("Sync", "SYNC FINISHED.")
             } catch (e: Exception) {
                 Log.e("Sync", "SYNC FAILED", e)
             }

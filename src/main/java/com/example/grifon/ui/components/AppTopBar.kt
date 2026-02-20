@@ -32,7 +32,7 @@ fun AppTopBar(
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onBackClick: (() -> Unit)? = null, // Callback για το κουμπί πίσω
+    onBackClick: (() -> Unit)? = null,
     categories: List<Category> = emptyList(),
     onCategoryClick: (Category) -> Unit = {},
     showSearch: Boolean = false,
@@ -83,7 +83,7 @@ fun AppTopBar(
                     Icon(Icons.Default.Home, contentDescription = "Home", tint = Color.White)
                 }
 
-                // CATEGORY DROPDOWN MENU WITH SUB-LEVELS
+                // CATEGORY DROPDOWN
                 Box {
                     IconButton(onClick = { showCategoryMenu = true }) {
                         Icon(Icons.Default.Dashboard, contentDescription = "Κατηγορίες", tint = Color.White)
@@ -96,22 +96,19 @@ fun AppTopBar(
                     ) {
                         if (categories.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text("Φόρτωση...") },
+                                text = { Text("Φόρτωση (DB άδεια)...") },
                                 onClick = { showCategoryMenu = false }
                             )
                         } else {
-                            val rootCategories = categories.filter { it.parentId == "2" || it.parentId == null }
+                            // Φιλτράρισμα: Δείχνουμε ως κύριες όσες είναι κάτω από το Home (ID 2) ή δεν έχουν γονέα
+                            val rootCategories = categories.filter { it.parentId == "2" || it.parentId == null || it.parentId == "1" }
                             
                             rootCategories.forEach { root ->
                                 val children = categories.filter { it.parentId == root.id }
                                 
                                 DropdownMenuItem(
                                     text = { 
-                                        Text(
-                                            root.name, 
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary 
-                                        ) 
+                                        Text(root.name, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) 
                                     },
                                     onClick = {
                                         showCategoryMenu = false
@@ -151,7 +148,7 @@ fun AppTopBar(
             }
         }
 
-        // Expandable Search Bar
+        // Search Bar
         AnimatedVisibility(
             visible = showSearch && isSearchExpanded,
             enter = expandVertically() + fadeIn(),
@@ -166,26 +163,11 @@ fun AppTopBar(
         }
 
         if (!(showSearch && isSearchExpanded)) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), contentAlignment = Alignment.Center) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Grifon Logo",
-                        modifier = Modifier.height(40.dp),
-                        contentScale = ContentScale.Fit
-                    )
+                    Image(painter = painterResource(id = R.drawable.logo), contentDescription = "Grifon Logo", modifier = Modifier.height(40.dp), contentScale = ContentScale.Fit)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "GRIFON ($shopLabel)",
-                        color = Color.White,
-                        style = MaterialTheme.typography.headlineSmall,
-                        letterSpacing = 2.sp
-                    )
+                    Text(text = "GRIFON ($shopLabel)", color = Color.White, style = MaterialTheme.typography.headlineSmall, letterSpacing = 2.sp)
                 }
             }
         }
@@ -201,9 +183,7 @@ fun AppSearchBar(
     onClearClick: () -> Unit = {}
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(8.dp),
         color = Color(0xFFF5F5F5),
         tonalElevation = 2.dp
