@@ -25,46 +25,64 @@ class ApiCatalogRepository @Inject constructor(
 
     override fun getCategoryTree(shopId: String): Flow<List<Category>> = 
         categoryDao.getAllCategories().map { entities ->
-            Log.d("Catalog", "DB Update: ${entities.size} categories found in Room (total)")
+            Log.d("Catalog", "DB Update: ${entities.size} categories loaded.")
             entities.map { it.toDomain() }
         }
 
     override suspend fun syncCatalog(shopId: String) {
         withContext(Dispatchers.IO) {
             try {
-                Log.d("Sync", "STARTING SYNC for shop $shopId...")
+                Log.d("Sync", "--- STARTING SYNC ---")
                 val sId = shopId.toIntOrNull() ?: 4
                 
-                // 1. SYNC CATEGORIES
-                val catResponse = catalogApi.getCategories(shopId = sId, pageSize = 500)
-                val catEntities = catResponse.items.map { 
-                    CategoryEntity(it.id.toString(), it.name ?: "", it.parentId?.toString(), 0, true, shopId)
+                // 1. CATEGORIES SYNC
+                val catResponse = try {
+                    catalogApi.getCategories(shopId = sId, pageSize = 500)
+                } catch (e: Exception) {
+                    Log.e("Sync", "Failed to fetch categories", e)
+                    null
                 }
-                categoryDao.insertCategories(catEntities)
-                Log.d("Sync", "Stored ${catEntities.size} categories.")
 
-                // 2. SYNC PRODUCTS (Two batches of 1000)
+                catResponse?.let { resp ->
+                    val entities = resp.items.map { 
+                        CategoryEntity(it.id.toString(), it.name ?: "", it.parentId?.toString(), 0, true, shopId)
+                    }
+                    categoryDao.insertCategories(entities)
+                    
+                    val subEntities = entities.filter { it.parentId != null }.map { 
+                        SubCategoryEntity(it.id, it.parentId!!, it.name, 0, true, shopId)
+                    }
+                    categoryDao.insertSubCategories(subEntities)
+                    Log.d("Sync", "Categories saved: ${entities.size}, Sub-categories saved: ${subEntities.size}")
+                }
+
+                // 2. PRODUCTS SYNC
                 val allProducts = mutableListOf<ProductEntity>()
                 val allRefs = mutableListOf<ProductCategoryCrossRef>()
                 val limit = 1000
 
-                val response1 = catalogApi.getProducts(shopId = sId, page = 1, pageSize = limit)
-                processBatch(response1, shopId, allProducts, allRefs)
+                try {
+                    val resp1 = catalogApi.getProducts(shopId = sId, page = 1, pageSize = limit)
+                    processBatch(resp1, shopId, allProducts, allRefs)
+                    
+                    if (resp1.items.size >= limit) {
+                        val resp2 = catalogApi.getProducts(shopId = sId, page = 2, pageSize = limit)
+                        processBatch(resp2, shopId, allProducts, allRefs)
+                    }
 
-                if (response1.items.size >= limit) {
-                    val response2 = catalogApi.getProducts(shopId = sId, page = 2, pageSize = limit)
-                    processBatch(response2, shopId, allProducts, allRefs)
-                }
-
-                if (allProducts.isNotEmpty()) {
-                    productDao.clearProductsByShop(shopId)
-                    productDao.insertProducts(allProducts)
-                    categoryDao.insertProductCategoryRefs(allRefs)
-                    Log.d("Sync", "SUCCESS: Saved ${allProducts.size} products and ${allRefs.size} links.")
+                    if (allProducts.isNotEmpty()) {
+                        productDao.clearProductsByShop(shopId)
+                        productDao.insertProducts(allProducts)
+                        categoryDao.insertProductCategoryRefs(allRefs)
+                        Log.d("Sync", "Products and Links saved successfully.")
+                    }
+                } catch (e: Exception) {
+                    Log.e("Sync", "Failed to fetch/save products", e)
                 }
                 
+                Log.d("Sync", "--- SYNC COMPLETED ---")
             } catch (e: Exception) {
-                Log.e("Sync", "SYNC FAILED", e)
+                Log.e("Sync", "Sync critical failure", e)
             }
         }
     }
