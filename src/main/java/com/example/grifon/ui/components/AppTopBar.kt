@@ -3,9 +3,13 @@ package com.example.grifon.ui.components
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.grifon.R
@@ -27,6 +32,7 @@ fun AppTopBar(
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    onBackClick: (() -> Unit)? = null, // Callback για το κουμπί πίσω
     categories: List<Category> = emptyList(),
     onCategoryClick: (Category) -> Unit = {},
     showSearch: Boolean = false,
@@ -51,8 +57,15 @@ fun AppTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButton(onClick = onMenuClick) {
-                Icon(Icons.Default.Menu, contentDescription = "Μενού", tint = Color.White)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (onBackClick != null) {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    }
+                }
+                IconButton(onClick = onMenuClick) {
+                    Icon(Icons.Default.Menu, contentDescription = "Μενού", tint = Color.White)
+                }
             }
             
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -70,28 +83,60 @@ fun AppTopBar(
                     Icon(Icons.Default.Home, contentDescription = "Home", tint = Color.White)
                 }
 
+                // CATEGORY DROPDOWN MENU WITH SUB-LEVELS
                 Box {
                     IconButton(onClick = { showCategoryMenu = true }) {
                         Icon(Icons.Default.Dashboard, contentDescription = "Κατηγορίες", tint = Color.White)
                     }
+                    
                     DropdownMenu(
                         expanded = showCategoryMenu,
-                        onDismissRequest = { showCategoryMenu = false }
+                        onDismissRequest = { showCategoryMenu = false },
+                        modifier = Modifier.width(250.dp).heightIn(max = 500.dp)
                     ) {
                         if (categories.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text("Φόρτωση κατηγοριών...") },
+                                text = { Text("Φόρτωση...") },
                                 onClick = { showCategoryMenu = false }
                             )
                         } else {
-                            categories.forEach { category ->
+                            val rootCategories = categories.filter { it.parentId == "2" || it.parentId == null }
+                            
+                            rootCategories.forEach { root ->
+                                val children = categories.filter { it.parentId == root.id }
+                                
                                 DropdownMenuItem(
-                                    text = { Text(category.name) },
+                                    text = { 
+                                        Text(
+                                            root.name, 
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary 
+                                        ) 
+                                    },
                                     onClick = {
                                         showCategoryMenu = false
-                                        onCategoryClick(category)
+                                        onCategoryClick(root)
                                     }
                                 )
+                                
+                                children.forEach { child ->
+                                    DropdownMenuItem(
+                                        text = { 
+                                            Row(modifier = Modifier.padding(start = 16.dp)) {
+                                                Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(16.dp))
+                                                Spacer(Modifier.width(8.dp))
+                                                Text(child.name, fontSize = 14.sp)
+                                            }
+                                        },
+                                        onClick = {
+                                            showCategoryMenu = false
+                                            onCategoryClick(child)
+                                        }
+                                    )
+                                }
+                                if (root != rootCategories.last()) {
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                                }
                             }
                         }
                     }
@@ -120,7 +165,6 @@ fun AppTopBar(
             )
         }
 
-        // Logo Section (Hidden when search is expanded to save space if needed, or kept)
         if (!(showSearch && isSearchExpanded)) {
             Box(
                 modifier = Modifier

@@ -35,7 +35,6 @@ fun GrifonApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Παρακολούθηση της τρέχουσας διαδρομής
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -124,11 +123,14 @@ fun GrifonApp() {
                     },
                     onCartClick = { navController.navigateToTopLevel(Routes.CART) },
                     onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) },
+                    onBackClick = if (currentRoute != Routes.HOME) { 
+                        { navController.navigateUp() } 
+                    } else null,
                     categories = appState.categories,
                     onCategoryClick = { category ->
                         navController.navigate(Routes.plpRoute(category = category.id))
                     },
-                    showSearch = currentRoute == Routes.HOME, // Μόνο στην αρχική
+                    showSearch = currentRoute == Routes.HOME,
                     searchQuery = searchQuery,
                     onSearchQueryChange = { searchQuery = it },
                     onScanClick = { navController.navigate(Routes.SCAN) }

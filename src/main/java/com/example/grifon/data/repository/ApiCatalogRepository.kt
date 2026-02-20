@@ -7,6 +7,7 @@ import com.example.grifon.domain.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 import android.util.Log
@@ -23,10 +24,31 @@ class ApiCatalogRepository @Inject constructor(
 
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
-    override fun getCategoryTree(shopId: String): Flow<List<Category>> = 
-        categoryDao.getCategoriesByShop(shopId).map { entities ->
-            entities.map { it.toDomain() }
+    override fun getCategoryTree(shopId: String): Flow<List<Category>> = flow {
+        // 1. Εκπομπή από τοπική βάση
+        categoryDao.getCategoriesByShop(shopId).collect { entities ->
+            if (entities.isNotEmpty()) {
+                Log.d("Catalog", "Emitting ${entities.size} categories from DB")
+                emit(entities.map { it.toDomain() })
+            } else {
+                // 2. Αν είναι άδεια η βάση, κάνε μια άμεση κλήση στο API (Fallback)
+                try {
+                    Log.d("Catalog", "DB empty, fetching categories from API fallback...")
+                    val sId = shopId.toIntOrNull() ?: 4
+                    val response = catalogApi.getCategories(shopId = sId, pageSize = 500)
+                    val categories = response.items.map { it.toDomain() }
+                    emit(categories)
+                    
+                    // Αποθήκευση στη βάση για την επόμενη φορά
+                    categoryDao.insertCategories(response.items.map { 
+                        CategoryEntity(it.id.toString(), it.name ?: "", it.parentId?.toString(), 0, true, shopId)
+                    })
+                } catch (e: Exception) {
+                    emit(emptyList())
+                }
+            }
         }
+    }
 
     override suspend fun syncCatalog(shopId: String) {
         withContext(Dispatchers.IO) {
@@ -41,19 +63,15 @@ class ApiCatalogRepository @Inject constructor(
                 }
                 categoryDao.insertCategories(catEntities)
 
-                // 2. SYNC PRODUCTS IN BATCHES (To avoid 400 Bad Request)
+                // 2. SYNC PRODUCTS IN BATCHES
                 val allProducts = mutableListOf<ProductEntity>()
                 val allRefs = mutableListOf<ProductCategoryCrossRef>()
                 val limit = 1000
 
-                // Batch 1
-                Log.d("Sync", "Fetching Batch 1 (1-1000)...")
                 val response1 = catalogApi.getProducts(shopId = sId, page = 1, pageSize = limit)
                 processBatch(response1, shopId, allProducts, allRefs)
 
-                // Batch 2 (If needed)
                 if (response1.items.size >= limit) {
-                    Log.d("Sync", "Fetching Batch 2 (1001-2000)...")
                     val response2 = catalogApi.getProducts(shopId = sId, page = 2, pageSize = limit)
                     processBatch(response2, shopId, allProducts, allRefs)
                 }
@@ -62,7 +80,7 @@ class ApiCatalogRepository @Inject constructor(
                     productDao.clearProductsByShop(shopId)
                     productDao.insertProducts(allProducts)
                     categoryDao.insertProductCategoryRefs(allRefs)
-                    Log.d("Sync", "SUCCESS: Stored ${allProducts.size} products and ${allRefs.size} category links.")
+                    Log.d("Sync", "SUCCESS: Stored ${allProducts.size} products and ${allRefs.size} links.")
                 }
                 
             } catch (e: Exception) {
@@ -131,6 +149,13 @@ class ApiCatalogRepository @Inject constructor(
 
     private fun CategoryEntity.toDomain() = Category(id, name, parentId, 0)
     
+    private fun com.example.grifon.data.catalog.CategoryDto.toDomain() = Category(
+        id = id.toString(),
+        name = name ?: "",
+        parentId = parentId?.toString(),
+        childrenCount = 0
+    )
+
     private fun ProductEntity.toDomain() = Product(
         id = id, title = title, price = price, currency = currency,
         imageUrl = imageUrl, brand = brand, rating = 0.0, inStock = inStock,
