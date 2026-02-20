@@ -1,6 +1,10 @@
 package com.example.grifon.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -23,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.Alignment
+import com.example.grifon.domain.model.Category
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
@@ -75,7 +82,7 @@ fun GrifonApp() {
                     item {
                         NavigationDrawerItem(
                             label = { Text("Αρχική Οθόνη", fontSize = 16.sp) },
-                            selected = false,
+                            selected = currentRoute == Routes.HOME,
                             onClick = {
                                 scope.launch { drawerState.close() }
                                 navController.navigateToTopLevel(Routes.HOME)
@@ -86,7 +93,7 @@ fun GrifonApp() {
                     item {
                         NavigationDrawerItem(
                             label = { Text("Λογαριασμός", fontSize = 16.sp) },
-                            selected = false,
+                            selected = currentRoute == Routes.ACCOUNT,
                             onClick = {
                                 scope.launch { drawerState.close() }
                                 navController.navigateToTopLevel(Routes.ACCOUNT)
@@ -94,16 +101,74 @@ fun GrifonApp() {
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
                     }
+                    
+                    // Ενότητα Κατηγοριών στο Drawer με Expandable Λογική
                     item {
-                        NavigationDrawerItem(
-                            label = { Text("Βάσεις Δεδομένων", fontSize = 16.sp) },
-                            selected = false,
-                            onClick = {
-                                scope.launch { drawerState.close() }
-                                navController.navigateToTopLevel(Routes.CATEGORIES)
-                            },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                        )
+                        var isExpanded by remember { mutableStateOf(false) }
+                        Column {
+                            NavigationDrawerItem(
+                                label = { 
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                        Text("Κατηγορίες", fontSize = 16.sp, modifier = Modifier.weight(1f))
+                                        Icon(if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = null)
+                                    }
+                                },
+                                selected = false,
+                                onClick = { isExpanded = !isExpanded },
+                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                            )
+                            
+                            if (isExpanded) {
+                                val rootCategories = appState.categories.filter { it.parentId == "2" || it.parentId == null }
+                                rootCategories.forEach { root ->
+                                    var isSubExpanded by remember { mutableStateOf(false) }
+                                    val children = appState.categories.filter { it.parentId == root.id }
+                                    
+                                    Column(modifier = Modifier.padding(start = 16.dp)) {
+                                        NavigationDrawerItem(
+                                            label = { 
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text(root.name, fontSize = 14.sp, modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                                                    if (children.isNotEmpty()) {
+                                                        Icon(if (isSubExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = null, modifier = Modifier.size(18.dp))
+                                                    }
+                                                }
+                                            },
+                                            selected = false,
+                                            onClick = {
+                                                if (children.isNotEmpty()) {
+                                                    isSubExpanded = !isSubExpanded
+                                                } else {
+                                                    scope.launch { drawerState.close() }
+                                                    navController.navigate(Routes.plpRoute(category = root.id))
+                                                }
+                                            },
+                                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                                        )
+                                        
+                                        if (isSubExpanded) {
+                                            children.forEach { child ->
+                                                NavigationDrawerItem(
+                                                    label = { 
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                            Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(14.dp))
+                                                            Spacer(Modifier.width(8.dp))
+                                                            Text(child.name, fontSize = 13.sp)
+                                                        }
+                                                    },
+                                                    selected = false,
+                                                    onClick = {
+                                                        scope.launch { drawerState.close() }
+                                                        navController.navigate(Routes.plpRoute(category = child.id))
+                                                    },
+                                                    modifier = Modifier.padding(start = 16.dp).padding(NavigationDrawerItemDefaults.ItemPadding)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
