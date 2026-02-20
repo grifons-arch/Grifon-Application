@@ -1,6 +1,7 @@
 package com.example.grifon.data.repository
 
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.data.catalog.ProductsResponseDto
 import com.example.grifon.data.local.*
 import com.example.grifon.domain.model.*
 import kotlinx.coroutines.flow.Flow
@@ -30,63 +31,56 @@ class ApiCatalogRepository @Inject constructor(
     override suspend fun syncCatalog(shopId: String) {
         withContext(Dispatchers.IO) {
             try {
-                Log.d("Sync", "STARTING FULL MULTI-BATCH SYNC for shop $shopId...")
+                Log.d("Sync", "STARTING SYNC for shop $shopId...")
                 val sId = shopId.toIntOrNull() ?: 4
                 
                 // 1. SYNC CATEGORIES
                 val catResponse = catalogApi.getCategories(shopId = sId, pageSize = 500)
                 val catEntities = catResponse.items.map { 
-                    CategoryEntity(
-                        id = it.id.toString(),
-                        name = it.name ?: "",
-                        parentId = it.parentId?.toString(),
-                        position = 0,
-                        active = true,
-                        shopId = shopId
-                    )
+                    CategoryEntity(it.id.toString(), it.name ?: "", it.parentId?.toString(), 0, true, shopId)
                 }
                 categoryDao.insertCategories(catEntities)
-                
-                val subEntities = catEntities.filter { it.parentId != null }.map { 
-                    SubCategoryEntity(
-                        id = it.id,
-                        parentId = it.parentId!!,
-                        name = it.name,
-                        position = 0,
-                        active = true,
-                        shopId = shopId
-                    )
-                }
-                if (subEntities.isNotEmpty()) {
-                    categoryDao.insertSubCategories(subEntities)
-                }
-                Log.d("Sync", "Saved ${catEntities.size} cats and ${subEntities.size} subs.")
 
-                // 2. SYNC PRODUCTS (Multi-page fetch)
-                val allProductEntities = mutableListOf<ProductEntity>()
-                val pageSize = 1000
-                
-                // Fetch Page 1
-                Log.d("Sync", "Fetching products batch 1...")
-                val response1 = catalogApi.getProducts(shopId = sId, page = 1, pageSize = pageSize)
-                allProductEntities.addAll(response1.items.map { it.toLocal(shopId) })
-                
-                // Fetch Page 2
-                if (response1.items.size >= pageSize) {
-                    Log.d("Sync", "Fetching products batch 2...")
-                    val response2 = catalogApi.getProducts(shopId = sId, page = 2, pageSize = pageSize)
-                    allProductEntities.addAll(response2.items.map { it.toLocal(shopId) })
+                // 2. SYNC PRODUCTS IN BATCHES (To avoid 400 Bad Request)
+                val allProducts = mutableListOf<ProductEntity>()
+                val allRefs = mutableListOf<ProductCategoryCrossRef>()
+                val limit = 1000
+
+                // Batch 1
+                Log.d("Sync", "Fetching Batch 1 (1-1000)...")
+                val response1 = catalogApi.getProducts(shopId = sId, page = 1, pageSize = limit)
+                processBatch(response1, shopId, allProducts, allRefs)
+
+                // Batch 2 (If needed)
+                if (response1.items.size >= limit) {
+                    Log.d("Sync", "Fetching Batch 2 (1001-2000)...")
+                    val response2 = catalogApi.getProducts(shopId = sId, page = 2, pageSize = limit)
+                    processBatch(response2, shopId, allProducts, allRefs)
                 }
 
-                if (allProductEntities.isNotEmpty()) {
+                if (allProducts.isNotEmpty()) {
                     productDao.clearProductsByShop(shopId)
-                    productDao.insertProducts(allProductEntities)
-                    Log.d("Sync", "SUCCESS: Stored total ${allProductEntities.size} products in Room.")
+                    productDao.insertProducts(allProducts)
+                    categoryDao.insertProductCategoryRefs(allRefs)
+                    Log.d("Sync", "SUCCESS: Stored ${allProducts.size} products and ${allRefs.size} category links.")
                 }
                 
-                Log.d("Sync", "FULL SYNC COMPLETED.")
             } catch (e: Exception) {
                 Log.e("Sync", "CRITICAL SYNC ERROR", e)
+            }
+        }
+    }
+
+    private fun processBatch(
+        response: ProductsResponseDto, 
+        shopId: String, 
+        products: MutableList<ProductEntity>, 
+        refs: MutableList<ProductCategoryCrossRef>
+    ) {
+        response.items.forEach { dto ->
+            products.add(dto.toLocal(shopId))
+            dto.categories?.forEach { cat ->
+                refs.add(ProductCategoryCrossRef(productId = dto.id.toString(), categoryId = cat.id.toString()))
             }
         }
     }

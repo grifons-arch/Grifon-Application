@@ -20,6 +20,9 @@ interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSubCategories(subCategories: List<SubCategoryEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertProductCategoryRefs(refs: List<ProductCategoryCrossRef>)
+
     @Transaction
     @Query("SELECT * FROM categories WHERE id = :categoryId")
     fun getCategoryWithSubCategories(categoryId: String): Flow<CategoryWithSubCategories>
