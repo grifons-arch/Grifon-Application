@@ -23,12 +23,15 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.example.grifon.LoginActivity
-import com.example.grifon.RegisterActivity
 import com.example.grifon.core.UiState
 import com.example.grifon.viewmodel.AccountViewModel
 
 @Composable
-fun AccountScreen(viewModel: AccountViewModel, onSettings: () -> Unit) {
+fun AccountScreen(
+    viewModel: AccountViewModel, 
+    onSettings: () -> Unit,
+    onRegister: () -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
@@ -83,9 +86,7 @@ fun AccountScreen(viewModel: AccountViewModel, onSettings: () -> Unit) {
                                     registerText.getStringAnnotations("register", offset, offset)
                                         .firstOrNull()
                                         ?.let {
-                                            context.startActivity(
-                                                Intent(context, RegisterActivity::class.java),
-                                            )
+                                            onRegister()
                                         }
                                 },
                             )

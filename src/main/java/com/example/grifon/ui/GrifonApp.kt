@@ -36,16 +36,22 @@ fun GrifonApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        snapshotFlow { searchQuery }
-            .filter { it.length >= 2 }
-            .debounce(700)
-            .distinctUntilChanged()
-            .collect { query ->
-                navController.navigate(Routes.plpRoute(query = query)) {
-                    launchSingleTop = true 
+    // Βελτιωμένη λογική αναζήτησης
+    LaunchedEffect(searchQuery) {
+        if (searchQuery.length >= 2) {
+            snapshotFlow { searchQuery }
+                .debounce(600)
+                .distinctUntilChanged()
+                .collect { query ->
+                    navController.navigate(Routes.plpRoute(query = query)) {
+                        popUpTo(Routes.HOME) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
-            }
+        }
     }
 
     ModalNavigationDrawer(
@@ -110,7 +116,10 @@ fun GrifonApp() {
                         onMenuClick = {
                             scope.launch { drawerState.open() }
                         },
-                        onHomeClick = { navController.navigateToTopLevel(Routes.HOME) },
+                        onHomeClick = { 
+                            searchQuery = "" 
+                            navController.navigateToTopLevel(Routes.HOME) 
+                        },
                         onCartClick = { navController.navigateToTopLevel(Routes.CART) },
                         onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) },
                         categories = appState.categories,
@@ -121,7 +130,8 @@ fun GrifonApp() {
                     AppSearchBar(
                         query = searchQuery,
                         onQueryChange = { searchQuery = it },
-                        onScanClick = { navController.navigate(Routes.SCAN) }
+                        onScanClick = { navController.navigate(Routes.SCAN) },
+                        onClearClick = { searchQuery = "" }
                     )
                 }
             },
@@ -129,12 +139,8 @@ fun GrifonApp() {
                 AppBottomNav(navController = navController)
             },
         ) { innerPadding ->
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                color = MaterialTheme.colorScheme.background
-            ) {
+            // Χρησιμοποιούμε το innerPadding για να μην καλύπτεται το περιεχόμενο από τα bars
+            Box(modifier = Modifier.padding(innerPadding)) {
                 AppNavHost(
                     navController = navController,
                     paddingValues = PaddingValues(0.dp)

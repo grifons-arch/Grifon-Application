@@ -125,7 +125,8 @@ fun AppTopBar(
 fun AppSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
-    onScanClick: () -> Unit
+    onScanClick: () -> Unit,
+    onClearClick: () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier
@@ -142,8 +143,15 @@ fun AppSearchBar(
             placeholder = { Text("Αναζήτηση προϊόντων...", color = Color.Gray) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
             trailingIcon = {
-                IconButton(onClick = onScanClick) {
-                    Icon(Icons.Default.QrCodeScanner, contentDescription = "Scan", tint = Color.Gray)
+                Row {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = onClearClick) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)
+                        }
+                    }
+                    IconButton(onClick = onScanClick) {
+                        Icon(Icons.Default.QrCodeScanner, contentDescription = "Scan", tint = Color.Gray)
+                    }
                 }
             },
             colors = TextFieldDefaults.colors(
