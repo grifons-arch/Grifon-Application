@@ -24,7 +24,7 @@ class ApiCatalogRepository @Inject constructor(
                 Category(
                     id = it.id.toString(), 
                     name = it.name ?: "",
-                    parentId = null,
+                    parentId = it.parentId?.toString(),
                     childrenCount = 0
                 ) 
             })
@@ -119,7 +119,8 @@ class ApiCatalogRepository @Inject constructor(
             brand = if (shopId == 4) "Grifon GR" else "Grifon SE",
             rating = 0.0,
             inStock = true,
-            attributesMap = mapOf("reference" to (reference ?: ""))
+            attributesMap = mapOf("reference" to (reference ?: "")),
+            categoryIds = categories?.map { it.id.toString() } ?: emptyList()
         )
     }
 }

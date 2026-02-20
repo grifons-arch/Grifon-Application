@@ -23,6 +23,7 @@ data class Product(
     val rating: Double,
     val inStock: Boolean,
     val attributesMap: Map<String, String>,
+    val categoryIds: List<String> = emptyList(),
 )
 
 data class CartItem(

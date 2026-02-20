@@ -73,13 +73,17 @@ fun HomeScreen(
             is UiState.Success -> {
                 val data = state.data
                 val products = data.products
+                
+                // Βρίσκουμε το label της τρέχουσας κατηγορίας
+                val currentCategoryLabel = viewModel.staticCategoryIcons
+                    .find { it.categoryId == data.selectedCategoryId }?.label ?: "Όλα"
 
 
                 // Κύρια δομή με LazyVerticalGrid για να έχουμε ΚΑΘΕΤΟ scroll
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 100.dp)
+                    modifier = Modifier.fillMaxHeight(),
+                    contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
                     // 1. Οριζόντιες Κατηγορίες στην κορυφή
                     item(span = { GridItemSpan(3) }) {
@@ -107,7 +111,11 @@ fun HomeScreen(
                                         label = item.label,
                                         resId = item.resId,
                                         isSelected = data.selectedCategoryId == item.categoryId,
-                                        onClick = { viewModel.selectCategory(item.categoryId) }
+                                        onClick = { 
+                                            if (data.selectedCategoryId != item.categoryId) {
+                                                viewModel.selectCategory(item.categoryId) 
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -118,21 +126,28 @@ fun HomeScreen(
                     // 2. Τίτλος για τα προϊόντα
                     item(span = { GridItemSpan(3) }) {
                         Text(
-                            text = "Όλα τα προϊόντα",
+                            text = "Προϊόντα: $currentCategoryLabel",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                     }
 
                     // 3. Πλέγμα Προϊόντων (Κάθετο Scroll)
-                    items(products, key = { it.id }) { product ->
-                        Box(modifier = Modifier.padding(4.dp)) {
-                            SmallProductCard(
-                                product = product, 
-                                onClick = { onProductClick(product.id) },
-                                onImageClick = { zoomedImageUrl = product.imageUrl }
-                            )
-
+                    if (products.isEmpty()) {
+                        item(span = { GridItemSpan(3) }) {
+                            Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                                Text("Δεν βρέθηκαν προϊόντα σε αυτή την κατηγορία.", color = Color.Gray)
+                            }
+                        }
+                    } else {
+                        items(products, key = { it.id }) { product ->
+                            Box(modifier = Modifier.padding(4.dp)) {
+                                SmallProductCard(
+                                    product = product, 
+                                    onClick = { onProductClick(product.id) },
+                                    onImageClick = { zoomedImageUrl = product.imageUrl }
+                                )
+                            }
                         }
                     }
                 }
