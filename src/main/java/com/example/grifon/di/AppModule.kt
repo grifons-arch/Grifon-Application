@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.local.CategoryDao
+import com.example.grifon.data.local.ProductDao
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.*
 import com.example.grifon.data.fake.*
@@ -79,8 +80,12 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCatalogRepository(catalogApi: CatalogApi, categoryDao: CategoryDao): CatalogRepository = 
-        ApiCatalogRepository(catalogApi, categoryDao)
+    fun provideCatalogRepository(
+        catalogApi: CatalogApi, 
+        categoryDao: CategoryDao,
+        productDao: ProductDao
+    ): CatalogRepository = 
+        ApiCatalogRepository(catalogApi, categoryDao, productDao)
 
     @Provides
     @Singleton

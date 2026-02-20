@@ -11,6 +11,9 @@ interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCategories(categories: List<CategoryEntity>)
 
+    @Query("SELECT * FROM subcategories")
+    fun getAllSubCategories(): Flow<List<SubCategoryEntity>>
+
     @Query("SELECT * FROM subcategories WHERE parentId = :parentId")
     fun getSubCategories(parentId: String): Flow<List<SubCategoryEntity>>
 

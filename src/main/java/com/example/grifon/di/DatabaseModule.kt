@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.example.grifon.data.local.AppDatabase
 import com.example.grifon.data.local.CategoryDao
 import com.example.grifon.data.local.FavoriteDao
+import com.example.grifon.data.local.ProductDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,7 +25,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "grifon_database"
         )
-        .fallbackToDestructiveMigration() // Επειδή ανεβάσαμε version
+        .fallbackToDestructiveMigration()
         .build()
     }
 
@@ -33,4 +34,7 @@ object DatabaseModule {
 
     @Provides
     fun provideCategoryDao(database: AppDatabase): CategoryDao = database.categoryDao()
+
+    @Provides
+    fun provideProductDao(database: AppDatabase): ProductDao = database.productDao()
 }

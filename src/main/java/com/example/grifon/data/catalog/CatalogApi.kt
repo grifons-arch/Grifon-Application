@@ -14,7 +14,7 @@ interface CatalogApi {
         @Query("shopId") shopId: Int,
         @Query("lang") lang: Int = 1,
         @Query("page") page: Int = 1,
-        @Query("pageSize") pageSize: Int = 50,
+        @Query("pageSize") pageSize: Int = 1000,
         @Query("sort") sort: String = "[id_DESC]",
     ): ProductsResponseDto
 
@@ -23,7 +23,7 @@ interface CatalogApi {
         @Query("shopId") shopId: Int,
         @Query("lang") lang: Int = 1,
         @Query("page") page: Int = 1,
-        @Query("pageSize") pageSize: Int = 200,
+        @Query("pageSize") pageSize: Int = 500,
     ): CategoriesResponseDto
 
     @GET("v1/categories/{categoryId}/products")
@@ -32,7 +32,7 @@ interface CatalogApi {
         @Query("shopId") shopId: Int,
         @Query("lang") lang: Int = 1,
         @Query("page") page: Int = 1,
-        @Query("pageSize") pageSize: Int = 100,
+        @Query("pageSize") pageSize: Int = 1000,
         @Query("sort") sort: String = "[id_DESC]",
     ): ProductsResponseDto
 }
