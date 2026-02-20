@@ -43,12 +43,12 @@ export const shopQuerySchema = z.object({
 
 export const paginationSchema = z.object({
   page: z.preprocess(toNumber, z.number().int().min(1).max(1000)).default(1),
-  pageSize: z.preprocess(toNumber, z.number().int().min(1).max(200)).default(50)
+  pageSize: z.preprocess(toNumber, z.number().int().min(1).max(1000)).default(100)
 });
 
 export const productPaginationSchema = z.object({
   page: z.preprocess(toNumber, z.number().int().min(1).max(1000)).default(1),
-  pageSize: z.preprocess(toNumber, z.number().int().min(1).max(200)).default(20),
+  pageSize: z.preprocess(toNumber, z.number().int().min(1).max(1000)).default(100),
   sort: z.string().optional().default("[id_DESC]")
 });
 
