@@ -8,16 +8,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.grifon.navigation.AppNavHost
 import com.example.grifon.navigation.Routes
 import com.example.grifon.ui.components.AppBottomNav
-import com.example.grifon.ui.components.AppSearchBar
 import com.example.grifon.ui.components.AppTopBar
 import com.example.grifon.viewmodel.AppViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.debounce
 import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.dp
@@ -35,6 +34,10 @@ fun GrifonApp() {
     
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    // Παρακολούθηση της τρέχουσας διαδρομής
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     // Βελτιωμένη λογική αναζήτησης
     LaunchedEffect(searchQuery) {
@@ -110,36 +113,31 @@ fun GrifonApp() {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                Column {
-                    AppTopBar(
-                        shopLabel = if (appState.activeShopId == "1") "SE" else "GR",
-                        onMenuClick = {
-                            scope.launch { drawerState.open() }
-                        },
-                        onHomeClick = { 
-                            searchQuery = "" 
-                            navController.navigateToTopLevel(Routes.HOME) 
-                        },
-                        onCartClick = { navController.navigateToTopLevel(Routes.CART) },
-                        onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) },
-                        categories = appState.categories,
-                        onCategoryClick = { category ->
-                            navController.navigate(Routes.plpRoute(category = category.id))
-                        }
-                    )
-                    AppSearchBar(
-                        query = searchQuery,
-                        onQueryChange = { searchQuery = it },
-                        onScanClick = { navController.navigate(Routes.SCAN) },
-                        onClearClick = { searchQuery = "" }
-                    )
-                }
+                AppTopBar(
+                    shopLabel = if (appState.activeShopId == "1") "SE" else "GR",
+                    onMenuClick = {
+                        scope.launch { drawerState.open() }
+                    },
+                    onHomeClick = { 
+                        searchQuery = "" 
+                        navController.navigateToTopLevel(Routes.HOME) 
+                    },
+                    onCartClick = { navController.navigateToTopLevel(Routes.CART) },
+                    onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) },
+                    categories = appState.categories,
+                    onCategoryClick = { category ->
+                        navController.navigate(Routes.plpRoute(category = category.id))
+                    },
+                    showSearch = currentRoute == Routes.HOME, // Μόνο στην αρχική
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = { searchQuery = it },
+                    onScanClick = { navController.navigate(Routes.SCAN) }
+                )
             },
             bottomBar = {
                 AppBottomNav(navController = navController)
             },
         ) { innerPadding ->
-            // Χρησιμοποιούμε το innerPadding για να μην καλύπτεται το περιεχόμενο από τα bars
             Box(modifier = Modifier.padding(innerPadding)) {
                 AppNavHost(
                     navController = navController,

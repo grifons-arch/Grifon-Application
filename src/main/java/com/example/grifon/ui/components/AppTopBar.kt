@@ -1,5 +1,6 @@
 package com.example.grifon.ui.components
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,11 +19,6 @@ import androidx.compose.ui.unit.sp
 import com.example.grifon.R
 import com.example.grifon.domain.model.Category
 
-data class AppMenuItem(
-    val label: String,
-    val route: String,
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
@@ -32,10 +28,15 @@ fun AppTopBar(
     onCartClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     categories: List<Category> = emptyList(),
-    onCategoryClick: (Category) -> Unit = {}
+    onCategoryClick: (Category) -> Unit = {},
+    showSearch: Boolean = false,
+    searchQuery: String = "",
+    onSearchQueryChange: (String) -> Unit = {},
+    onScanClick: () -> Unit = {}
 ) {
     val purpleColor = Color(0xFF6200EE)
     var showCategoryMenu by remember { mutableStateOf(false) }
+    var isSearchExpanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -55,6 +56,16 @@ fun AppTopBar(
             }
             
             Row(verticalAlignment = Alignment.CenterVertically) {
+                if (showSearch) {
+                    IconButton(onClick = { isSearchExpanded = !isSearchExpanded }) {
+                        Icon(
+                            if (isSearchExpanded) Icons.Default.Close else Icons.Default.Search, 
+                            contentDescription = "Search", 
+                            tint = Color.White
+                        )
+                    }
+                }
+
                 IconButton(onClick = onHomeClick) {
                     Icon(Icons.Default.Home, contentDescription = "Home", tint = Color.White)
                 }
@@ -95,26 +106,43 @@ fun AppTopBar(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            contentAlignment = Alignment.Center
+        // Expandable Search Bar
+        AnimatedVisibility(
+            visible = showSearch && isSearchExpanded,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "Grifon Logo",
-                    modifier = Modifier.height(40.dp),
-                    contentScale = ContentScale.Fit
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "GRIFON ($shopLabel)",
-                    color = Color.White,
-                    style = MaterialTheme.typography.headlineSmall,
-                    letterSpacing = 2.sp
-                )
+            AppSearchBar(
+                query = searchQuery,
+                onQueryChange = onSearchQueryChange,
+                onScanClick = onScanClick,
+                onClearClick = { onSearchQueryChange("") }
+            )
+        }
+
+        // Logo Section (Hidden when search is expanded to save space if needed, or kept)
+        if (!(showSearch && isSearchExpanded)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "Grifon Logo",
+                        modifier = Modifier.height(40.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "GRIFON ($shopLabel)",
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineSmall,
+                        letterSpacing = 2.sp
+                    )
+                }
             }
         }
     }
