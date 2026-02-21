@@ -123,7 +123,35 @@ fun HomeScreen(
                         }
                     }
 
-                    // 2. Τίτλος για τα προϊόντα
+                    // 2. Προτεινόμενα Προϊόντα (Οριζόντια)
+                    item(span = { GridItemSpan(3) }) {
+                        Column(modifier = Modifier.padding(bottom = 16.dp)) {
+                            Text(
+                                "Προτεινόμενα για εσάς",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                            LazyRow(
+                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                // Εμφανίζουμε τα πρώτα 6 προϊόντα ως προτεινόμενα
+                                listItems(products.take(6)) { product ->
+                                    Box(modifier = Modifier.width(140.dp)) {
+                                        SmallProductCard(
+                                            product = product,
+                                            onClick = { onProductClick(product.id) },
+                                            onImageClick = { zoomedImageUrl = product.imageUrl }
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(16.dp))
+                            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        }
+                    }
+
+                    // 3. Τίτλος για τα προϊόντα
                     item(span = { GridItemSpan(3) }) {
                         Text(
                             text = "Προϊόντα: $currentCategoryLabel",
@@ -132,7 +160,7 @@ fun HomeScreen(
                         )
                     }
 
-                    // 3. Πλέγμα Προϊόντων (Κάθετο Scroll)
+                    // 4. Πλέγμα Προϊόντων (Κάθετο Scroll)
                     if (products.isEmpty()) {
                         item(span = { GridItemSpan(3) }) {
                             Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
