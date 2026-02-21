@@ -15,6 +15,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -68,7 +71,11 @@ fun ProductListScreen(
                         )
                     }
                     items(data.products) { product ->
-                        ProductGridItem(product, onClick = { onProductClick(product.id) })
+                        ProductGridItem(
+                            product = product, 
+                            onClick = { onProductClick(product.id) },
+                            onFavoriteClick = { /* TODO: Implement favorite toggle */ }
+                        )
                     }
                 }
                 if (filtersOpen) {
@@ -119,7 +126,6 @@ private fun FiltersSheet(
             Text("Φιλτράρισμα κατά", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
             Spacer(Modifier.height(16.dp))
 
-            // ΕΝΟΤΗΤΑ ΧΡΩΜΑΤΩΝ
             FilterSectionTitle(title = "Χρωματισμοί")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 colors.forEach { (name, color) ->
@@ -160,8 +166,6 @@ private fun ColorCircle(name: String, color: Color, isSelected: Boolean, onClick
             .clickable { onClick() }
     )
 }
-
-// ... (τα υπόλοιπα composables παραμένουν ως έχουν)
 
 @Composable
 private fun FilterBar(onFiltersClick: () -> Unit, onSortClick: () -> Unit) {
@@ -227,17 +231,23 @@ private fun FilterItemRow(label: String, count: Int, selected: Boolean, onToggle
 }
 
 @Composable
-fun ProductGridItem(product: Product, onClick: () -> Unit) {
+fun ProductGridItem(
+    product: Product, 
+    onClick: () -> Unit,
+    onFavoriteClick: () -> Unit
+) {
     Column(
-        modifier = Modifier.fillMaxWidth().background(Color.White)
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .clickable(onClick = onClick)
     ) {
         Card(
             modifier = Modifier.fillMaxWidth().aspectRatio(1f),
             shape = RoundedCornerShape(4.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
-            onClick = onClick
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
         ) {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(product.imageUrl.ifEmpty { R.drawable.logo })
@@ -248,10 +258,32 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize().padding(8.dp)
                 )
+                
+                // Καρδούλα Αγαπημένων πάνω δεξιά στην εικόνα
+                IconButton(
+                    onClick = onFavoriteClick,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FavoriteBorder, // Θα μπορούσε να αλλάζει σε Filled αν είναι favorite
+                        contentDescription = "Add to favorites",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = product.title.uppercase(), style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, fontWeight = FontWeight.Medium), maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color.Black)
-        Text(text = "${product.price} €", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary))
+        Text(
+            text = product.title.uppercase(), 
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, fontWeight = FontWeight.Medium), 
+            maxLines = 2, 
+            overflow = TextOverflow.Ellipsis, 
+            color = Color.Black
+        )
+        Text(
+            text = "${product.price} €", 
+            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        )
     }
 }
