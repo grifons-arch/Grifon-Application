@@ -14,28 +14,17 @@ interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCategories(categories: List<CategoryEntity>)
 
-    @Query("SELECT * FROM subcategories")
-    fun getAllSubCategories(): Flow<List<SubCategoryEntity>>
-
-    @Query("SELECT * FROM subcategories WHERE parentId = :parentId")
-    fun getSubCategories(parentId: String): Flow<List<SubCategoryEntity>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSubCategories(subCategories: List<SubCategoryEntity>)
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProductCategoryRefs(refs: List<ProductCategoryCrossRef>)
 
-    @Transaction
     @Query("SELECT * FROM categories WHERE id = :categoryId")
-    fun getCategoryWithSubCategories(categoryId: String): Flow<CategoryWithSubCategories>
-}
+    suspend fun getCategoryById(categoryId: String): CategoryEntity?
 
-data class CategoryWithSubCategories(
-    @Embedded val category: CategoryEntity,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "parentId"
-    )
-    val subCategories: List<SubCategoryEntity>
-)
+    @Transaction
+    @Query("""
+        SELECT p.* FROM products p
+        INNER JOIN product_category_cross_ref ref ON p.id = ref.productId
+        WHERE ref.categoryId = :categoryId
+    """)
+    fun getCategoryWithProducts(categoryId: String): Flow<List<ProductEntity>>
+}

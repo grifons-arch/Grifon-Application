@@ -92,6 +92,17 @@ fun GrifonApp() {
                     }
                     item {
                         NavigationDrawerItem(
+                            label = { Text("Αγαπημένα", fontSize = 16.sp) },
+                            selected = currentRoute == Routes.FAVORITES,
+                            onClick = {
+                                scope.launch { drawerState.close() }
+                                navController.navigateToTopLevel(Routes.FAVORITES)
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
+                    }
+                    item {
+                        NavigationDrawerItem(
                             label = { Text("Λογαριασμός", fontSize = 16.sp) },
                             selected = currentRoute == Routes.ACCOUNT,
                             onClick = {
@@ -102,7 +113,6 @@ fun GrifonApp() {
                         )
                     }
                     
-                    // Ενότητα Κατηγοριών στο Drawer με Expandable Λογική
                     item {
                         var isExpanded by remember { mutableStateOf(false) }
                         Column {
@@ -188,6 +198,7 @@ fun GrifonApp() {
                     },
                     onCartClick = { navController.navigateToTopLevel(Routes.CART) },
                     onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) },
+                    onFavoritesClick = { navController.navigateToTopLevel(Routes.FAVORITES) },
                     onBackClick = if (currentRoute != Routes.HOME) { 
                         { navController.navigateUp() } 
                     } else null,
@@ -195,7 +206,7 @@ fun GrifonApp() {
                     onCategoryClick = { category ->
                         navController.navigate(Routes.plpRoute(category = category.id))
                     },
-                    showSearch = currentRoute == Routes.HOME,
+                    showSearch = true,
                     searchQuery = searchQuery,
                     onSearchQueryChange = { searchQuery = it },
                     onScanClick = { navController.navigate(Routes.SCAN) }

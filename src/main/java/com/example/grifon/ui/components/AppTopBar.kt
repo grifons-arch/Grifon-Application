@@ -32,10 +32,11 @@ fun AppTopBar(
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    onFavoritesClick: () -> Unit, // Προσθήκη για τα αγαπημένα
     onBackClick: (() -> Unit)? = null,
     categories: List<Category> = emptyList(),
     onCategoryClick: (Category) -> Unit = {},
-    showSearch: Boolean = false,
+    showSearch: Boolean = true, // Πλέον διαθέσιμο παντού
     searchQuery: String = "",
     onSearchQueryChange: (String) -> Unit = {},
     onScanClick: () -> Unit = {}
@@ -83,7 +84,6 @@ fun AppTopBar(
                     Icon(Icons.Default.Home, contentDescription = "Home", tint = Color.White)
                 }
 
-                // CATEGORY DROPDOWN
                 Box {
                     IconButton(onClick = { showCategoryMenu = true }) {
                         Icon(Icons.Default.Dashboard, contentDescription = "Κατηγορίες", tint = Color.White)
@@ -96,11 +96,10 @@ fun AppTopBar(
                     ) {
                         if (categories.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text("Φόρτωση (DB άδεια)...") },
+                                text = { Text("Φόρτωση...") },
                                 onClick = { showCategoryMenu = false }
                             )
                         } else {
-                            // Φιλτράρισμα: Δείχνουμε ως κύριες όσες είναι κάτω από το Home (ID 2) ή δεν έχουν γονέα
                             val rootCategories = categories.filter { it.parentId == "2" || it.parentId == null || it.parentId == "1" }
                             
                             rootCategories.forEach { root ->
@@ -139,6 +138,9 @@ fun AppTopBar(
                     }
                 }
 
+                IconButton(onClick = onFavoritesClick) {
+                    Icon(Icons.Default.Favorite, contentDescription = "Favorites", tint = Color.White)
+                }
                 IconButton(onClick = onNotificationsClick) {
                     Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = Color.White)
                 }
@@ -148,7 +150,7 @@ fun AppTopBar(
             }
         }
 
-        // Search Bar
+        // Expandable Search Bar
         AnimatedVisibility(
             visible = showSearch && isSearchExpanded,
             enter = expandVertically() + fadeIn(),
@@ -163,11 +165,26 @@ fun AppTopBar(
         }
 
         if (!(showSearch && isSearchExpanded)) {
-            Box(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(painter = painterResource(id = R.drawable.logo), contentDescription = "Grifon Logo", modifier = Modifier.height(40.dp), contentScale = ContentScale.Fit)
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "Grifon Logo",
+                        modifier = Modifier.height(40.dp),
+                        contentScale = ContentScale.Fit
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "GRIFON ($shopLabel)", color = Color.White, style = MaterialTheme.typography.headlineSmall, letterSpacing = 2.sp)
+                    Text(
+                        text = "GRIFON ($shopLabel)",
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineSmall,
+                        letterSpacing = 2.sp
+                    )
                 }
             }
         }
@@ -183,7 +200,9 @@ fun AppSearchBar(
     onClearClick: () -> Unit = {}
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(8.dp),
         color = Color(0xFFF5F5F5),
         tonalElevation = 2.dp

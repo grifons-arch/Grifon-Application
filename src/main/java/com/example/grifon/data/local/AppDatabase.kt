@@ -7,11 +7,10 @@ import androidx.room.RoomDatabase
     entities = [
         FavoriteEntity::class,
         CategoryEntity::class,
-        SubCategoryEntity::class,
         ProductEntity::class,
         ProductCategoryCrossRef::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

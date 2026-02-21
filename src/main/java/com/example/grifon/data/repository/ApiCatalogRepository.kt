@@ -24,39 +24,37 @@ class ApiCatalogRepository @Inject constructor(
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
     override fun getCategoryTree(shopId: String): Flow<List<Category>> = 
-        categoryDao.getAllCategories().map { entities ->
-            Log.d("Catalog", "DB Update: ${entities.size} categories loaded.")
+        categoryDao.getCategoriesByShop(shopId).map { entities ->
+            Log.d("Catalog", "DB Update: ${entities.size} categories found in Room for shop $shopId")
             entities.map { it.toDomain() }
         }
 
     override suspend fun syncCatalog(shopId: String) {
         withContext(Dispatchers.IO) {
             try {
-                Log.d("Sync", "--- STARTING SYNC ---")
+                Log.d("Sync", "--- STARTING SYNC (V6) ---")
                 val sId = shopId.toIntOrNull() ?: 4
                 
-                // 1. CATEGORIES SYNC
+                // 1. SYNC CATEGORIES
                 val catResponse = try {
                     catalogApi.getCategories(shopId = sId, pageSize = 500)
                 } catch (e: Exception) {
-                    Log.e("Sync", "Failed to fetch categories", e)
+                    Log.e("Sync", "API Category Error", e)
                     null
                 }
 
                 catResponse?.let { resp ->
+                    if (resp.items.isEmpty()) {
+                        Log.w("Sync", "WARNING: API returned 0 categories!")
+                    }
                     val entities = resp.items.map { 
                         CategoryEntity(it.id.toString(), it.name ?: "", it.parentId?.toString(), 0, true, shopId)
                     }
                     categoryDao.insertCategories(entities)
-                    
-                    val subEntities = entities.filter { it.parentId != null }.map { 
-                        SubCategoryEntity(it.id, it.parentId!!, it.name, 0, true, shopId)
-                    }
-                    categoryDao.insertSubCategories(subEntities)
-                    Log.d("Sync", "Categories saved: ${entities.size}, Sub-categories saved: ${subEntities.size}")
+                    Log.d("Sync", "SAVED ${entities.size} CATEGORIES to Room.")
                 }
 
-                // 2. PRODUCTS SYNC
+                // 2. SYNC PRODUCTS AND CROSS-REFS
                 val allProducts = mutableListOf<ProductEntity>()
                 val allRefs = mutableListOf<ProductCategoryCrossRef>()
                 val limit = 1000
@@ -74,15 +72,15 @@ class ApiCatalogRepository @Inject constructor(
                         productDao.clearProductsByShop(shopId)
                         productDao.insertProducts(allProducts)
                         categoryDao.insertProductCategoryRefs(allRefs)
-                        Log.d("Sync", "Products and Links saved successfully.")
+                        Log.d("Sync", "SAVED ${allProducts.size} PRODUCTS and links.")
                     }
                 } catch (e: Exception) {
-                    Log.e("Sync", "Failed to fetch/save products", e)
+                    Log.e("Sync", "API Product Error", e)
                 }
                 
                 Log.d("Sync", "--- SYNC COMPLETED ---")
             } catch (e: Exception) {
-                Log.e("Sync", "Sync critical failure", e)
+                Log.e("Sync", "Critical sync failure", e)
             }
         }
     }
@@ -106,21 +104,10 @@ class ApiCatalogRepository @Inject constructor(
         categoryId: String,
         filters: FilterState,
         sortOption: SortOption
-    ): Flow<List<Product>> = flow {
-        productDao.getProductsByCategory(categoryId, shopId).collect { entities ->
-            if (entities.isNotEmpty()) {
-                emit(entities.map { it.toDomain() })
-            } else {
-                try {
-                    val sId = shopId.toIntOrNull() ?: 4
-                    val response = catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = sId, pageSize = 500)
-                    emit(response.items.map { it.toDomain(sId) })
-                } catch (e: Exception) {
-                    emit(emptyList())
-                }
-            }
+    ): Flow<List<Product>> = 
+        categoryDao.getCategoryWithProducts(categoryId).map { list ->
+            list.map { it.toDomain() }
         }
-    }
 
     override fun searchProducts(
         shopId: String,
