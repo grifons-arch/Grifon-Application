@@ -1,4 +1,5 @@
 import axios from "axios";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { config } from "../config/env";
 
@@ -25,6 +26,8 @@ export interface RegisterResponse {
   message: string;
 }
 
+const PASSWORD_SALT_ROUNDS = 10;
+
 const resolveSyncUrl = (countryIso: string): string => {
   const shopId = countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
   const baseUrl = config.shopBaseUrls[shopId] || config.prestashopBaseUrl;
@@ -33,25 +36,19 @@ const resolveSyncUrl = (countryIso: string): string => {
   return `${rootUrl}/index.php?fc=module&module=grifoncustomersync&controller=sync`;
 };
 
-/**
- * Υπολογισμός υπογραφής HMAC-SHA256 (Base64)
- * Σύμφωνα με την αλλαγή στην PHP: $base = $ts . $rawBody;
- */
+// Νέα λογική υπογραφής: Base64 με Timestamp (Standard Pattern)
 const createSignature = (payload: string, secret: string): { timestamp: string, signature: string } => {
   const timestamp = Math.floor(Date.now() / 1000).toString();
-  // Ενώνουμε timestamp και payload απευθείας (χωρίς \n) για να συμβαδίζει με την PHP
-  const base = timestamp + payload; 
-  
   const signature = crypto
     .createHmac("sha256", secret)
-    .update(base) 
-    .digest("base64");
-    
+    .update(timestamp + payload) 
+    .digest("base64"); // Αλλαγή σε Base64
   return { timestamp, signature };
 };
 
 export const registerCustomer = async (request: RegisterRequest): Promise<RegisterResponse> => {
   const email = request.email.trim().toLowerCase();
+  const hashedPassword = await bcrypt.hash(request.password, PASSWORD_SALT_ROUNDS);
   
   const payload = {
     externalCustomerId: email,
@@ -59,7 +56,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
       email,
       firstname: request.firstName,
       lastname: request.lastName,
-      password: request.password, 
+      password: hashedPassword,
       company: request.company || "",
       newsletter: request.newsletter ? 1 : 0,
       optin: request.partnerOffers ? 1 : 0,
@@ -78,14 +75,12 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
   };
 
   const body = JSON.stringify(payload);
-  const secret = config.customerSyncSecret || config.prestashopApiKey;
+  const secret = process.env.GRIFON_CUSTOMER_SYNC_SECRET || config.prestashopApiKey;
   const { timestamp, signature } = createSignature(body, secret);
   const syncUrl = resolveSyncUrl(request.countryIso);
 
-  console.log("--- FINAL SYNC DEBUG ---");
-  console.log("Secret used:", secret);
-  console.log("Timestamp:", timestamp);
-  console.log("Signature (Base64):", signature);
+  console.log("Registration Attempt:", email);
+  console.log("Using Signature (Base64):", signature);
 
   try {
     const response = await axios.post(syncUrl, body, {
@@ -95,21 +90,22 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
         "X-Grifon-Timestamp": timestamp,
         "X-Grifon-Signature": signature
       },
-      transformRequest: [(data) => data],
       validateStatus: () => true
     });
 
-    console.log("PrestaShop Response:", JSON.stringify(response.data));
+    console.log("PrestaShop Response Status:", response.status);
+    console.log("PrestaShop Response Data:", JSON.stringify(response.data));
 
-    if (response.status === 200 && response.data?.ok !== false) {
+    if (response.status >= 200 && response.status < 300 && response.data?.ok !== false) {
       return {
-        customerId: String(response.data?.psCustomerId || email),
+        customerId: String(response.data?.id_customer || email),
         status: "SUCCESS",
         message: "Η εγγραφή ολοκληρώθηκε! Αναμένεται έγκριση από τη Grifon."
       };
     }
 
-    throw new Error(response.data?.error || response.data?.message || `Error ${response.status}`);
+    const errorDetail = response.data?.error || response.data?.message || `Error ${response.status}`;
+    throw new Error(errorDetail);
   } catch (error: any) {
     console.error("Sync Error:", error.message);
     throw { status: 502, message: `Σφάλμα εγγραφής: ${error.message}.` };
