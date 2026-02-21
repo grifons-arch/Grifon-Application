@@ -36,19 +36,26 @@ const resolveSyncUrl = (countryIso: string): string => {
   return `${rootUrl}/index.php?fc=module&module=grifoncustomersync&controller=sync`;
 };
 
-// Η υπογραφή πρέπει να συμφωνεί ΑΚΡΙΒΩΣ με το module του PrestaShop (HEX hash)
+/**
+ * Υπολογισμός υπογραφής HMAC-SHA256 (HEX)
+ * Σημαντικό: Ο τρόπος υπολογισμού (timestamp + payload) πρέπει να είναι ΙΔΙΟΣ στην PHP πλευρά.
+ */
 const createSignature = (payload: string, secret: string): { timestamp: string, signature: string } => {
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const signature = crypto
     .createHmac("sha256", secret)
     .update(timestamp + payload) 
-    .digest("hex"); // Το PrestaShop περιμένει συνήθως HEX και όχι Base64
+    .digest("hex");
   return { timestamp, signature };
 };
 
 export const registerCustomer = async (request: RegisterRequest): Promise<RegisterResponse> => {
   const email = request.email.trim().toLowerCase();
-  const hashedPassword = await bcrypt.hash(request.password, PASSWORD_SALT_ROUNDS);
+  
+  // Το password πρέπει να σταλεί όπως είναι (raw) ή hashed αν το module κάνει direct SQL insert.
+  // Συνήθως τα PrestaShop modules προτιμούν το raw και κάνουν hash εσωτερικά με το shop key.
+  // Δοκιμάζουμε αποστολή RAW password πρώτα (πιο κοινό για API sync).
+  const passwordToSend = request.password; 
   
   const payload = {
     externalCustomerId: email,
@@ -56,7 +63,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
       email,
       firstname: request.firstName,
       lastname: request.lastName,
-      password: hashedPassword,
+      password: passwordToSend,
       company: request.company || "",
       newsletter: request.newsletter ? 1 : 0,
       optin: request.partnerOffers ? 1 : 0,
@@ -75,12 +82,21 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
   };
 
   const body = JSON.stringify(payload);
-  const secret = process.env.GRIFON_CUSTOMER_SYNC_SECRET || config.prestashopApiKey;
+  
+  // Το secret πρέπει να είναι το GRIFON_CUSTOMER_SYNC_SECRET από το .env του Gateway
+  // και να είναι το ΙΔΙΟ με αυτό που έχει οριστεί στο module settings στο PrestaShop.
+  const secret = config.customerSyncSecret || config.prestashopApiKey;
+  
   const { timestamp, signature } = createSignature(body, secret);
   const syncUrl = resolveSyncUrl(request.countryIso);
 
-  console.log("Registration Attempt:", email);
-  console.log("Using Signature (HEX):", signature);
+  console.log("--- Registration Request ---");
+  console.log("Email:", email);
+  console.log("Sync URL:", syncUrl);
+  console.log("Secret length:", secret.length);
+  console.log("Timestamp:", timestamp);
+  console.log("Signature (HEX):", signature);
+  console.log("Payload:", body);
 
   try {
     const response = await axios.post(syncUrl, body, {
@@ -93,10 +109,10 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
       validateStatus: () => true
     });
 
-    console.log("PrestaShop Response Status:", response.status);
-    console.log("PrestaShop Response Data:", JSON.stringify(response.data));
+    console.log("PrestaShop Status:", response.status);
+    console.log("PrestaShop Body:", JSON.stringify(response.data));
 
-    if (response.status >= 200 && response.status < 300 && response.data?.ok !== false) {
+    if (response.status === 200 && response.data?.ok !== false) {
       return {
         customerId: String(response.data?.id_customer || email),
         status: "SUCCESS",
@@ -107,7 +123,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
     const errorDetail = response.data?.error || response.data?.message || `Error ${response.status}`;
     throw new Error(errorDetail);
   } catch (error: any) {
-    console.error("Sync Error:", error.message);
+    console.error("Sync Error detail:", error.message);
     throw { status: 502, message: `Σφάλμα εγγραφής: ${error.message}.` };
   }
 };
