@@ -36,13 +36,13 @@ const resolveSyncUrl = (countryIso: string): string => {
   return `${rootUrl}/index.php?fc=module&module=grifoncustomersync&controller=sync`;
 };
 
-// Νέα λογική υπογραφής: Base64 με Timestamp (Standard Pattern)
+// Η υπογραφή πρέπει να συμφωνεί ΑΚΡΙΒΩΣ με το module του PrestaShop (HEX hash)
 const createSignature = (payload: string, secret: string): { timestamp: string, signature: string } => {
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const signature = crypto
     .createHmac("sha256", secret)
     .update(timestamp + payload) 
-    .digest("base64"); // Αλλαγή σε Base64
+    .digest("hex"); // Το PrestaShop περιμένει συνήθως HEX και όχι Base64
   return { timestamp, signature };
 };
 
@@ -80,7 +80,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
   const syncUrl = resolveSyncUrl(request.countryIso);
 
   console.log("Registration Attempt:", email);
-  console.log("Using Signature (Base64):", signature);
+  console.log("Using Signature (HEX):", signature);
 
   try {
     const response = await axios.post(syncUrl, body, {
