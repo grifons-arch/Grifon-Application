@@ -23,26 +23,30 @@ export const listCategories = async (
   lang?: number
 ): Promise<{ items: CategoryItem[]; tree: CategoryTreeNode[] }> => {
   try {
+    // Φέρνουμε όλες τις κατηγορίες (χωρίς active filter για το sync) 
+    // με display=full για να έχουμε το id_parent
     const data = await client.get("categories", {
-      "filter[active]": 1,
-      sort: "[position_ASC]",
+      display: "full",
       limit: toLimitParam(page, pageSize)
     });
 
     const categories = extractResourceList<any>("categories", data);
+    console.log(`[Gateway] PrestaShop returned ${categories.length} raw categories`);
+
     if (!categories || categories.length === 0) {
         return { items: [], tree: [] };
     }
 
     const items: CategoryItem[] = categories.map((category) => ({
       id: Number(category.id),
-      parentId: toNumber(category.id_parent),
+      parentId: category.id_parent ? toNumber(category.id_parent) : null,
       name: getLocalizedValue(category.name, lang),
       position: toNumber(category.position),
       active: toNumber(category.active),
       slug: getLocalizedValue(category.link_rewrite, lang)
     }));
 
+    // Build tree
     const nodeMap = new Map<number, CategoryTreeNode>();
     items.forEach((item) => {
       nodeMap.set(item.id, { ...item, children: [] });
@@ -50,7 +54,7 @@ export const listCategories = async (
 
     const tree: CategoryTreeNode[] = [];
     nodeMap.forEach((node) => {
-      if (node.parentId && nodeMap.has(node.parentId)) {
+      if (node.parentId && nodeMap.has(node.parentId) && node.parentId !== node.id) {
         nodeMap.get(node.parentId)?.children.push(node);
       } else {
         tree.push(node);
@@ -59,7 +63,7 @@ export const listCategories = async (
 
     return { items, tree };
   } catch (error) {
-    console.error("Category fetch failed, returning empty list:", error);
-    return { items: [], tree: [] }; // Επιστροφή κενής λίστας αντί για 500
+    console.error("[Gateway] Category fetch failed:", error);
+    return { items: [], tree: [] };
   }
 };
