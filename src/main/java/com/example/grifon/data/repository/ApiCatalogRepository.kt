@@ -34,16 +34,32 @@ class ApiCatalogRepository @Inject constructor(
     override suspend fun syncCatalog(shopId: String) {
         withContext(Dispatchers.IO) {
             try {
-                Log.d("CrashLog", "Sync: STARTING for shop $shopId")
+                Log.d("Sync", "STARTING GREEK TRANSLATION SYNC for shop $shopId...")
                 val sId = shopId.toIntOrNull() ?: 4
                 
-                // 1. Fetch Categories
-                val catResponse = try { catalogApi.getCategories(shopId = sId, pageSize = 500) } catch (e: Exception) { null }
-                val catEntities = catResponse?.items?.map { 
-                    CategoryEntity("${shopId}_${it.id}", it.name ?: "", it.parentId?.let { p -> "${shopId}_$p" }, 0, true, shopId)
-                } ?: emptyList()
+                // 1. SYNC CATEGORIES
+                val catResponse = try {
+                    catalogApi.getCategories(shopId = sId, pageSize = 500)
+                } catch (e: Exception) {
+                    null
+                }
 
-                // 2. Fetch Products (Batch 1 & 2)
+                catResponse?.let { resp ->
+                    val entities = resp.items.map { dto ->
+                        val originalId = dto.id.toString()
+                        CategoryEntity(
+                            id = "${shopId}_$originalId",
+                            name = translateCategoryName(originalId, dto.name ?: ""),
+                            parentId = dto.parentId?.let { p -> "${shopId}_$p" },
+                            position = 0,
+                            active = true,
+                            shopId = shopId
+                        )
+                    }
+                    categoryDao.insertCategories(entities)
+                }
+
+                // 2. SYNC PRODUCTS
                 val productsMap = mutableMapOf<String, ProductEntity>()
                 val refsSet = mutableSetOf<ProductCategoryCrossRef>()
                 val limit = 1000
@@ -56,19 +72,47 @@ class ApiCatalogRepository @Inject constructor(
                     resp2?.let { collectIntoMaps(it, shopId, productsMap, refsSet) }
                 }
 
-                // 3. DATABASE WRITE
-                if (catEntities.isNotEmpty() || productsMap.isNotEmpty()) {
-                    if (catEntities.isNotEmpty()) categoryDao.insertCategories(catEntities)
-                    if (productsMap.isNotEmpty()) {
-                        productDao.clearProductsByShop(shopId)
-                        productDao.insertProducts(productsMap.values.toList())
-                        categoryDao.insertProductCategoryRefs(refsSet.toList())
-                    }
-                    Log.d("CrashLog", "Sync: SUCCESSFUL STORE")
+                if (productsMap.isNotEmpty()) {
+                    productDao.clearProductsByShop(shopId)
+                    productDao.insertProducts(productsMap.values.toList())
+                    categoryDao.insertProductCategoryRefs(refsSet.toList())
                 }
+                
+                Log.d("Sync", "SYNC FINISHED WITH GREEK NAMES.")
             } catch (e: Exception) {
-                Log.e("CrashLog", "Sync: ERROR", e)
+                Log.e("Sync", "Sync failed", e)
             }
+        }
+    }
+
+    private fun translateCategoryName(id: String, defaultName: String): String {
+        return when (id) {
+            "2" -> "Αρχική"
+            "4000" -> "Κεραμικά"
+            "4025" -> "Διακοσμητικά Κεραμικά"
+            "4030" -> "Φανάρια, Καντήλια"
+            "4045" -> "Μινωικά"
+            "4500" -> "Αγαλματίδια κ.α."
+            "4504" -> "Βερονέζ"
+            "4510" -> "Αλαβάστρινα"
+            "4520" -> "Μπρούτζινα"
+            "4530" -> "Πολυεστερικά"
+            "4550" -> "Γύψινα, Πωρόλιθος, Μαρμάρινα"
+            "5000" -> "Διακοσμητικά"
+            "5015" -> "Κρεμαστά"
+            "5025" -> "Φανάρια, Καντήλια"
+            "5030" -> "Επιτραπέζια"
+            "5040" -> "Φωτιστικά"
+            "5080" -> "Ρολόγια"
+            "7000" -> "Χόμπι και παιχνίδια"
+            "7025" -> "Τάβλι, Σκάκι"
+            "7040" -> "Παιχνίδια, Λούτρινα"
+            "7500" -> "Για χρήση"
+            "7540" -> "Κουζίνας κ υαλικά"
+            "7545" -> "Σαπούνια"
+            "8000" -> "Αξεσουάρ"
+            "8030" -> "Υφασμάτινα και τσάντες"
+            else -> defaultName
         }
     }
 
@@ -76,14 +120,30 @@ class ApiCatalogRepository @Inject constructor(
         response.items.forEach { dto ->
             val pId = dto.id.toString()
             val compositeId = "${shopId}_$pId"
-            productsMap[compositeId] = ProductEntity(compositeId, dto.name ?: "", dto.price ?: 0.0, "EUR", if (dto.defaultImage?.url?.startsWith("/") == true) "$gatewayBaseUrl${dto.defaultImage.url}" else dto.defaultImage?.url ?: "", "Grifon", true, dto.reference ?: "", shopId, dto.categories?.firstOrNull()?.let { "${shopId}_${it.id}" })
+            productsMap[compositeId] = ProductEntity(
+                id = compositeId,
+                title = dto.name ?: "",
+                price = dto.price ?: 0.0,
+                currency = "EUR",
+                imageUrl = if (dto.defaultImage?.url?.startsWith("/") == true) "$gatewayBaseUrl${dto.defaultImage.url}" else dto.defaultImage?.url ?: "",
+                brand = "Grifon",
+                inStock = true,
+                reference = dto.reference ?: "",
+                shopId = shopId,
+                categoryId = dto.categories?.firstOrNull()?.let { "${shopId}_${it.id}" }
+            )
             dto.categories?.forEach { cat ->
                 refsSet.add(ProductCategoryCrossRef(compositeId, "${shopId}_${cat.id}"))
             }
         }
     }
 
-    override fun getProductsByCategory(shopId: String, categoryId: String, filters: FilterState, sortOption: SortOption): Flow<List<Product>> {
+    override fun getProductsByCategory(
+        shopId: String,
+        categoryId: String,
+        filters: FilterState,
+        sortOption: SortOption
+    ): Flow<List<Product>> {
         return if (categoryId.isBlank() || categoryId.endsWith("_2")) {
             productDao.getProductsByShop(shopId).map { list -> list.map { it.toDomain() } }
         } else {
@@ -100,5 +160,6 @@ class ApiCatalogRepository @Inject constructor(
         emit(productDao.getProductById(productId)?.toDomain())
     }
 
+    private fun CategoryEntity.toDomain() = Category(id, name, parentId, 0)
     private fun ProductEntity.toDomain() = Product(id, title, price, currency, imageUrl, emptyList(), brand, 0.0, inStock, mapOf("reference" to reference), listOfNotNull(categoryId))
 }

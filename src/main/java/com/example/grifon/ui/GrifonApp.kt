@@ -50,7 +50,7 @@ fun GrifonApp() {
     val currentRoute = navBackStackEntry?.destination?.route
 
     val rootCategories = remember(appState.categories) {
-        if (appState.categories.isEmpty()) emptyList()
+        if (appState.categories.isEmpty()) emptyList<Category>()
         else appState.categories.filter { it.parentId?.endsWith("_2") == true || it.parentId == null }
     }
 
@@ -68,8 +68,6 @@ fun GrifonApp() {
                 }
         }
     }
-
-    Log.d("CrashLog", "GrifonApp: Scaffold Start")
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -133,7 +131,7 @@ fun GrifonApp() {
                             Text("Φόρτωση...", modifier = Modifier.padding(horizontal = 24.dp), color = Color.Gray)
                         }
                     } else {
-                        items(rootCategories) { root ->
+                        items(rootCategories) { root: Category ->
                             CategoryDrawerItem(
                                 root = root,
                                 allCategories = appState.categories,
@@ -162,11 +160,11 @@ fun GrifonApp() {
                     onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) },
                     onFavoritesClick = { navController.navigateToTopLevel(Routes.FAVORITES) },
                     onBackClick = if (currentRoute != Routes.HOME) { { navController.navigateUp() } } else null,
-                    categories = rootCategories,
+                    categories = appState.categories,
                     onCategoryClick = { category ->
                         navController.navigate(Routes.plpRoute(category = category.id))
                     },
-                    showSearch = currentRoute == Routes.HOME,
+                    showSearch = true, // Πλέον πάντα ορατή
                     searchQuery = searchQuery,
                     onSearchQueryChange = { searchQuery = it },
                     onScanClick = { navController.navigate(Routes.SCAN) }

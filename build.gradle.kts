@@ -19,14 +19,14 @@ val debugApiBaseUrl = (project.findProperty("API_BASE_URL_DEBUG") as String?)
 
 android {
     namespace = "com.example.grifon"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.grifon.eshop"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 2
-        versionName = "1.2.0"
+        targetSdk = 36
+        versionCode = 3
+        versionName = "1.3.0"
     }
 
     flavorDimensions += "shop"
