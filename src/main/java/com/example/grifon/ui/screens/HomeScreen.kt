@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -40,20 +41,10 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.grifon.R
-import com.example.grifon.ui.CategoryShortcut
-import com.example.grifon.ui.buildCategoryShortcuts
 import com.example.grifon.core.UiState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.viewmodel.HomeViewModel
 
-
-/**
- * The main entry point for the home screen of the application.
- * Displays a list of categories and a grid of products.
- *
- * @param viewModel The [HomeViewModel] that provides the state and handles user actions.
- * @param onProductClick Callback triggered when a product is clicked, providing the product ID.
- */
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
@@ -74,18 +65,15 @@ fun HomeScreen(
                 val data = state.data
                 val products = data.products
                 
-                // Βρίσκουμε το label της τρέχουσας κατηγορίας
                 val currentCategoryLabel = viewModel.staticCategoryIcons
                     .find { it.categoryId == data.selectedCategoryId }?.label ?: "Όλα"
 
-
-                // Κύρια δομή με LazyVerticalGrid για να έχουμε ΚΑΘΕΤΟ scroll
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier.fillMaxHeight(),
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    // 1. Οριζόντιες Κατηγορίες στην κορυφή
+                    // 1. Κατηγορίες (Hardcoded Shortcuts)
                     item(span = { GridItemSpan(3) }) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(
@@ -123,35 +111,37 @@ fun HomeScreen(
                         }
                     }
 
-                    // 2. Προτεινόμενα Προϊόντα (Οριζόντια)
+                    // 2. Προτεινόμενα
                     item(span = { GridItemSpan(3) }) {
-                        Column(modifier = Modifier.padding(bottom = 16.dp)) {
-                            Text(
-                                "Προτεινόμενα για εσάς",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                            LazyRow(
-                                contentPadding = PaddingValues(horizontal = 16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                // Εμφανίζουμε τα πρώτα 6 προϊόντα ως προτεινόμενα
-                                listItems(products.take(6)) { product ->
-                                    Box(modifier = Modifier.width(140.dp)) {
-                                        SmallProductCard(
-                                            product = product,
-                                            onClick = { onProductClick(product.id) },
-                                            onImageClick = { zoomedImageUrl = product.imageUrl }
-                                        )
+                        if (products.isNotEmpty()) {
+                            Column(modifier = Modifier.padding(bottom = 16.dp)) {
+                                Text(
+                                    "Προτεινόμενα για εσάς",
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                                LazyRow(
+                                    contentPadding = PaddingValues(horizontal = 16.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    val featured = products.take(6)
+                                    listItems(featured) { product ->
+                                        Box(modifier = Modifier.width(140.dp)) {
+                                            SmallProductCard(
+                                                product = product,
+                                                onClick = { onProductClick(product.id) },
+                                                onImageClick = { zoomedImageUrl = product.imageUrl }
+                                            )
+                                        }
                                     }
                                 }
+                                Spacer(Modifier.height(16.dp))
+                                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
                             }
-                            Spacer(Modifier.height(16.dp))
-                            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
                         }
                     }
 
-                    // 3. Τίτλος για τα προϊόντα
+                    // 3. Τίτλος Λίστας
                     item(span = { GridItemSpan(3) }) {
                         Text(
                             text = "Προϊόντα: $currentCategoryLabel",
@@ -160,15 +150,18 @@ fun HomeScreen(
                         )
                     }
 
-                    // 4. Πλέγμα Προϊόντων (Κάθετο Scroll)
+                    // 4. Κύριο Πλέγμα Προϊόντων
                     if (products.isEmpty()) {
                         item(span = { GridItemSpan(3) }) {
                             Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                                Text("Δεν βρέθηκαν προϊόντα σε αυτή την κατηγορία.", color = Color.Gray)
+                                Text("Δεν βρέθηκαν προϊόντα.", color = Color.Gray)
                             }
                         }
                     } else {
-                        items(products, key = { it.id }) { product ->
+                        items(
+                            items = products,
+                            key = { it.id } // Πλέον τα IDs είναι μοναδικά (shopId_id)
+                        ) { product ->
                             Box(modifier = Modifier.padding(4.dp)) {
                                 SmallProductCard(
                                     product = product, 
@@ -188,17 +181,8 @@ fun HomeScreen(
     }
 }
 
-/**
- * A component representing a single category icon with a label.
- *
- * @param label The text label for the category.
- * @param resId The drawable resource ID for the category icon.
- * @param isSelected Whether this category is currently selected.
- * @param onClick Callback triggered when the category is clicked.
- */
 @Composable
 fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClick: () -> Unit) {
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(75.dp).clickable { onClick() }
@@ -212,11 +196,9 @@ fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClic
             contentAlignment = Alignment.Center
         ) {
             Image(
-
                 painter = painterResource(id = resId),
                 contentDescription = label,
                 contentScale = ContentScale.Crop,
-
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -232,13 +214,6 @@ fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClic
     }
 }
 
-/**
- * A compact card component for displaying product information in a grid.
- *
- * @param product The [Product] data to display.
- * @param onClick Callback triggered when the card is clicked.
- * @param onImageClick Callback triggered when the product image is clicked, typically to zoom.
- */
 @Composable
 fun SmallProductCard(product: Product, onClick: () -> Unit, onImageClick: () -> Unit) {
     Card(
@@ -247,40 +222,53 @@ fun SmallProductCard(product: Product, onClick: () -> Unit, onImageClick: () -> 
             .aspectRatio(0.85f)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFAFAFA))
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val imgModifier = Modifier.fillMaxSize().padding(8.dp).clickable { onImageClick() }
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(product.imageUrl.ifEmpty { R.drawable.logo })
                     .crossfade(true).build(),
                 contentDescription = product.title,
                 contentScale = ContentScale.Fit,
-                modifier = imgModifier
+                modifier = Modifier.fillMaxSize().padding(12.dp).clickable { onImageClick() }
             )
+            
             Row(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.4f))
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = product.title, color = Color.White, fontSize = 9.sp, maxLines = 1, modifier = Modifier.weight(1f))
-                Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.White, modifier = Modifier.size(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = product.title.uppercase(), 
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp), 
+                        maxLines = 1, 
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "${product.price} €", 
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.Favorite, 
+                    contentDescription = null, 
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
     }
 }
 
-/**
- * A dialog that displays an image with zoom and pan capabilities.
- *
- * @param model The image data (e.g., URL or resource) to load.
- * @param onDismiss Callback triggered when the dialog is dismissed.
- */
 @Composable
 fun ImageZoomDialog(model: Any, onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {

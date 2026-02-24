@@ -7,6 +7,7 @@ import com.example.grifon.domain.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
 import android.util.Log
@@ -24,150 +25,80 @@ class ApiCatalogRepository @Inject constructor(
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
     override fun getCategoryTree(shopId: String): Flow<List<Category>> = 
-        categoryDao.getCategoriesByShop(shopId).map { entities ->
-            Log.d("Catalog", "DB Update: ${entities.size} categories found in Room for shop $shopId")
-            entities.map { it.toDomain() }
-        }
+        categoryDao.getCategoriesByShop(shopId)
+            .distinctUntilChanged()
+            .map { entities ->
+                entities.map { Category(it.id, it.name, it.parentId, 0) }
+            }
 
     override suspend fun syncCatalog(shopId: String) {
         withContext(Dispatchers.IO) {
             try {
-                Log.d("Sync", "--- STARTING SYNC (V6) ---")
+                Log.d("CrashLog", "Sync: STARTING for shop $shopId")
                 val sId = shopId.toIntOrNull() ?: 4
                 
-                // 1. SYNC CATEGORIES
-                val catResponse = try {
-                    catalogApi.getCategories(shopId = sId, pageSize = 500)
-                } catch (e: Exception) {
-                    Log.e("Sync", "API Category Error", e)
-                    null
-                }
+                // 1. Fetch Categories
+                val catResponse = try { catalogApi.getCategories(shopId = sId, pageSize = 500) } catch (e: Exception) { null }
+                val catEntities = catResponse?.items?.map { 
+                    CategoryEntity("${shopId}_${it.id}", it.name ?: "", it.parentId?.let { p -> "${shopId}_$p" }, 0, true, shopId)
+                } ?: emptyList()
 
-                catResponse?.let { resp ->
-                    if (resp.items.isEmpty()) {
-                        Log.w("Sync", "WARNING: API returned 0 categories!")
-                    }
-                    val entities = resp.items.map { 
-                        CategoryEntity(it.id.toString(), it.name ?: "", it.parentId?.toString(), 0, true, shopId)
-                    }
-                    categoryDao.insertCategories(entities)
-                    Log.d("Sync", "SAVED ${entities.size} CATEGORIES to Room.")
-                }
-
-                // 2. SYNC PRODUCTS AND CROSS-REFS
-                val allProducts = mutableListOf<ProductEntity>()
-                val allRefs = mutableListOf<ProductCategoryCrossRef>()
+                // 2. Fetch Products (Batch 1 & 2)
+                val productsMap = mutableMapOf<String, ProductEntity>()
+                val refsSet = mutableSetOf<ProductCategoryCrossRef>()
                 val limit = 1000
 
-                try {
-                    val resp1 = catalogApi.getProducts(shopId = sId, page = 1, pageSize = limit)
-                    processBatch(resp1, shopId, allProducts, allRefs)
-                    
-                    if (resp1.items.size >= limit) {
-                        val resp2 = catalogApi.getProducts(shopId = sId, page = 2, pageSize = limit)
-                        processBatch(resp2, shopId, allProducts, allRefs)
-                    }
+                val resp1 = try { catalogApi.getProducts(shopId = sId, page = 1, pageSize = limit) } catch (e: Exception) { null }
+                resp1?.let { collectIntoMaps(it, shopId, productsMap, refsSet) }
 
-                    if (allProducts.isNotEmpty()) {
-                        productDao.clearProductsByShop(shopId)
-                        productDao.insertProducts(allProducts)
-                        categoryDao.insertProductCategoryRefs(allRefs)
-                        Log.d("Sync", "SAVED ${allProducts.size} PRODUCTS and links.")
-                    }
-                } catch (e: Exception) {
-                    Log.e("Sync", "API Product Error", e)
+                if (resp1?.items?.size ?: 0 >= limit) {
+                    val resp2 = try { catalogApi.getProducts(shopId = sId, page = 2, pageSize = limit) } catch (e: Exception) { null }
+                    resp2?.let { collectIntoMaps(it, shopId, productsMap, refsSet) }
                 }
-                
-                Log.d("Sync", "--- SYNC COMPLETED ---")
+
+                // 3. DATABASE WRITE
+                if (catEntities.isNotEmpty() || productsMap.isNotEmpty()) {
+                    if (catEntities.isNotEmpty()) categoryDao.insertCategories(catEntities)
+                    if (productsMap.isNotEmpty()) {
+                        productDao.clearProductsByShop(shopId)
+                        productDao.insertProducts(productsMap.values.toList())
+                        categoryDao.insertProductCategoryRefs(refsSet.toList())
+                    }
+                    Log.d("CrashLog", "Sync: SUCCESSFUL STORE")
+                }
             } catch (e: Exception) {
-                Log.e("Sync", "Critical sync failure", e)
+                Log.e("CrashLog", "Sync: ERROR", e)
             }
         }
     }
 
-    private fun processBatch(
-        response: ProductsResponseDto, 
-        shopId: String, 
-        products: MutableList<ProductEntity>, 
-        refs: MutableList<ProductCategoryCrossRef>
-    ) {
+    private fun collectIntoMaps(response: ProductsResponseDto, shopId: String, productsMap: MutableMap<String, ProductEntity>, refsSet: MutableSet<ProductCategoryCrossRef>) {
         response.items.forEach { dto ->
-            products.add(dto.toLocal(shopId))
+            val pId = dto.id.toString()
+            val compositeId = "${shopId}_$pId"
+            productsMap[compositeId] = ProductEntity(compositeId, dto.name ?: "", dto.price ?: 0.0, "EUR", if (dto.defaultImage?.url?.startsWith("/") == true) "$gatewayBaseUrl${dto.defaultImage.url}" else dto.defaultImage?.url ?: "", "Grifon", true, dto.reference ?: "", shopId, dto.categories?.firstOrNull()?.let { "${shopId}_${it.id}" })
             dto.categories?.forEach { cat ->
-                refs.add(ProductCategoryCrossRef(productId = dto.id.toString(), categoryId = cat.id.toString()))
+                refsSet.add(ProductCategoryCrossRef(compositeId, "${shopId}_${cat.id}"))
             }
         }
     }
 
-    override fun getProductsByCategory(
-        shopId: String,
-        categoryId: String,
-        filters: FilterState,
-        sortOption: SortOption
-    ): Flow<List<Product>> = 
-        categoryDao.getCategoryWithProducts(categoryId).map { list ->
-            list.map { it.toDomain() }
-        }
-
-    override fun searchProducts(
-        shopId: String,
-        query: String,
-        filters: FilterState,
-        sortOption: SortOption
-    ): Flow<List<Product>> = flow {
-        try {
-            val sId = shopId.toIntOrNull() ?: 4
-            val response = catalogApi.getProducts(shopId = sId, pageSize = 200)
-            val filtered = response.items.map { it.toDomain(sId) }.filter { 
-                it.title.contains(query, ignoreCase = true) 
-            }
-            emit(filtered)
-        } catch (e: Exception) {
-            emit(emptyList())
+    override fun getProductsByCategory(shopId: String, categoryId: String, filters: FilterState, sortOption: SortOption): Flow<List<Product>> {
+        return if (categoryId.isBlank() || categoryId.endsWith("_2")) {
+            productDao.getProductsByShop(shopId).map { list -> list.map { it.toDomain() } }
+        } else {
+            categoryDao.getCategoryWithProducts(categoryId).map { list -> list.map { it.toDomain() } }
         }
     }
+
+    override fun searchProducts(shopId: String, query: String, filters: FilterState, sortOption: SortOption): Flow<List<Product>> = 
+        productDao.getProductsByShop(shopId).map { entities ->
+            entities.filter { it.title.contains(query, ignoreCase = true) }.map { it.toDomain() }
+        }
 
     override fun getProductById(shopId: String, productId: String): Flow<Product?> = flow {
-        val local = productDao.getProductById(productId)
-        emit(local?.toDomain())
+        emit(productDao.getProductById(productId)?.toDomain())
     }
 
-    private fun CategoryEntity.toDomain() = Category(id, name, parentId, 0)
-    
-    private fun ProductEntity.toDomain() = Product(
-        id = id, title = title, price = price, currency = currency,
-        imageUrl = imageUrl, brand = brand, rating = 0.0, inStock = inStock,
-        attributesMap = mapOf("reference" to reference),
-        categoryIds = listOfNotNull(categoryId)
-    )
-
-    private fun com.example.grifon.data.catalog.ProductDto.toLocal(shopId: String) = ProductEntity(
-        id = id.toString(),
-        title = name ?: "",
-        price = price ?: 0.0,
-        currency = "EUR",
-        imageUrl = if (defaultImage?.url?.startsWith("/") == true) "$gatewayBaseUrl${defaultImage.url}" else defaultImage?.url ?: "",
-        brand = "Grifon",
-        inStock = true,
-        reference = reference ?: "",
-        shopId = shopId,
-        categoryId = categories?.firstOrNull()?.id?.toString()
-    )
-
-    private fun com.example.grifon.data.catalog.ProductDto.toDomain(shopId: Int): Product {
-        val rawUrl = defaultImage?.url ?: ""
-        val fullImageUrl = if (rawUrl.startsWith("/") == true) "$gatewayBaseUrl$rawUrl" else rawUrl
-        return Product(
-            id = id.toString(),
-            title = name ?: "",
-            price = price ?: 0.0,
-            currency = "EUR",
-            imageUrl = fullImageUrl,
-            brand = "Grifon",
-            rating = 0.0,
-            inStock = true,
-            attributesMap = mapOf("reference" to (reference ?: "")),
-            categoryIds = categories?.map { it.id.toString() } ?: emptyList()
-        )
-    }
+    private fun ProductEntity.toDomain() = Product(id, title, price, currency, imageUrl, emptyList(), brand, 0.0, inStock, mapOf("reference" to reference), listOfNotNull(categoryId))
 }

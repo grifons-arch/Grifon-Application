@@ -1,5 +1,6 @@
 package com.example.grifon.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
@@ -8,6 +9,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
@@ -34,6 +36,8 @@ import com.example.grifon.domain.model.Category
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun GrifonApp() {
+    Log.d("CrashLog", "GrifonApp: Start")
+    
     val navController = rememberNavController()
     val appViewModel: AppViewModel = hiltViewModel()
     val appState by appViewModel.state.collectAsState()
@@ -45,7 +49,11 @@ fun GrifonApp() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Βελτιωμένη λογική αναζήτησης
+    val rootCategories = remember(appState.categories) {
+        if (appState.categories.isEmpty()) emptyList()
+        else appState.categories.filter { it.parentId?.endsWith("_2") == true || it.parentId == null }
+    }
+
     LaunchedEffect(searchQuery) {
         if (searchQuery.length >= 2) {
             snapshotFlow { searchQuery }
@@ -53,9 +61,7 @@ fun GrifonApp() {
                 .distinctUntilChanged()
                 .collect { query ->
                     navController.navigate(Routes.plpRoute(query = query)) {
-                        popUpTo(Routes.HOME) {
-                            saveState = true
-                        }
+                        popUpTo(Routes.HOME) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
@@ -63,13 +69,13 @@ fun GrifonApp() {
         }
     }
 
+    Log.d("CrashLog", "GrifonApp: Scaffold Start")
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = true,
         drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier.width(300.dp)
-            ) {
+            ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     "Μενού", 
@@ -78,7 +84,7 @@ fun GrifonApp() {
                 )
                 HorizontalDivider()
                 
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 16.dp)) {
                     item {
                         NavigationDrawerItem(
                             label = { Text("Αρχική Οθόνη", fontSize = 16.sp) },
@@ -104,7 +110,7 @@ fun GrifonApp() {
                     item {
                         NavigationDrawerItem(
                             label = { Text("Λογαριασμός", fontSize = 16.sp) },
-                            selected = currentRoute == Routes.ACCOUNT,
+                            selected = currentRoute == Routes.ACCOUNT || currentRoute == Routes.REGISTER,
                             onClick = {
                                 scope.launch { drawerState.close() }
                                 navController.navigateToTopLevel(Routes.ACCOUNT)
@@ -114,70 +120,28 @@ fun GrifonApp() {
                     }
                     
                     item {
-                        var isExpanded by remember { mutableStateOf(false) }
-                        Column {
-                            NavigationDrawerItem(
-                                label = { 
-                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                        Text("Κατηγορίες", fontSize = 16.sp, modifier = Modifier.weight(1f))
-                                        Icon(if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = null)
-                                    }
-                                },
-                                selected = false,
-                                onClick = { isExpanded = !isExpanded },
-                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                            )
-                            
-                            if (isExpanded) {
-                                val rootCategories = appState.categories.filter { it.parentId == "2" || it.parentId == null }
-                                rootCategories.forEach { root ->
-                                    var isSubExpanded by remember { mutableStateOf(false) }
-                                    val children = appState.categories.filter { it.parentId == root.id }
-                                    
-                                    Column(modifier = Modifier.padding(start = 16.dp)) {
-                                        NavigationDrawerItem(
-                                            label = { 
-                                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                                    Text(root.name, fontSize = 14.sp, modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
-                                                    if (children.isNotEmpty()) {
-                                                        Icon(if (isSubExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = null, modifier = Modifier.size(18.dp))
-                                                    }
-                                                }
-                                            },
-                                            selected = false,
-                                            onClick = {
-                                                if (children.isNotEmpty()) {
-                                                    isSubExpanded = !isSubExpanded
-                                                } else {
-                                                    scope.launch { drawerState.close() }
-                                                    navController.navigate(Routes.plpRoute(category = root.id))
-                                                }
-                                            },
-                                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                                        )
-                                        
-                                        if (isSubExpanded) {
-                                            children.forEach { child ->
-                                                NavigationDrawerItem(
-                                                    label = { 
-                                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                                            Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(14.dp))
-                                                            Spacer(Modifier.width(8.dp))
-                                                            Text(child.name, fontSize = 13.sp)
-                                                        }
-                                                    },
-                                                    selected = false,
-                                                    onClick = {
-                                                        scope.launch { drawerState.close() }
-                                                        navController.navigate(Routes.plpRoute(category = child.id))
-                                                    },
-                                                    modifier = Modifier.padding(start = 16.dp).padding(NavigationDrawerItemDefaults.ItemPadding)
-                                                )
-                                            }
-                                        }
-                                    }
+                        Text(
+                            "Κατηγορίες", 
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    if (rootCategories.isEmpty()) {
+                        item {
+                            Text("Φόρτωση...", modifier = Modifier.padding(horizontal = 24.dp), color = Color.Gray)
+                        }
+                    } else {
+                        items(rootCategories) { root ->
+                            CategoryDrawerItem(
+                                root = root,
+                                allCategories = appState.categories,
+                                onCategoryClick = { category ->
+                                    scope.launch { drawerState.close() }
+                                    navController.navigate(Routes.plpRoute(category = category.id))
                                 }
-                            }
+                            )
                         }
                     }
                 }
@@ -189,9 +153,7 @@ fun GrifonApp() {
             topBar = {
                 AppTopBar(
                     shopLabel = if (appState.activeShopId == "1") "SE" else "GR",
-                    onMenuClick = {
-                        scope.launch { drawerState.open() }
-                    },
+                    onMenuClick = { scope.launch { drawerState.open() } },
                     onHomeClick = { 
                         searchQuery = "" 
                         navController.navigateToTopLevel(Routes.HOME) 
@@ -199,14 +161,12 @@ fun GrifonApp() {
                     onCartClick = { navController.navigateToTopLevel(Routes.CART) },
                     onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) },
                     onFavoritesClick = { navController.navigateToTopLevel(Routes.FAVORITES) },
-                    onBackClick = if (currentRoute != Routes.HOME) { 
-                        { navController.navigateUp() } 
-                    } else null,
-                    categories = appState.categories,
+                    onBackClick = if (currentRoute != Routes.HOME) { { navController.navigateUp() } } else null,
+                    categories = rootCategories,
                     onCategoryClick = { category ->
                         navController.navigate(Routes.plpRoute(category = category.id))
                     },
-                    showSearch = true,
+                    showSearch = currentRoute == Routes.HOME,
                     searchQuery = searchQuery,
                     onSearchQueryChange = { searchQuery = it },
                     onScanClick = { navController.navigate(Routes.SCAN) }
@@ -220,6 +180,54 @@ fun GrifonApp() {
                 AppNavHost(
                     navController = navController,
                     paddingValues = PaddingValues(0.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CategoryDrawerItem(
+    root: Category,
+    allCategories: List<Category>,
+    onCategoryClick: (Category) -> Unit
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val children = remember(allCategories, root.id) {
+        allCategories.filter { it.parentId == root.id }
+    }
+
+    Column {
+        NavigationDrawerItem(
+            label = { 
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(root.name, fontSize = 14.sp, modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                    if (children.isNotEmpty()) {
+                        Icon(if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = null, modifier = Modifier.size(18.dp))
+                    }
+                }
+            },
+            selected = false,
+            onClick = {
+                if (children.isNotEmpty()) isExpanded = !isExpanded
+                else onCategoryClick(root)
+            },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+        
+        if (isExpanded) {
+            children.forEach { child ->
+                NavigationDrawerItem(
+                    label = { 
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(child.name, fontSize = 13.sp)
+                        }
+                    },
+                    selected = false,
+                    onClick = { onCategoryClick(child) },
+                    modifier = Modifier.padding(start = 24.dp).padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
             }
         }

@@ -22,9 +22,12 @@ interface CategoryDao {
 
     @Transaction
     @Query("""
-        SELECT p.* FROM products p
+        SELECT DISTINCT p.* FROM products p
         INNER JOIN product_category_cross_ref ref ON p.id = ref.productId
         WHERE ref.categoryId = :categoryId
     """)
     fun getCategoryWithProducts(categoryId: String): Flow<List<ProductEntity>>
+    
+    @Query("DELETE FROM categories")
+    suspend fun clearAll()
 }
