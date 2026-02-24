@@ -4,7 +4,7 @@
  *
  * Headers:
  *   X-Grifon-Timestamp: unix seconds
- *   X-Grifon-Signature: base64(HMAC_SHA256("<timestamp>\n<body>", secret))
+ *   X-Grifon-Signature: base64(HMAC_SHA256("<timestamp><body>", secret))
  *
  * Password policy:
  *   - Prefer customer.password_hashed (bcrypt string like $2y$12$...)
@@ -126,7 +126,7 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
             $this->respond(401, ['ok' => false, 'error' => 'STALE_TIMESTAMP']);
         }
 
-        $base = $ts . "\n" . $rawBody;
+        $base = $ts . $rawBody;
         $calc = base64_encode(hash_hmac('sha256', $base, $secret, true));
 
         if (!hash_equals($calc, $sig)) {
