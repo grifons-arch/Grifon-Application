@@ -1,5 +1,4 @@
 import axios from "axios";
-import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { config } from "../config/env";
 
@@ -26,8 +25,6 @@ export interface RegisterResponse {
   message: string;
 }
 
-const PASSWORD_SALT_ROUNDS = 10;
-
 const resolveSyncUrl = (countryIso: string): string => {
   const shopId = countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
   const baseUrl = config.shopBaseUrls[shopId] || config.prestashopBaseUrl;
@@ -36,19 +33,18 @@ const resolveSyncUrl = (countryIso: string): string => {
   return `${rootUrl}/index.php?fc=module&module=grifoncustomersync&controller=sync`;
 };
 
-// Η υπογραφή πρέπει να συμφωνεί ΑΚΡΙΒΩΣ με το module του PrestaShop (HEX hash)
 const createSignature = (payload: string, secret: string): { timestamp: string, signature: string } => {
   const timestamp = Math.floor(Date.now() / 1000).toString();
+  const base = timestamp + payload; 
   const signature = crypto
     .createHmac("sha256", secret)
-    .update(timestamp + payload) 
-    .digest("hex"); // Το PrestaShop περιμένει συνήθως HEX και όχι Base64
+    .update(base) 
+    .digest("base64");
   return { timestamp, signature };
 };
 
 export const registerCustomer = async (request: RegisterRequest): Promise<RegisterResponse> => {
   const email = request.email.trim().toLowerCase();
-  const hashedPassword = await bcrypt.hash(request.password, PASSWORD_SALT_ROUNDS);
   
   const payload = {
     externalCustomerId: email,
@@ -56,7 +52,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
       email,
       firstname: request.firstName,
       lastname: request.lastName,
-      password: hashedPassword,
+      password: request.password, 
       company: request.company || "",
       newsletter: request.newsletter ? 1 : 0,
       optin: request.partnerOffers ? 1 : 0,
@@ -64,6 +60,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
     },
     groups: { default: 3, list: [3] },
     addresses: [{
+      externalAddressId: `addr_${email}`, // ΠΡΟΣΘΗΚΗ: Απαραίτητο για το mapping table της PHP
       alias: "Default",
       address1: request.street,
       postcode: request.postalCode,
@@ -75,12 +72,9 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
   };
 
   const body = JSON.stringify(payload);
-  const secret = process.env.GRIFON_CUSTOMER_SYNC_SECRET || config.prestashopApiKey;
+  const secret = config.customerSyncSecret || config.prestashopApiKey;
   const { timestamp, signature } = createSignature(body, secret);
   const syncUrl = resolveSyncUrl(request.countryIso);
-
-  console.log("Registration Attempt:", email);
-  console.log("Using Signature (HEX):", signature);
 
   try {
     const response = await axios.post(syncUrl, body, {
@@ -90,24 +84,25 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
         "X-Grifon-Timestamp": timestamp,
         "X-Grifon-Signature": signature
       },
+      transformRequest: [(data) => data],
       validateStatus: () => true
     });
 
-    console.log("PrestaShop Response Status:", response.status);
-    console.log("PrestaShop Response Data:", JSON.stringify(response.data));
-
-    if (response.status >= 200 && response.status < 300 && response.data?.ok !== false) {
+    if (response.status === 200 && response.data?.ok !== false) {
       return {
-        customerId: String(response.data?.id_customer || email),
+        customerId: String(response.data?.psCustomerId || email),
         status: "SUCCESS",
         message: "Η εγγραφή ολοκληρώθηκε! Αναμένεται έγκριση από τη Grifon."
       };
     }
 
-    const errorDetail = response.data?.error || response.data?.message || `Error ${response.status}`;
-    throw new Error(errorDetail);
+    // Αν έχουμε SERVER_ERROR, εκτύπωσε το μήνυμα από την PHP
+    const errorMsg = response.data?.message || response.data?.error || `Error ${response.status}`;
+    console.error("PrestaShop Sync Error:", errorMsg);
+    throw new Error(errorMsg);
+
   } catch (error: any) {
-    console.error("Sync Error:", error.message);
+    console.error("Registration failed:", error.message);
     throw { status: 502, message: `Σφάλμα εγγραφής: ${error.message}.` };
   }
 };
