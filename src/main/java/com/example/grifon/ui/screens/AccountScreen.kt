@@ -1,31 +1,29 @@
 package com.example.grifon.ui.screens
 
-import android.content.Intent
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.example.grifon.LoginActivity
 import com.example.grifon.core.UiState
 import com.example.grifon.viewmodel.AccountViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(
     viewModel: AccountViewModel, 
@@ -33,7 +31,9 @@ fun AccountScreen(
     onRegister: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     when (val state = uiState) {
         UiState.Loading -> LoadingScreen()
@@ -53,48 +53,81 @@ fun AccountScreen(
                 }
                 pop()
             }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Card(modifier = Modifier.padding(8.dp)) {
+                Card {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = if (account.loggedIn) "Καλώς ήρθες" else "Σύνδεση", style = MaterialTheme.typography.titleMedium)
-                        Text(text = "Λογαριασμός, παραγγελίες, διευθύνσεις, πληρωμές, wishlist")
+                        Text(text = if (account.loggedIn) "Καλώς ήρθες" else "Σύνδεση", style = MaterialTheme.typography.titleLarge)
+                        Text(text = "Λογαριασμός, παραγγελίες, διευθύνσεις, πληρωμές, wishlist", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
+
                 if (!account.loggedIn) {
-                    Card(modifier = Modifier.padding(8.dp)) {
+                    Card {
                         Column(
                             modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
+                            OutlinedTextField(
+                                value = email,
+                                onValueChange = { email = it },
+                                label = { Text("Email") },
+                                modifier = Modifier.fillMaxWidth(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                                singleLine = true
+                            )
+
+                            OutlinedTextField(
+                                value = password,
+                                onValueChange = { password = it },
+                                label = { Text("Κωδικός") },
+                                modifier = Modifier.fillMaxWidth(),
+                                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                singleLine = true,
+                                trailingIcon = {
+                                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                        Icon(
+                                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                            )
+
                             Button(
-                                onClick = {
-                                    context.startActivity(Intent(context, LoginActivity::class.java))
-                                },
+                                onClick = { viewModel.login(email, password) },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = MaterialTheme.shapes.medium
                             ) {
-                                Text(text = "Login")
+                                Text("Login")
                             }
+
                             ClickableText(
                                 text = registerText,
                                 style = MaterialTheme.typography.bodyMedium,
                                 onClick = { offset ->
                                     registerText.getStringAnnotations("register", offset, offset)
-                                        .firstOrNull()
-                                        ?.let {
-                                            onRegister()
-                                        }
-                                },
+                                        .firstOrNull()?.let { onRegister() }
+                                }
                             )
                         }
                     }
+                } else {
+                    // Πληροφορίες προφίλ αν είναι logged in
+                    Button(onClick = { viewModel.logout() }, modifier = Modifier.fillMaxWidth()) {
+                        Text("Logout")
+                    }
                 }
-                Button(onClick = onSettings) {
-                    Text(text = "Settings")
+
+                OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
+                    Text("Settings")
                 }
             }
         }
