@@ -1,11 +1,6 @@
 package com.example.grifon.data.repository
 
-import com.example.grifon.domain.model.CartItem
-import com.example.grifon.domain.model.Category
-import com.example.grifon.domain.model.FilterState
-import com.example.grifon.domain.model.Product
-import com.example.grifon.domain.model.Shop
-import com.example.grifon.domain.model.SortOption
+import com.example.grifon.domain.model.*
 import kotlinx.coroutines.flow.Flow
 
 interface ShopRepository {
@@ -44,7 +39,8 @@ interface CartRepository {
 
 interface UserRepository {
     fun isLoggedIn(): Flow<Boolean>
-    fun getUserName(): Flow<String?> // Προσθήκη για το όνομα του χρήστη
+    fun getUserName(): Flow<String?>
+    fun getUserDetails(): Flow<User?> // Προσθήκη για τα πλήρη στοιχεία
     suspend fun login(email: String, pass: String): Boolean
     suspend fun logout()
 }

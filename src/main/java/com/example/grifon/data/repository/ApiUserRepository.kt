@@ -2,6 +2,7 @@ package com.example.grifon.data.repository
 
 import android.util.Log
 import com.example.grifon.BuildConfig
+import com.example.grifon.domain.model.User
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,11 +21,13 @@ class ApiUserRepository @Inject constructor(
 
     private val _isLoggedIn = MutableStateFlow(false)
     private val _userName = MutableStateFlow<String?>(null)
+    private val _userDetails = MutableStateFlow<User?>(null)
     
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
     override fun isLoggedIn(): Flow<Boolean> = _isLoggedIn
     override fun getUserName(): Flow<String?> = _userName
+    override fun getUserDetails(): Flow<User?> = _userDetails
 
     override suspend fun login(email: String, pass: String): Boolean = withContext(Dispatchers.IO) {
         try {
@@ -51,6 +54,18 @@ class ApiUserRepository @Inject constructor(
                     val firstName = data.optString("firstname", "User")
                     val lastName = data.optString("lastname", "")
                     _userName.value = "$firstName $lastName".trim()
+                    
+                    // Αποθήκευση πλήρων στοιχείων (χωρίς διευθύνσεις όπως ζητήθηκε)
+                    _userDetails.value = User(
+                        email = data.optString("email", email),
+                        firstName = firstName,
+                        lastName = lastName,
+                        company = data.optString("company", ""),
+                        vatNumber = data.optString("vat_number", ""),
+                        newsletter = data.optInt("newsletter", 0) == 1,
+                        partnerOffers = data.optInt("optin", 0) == 1
+                    )
+                    
                     _isLoggedIn.value = true
                     return@withContext true
                 }
@@ -65,5 +80,6 @@ class ApiUserRepository @Inject constructor(
     override suspend fun logout() {
         _isLoggedIn.value = false
         _userName.value = null
+        _userDetails.value = null
     }
 }
