@@ -91,9 +91,10 @@ object AppModule {
     @Singleton
     fun provideCartRepository(): CartRepository = FakeCartRepository()
 
+    // ΑΛΛΑΓΗ: Χρήση πραγματικού ApiUserRepository αντί για Fake
     @Provides
     @Singleton
-    fun provideUserRepository(): UserRepository = FakeUserRepository()
+    fun provideUserRepository(client: OkHttpClient): UserRepository = ApiUserRepository(client)
 
     @Provides
     @Singleton
@@ -132,4 +133,7 @@ object AppModule {
 
     @Provides
     fun provideGetCartUseCase(repo: CartRepository) = GetCartUseCase(repo)
+
+    @Provides
+    fun provideLoginUseCase(repo: UserRepository) = LoginUseCase(repo)
 }

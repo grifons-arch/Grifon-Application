@@ -44,6 +44,7 @@ interface CartRepository {
 
 interface UserRepository {
     fun isLoggedIn(): Flow<Boolean>
-    suspend fun login(email: String, pass: String): Boolean // Προσθήκη μεθόδου login
+    fun getUserName(): Flow<String?> // Προσθήκη για το όνομα του χρήστη
+    suspend fun login(email: String, pass: String): Boolean
     suspend fun logout()
 }

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -40,20 +41,7 @@ fun AccountScreen(
         is UiState.Error -> ErrorScreen(message = state.message)
         is UiState.Success -> {
             val account = state.data
-            val registerText = buildAnnotatedString {
-                append("Αν δεν έχεις λογαριασμό δημιούργησε ")
-                pushStringAnnotation(tag = "register", annotation = "register")
-                withStyle(
-                    style = SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline,
-                    ),
-                ) {
-                    append("εδώ")
-                }
-                pop()
-            }
-
+            
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -61,10 +49,17 @@ fun AccountScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Card {
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = if (account.loggedIn) "Καλώς ήρθες" else "Σύνδεση", style = MaterialTheme.typography.titleLarge)
-                        Text(text = "Λογαριασμός, παραγγελίες, διευθύνσεις, πληρωμές, wishlist", style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            text = if (account.loggedIn) "Καλώς ήρθες, ${account.userName}!" else "Σύνδεση", 
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Διαχειρίσου τον λογαριασμό σου, τις παραγγελίες και τις διευθύνσεις σου.", 
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
 
@@ -74,13 +69,24 @@ fun AccountScreen(
                             modifier = Modifier.padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
+                            // Εμφάνιση Μηνύματος Λάθους
+                            if (account.loginError != null) {
+                                Text(
+                                    text = account.loginError,
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            }
+
                             OutlinedTextField(
                                 value = email,
                                 onValueChange = { email = it },
                                 label = { Text("Email") },
                                 modifier = Modifier.fillMaxWidth(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                                singleLine = true
+                                singleLine = true,
+                                isError = account.loginError != null
                             )
 
                             OutlinedTextField(
@@ -91,6 +97,7 @@ fun AccountScreen(
                                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                                 singleLine = true,
+                                isError = account.loginError != null,
                                 trailingIcon = {
                                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                         Icon(
@@ -104,11 +111,23 @@ fun AccountScreen(
                             Button(
                                 onClick = { viewModel.login(email, password) },
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = MaterialTheme.shapes.medium
+                                enabled = !account.isLoading
                             ) {
-                                Text("Login")
+                                if (account.isLoading) {
+                                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+                                } else {
+                                    Text("Login")
+                                }
                             }
 
+                            val registerText = buildAnnotatedString {
+                                append("Αν δεν έχεις λογαριασμό δημιούργησε ")
+                                pushStringAnnotation(tag = "register", annotation = "register")
+                                withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
+                                    append("εδώ")
+                                }
+                                pop()
+                            }
                             ClickableText(
                                 text = registerText,
                                 style = MaterialTheme.typography.bodyMedium,
@@ -120,9 +139,12 @@ fun AccountScreen(
                         }
                     }
                 } else {
-                    // Πληροφορίες προφίλ αν είναι logged in
-                    Button(onClick = { viewModel.logout() }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Logout")
+                    Button(
+                        onClick = { viewModel.logout() }, 
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("Αποσύνδεση (Logout)", color = Color.White)
                     }
                 }
 
