@@ -60,13 +60,17 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
     },
     groups: { default: 3, list: [3] },
     addresses: [{
-      externalAddressId: `addr_${email}`, // ΠΡΟΣΘΗΚΗ: Απαραίτητο για το mapping table της PHP
+      externalAddressId: `addr_${email}`,
       alias: "Default",
+      // Διόρθωση: firstname/lastname με πεζά για την PHP
+      firstname: request.firstName, 
+      lastname: request.lastName,
       address1: request.street,
       postcode: request.postalCode,
       city: request.city,
       countryIso: request.countryIso,
       vat_number: request.vatNumber || "",
+      dni: request.vatNumber || "000000000",
       phone: request.phone || ""
     }]
   };
@@ -96,7 +100,6 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
       };
     }
 
-    // Αν έχουμε SERVER_ERROR, εκτύπωσε το μήνυμα από την PHP
     const errorMsg = response.data?.message || response.data?.error || `Error ${response.status}`;
     console.error("PrestaShop Sync Error:", errorMsg);
     throw new Error(errorMsg);
