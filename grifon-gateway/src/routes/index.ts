@@ -6,6 +6,7 @@ import { validateQuery, validateParams, validateBody } from "../middleware/valid
 import {
   categoryIdSchema,
   customerIdSchema,
+  loginBodySchema,
   paginationSchema,
   productIdSchema,
   productPaginationSchema,
@@ -14,16 +15,12 @@ import {
 } from "./schemas";
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { listCategories } from "../services/categoryService";
-import { listPages } from "../services/pageService";
 import { listProductsByCategory, getProductDetail, listAllProducts } from "../services/productService";
-import { listGroupsWithMembers } from "../services/groupService";
-import { cache, buildCacheKey } from "../utils/cache";
-import { getPriceAccess } from "../services/priceAccessService";
-import { registerCustomer } from "../services/authService";
+import { registerCustomer, loginCustomer } from "../services/authService";
 
 export const apiRouter = Router();
 
-const registerRateLimiter = rateLimit({
+const authRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   limit: config.registerRateLimitPerMin,
   standardHeaders: true,
@@ -37,6 +34,37 @@ apiRouter.get("/health", (_req, res) => {
 apiRouter.get("/v1/shops", (_req, res) => {
   res.json(shops);
 });
+
+// LOGIN ROUTE
+apiRouter.post(
+  "/v1/auth/login",
+  authRateLimiter,
+  validateBody(loginBodySchema),
+  async (req, res, next) => {
+    try {
+      const { email, password } = req.body;
+      const result = await loginCustomer(email, password);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// REGISTER ROUTE
+apiRouter.post(
+  "/v1/auth/register",
+  authRateLimiter,
+  validateBody(registerBodySchema),
+  async (req, res, next) => {
+    try {
+      const response = await registerCustomer(req.body as any);
+      res.status(201).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // IMAGE PROXY
 apiRouter.get("/v1/images/products/:productId/:imageId", async (req, res, next) => {
@@ -57,21 +85,6 @@ apiRouter.get("/v1/images/products/:productId/:imageId", async (req, res, next) 
     res.status(404).end();
   }
 });
-
-// REGISTER ROUTE (V1)
-apiRouter.post(
-  "/v1/auth/register",
-  registerRateLimiter,
-  validateBody(registerBodySchema),
-  async (req, res, next) => {
-    try {
-      const response = await registerCustomer(req.body as any);
-      res.status(201).json(response);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
 
 // ALL PRODUCTS ROUTE
 apiRouter.get(

@@ -14,7 +14,6 @@ export interface RegisterRequest {
   phone?: string;
   company?: string;
   vatNumber?: string;
-  iban?: string;
   newsletter?: boolean;
   partnerOffers?: boolean;
 }
@@ -62,7 +61,6 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
     addresses: [{
       externalAddressId: `addr_${email}`,
       alias: "Default",
-      // Διόρθωση: firstname/lastname με πεζά για την PHP
       firstname: request.firstName, 
       lastname: request.lastName,
       address1: request.street,
@@ -100,12 +98,48 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
       };
     }
 
-    const errorMsg = response.data?.message || response.data?.error || `Error ${response.status}`;
-    console.error("PrestaShop Sync Error:", errorMsg);
-    throw new Error(errorMsg);
-
+    throw new Error(response.data?.error || response.data?.message || `Error ${response.status}`);
   } catch (error: any) {
-    console.error("Registration failed:", error.message);
     throw { status: 502, message: `Σφάλμα εγγραφής: ${error.message}.` };
+  }
+};
+
+/**
+ * Λογική Login μέσω του custom controller στο PrestaShop.
+ */
+export const loginCustomer = async (email: string, pass: string): Promise<any> => {
+  const payload = {
+    action: "login",
+    email: email.trim().toLowerCase(),
+    password: pass
+  };
+
+  const body = JSON.stringify(payload);
+  const secret = config.customerSyncSecret || config.prestashopApiKey;
+  const { timestamp, signature } = createSignature(body, secret);
+  
+  // Χρησιμοποιούμε το GR shop ως default για το login authentication
+  const syncUrl = resolveSyncUrl("GR");
+
+  try {
+    const response = await axios.post(syncUrl, body, {
+      timeout: 10000,
+      headers: {
+        "Content-Type": "application/json",
+        "X-Grifon-Timestamp": timestamp,
+        "X-Grifon-Signature": signature
+      },
+      transformRequest: [(data) => data],
+      validateStatus: () => true
+    });
+
+    if (response.status === 200 && response.data?.ok === true) {
+      return response.data;
+    }
+
+    throw new Error(response.data?.error || "Invalid credentials");
+  } catch (error: any) {
+    console.error("[Gateway] Login Error:", error.message);
+    throw error;
   }
 };

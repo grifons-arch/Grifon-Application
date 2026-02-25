@@ -1,6 +1,6 @@
 <?php
 /**
- * Grifon Customer Sync Controller - Final SQL Fix
+ * Grifon Customer Sync & Auth Controller
  */
 
 if (!defined('_PS_VERSION_')) {
@@ -40,27 +40,76 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         try {
             $this->requireAuth($secret, $skew, $raw);
 
-            $externalCustomerId = isset($payload['externalCustomerId']) ? trim((string)$payload['externalCustomerId']) : '';
-            $customerData = (isset($payload['customer']) && is_array($payload['customer'])) ? $payload['customer'] : [];
-            $addresses = (isset($payload['addresses']) && is_array($payload['addresses'])) ? $payload['addresses'] : [];
-            $groups = (isset($payload['groups']) && is_array($payload['groups'])) ? $payload['groups'] : [];
-
-            $result = [
-                'ok' => true,
-                'psCustomerId' => null,
-            ];
-
-            $idCustomer = $this->upsertCustomer($externalCustomerId, $customerData, $groups, $result);
-            $result['psCustomerId'] = (int)$idCustomer;
-
-            foreach ($addresses as $addr) {
-                $this->upsertAddress($idCustomer, $addr, $result);
+            // Διάκριση μεταξύ LOGIN και SYNC (Registration)
+            if (isset($payload['action']) && $payload['action'] === 'login') {
+                $this->handleLogin($payload);
+            } else {
+                $this->handleSync($payload);
             }
 
-            $this->respond(200, $result);
         } catch (Exception $e) {
             $this->respond(500, ['ok' => false, 'error' => 'SERVER_ERROR', 'message' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Λογική Αυθεντικοποίησης (Login)
+     */
+    private function handleLogin($payload)
+    {
+        $email = isset($payload['email']) ? trim((string)$payload['email']) : '';
+        $password = isset($payload['password']) ? (string)$payload['password'] : '';
+
+        if (empty($email) || empty($password)) {
+            $this->respond(400, ['ok' => false, 'error' => 'MISSING_CREDENTIALS']);
+        }
+
+        $customer = new Customer();
+        $customer->getByEmail($email);
+
+        if (!Validate::isLoadedObject($customer)) {
+            $this->respond(401, ['ok' => false, 'error' => 'USER_NOT_FOUND']);
+        }
+
+        // Έλεγχος κωδικού (PrestaShop 1.7+ / 8.x)
+        $crypto = PrestaShop\PrestaShop\Adapter\ServiceLocator::get(PrestaShop\PrestaShop\Core\Crypto\Hashing::class);
+        if (!$crypto->checkHash($password, $customer->passwd)) {
+            $this->respond(401, ['ok' => false, 'error' => 'INVALID_PASSWORD']);
+        }
+
+        if (!$customer->active) {
+            $this->respond(403, ['ok' => false, 'error' => 'ACCOUNT_INACTIVE']);
+        }
+
+        $this->respond(200, [
+            'ok' => true,
+            'id_customer' => (int)$customer->id,
+            'firstname' => $customer->firstname,
+            'lastname' => $customer->lastname,
+            'email' => $customer->email
+        ]);
+    }
+
+    /**
+     * Λογική Συγχρονισμού / Εγγραφής
+     */
+    private function handleSync($payload)
+    {
+        $externalCustomerId = isset($payload['externalCustomerId']) ? trim((string)$payload['externalCustomerId']) : '';
+        $customerData = (isset($payload['customer']) && is_array($payload['customer'])) ? $payload['customer'] : [];
+        $addresses = (isset($payload['addresses']) && is_array($payload['addresses'])) ? $payload['addresses'] : [];
+        $groups = (isset($payload['groups']) && is_array($payload['groups'])) ? $payload['groups'] : [];
+
+        $result = ['ok' => true, 'created' => false, 'updated' => false, 'psCustomerId' => null];
+
+        $idCustomer = $this->upsertCustomer($externalCustomerId, $customerData, $groups, $result);
+        $result['psCustomerId'] = (int)$idCustomer;
+
+        foreach ($addresses as $addr) {
+            $this->upsertAddress($idCustomer, $addr, $result);
+        }
+
+        $this->respond(200, $result);
     }
 
     private function requireAuth($secret, $maxSkew, $rawBody)
@@ -141,7 +190,7 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         if ($address->id_country <= 0) $address->id_country = (int)Configuration::get('PS_COUNTRY_DEFAULT');
         $address->alias = trim((string)($addr['alias'] ?? 'Default'));
         $address->dni = trim((string)($addr['dni'] ?? $addr['vat_number'] ?? '000000000'));
-        $address->save(false); // Skip validation to ensure DNI is accepted
+        $address->save(false);
     }
 
     private function getCustomerIdByEmail($email)
