@@ -1,6 +1,6 @@
 <?php
 /**
- * Grifon Customer Sync & Auth Controller
+ * Grifon Customer Sync & Auth Controller - Full Data Support
  */
 
 if (!defined('_PS_VERSION_')) {
@@ -40,7 +40,6 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         try {
             $this->requireAuth($secret, $skew, $raw);
 
-            // Διάκριση μεταξύ LOGIN και SYNC (Registration)
             if (isset($payload['action']) && $payload['action'] === 'login') {
                 $this->handleLogin($payload);
             } else {
@@ -52,9 +51,6 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         }
     }
 
-    /**
-     * Λογική Αυθεντικοποίησης (Login)
-     */
     private function handleLogin($payload)
     {
         $email = isset($payload['email']) ? trim((string)$payload['email']) : '';
@@ -71,7 +67,6 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
             $this->respond(401, ['ok' => false, 'error' => 'USER_NOT_FOUND']);
         }
 
-        // Έλεγχος κωδικού (PrestaShop 1.7+ / 8.x)
         $crypto = PrestaShop\PrestaShop\Adapter\ServiceLocator::get(PrestaShop\PrestaShop\Core\Crypto\Hashing::class);
         if (!$crypto->checkHash($password, $customer->passwd)) {
             $this->respond(401, ['ok' => false, 'error' => 'INVALID_PASSWORD']);
@@ -86,13 +81,13 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
             'id_customer' => (int)$customer->id,
             'firstname' => $customer->firstname,
             'lastname' => $customer->lastname,
-            'email' => $customer->email
+            'email' => $customer->email,
+            'company' => $customer->company,
+            'newsletter' => (int)$customer->newsletter,
+            'optin' => (int)$customer->optin
         ]);
     }
 
-    /**
-     * Λογική Συγχρονισμού / Εγγραφής
-     */
     private function handleSync($payload)
     {
         $externalCustomerId = isset($payload['externalCustomerId']) ? trim((string)$payload['externalCustomerId']) : '';
@@ -155,6 +150,20 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $customer->lastname = trim((string)$customerData['lastname']);
         $customer->active = 1;
         $customer->is_guest = 0;
+
+        // ΣΥΓΧΡΟΝΙΣΜΟΣ NEWSLETTER & PARTNER OFFERS
+        if (isset($customerData['newsletter'])) {
+            $customer->newsletter = (int)$customerData['newsletter'];
+        }
+        if (isset($customerData['optin'])) {
+            $customer->optin = (int)$customerData['optin'];
+        }
+        if (isset($customerData['company'])) {
+            $customer->company = trim((string)$customerData['company']);
+        }
+        if (isset($customerData['siret'])) {
+            $customer->siret = trim((string)$customerData['siret']); // Χρήση για VAT
+        }
 
         if (!$idCustomer) {
             $customer->id_shop = (int)Context::getContext()->shop->id;

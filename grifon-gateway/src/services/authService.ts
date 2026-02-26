@@ -4,27 +4,20 @@ import { config } from "../config/env";
 
 export interface RegisterRequest {
   email: string;
-  password: string;
+  password?: string;
   firstName: string;
   lastName: string;
-  countryIso: string;
-  street: string;
-  city: string;
-  postalCode: string;
+  countryIso?: string;
+  street?: string;
+  city?: string;
+  postalCode?: string;
   phone?: string;
   company?: string;
   vatNumber?: string;
   newsletter?: boolean;
-  partnerOffers?: boolean;
 }
 
-export interface RegisterResponse {
-  customerId: string;
-  status: string;
-  message: string;
-}
-
-const resolveSyncUrl = (countryIso: string): string => {
+const resolveSyncUrl = (countryIso: string = "GR"): string => {
   const shopId = countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
   const baseUrl = config.shopBaseUrls[shopId] || config.prestashopBaseUrl;
   const url = new URL(baseUrl);
@@ -35,16 +28,12 @@ const resolveSyncUrl = (countryIso: string): string => {
 const createSignature = (payload: string, secret: string): { timestamp: string, signature: string } => {
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const base = timestamp + payload; 
-  const signature = crypto
-    .createHmac("sha256", secret)
-    .update(base) 
-    .digest("base64");
+  const signature = crypto.createHmac("sha256", secret).update(base).digest("base64");
   return { timestamp, signature };
 };
 
-export const registerCustomer = async (request: RegisterRequest): Promise<RegisterResponse> => {
+export const registerCustomer = async (request: RegisterRequest): Promise<any> => {
   const email = request.email.trim().toLowerCase();
-  
   const payload = {
     externalCustomerId: email,
     customer: {
@@ -54,92 +43,66 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
       password: request.password, 
       company: request.company || "",
       newsletter: request.newsletter ? 1 : 0,
-      optin: request.partnerOffers ? 1 : 0,
       active: 0
     },
-    groups: { default: 3, list: [3] },
     addresses: [{
       externalAddressId: `addr_${email}`,
       alias: "Default",
       firstname: request.firstName, 
       lastname: request.lastName,
-      address1: request.street,
-      postcode: request.postalCode,
-      city: request.city,
-      countryIso: request.countryIso,
+      address1: request.street || "",
+      postcode: request.postalCode || "",
+      city: request.city || "",
+      countryIso: request.countryIso || "GR",
       vat_number: request.vatNumber || "",
-      dni: request.vatNumber || "000000000",
-      phone: request.phone || ""
+      dni: request.vatNumber || "000000000"
     }]
   };
 
-  const body = JSON.stringify(payload);
-  const secret = config.customerSyncSecret || config.prestashopApiKey;
-  const { timestamp, signature } = createSignature(body, secret);
-  const syncUrl = resolveSyncUrl(request.countryIso);
-
-  try {
-    const response = await axios.post(syncUrl, body, {
-      timeout: 15000,
-      headers: {
-        "Content-Type": "application/json",
-        "X-Grifon-Timestamp": timestamp,
-        "X-Grifon-Signature": signature
-      },
-      transformRequest: [(data) => data],
-      validateStatus: () => true
-    });
-
-    if (response.status === 200 && response.data?.ok !== false) {
-      return {
-        customerId: String(response.data?.psCustomerId || email),
-        status: "SUCCESS",
-        message: "Η εγγραφή ολοκληρώθηκε! Αναμένεται έγκριση από τη Grifon."
-      };
-    }
-
-    throw new Error(response.data?.error || response.data?.message || `Error ${response.status}`);
-  } catch (error: any) {
-    throw { status: 502, message: `Σφάλμα εγγραφής: ${error.message}.` };
-  }
+  return sendToPrestaShop(payload, request.countryIso || "GR");
 };
 
 /**
- * Λογική Login μέσω του custom controller στο PrestaShop.
+ * Ενημέρωση Προφίλ Χρήστη
  */
-export const loginCustomer = async (email: string, pass: string): Promise<any> => {
+export const updateProfile = async (request: RegisterRequest): Promise<any> => {
   const payload = {
-    action: "login",
-    email: email.trim().toLowerCase(),
-    password: pass
+    action: "sync", // Επαναχρησιμοποιούμε τη handleSync της PHP που κάνει upsert
+    externalCustomerId: request.email.trim().toLowerCase(),
+    customer: {
+      email: request.email.trim().toLowerCase(),
+      firstname: request.firstName,
+      lastname: request.lastName,
+      company: request.company || "",
+      newsletter: request.newsletter ? 1 : 0,
+      siret: request.vatNumber || ""
+    }
   };
+  return sendToPrestaShop(payload, "GR");
+};
 
+export const loginCustomer = async (email: string, pass: string): Promise<any> => {
+  const payload = { action: "login", email: email.trim().toLowerCase(), password: pass };
+  return sendToPrestaShop(payload, "GR");
+};
+
+async function sendToPrestaShop(payload: any, countryIso: string) {
   const body = JSON.stringify(payload);
   const secret = config.customerSyncSecret || config.prestashopApiKey;
   const { timestamp, signature } = createSignature(body, secret);
-  
-  // Χρησιμοποιούμε το GR shop ως default για το login authentication
-  const syncUrl = resolveSyncUrl("GR");
+  const syncUrl = resolveSyncUrl(countryIso);
 
-  try {
-    const response = await axios.post(syncUrl, body, {
-      timeout: 10000,
-      headers: {
-        "Content-Type": "application/json",
-        "X-Grifon-Timestamp": timestamp,
-        "X-Grifon-Signature": signature
-      },
-      transformRequest: [(data) => data],
-      validateStatus: () => true
-    });
+  const response = await axios.post(syncUrl, body, {
+    timeout: 15000,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Grifon-Timestamp": timestamp,
+      "X-Grifon-Signature": signature
+    },
+    transformRequest: [(data) => data],
+    validateStatus: () => true
+  });
 
-    if (response.status === 200 && response.data?.ok === true) {
-      return response.data;
-    }
-
-    throw new Error(response.data?.error || "Invalid credentials");
-  } catch (error: any) {
-    console.error("[Gateway] Login Error:", error.message);
-    throw error;
-  }
-};
+  if (response.status === 200 && response.data?.ok === true) return response.data;
+  throw new Error(response.data?.message || response.data?.error || "Communication error");
+}
