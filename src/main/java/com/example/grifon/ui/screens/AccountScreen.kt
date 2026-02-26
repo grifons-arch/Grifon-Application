@@ -25,7 +25,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.example.grifon.core.UiState
+import com.example.grifon.domain.model.User
 import com.example.grifon.viewmodel.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +42,7 @@ fun AccountScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var showProfileDetails by remember { mutableStateOf(false) }
+    var isEditing by remember { mutableStateOf(false) }
 
     when (val state = uiState) {
         UiState.Loading -> LoadingScreen()
@@ -149,22 +152,53 @@ fun AccountScreen(
                         }
                     }
 
-                    // Profile Details Section (Visible when toggled)
+                    // Profile Details Section
                     if (showProfileDetails && account.userDetails != null) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
                         ) {
-                            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Προσωπικά Στοιχεία", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("Προσωπικά Στοιχεία", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                    IconButton(onClick = { isEditing = true }) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                    }
+                                }
+                                
                                 ProfileDetailRow("Όνομα", account.userDetails.firstName)
                                 ProfileDetailRow("Επώνυμο", account.userDetails.lastName)
                                 ProfileDetailRow("Email", account.userDetails.email)
-                                if (!account.userDetails.company.isNullOrBlank()) ProfileDetailRow("Εταιρεία", account.userDetails.company)
-                                if (!account.userDetails.vatNumber.isNullOrBlank()) ProfileDetailRow("ΑΦΜ", account.userDetails.vatNumber)
-                                ProfileDetailRow("Newsletter", if (account.userDetails.newsletter) "Ναι" else "Όχι")
+                                ProfileDetailRow("Τηλέφωνο", account.userDetails.phone ?: "-")
+                                ProfileDetailRow("Εταιρεία", account.userDetails.company ?: "-")
+                                ProfileDetailRow("ΑΦΜ", account.userDetails.vatNumber ?: "-")
+                                ProfileDetailRow("Newsletter", if (account.userDetails.newsletter) "Ενεργό" else "Ανενεργό")
+                                
+                                Spacer(modifier = Modifier.height(8.dp))
+                                
+                                OutlinedButton(
+                                    onClick = { isEditing = true },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Επεξεργασία Στοιχείων")
+                                }
                             }
                         }
+                    }
+
+                    if (isEditing && account.userDetails != null) {
+                        EditProfileDialog(
+                            user = account.userDetails,
+                            onDismiss = { isEditing = false },
+                            onSave = { updatedUser ->
+                                viewModel.updateProfile(updatedUser)
+                                isEditing = false
+                            }
+                        )
                     }
 
                     Button(
@@ -186,11 +220,47 @@ fun AccountScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditProfileDialog(user: User, onDismiss: () -> Unit, onSave: (User) -> Unit) {
+    var firstName by remember { mutableStateOf(user.firstName) }
+    var lastName by remember { mutableStateOf(user.lastName) }
+    var company by remember { mutableStateOf(user.company ?: "") }
+    var vat by remember { mutableStateOf(user.vatNumber ?: "") }
+    var newsletter by remember { mutableStateOf(user.newsletter) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Επεξεργασία Στοιχείων") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = firstName, onValueChange = { firstName = it }, label = { Text("Όνομα") })
+                OutlinedTextField(value = lastName, onValueChange = { lastName = it }, label = { Text("Επώνυμο") })
+                OutlinedTextField(value = company, onValueChange = { company = it }, label = { Text("Εταιρεία") })
+                OutlinedTextField(value = vat, onValueChange = { vat = it }, label = { Text("ΑΦΜ") })
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = newsletter, onCheckedChange = { newsletter = it })
+                    Text("Εγγραφή στο Newsletter")
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onSave(user.copy(firstName = firstName, lastName = lastName, company = company, vatNumber = vat, newsletter = newsletter))
+            }) { Text("Αποθήκευση") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Ακύρωση") }
+        }
+    )
+}
+
 @Composable
 fun ProfileDetailRow(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(text = "$label:", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-        Text(text = value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(text = label, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+        Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+        HorizontalDivider(modifier = Modifier.padding(top = 4.dp), thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.5f))
     }
 }
 

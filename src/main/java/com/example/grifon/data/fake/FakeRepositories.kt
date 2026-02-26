@@ -38,23 +38,32 @@ class FakeCartRepository : CartRepository {
 }
 
 class FakeUserRepository : UserRepository {
-    private val loggedIn = MutableStateFlow(false)
-    private val userName = MutableStateFlow<String?>(null) // State για το όνομα
+    private val loggedInFlow = MutableStateFlow(false)
+    private val userNameFlow = MutableStateFlow<String?>(null)
+    private val userDetailsFlow = MutableStateFlow<User?>(null)
 
-    override fun isLoggedIn(): Flow<Boolean> = loggedIn
-    override fun getUserName(): Flow<String?> = userName
+    override fun isLoggedIn(): Flow<Boolean> = loggedInFlow.asStateFlow()
+    override fun getUserName(): Flow<String?> = userNameFlow.asStateFlow()
+    override fun getUserDetails(): Flow<User?> = userDetailsFlow.asStateFlow()
 
     override suspend fun login(email: String, pass: String): Boolean {
-        // Προσομοίωση ανάκτησης ονόματος από το email
         val name = email.substringBefore("@").replaceFirstChar { it.uppercase() }
-        userName.value = name
-        loggedIn.value = true
+        userNameFlow.value = name
+        userDetailsFlow.value = User(
+            email = email,
+            firstName = name,
+            lastName = "FakeUser",
+            company = "Grifon Demo",
+            vatNumber = "EL123456789",
+            newsletter = true
+        )
+        loggedInFlow.value = true
         return true
     }
 
     override suspend fun logout() {
-        Log.d("LoginDebug", "Logout triggered")
-        loggedIn.value = false
-        userName.value = null
+        loggedInFlow.value = false
+        userNameFlow.value = null
+        userDetailsFlow.value = null
     }
 }

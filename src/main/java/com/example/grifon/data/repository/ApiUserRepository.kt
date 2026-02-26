@@ -31,8 +31,6 @@ class ApiUserRepository @Inject constructor(
 
     override suspend fun login(email: String, pass: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            Log.d("LoginDebug", "Attempting real login for: $email")
-            
             val json = JSONObject().apply {
                 put("email", email)
                 put("password", pass)
@@ -46,7 +44,6 @@ class ApiUserRepository @Inject constructor(
 
             val response = client.newCall(request).execute()
             val body = response.body?.string() ?: ""
-            Log.d("LoginDebug", "PrestaShop Response: $body")
 
             if (response.isSuccessful) {
                 val data = JSONObject(body)
@@ -55,15 +52,13 @@ class ApiUserRepository @Inject constructor(
                     val lastName = data.optString("lastname", "")
                     _userName.value = "$firstName $lastName".trim()
                     
-                    // Αποθήκευση πλήρων στοιχείων (χωρίς διευθύνσεις όπως ζητήθηκε)
                     _userDetails.value = User(
                         email = data.optString("email", email),
                         firstName = firstName,
                         lastName = lastName,
                         company = data.optString("company", ""),
                         vatNumber = data.optString("vat_number", ""),
-                        newsletter = data.optInt("newsletter", 0) == 1,
-                        partnerOffers = data.optInt("optin", 0) == 1
+                        newsletter = data.optInt("newsletter", 0) == 1
                     )
                     
                     _isLoggedIn.value = true
@@ -72,7 +67,34 @@ class ApiUserRepository @Inject constructor(
             }
             return@withContext false
         } catch (e: Exception) {
-            Log.e("LoginDebug", "Login failed with error", e)
+            false
+        }
+    }
+
+    override suspend fun updateProfile(user: User): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val json = JSONObject().apply {
+                put("email", user.email)
+                put("firstName", user.firstName)
+                put("lastName", user.lastName)
+                put("company", user.company)
+                put("vatNumber", user.vatNumber)
+                put("newsletter", user.newsletter)
+            }
+            
+            val request = Request.Builder()
+                .url("$gatewayBaseUrl/v1/auth/register") // Χρήση του ίδιου endpoint που κάνει upsert
+                .post(json.toString().toRequestBody("application/json".toMediaType()))
+                .build()
+
+            val response = client.newCall(request).execute()
+            if (response.isSuccessful) {
+                _userDetails.value = user
+                _userName.value = "${user.firstName} ${user.lastName}"
+                return@withContext true
+            }
+            false
+        } catch (e: Exception) {
             false
         }
     }

@@ -30,6 +30,7 @@ data class User(
     val email: String,
     val firstName: String,
     val lastName: String,
+    val phone: String? = null,
     val company: String? = null,
     val vatNumber: String? = null,
     val newsletter: Boolean = false,
