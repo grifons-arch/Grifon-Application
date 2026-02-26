@@ -36,11 +36,3 @@ interface CartRepository {
     suspend fun removeFromCart(shopId: String, productId: String)
     suspend fun updateQuantity(shopId: String, productId: String, qty: Int)
 }
-
-interface UserRepository {
-    fun isLoggedIn(): Flow<Boolean>
-    fun getUserName(): Flow<String?>
-    fun getUserDetails(): Flow<User?> // Προσθήκη για τα πλήρη στοιχεία
-    suspend fun login(email: String, pass: String): Boolean
-    suspend fun logout()
-}

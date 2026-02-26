@@ -9,5 +9,5 @@ interface UserRepository {
     fun getUserDetails(): Flow<User?>
     suspend fun login(email: String, pass: String): Boolean
     suspend fun logout()
-    suspend fun updateProfile(user: User): Boolean // Προσθήκη για ενημέρωση
+    suspend fun updateProfile(user: User): Boolean
 }

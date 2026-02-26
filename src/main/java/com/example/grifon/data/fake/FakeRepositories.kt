@@ -38,18 +38,18 @@ class FakeCartRepository : CartRepository {
 }
 
 class FakeUserRepository : UserRepository {
-    private val loggedInFlow = MutableStateFlow(false)
-    private val userNameFlow = MutableStateFlow<String?>(null)
-    private val userDetailsFlow = MutableStateFlow<User?>(null)
+    private val _isLoggedIn = MutableStateFlow(false)
+    private val _userName = MutableStateFlow<String?>(null)
+    private val _userDetails = MutableStateFlow<User?>(null)
 
-    override fun isLoggedIn(): Flow<Boolean> = loggedInFlow.asStateFlow()
-    override fun getUserName(): Flow<String?> = userNameFlow.asStateFlow()
-    override fun getUserDetails(): Flow<User?> = userDetailsFlow.asStateFlow()
+    override fun isLoggedIn(): Flow<Boolean> = _isLoggedIn.asStateFlow()
+    override fun getUserName(): Flow<String?> = _userName.asStateFlow()
+    override fun getUserDetails(): Flow<User?> = _userDetails.asStateFlow()
 
     override suspend fun login(email: String, pass: String): Boolean {
         val name = email.substringBefore("@").replaceFirstChar { it.uppercase() }
-        userNameFlow.value = name
-        userDetailsFlow.value = User(
+        _userName.value = name
+        _userDetails.value = User(
             email = email,
             firstName = name,
             lastName = "FakeUser",
@@ -57,13 +57,19 @@ class FakeUserRepository : UserRepository {
             vatNumber = "EL123456789",
             newsletter = true
         )
-        loggedInFlow.value = true
+        _isLoggedIn.value = true
         return true
     }
 
     override suspend fun logout() {
-        loggedInFlow.value = false
-        userNameFlow.value = null
-        userDetailsFlow.value = null
+        _isLoggedIn.value = false
+        _userName.value = null
+        _userDetails.value = null
+    }
+
+    override suspend fun updateProfile(user: User): Boolean {
+        _userDetails.value = user
+        _userName.value = "${user.firstName} ${user.lastName}"
+        return true
     }
 }
