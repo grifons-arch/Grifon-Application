@@ -103,6 +103,9 @@ dependencies {
     implementation(libs.mlkit.barcode.scanning)
     implementation(libs.google.play.services.auth)
     
+    // Google Places API
+    implementation("com.google.android.libraries.places:places:3.5.0")
+    
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.6.0")
 
