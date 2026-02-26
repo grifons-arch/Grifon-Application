@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -45,8 +46,18 @@ private fun RegisterScreen(
 ) {
     val state by registerViewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    
+    // Δεδομένα Χωρών και Πόλεων
+    val countries = listOf("Ελλάδα (GR)", "Σουηδία (SE)", "Κύπρος (CY)")
+    val citiesMap = mapOf(
+        "Ελλάδα (GR)" to listOf("Αθήνα", "Θεσσαλονίκη", "Ηράκλειο", "Χανιά", "Πάτρα", "Λάρισα"),
+        "Σουηδία (SE)" to listOf("Στοκχόλμη", "Γκέτεμποργκ", "Μάλμε", "Ουψάλα"),
+        "Κύπρος (CY)" to listOf("Λευκωσία", "Λεμεσός", "Λάρνακα", "Πάφος")
+    )
+
+    var countryExpanded by remember { mutableStateOf(false) }
+    var cityExpanded by remember { mutableStateOf(false) }
     var isPasswordVisible by remember { mutableStateOf(false) }
-    var isPasswordConfirmationVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -55,46 +66,83 @@ private fun RegisterScreen(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(
-            text = "Εγγραφή",
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
-        )
+        Text(text = "Εγγραφή", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            SocialTitleOption(
-                label = "Κος",
-                selected = state.socialTitle == "mr",
-                onSelect = { registerViewModel.onSocialTitleChange("mr") },
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            SocialTitleOption(
-                label = "Κα",
-                selected = state.socialTitle == "mrs",
-                onSelect = { registerViewModel.onSocialTitleChange("mrs") },
-            )
-        }
-
+        // Προσωπικά Στοιχεία
         RegistrationTextField(value = state.firstName, onValueChange = registerViewModel::onFirstNameChange, placeholder = "Όνομα *")
         RegistrationTextField(value = state.lastName, onValueChange = registerViewModel::onLastNameChange, placeholder = "Επώνυμο *")
         RegistrationTextField(value = state.phone, onValueChange = registerViewModel::onPhoneChange, placeholder = "Τηλέφωνο")
-        RegistrationTextField(value = state.iban, onValueChange = registerViewModel::onIbanChange, placeholder = "IBAN")
 
-        SectionTitle(title = "Εταιρεία")
-        RegistrationTextField(value = state.companyName, onValueChange = registerViewModel::onCompanyNameChange, placeholder = "Εταιρεία")
-        RegistrationTextField(value = state.vatNumber, onValueChange = registerViewModel::onVatNumberChange, placeholder = "Α.Φ.Μ")
+        SectionTitle(title = "Διεύθυνση")
+        
+        // Επιλογή Χώρας (Dropdown)
+        ExposedDropdownMenuBox(
+            expanded = countryExpanded,
+            onExpandedChange = { countryExpanded = !countryExpanded }
+        ) {
+            OutlinedTextField(
+                value = state.country,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Χώρα *") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = countryExpanded) },
+                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant)
+            )
+            ExposedDropdownMenu(
+                expanded = countryExpanded,
+                onDismissRequest = { countryExpanded = false }
+            ) {
+                countries.forEach { selection ->
+                    DropdownMenuItem(
+                        text = { Text(selection) },
+                        onClick = {
+                            registerViewModel.onCountryChange(selection)
+                            registerViewModel.onCityChange("") // Reset city on country change
+                            countryExpanded = false
+                        }
+                    )
+                }
+            }
+        }
 
-        SectionTitle(title = "Διεύθυνση +")
-        RegistrationTextField(value = state.country, onValueChange = registerViewModel::onCountryChange, placeholder = "Χώρα (ISO, π.χ. GR) *")
-        RegistrationTextField(value = state.city, onValueChange = registerViewModel::onCityChange, placeholder = "Πόλη *")
+        // Επιλογή Πόλης (Dropdown βασισμένο στη χώρα)
+        val availableCities = citiesMap[state.country] ?: emptyList()
+        ExposedDropdownMenuBox(
+            expanded = cityExpanded,
+            onExpandedChange = { if (availableCities.isNotEmpty()) cityExpanded = !cityExpanded }
+        ) {
+            OutlinedTextField(
+                value = state.city,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(if (state.country.isEmpty()) "Επιλέξτε πρώτα χώρα" else "Πόλη *") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = cityExpanded) },
+                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                enabled = availableCities.isNotEmpty(),
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant)
+            )
+            ExposedDropdownMenu(
+                expanded = cityExpanded,
+                onDismissRequest = { cityExpanded = false }
+            ) {
+                availableCities.forEach { selection ->
+                    DropdownMenuItem(
+                        text = { Text(selection) },
+                        onClick = {
+                            registerViewModel.onCityChange(selection)
+                            cityExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
         RegistrationTextField(value = state.street, onValueChange = registerViewModel::onStreetChange, placeholder = "Οδός και Αριθμός *")
         RegistrationTextField(value = state.postalCode, onValueChange = registerViewModel::onPostalCodeChange, placeholder = "Τ.Κ *")
 
-        SectionTitle(title = "Άλλα στοιχεία")
+        SectionTitle(title = "Στοιχεία Σύνδεσης")
         RegistrationTextField(value = state.email, onValueChange = registerViewModel::onEmailChange, placeholder = "Email *")
-        RegistrationTextField(value = state.emailConfirmation, onValueChange = registerViewModel::onEmailConfirmationChange, placeholder = "Επιβεβαίωση Email *")
         RegistrationTextField(
             value = state.password,
             onValueChange = registerViewModel::onPasswordChange,
@@ -103,62 +151,43 @@ private fun RegisterScreen(
             isPasswordVisible = isPasswordVisible,
             onPasswordVisibilityChange = { isPasswordVisible = !isPasswordVisible },
         )
-        RegistrationTextField(
-            value = state.passwordConfirmation,
-            onValueChange = registerViewModel::onPasswordConfirmationChange,
-            placeholder = "Επιβεβαίωση Κωδικού *",
-            isPassword = true,
-            isPasswordVisible = isPasswordConfirmationVisible,
-            onPasswordVisibilityChange = { isPasswordConfirmationVisible = !isPasswordConfirmationVisible },
-        )
 
         ConsentOption(
             checked = state.customerDataPrivacyAccepted,
             onCheckedChange = registerViewModel::onCustomerDataPrivacyAcceptedChange,
-            title = "Προστασία δεδομένων πελάτη",
-            description = "Τα προσωπικά δεδομένα που παρέχετε χρησιμοποιούνται για την απάντηση σε αιτήματα...",
+            title = "Προστασία δεδομένων πελάτη *",
             required = true,
-        )
-        ConsentOption(
-            checked = state.newsletterOptIn,
-            onCheckedChange = registerViewModel::onNewsletterOptInChange,
-            title = "Εγγραφείτε στο ενημερωτικό δελτίο μας",
-            description = "Μπορείτε να διακόψετε τη συνδρομή οποιαδήποτε στιγμή.",
-        )
-        ConsentOption(
-            checked = state.partnerOffersOptIn, // Διόρθωση: Σύνδεση με το σωστό πεδίο
-            onCheckedChange = registerViewModel::onPartnerOffersOptInChange,
-            title = "Λήψη προσφορών από τους συνεργάτες μας",
-            description = "Επιλέξτε αν επιθυμείτε να λαμβάνετε ειδικές προσφορές.",
         )
         ConsentOption(
             checked = state.termsAndPrivacyAccepted,
             onCheckedChange = registerViewModel::onTermsAndPrivacyAcceptedChange,
-            title = "Αποδέχομαι τους όρους και την πολιτική απορρήτου",
+            title = "Αποδέχομαι τους όρους χρήσης *",
             required = true,
         )
 
         Button(
             onClick = registerViewModel::onSubmit,
             enabled = state.isSubmitEnabled,
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
             shape = RoundedCornerShape(12.dp),
         ) {
-            Text(text = "Αποθήκευση")
+            if (state.status is RegisterStatus.Loading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+            } else {
+                Text(text = "Ολοκλήρωση Εγγραφής")
+            }
         }
 
-        when (val status = state.status) {
-            is RegisterStatus.Loading -> Text("Η αίτηση αποστέλλεται...", style = MaterialTheme.typography.bodySmall)
-            is RegisterStatus.Success -> Text(status.message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-            is RegisterStatus.Error -> Text(status.message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-            RegisterStatus.Idle -> Unit
+        // Status Messages
+        if (state.status is RegisterStatus.Error) {
+            Text((state.status as RegisterStatus.Error).message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
     }
 }
 
 @Composable
 private fun SectionTitle(title: String) {
-    Text(text = title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold))
+    Text(text = title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), modifier = Modifier.padding(top = 8.dp))
 }
 
 @Composable
@@ -170,12 +199,11 @@ private fun RegistrationTextField(
     isPasswordVisible: Boolean = false,
     onPasswordVisibilityChange: (() -> Unit)? = null,
 ) {
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
+        label = { Text(placeholder) },
         modifier = Modifier.fillMaxWidth(),
-        textStyle = MaterialTheme.typography.bodyMedium,
         shape = RoundedCornerShape(10.dp),
         visualTransformation = if (isPassword && !isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
         trailingIcon = if (isPassword && onPasswordVisibilityChange != null) {
@@ -185,19 +213,8 @@ private fun RegistrationTextField(
                 }
             }
         } else null,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
+        colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant)
     )
-}
-
-@Composable
-private fun SocialTitleOption(label: String, selected: Boolean, onSelect: () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(selected = selected, onClick = onSelect)
-        Text(text = label, style = MaterialTheme.typography.bodyMedium)
-    }
 }
 
 @Composable
@@ -205,16 +222,10 @@ private fun ConsentOption(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     title: String,
-    description: String? = null,
     required: Boolean = false,
 ) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Checkbox(checked = checked, onCheckedChange = onCheckedChange)
-        Column(modifier = Modifier.padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(text = if (required) "$title *" else title, style = MaterialTheme.typography.bodyMedium)
-            if (!description.isNullOrBlank()) {
-                Text(text = description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
+        Text(text = title, style = MaterialTheme.typography.bodyMedium)
     }
 }
