@@ -19,14 +19,14 @@ val debugApiBaseUrl = (project.findProperty("API_BASE_URL_DEBUG") as String?)
 
 android {
     namespace = "com.example.grifon"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.grifon.eshop"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 2
-        versionName = "1.1.0"
+        targetSdk = 36
+        versionCode = 3
+        versionName = "1.3.0"
     }
 
     flavorDimensions += "shop"
@@ -102,6 +102,9 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.mlkit.barcode.scanning)
     implementation(libs.google.play.services.auth)
+    
+    // Google Places API
+    implementation("com.google.android.libraries.places:places:3.5.0")
     
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.6.0")

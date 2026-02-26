@@ -15,6 +15,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,6 +42,9 @@ import com.example.grifon.ui.screens.ErrorScreen
 import com.example.grifon.ui.screens.LoadingScreen
 import com.example.grifon.viewmodel.PlpViewModel
 
+/**
+ * Screen displaying a list of products with filtering and sorting options.
+ */
 @Composable
 fun ProductListScreen(
     viewModel: PlpViewModel,
@@ -68,7 +74,11 @@ fun ProductListScreen(
                         )
                     }
                     items(data.products) { product ->
-                        ProductGridItem(product, onClick = { onProductClick(product.id) })
+                        ProductGridItem(
+                            product = product, 
+                            onClick = { onProductClick(product.id) },
+                            onFavoriteClick = { /* TODO: Implement favorite toggle */ }
+                        )
                     }
                 }
                 if (filtersOpen) {
@@ -119,7 +129,6 @@ private fun FiltersSheet(
             Text("Φιλτράρισμα κατά", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
             Spacer(Modifier.height(16.dp))
 
-            // ΕΝΟΤΗΤΑ ΧΡΩΜΑΤΩΝ
             FilterSectionTitle(title = "Χρωματισμοί")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 colors.forEach { (name, color) ->
@@ -160,8 +169,6 @@ private fun ColorCircle(name: String, color: Color, isSelected: Boolean, onClick
             .clickable { onClick() }
     )
 }
-
-// ... (τα υπόλοιπα composables παραμένουν ως έχουν)
 
 @Composable
 private fun FilterBar(onFiltersClick: () -> Unit, onSortClick: () -> Unit) {
@@ -226,32 +233,72 @@ private fun FilterItemRow(label: String, count: Int, selected: Boolean, onToggle
     }
 }
 
+/**
+ * A card representing a single product in the grid.
+ * Displays the product image with an overlay containing the title, price, and favorite icon.
+ */
 @Composable
-fun ProductGridItem(product: Product, onClick: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxWidth().background(Color.White)
+fun ProductGridItem(
+    product: Product, 
+    onClick: () -> Unit,
+    onFavoriteClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth().aspectRatio(1f),
-            shape = RoundedCornerShape(4.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
-            onClick = onClick
-        ) {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(product.imageUrl.ifEmpty { R.drawable.logo })
-                        .crossfade(true).build(),
-                    contentDescription = product.title,
-                    placeholder = painterResource(R.drawable.logo),
-                    error = painterResource(R.drawable.logo),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize().padding(8.dp)
-                )
+        Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f)) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(product.imageUrl.ifEmpty { R.drawable.logo })
+                    .crossfade(true).build(),
+                contentDescription = product.title,
+                placeholder = painterResource(R.drawable.logo),
+                error = painterResource(R.drawable.logo),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize().padding(12.dp)
+            )
+            
+            // Overlay μπάρα στο κάτω μέρος της εικόνας με όνομα, τιμή και καρδούλα
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = product.title.uppercase(), 
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp), 
+                        maxLines = 1, 
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "${product.price} €", 
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    )
+                }
+                IconButton(
+                    onClick = onFavoriteClick,
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite, 
+                        contentDescription = null, 
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = product.title.uppercase(), style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, fontWeight = FontWeight.Medium), maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color.Black)
-        Text(text = "${product.price} €", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary))
     }
 }

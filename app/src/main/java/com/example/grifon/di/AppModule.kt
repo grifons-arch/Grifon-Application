@@ -5,6 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.data.local.CategoryDao
+import com.example.grifon.data.local.ProductDao
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.*
 import com.example.grifon.data.fake.*
@@ -78,16 +80,21 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCatalogRepository(catalogApi: CatalogApi): CatalogRepository = 
-        ApiCatalogRepository(catalogApi)
+    fun provideCatalogRepository(
+        catalogApi: CatalogApi, 
+        categoryDao: CategoryDao,
+        productDao: ProductDao
+    ): CatalogRepository = 
+        ApiCatalogRepository(catalogApi, categoryDao, productDao)
 
     @Provides
     @Singleton
     fun provideCartRepository(): CartRepository = FakeCartRepository()
 
+    // ΑΛΛΑΓΗ: Χρήση πραγματικού ApiUserRepository αντί για Fake
     @Provides
     @Singleton
-    fun provideUserRepository(): UserRepository = FakeUserRepository()
+    fun provideUserRepository(client: OkHttpClient): UserRepository = ApiUserRepository(client)
 
     @Provides
     @Singleton
@@ -101,6 +108,9 @@ object AppModule {
 
     @Provides
     fun provideGetCategoryTreeUseCase(repo: CatalogRepository) = GetCategoryTreeUseCase(repo)
+
+    @Provides
+    fun provideSyncCatalogUseCase(repo: CatalogRepository) = SyncCatalogUseCase(repo)
 
     @Provides
     fun provideSearchProductsUseCase(repo: CatalogRepository) = SearchProductsUseCase(repo)
@@ -123,4 +133,7 @@ object AppModule {
 
     @Provides
     fun provideGetCartUseCase(repo: CartRepository) = GetCartUseCase(repo)
+
+    @Provides
+    fun provideLoginUseCase(repo: UserRepository) = LoginUseCase(repo)
 }

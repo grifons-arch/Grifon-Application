@@ -44,12 +44,17 @@ fun AppNavHost(
             CartScreen(viewModel = hiltViewModel())
         }
         composable(Routes.ACCOUNT) {
-            AccountScreen(viewModel = hiltViewModel()) {
-                navController.navigate(Routes.SETTINGS)
-            }
+            AccountScreen(
+                viewModel = hiltViewModel(),
+                onSettings = { navController.navigate(Routes.SETTINGS) },
+                onRegister = { navController.navigate(Routes.REGISTER) }
+            )
         }
         composable(Routes.FAVORITES) {
             FavoritesScreen()
+        }
+        composable(Routes.REGISTER) {
+            RegisterScreen()
         }
         composable(
             route = Routes.PLP,

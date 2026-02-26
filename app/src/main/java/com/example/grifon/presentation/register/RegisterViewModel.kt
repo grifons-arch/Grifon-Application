@@ -87,6 +87,10 @@ class RegisterViewModel(
         _uiState.update { it.copy(newsletterOptIn = value) }
     }
 
+    fun onPartnerOffersOptInChange(value: Boolean) {
+        _uiState.update { it.copy(partnerOffersOptIn = value) }
+    }
+
     fun onTermsAndPrivacyAcceptedChange(value: Boolean) {
         _uiState.update { it.copy(termsAndPrivacyAccepted = value) }
     }
@@ -121,6 +125,7 @@ class RegisterViewModel(
                 iban = currentState.iban.trim().ifBlank { null },
                 customerDataPrivacyAccepted = currentState.customerDataPrivacyAccepted,
                 newsletter = currentState.newsletterOptIn,
+                partnerOffers = currentState.partnerOffersOptIn, // Correctly passing Partner Offers
                 termsAndPrivacyAccepted = currentState.termsAndPrivacyAccepted,
             )
             val result = withContext(Dispatchers.IO) {

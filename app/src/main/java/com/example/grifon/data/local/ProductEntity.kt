@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "products")
 data class ProductEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey val id: String, // format: shopId_productId
     val title: String,
     val price: Double,
     val currency: String,
@@ -14,5 +14,5 @@ data class ProductEntity(
     val inStock: Boolean,
     val reference: String,
     val shopId: String,
-    val categoryId: String? = null // Κύρια κατηγορία για ευκολότερο φιλτράρισμα
+    val categoryId: String? = null
 )
