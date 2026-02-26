@@ -25,15 +25,20 @@ class AppViewModel @Inject constructor(
         getActiveShopUseCase()
             .flatMapLatest { shopId ->
                 getCartUseCase(shopId).combine(getActiveShopUseCase()) { cartItems, activeShop ->
-                    AppState(activeShopId = activeShop, cartCount = cartItems.sumOf { it.qty })
+                    AppState(
+                        activeShopId = activeShop,
+                        shopName = if (activeShop == "shop_b") "Shop B" else "Shop A",
+                        cartCount = cartItems.sumOf { it.qty },
+                    )
                 }
             }
-            .onEach { appState -> _state.value = appState }
+            .onEach { _state.value = it }
             .launchIn(viewModelScope)
     }
 }
 
 data class AppState(
     val activeShopId: String = "shop_a",
+    val shopName: String = "Shop A",
     val cartCount: Int = 0,
 )

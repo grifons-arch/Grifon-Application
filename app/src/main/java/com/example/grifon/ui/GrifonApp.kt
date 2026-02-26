@@ -1,155 +1,78 @@
 package com.example.grifon.ui
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.rememberNavController
 import com.example.grifon.navigation.AppNavHost
 import com.example.grifon.navigation.Routes
 import com.example.grifon.ui.components.AppBottomNav
-import com.example.grifon.ui.components.AppSearchBar
 import com.example.grifon.ui.components.AppTopBar
 import com.example.grifon.viewmodel.AppViewModel
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.debounce
-import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.launch
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.lazy.LazyColumn
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun GrifonApp() {
     val navController = rememberNavController()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val appViewModel: AppViewModel = hiltViewModel()
     val appState by appViewModel.state.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-    
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    var forceSearchOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
             .filter { it.length >= 2 }
-            .debounce(700)
+            .debounce(500)
             .distinctUntilChanged()
             .collect { query ->
-                navController.navigate(Routes.plpRoute(query = query)) {
-                    launchSingleTop = true 
-                }
+                navController.navigate(Routes.plpRoute(query = query)) { launchSingleTop = true }
             }
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        gesturesEnabled = true,
-        drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier.width(300.dp)
-            ) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    "Μενού", 
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp), 
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
-                HorizontalDivider()
-                
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    item {
-                        NavigationDrawerItem(
-                            label = { Text("Αρχική Οθόνη", fontSize = 16.sp) },
-                            selected = false,
-                            onClick = {
-                                scope.launch { drawerState.close() }
-                                navController.navigateToTopLevel(Routes.HOME)
-                            },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                        )
-                    }
-                    item {
-                        NavigationDrawerItem(
-                            label = { Text("Λογαριασμός", fontSize = 16.sp) },
-                            selected = false,
-                            onClick = {
-                                scope.launch { drawerState.close() }
-                                navController.navigateToTopLevel(Routes.ACCOUNT)
-                            },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                        )
-                    }
-                    item {
-                        NavigationDrawerItem(
-                            label = { Text("Βάσεις Δεδομένων", fontSize = 16.sp) },
-                            selected = false,
-                            onClick = {
-                                scope.launch { drawerState.close() }
-                                navController.navigateToTopLevel(Routes.CATEGORIES)
-                            },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                        )
-                    }
-                }
-            }
-        }
-    ) {
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                Column {
-                    AppTopBar(
-                        shopLabel = if (appState.activeShopId == "1") "SE" else "GR",
-                        onCategoriesClick = {
-                            scope.launch { drawerState.open() }
-                        },
-                        onHomeClick = { navController.navigateToTopLevel(Routes.HOME) },
-                        onCartClick = { navController.navigateToTopLevel(Routes.CART) },
-                        onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) }
-                    )
-                    AppSearchBar(
-                        query = searchQuery,
-                        onQueryChange = { searchQuery = it },
-                        onScanClick = { navController.navigate(Routes.SCAN) }
-                    )
-                }
-            },
-            bottomBar = {
-                AppBottomNav(navController = navController)
-            },
-        ) { innerPadding ->
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                AppNavHost(
-                    navController = navController,
-                    paddingValues = PaddingValues(0.dp)
-                )
-            }
-        }
-    }
-}
+    val searchExpanded = forceSearchOpen || scrollBehavior.state.collapsedFraction < 0.4f
 
-private fun NavHostController.navigateToTopLevel(route: String) {
-    navigate(route) {
-        popUpTo(graph.findStartDestination().id) {
-            saveState = true
+    Scaffold(
+        modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            AppTopBar(
+                shopLabel = appState.shopName,
+                query = searchQuery,
+                isSearchExpanded = searchExpanded,
+                onQueryChange = { searchQuery = it },
+                onLogoClick = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(navController.graph.findStartDestination().id)
+                        launchSingleTop = true
+                    }
+                },
+                onSearchIconClick = { forceSearchOpen = true },
+                onScanClick = { navController.navigate(Routes.SCAN) },
+            )
+        },
+        bottomBar = { AppBottomNav(navController = navController, cartCount = appState.cartCount) },
+    ) { padding ->
+        Surface(modifier = Modifier.fillMaxSize()) {
+            AppNavHost(navController = navController, paddingValues = padding)
         }
-        launchSingleTop = true
-        restoreState = true
     }
 }

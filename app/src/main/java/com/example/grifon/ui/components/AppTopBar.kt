@@ -1,12 +1,29 @@
 package com.example.grifon.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.outlined.QrCodeScanner
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,114 +31,75 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.grifon.R
-
-data class AppMenuItem(
-    val label: String,
-    val route: String,
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
     shopLabel: String,
-    onCategoriesClick: () -> Unit,
-    onHomeClick: () -> Unit,
-    onCartClick: () -> Unit,
-    onNotificationsClick: () -> Unit
+    query: String,
+    isSearchExpanded: Boolean,
+    onQueryChange: (String) -> Unit,
+    onLogoClick: () -> Unit,
+    onSearchIconClick: () -> Unit,
+    onScanClick: () -> Unit,
 ) {
-    val purpleColor = Color(0xFF6200EE)
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(purpleColor)
-            .statusBarsPadding()
+            .background(MaterialTheme.colorScheme.primary)
+            .statusBarsPadding(),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = onCategoriesClick) {
-                Icon(Icons.Default.Dashboard, contentDescription = "Κατηγορίες", tint = Color.White)
-            }
-            
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onHomeClick) {
-                    Icon(Icons.Default.Home, contentDescription = "Home", tint = Color.White)
-                }
-                IconButton(onClick = onNotificationsClick) {
-                    Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = Color.White)
-                }
-                IconButton(onClick = onCartClick) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = "Cart", tint = Color.White)
-                }
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            contentAlignment = Alignment.Center
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "Grifon Logo",
-                    modifier = Modifier.height(40.dp),
-                    contentScale = ContentScale.Fit
+                    painter = painterResource(R.drawable.logo),
+                    contentDescription = "Grifon logo",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .height(34.dp)
+                        .clickable(onClick = onLogoClick),
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "GRIFON ($shopLabel)",
-                    color = Color.White,
-                    style = MaterialTheme.typography.headlineSmall,
-                    letterSpacing = 2.sp
+                if (!isSearchExpanded) {
+                    IconButton(onClick = onSearchIconClick) {
+                        Icon(Icons.Outlined.Search, contentDescription = "Άνοιγμα αναζήτησης", tint = Color.White)
+                    }
+                }
+            }
+            AssistChip(
+                onClick = {},
+                enabled = false,
+                label = { Text(shopLabel) },
+            )
+        }
+
+        AnimatedVisibility(visible = isSearchExpanded) {
+            Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Αναζήτηση προϊόντων") },
+                    shape = RoundedCornerShape(14.dp),
+                    leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+                    trailingIcon = {
+                        IconButton(onClick = onScanClick) {
+                            Icon(Icons.Outlined.QrCodeScanner, contentDescription = "Scan")
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    ),
+                    singleLine = true,
                 )
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AppSearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onScanClick: () -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(8.dp),
-        color = Color(0xFFF5F5F5),
-        tonalElevation = 2.dp
-    ) {
-        TextField(
-            value = query,
-            onValueChange = onQueryChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Αναζήτηση προϊόντων...", color = Color.Gray) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
-            trailingIcon = {
-                IconButton(onClick = onScanClick) {
-                    Icon(Icons.Default.QrCodeScanner, contentDescription = "Scan", tint = Color.Gray)
-                }
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-            ),
-            singleLine = true
-        )
     }
 }
