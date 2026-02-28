@@ -10,9 +10,8 @@ import kotlinx.coroutines.flow.map
 class ShopPreferences(private val dataStore: DataStore<Preferences>) {
     private val shopKey = stringPreferencesKey("active_shop_id")
 
-    // Default to "4" (Grifon GR)
     val activeShopId: Flow<String> = dataStore.data.map { preferences ->
-        preferences[shopKey] ?: "4"
+        preferences[shopKey] ?: "shop_a"
     }
 
     suspend fun setActiveShopId(shopId: String) {

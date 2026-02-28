@@ -2,6 +2,7 @@ package com.example.grifon.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,10 +29,10 @@ fun AppBottomNav(navController: NavHostController) {
     val items = listOf(
         BottomItem(Routes.SETTINGS, "Language", Icons.Default.Language),
         BottomItem(Routes.ACCOUNT, "Profile", Icons.Default.Person),
-        BottomItem(Routes.FAVORITES, "Favs", Icons.Default.Favorite), // Διόρθωση διαδρομής
+        BottomItem(Routes.HOME, "Favs", Icons.Outlined.FavoriteBorder), // Προσωρινά Home για το Favs
         BottomItem(Routes.SETTINGS, "Settings", Icons.Default.Settings),
         BottomItem(Routes.HOME, "Info", Icons.Default.Info),
-        BottomItem(Routes.HOME, "Chat", Icons.Default.Chat),
+        BottomItem(Routes.HOME, "Chat", Icons.Default.Chat), // Chat icon
     )
 
     NavigationBar(

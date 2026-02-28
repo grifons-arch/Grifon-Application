@@ -1,110 +1,125 @@
 package com.example.grifon.data.repository
 
 import com.example.grifon.data.catalog.CatalogApi
-import com.example.grifon.data.catalog.ProductsResponseDto
-import com.example.grifon.data.local.*
 import com.example.grifon.domain.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
 import android.util.Log
 import com.example.grifon.BuildConfig
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @Singleton
 class ApiCatalogRepository @Inject constructor(
-    private val catalogApi: CatalogApi,
-    private val categoryDao: CategoryDao,
-    private val productDao: ProductDao
+    private val catalogApi: CatalogApi
 ) : CatalogRepository {
 
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
-    override fun getCategoryTree(shopId: String): Flow<List<Category>> = 
-        categoryDao.getCategoriesByShop(shopId)
-            .distinctUntilChanged()
-            .map { entities -> entities.map { Category(it.id, it.name, it.parentId, 0) } }
+    override fun getCategoryTree(shopId: String): Flow<List<Category>> = flow {
+        try {
+            val id = shopId.toIntOrNull() ?: 4
+            val response = catalogApi.getCategories(shopId = id)
+            emit(response.items.map { 
+                Category(
+                    id = it.id.toString(), 
+                    name = it.name ?: "",
+                    parentId = null,
+                    childrenCount = 0
+                ) 
+            })
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
 
-    override suspend fun syncCatalog(shopId: String) {
-        withContext(Dispatchers.IO) {
-            try {
-                Log.d("CrashLog", "Sync: STARTING ATOMIC BATCH SYNC...")
-                val sId = shopId.toIntOrNull() ?: 4
-                
-                // 1. Fetch all data in memory first to avoid multiple DB transactions
-                val catResponse = try { catalogApi.getCategories(shopId = sId, pageSize = 500) } catch (e: Exception) { null }
-                val catEntities = catResponse?.items?.map { 
-                    val originalId = it.id.toString()
-                    CategoryEntity("${shopId}_$originalId", translateCategoryName(originalId, it.name ?: ""), it.parentId?.let { p -> "${shopId}_$p" }, 0, true, shopId)
-                } ?: emptyList()
+    override fun getProductsByCategory(
+        shopId: String,
+        categoryId: String,
+        filters: FilterState,
+        sortOption: SortOption
+    ): Flow<List<Product>> = flow {
+        try {
+            val sId = shopId.toIntOrNull() ?: 4
+            val response = if (categoryId == "2" || categoryId.isBlank()) {
+                catalogApi.getProducts(shopId = sId, pageSize = 100)
+            } else {
+                catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = sId)
+            }
+            
+            // ΕΦΑΡΜΟΓΗ ΦΙΛΤΡΩΝ ΣΤΗ ΛΙΣΤΑ
+            val filteredProducts = response.items
+                .map { it.toDomain(sId) }
+                .filter { product ->
+                    val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
+                    val matchesStock = if (filters.inStockOnly) product.inStock else true
+                    
+                    // Φιλτράρισμα βάσει ονόματος για τις κατηγορίες (π.χ. Μινωικά) αν δεν έχουμε attributes
+                    val selectedMinoan = filters.attributes["minoan"] ?: emptySet()
+                    val matchesMinoan = if (selectedMinoan.isNotEmpty()) {
+                        selectedMinoan.any { product.title.contains(it, ignoreCase = true) }
+                    } else true
 
-                val productsMap = mutableMapOf<String, ProductEntity>()
-                val refsSet = mutableSetOf<ProductCategoryCrossRef>()
-                val limit = 1000
-
-                val resp1 = try { catalogApi.getProducts(shopId = sId, page = 1, pageSize = limit) } catch (e: Exception) { null }
-                resp1?.let { collectIntoAtomicMaps(it, shopId, productsMap, refsSet) }
-
-                if (resp1?.items?.size ?: 0 >= limit) {
-                    val resp2 = try { catalogApi.getProducts(shopId = sId, page = 2, pageSize = limit) } catch (e: Exception) { null }
-                    resp2?.let { collectIntoAtomicMaps(it, shopId, productsMap, refsSet) }
+                    matchesPrice && matchesStock && matchesMinoan
                 }
-
-                // 2. Perform ONE single atomic write operation
-                if (catEntities.isNotEmpty() || productsMap.isNotEmpty()) {
-                    if (catEntities.isNotEmpty()) categoryDao.insertCategories(catEntities)
-                    if (productsMap.isNotEmpty()) {
-                        productDao.clearProductsByShop(shopId)
-                        productDao.insertProducts(productsMap.values.toList())
-                        categoryDao.insertProductCategoryRefs(refsSet.toList())
+                .let { list ->
+                    // ΕΦΑΡΜΟΓΗ ΤΑΞΙΝΟΜΗΣΗΣ
+                    when (sortOption) {
+                        SortOption.PRICE_LOW_HIGH -> list.sortedBy { it.price }
+                        SortOption.PRICE_HIGH_LOW -> list.sortedByDescending { it.price }
+                        else -> list
                     }
-                    Log.d("CrashLog", "Sync: ATOMIC STORE SUCCESSFUL")
                 }
-            } catch (e: Exception) {
-                Log.e("CrashLog", "Sync: FATAL ERROR", e)
+
+            emit(filteredProducts)
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override fun searchProducts(
+        shopId: String,
+        query: String,
+        filters: FilterState,
+        sortOption: SortOption
+    ): Flow<List<Product>> = flow {
+        try {
+            val sId = shopId.toIntOrNull() ?: 4
+            val response = catalogApi.getProducts(shopId = sId, pageSize = 100)
+            val allProducts = response.items.map { it.toDomain(sId) }
+            
+            val filtered = allProducts.filter { product ->
+                val matchesQuery = product.title.contains(query, ignoreCase = true) || 
+                                 product.attributesMap["reference"]?.contains(query, ignoreCase = true) == true
+                
+                val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
+                
+                matchesQuery && matchesPrice
             }
+            emit(filtered)
+        } catch (e: Exception) {
+            emit(emptyList())
         }
     }
-
-    private fun collectIntoAtomicMaps(response: ProductsResponseDto, shopId: String, productsMap: MutableMap<String, ProductEntity>, refsSet: MutableSet<ProductCategoryCrossRef>) {
-        response.items.forEach { dto ->
-            val pId = dto.id.toString()
-            val compositeId = "${shopId}_$pId"
-            productsMap[compositeId] = ProductEntity(
-                compositeId, dto.name ?: "", dto.price ?: 0.0, "EUR", 
-                if (dto.defaultImage?.url?.startsWith("/") == true) "$gatewayBaseUrl${dto.defaultImage.url}" else dto.defaultImage?.url ?: "", 
-                "Grifon", true, dto.reference ?: "", shopId, dto.categories?.firstOrNull()?.let { "${shopId}_${it.id}" }
-            )
-            dto.categories?.forEach { cat ->
-                refsSet.add(ProductCategoryCrossRef(compositeId, "${shopId}_${cat.id}"))
-            }
-        }
-    }
-
-    private fun translateCategoryName(id: String, default: String): String = when(id) {
-        "4000" -> "Κεραμικά"; "4500" -> "Αγαλματίδια κ.α."; "5000" -> "Διακοσμητικά"; "7500" -> "Για χρήση"; "7000" -> "Χόμπι"; "8000" -> "Αξεσουάρ"; else -> default
-    }
-
-    override fun getProductsByCategory(shopId: String, categoryId: String, filters: FilterState, sortOption: SortOption): Flow<List<Product>> {
-        return if (categoryId.isBlank() || categoryId.endsWith("_2")) {
-            productDao.getProductsByShop(shopId).map { list -> list.map { it.toDomain() } }
-        } else {
-            categoryDao.getCategoryWithProducts(categoryId).map { list -> list.map { it.toDomain() } }
-        }
-    }
-
-    override fun searchProducts(shopId: String, query: String, filters: FilterState, sortOption: SortOption): Flow<List<Product>> = 
-        productDao.getProductsByShop(shopId).map { entities ->
-            entities.filter { it.title.contains(query, ignoreCase = true) }.map { it.toDomain() }
-        }
 
     override fun getProductById(shopId: String, productId: String): Flow<Product?> = flow {
-        emit(productDao.getProductById(productId)?.toDomain())
+        emit(null)
     }
 
-    private fun ProductEntity.toDomain() = Product(id, title, price, currency, imageUrl, emptyList(), brand, 0.0, inStock, mapOf("reference" to reference), listOfNotNull(categoryId))
+    private fun com.example.grifon.data.catalog.ProductDto.toDomain(shopId: Int): Product {
+        val rawUrl = defaultImage?.url ?: ""
+        val fullImageUrl = if (rawUrl.startsWith("/")) "$gatewayBaseUrl$rawUrl" else rawUrl
+
+        return Product(
+            id = "${shopId}_$id",
+            title = name ?: "",
+            price = price ?: 0.0,
+            currency = "EUR",
+            imageUrl = fullImageUrl,
+            brand = if (shopId == 4) "Grifon GR" else "Grifon SE",
+            rating = 0.0,
+            inStock = true,
+            attributesMap = mapOf("reference" to (reference ?: ""))
+        )
+    }
 }
