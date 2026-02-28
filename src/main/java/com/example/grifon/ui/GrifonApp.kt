@@ -7,10 +7,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.example.grifon.R
 import com.example.grifon.navigation.AppNavHost
 import com.example.grifon.navigation.Routes
 import com.example.grifon.ui.components.AppBottomNav
@@ -31,11 +33,11 @@ import androidx.compose.foundation.lazy.items
 
 /**
  * Data class representing a category in the navigation drawer.
- * @property name The display name of the category.
+ * @property nameRes The resource ID for the display name of the category.
  * @property id The unique identifier of the category used for navigation.
  */
 private data class DrawerCategory(
-    val name: String,
+    val nameRes: Int,
     val id: String,
 )
 
@@ -60,14 +62,14 @@ fun GrifonApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Κατηγορίες για το drawer (hamburger menu)
+    // Categories for the drawer (hamburger menu) using string resources
     val categories = listOf(
-        DrawerCategory(name = "Κεραμικά", id = "3"),
-        DrawerCategory(name = "Φωτιστικά", id = "4"),
-        DrawerCategory(name = "Μπρούτζινα", id = "5"),
-        DrawerCategory(name = "Παιχνίδια", id = "6"),
-        DrawerCategory(name = "Σαπούνια", id = "7"),
-        DrawerCategory(name = "Υφασμάτινα", id = "8"),
+        DrawerCategory(nameRes = R.string.ceramics, id = "3"),
+        DrawerCategory(nameRes = R.string.lighting, id = "4"),
+        DrawerCategory(nameRes = R.string.bronze, id = "5"),
+        DrawerCategory(nameRes = R.string.toys, id = "6"),
+        DrawerCategory(nameRes = R.string.soaps, id = "7"),
+        DrawerCategory(nameRes = R.string.textiles, id = "8"),
     )
 
     // Effect to handle search query changes with debounce and navigation to PLP
@@ -92,7 +94,7 @@ fun GrifonApp() {
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "Ψωνίστε Ανά Κατηγορία", 
+                    stringResource(R.string.shop_by_category), 
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp), 
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
@@ -106,7 +108,7 @@ fun GrifonApp() {
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(category.name, fontSize = 16.sp)
+                                    Text(stringResource(category.nameRes), fontSize = 16.sp)
                                     Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
                                 }
                             },
@@ -122,7 +124,7 @@ fun GrifonApp() {
                     item {
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                         NavigationDrawerItem(
-                            label = { Text("Ο Λογαριασμός μου") },
+                            label = { Text(stringResource(R.string.my_account)) },
                             selected = false,
                             onClick = { 
                                 scope.launch { drawerState.close() }

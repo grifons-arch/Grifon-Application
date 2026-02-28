@@ -15,14 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.grifon.R
-
-data class AppMenuItem(
-    val label: String,
-    val route: String,
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,18 +45,18 @@ fun AppTopBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = onMenuClick) {
-                Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
+                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu_description), tint = Color.White)
             }
             
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onHomeClick) {
-                    Icon(Icons.Default.Home, contentDescription = "Home", tint = Color.White)
+                    Icon(Icons.Default.Home, contentDescription = stringResource(R.string.home_description), tint = Color.White)
                 }
                 IconButton(onClick = onNotificationsClick) {
-                    Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = Color.White)
+                    Icon(Icons.Default.Notifications, contentDescription = stringResource(R.string.notifications_description), tint = Color.White)
                 }
                 IconButton(onClick = onCartClick) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = "Cart", tint = Color.White)
+                    Icon(Icons.Default.ShoppingCart, contentDescription = stringResource(R.string.cart_description), tint = Color.White)
                 }
             }
         }
@@ -109,11 +105,11 @@ fun AppSearchBar(
             value = query,
             onValueChange = onQueryChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Αναζήτηση προϊόντων...", color = Color.Gray) },
+            placeholder = { Text(stringResource(R.string.search_placeholder), color = Color.Gray) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
             trailingIcon = {
                 IconButton(onClick = onScanClick) {
-                    Icon(Icons.Default.QrCodeScanner, contentDescription = "Scan", tint = Color.Gray)
+                    Icon(Icons.Default.QrCodeScanner, contentDescription = stringResource(R.string.scan_description), tint = Color.Gray)
                 }
             },
             colors = TextFieldDefaults.colors(

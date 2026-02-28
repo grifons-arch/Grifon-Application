@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Grifon Meny</string>
+    <string name="wholesale_intro"><![CDATA[För att kunna beställa eller se priser måste du först <a href="https://grifon-eshop.example/register">skapa ett konto</a> eller <a href="https://grifon-eshop.example/login">logga in med ditt befintliga konto</a>.
+
+Om du skapar ett nytt konto måste du först ansöka om ett grossistkonto. När vi har godkänt din begäran kommer du att kunna beställa och se grossistpriser.]]></string>
+    <string name="shop_by_category">Handla efter kategori</string>
+    <string name="ceramics">Keramik</string>
+    <string name="lighting">Belysning</string>
+    <string name="bronze">Brons</string>
+    <string name="toys">Leksaker</string>
+    <string name="soaps">Tvålar</string>
+    <string name="textiles">Textilier</string>
+    <string name="my_account">Mitt konto</string>
+    <string name="search_placeholder">Sök produkter…</string>
+    <string name="menu_description">Meny</string>
+    <string name="home_description">Hem</string>
+    <string name="cart_description">Varukorg</string>
+    <string name="notifications_description">Aviseringar</string>
+    <string name="scan_description">Skanna</string>
+
+    <string name="nav_language">Språk</string>
+    <string name="nav_profile">Profil</string>
+    <string name="nav_favs">Favoriter</string>
+    <string name="nav_settings">Inställningar</string>
+    <string name="nav_info">Info</string>
+    <string name="nav_chat">Chatt</string>
+</resources>
