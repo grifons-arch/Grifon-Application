@@ -96,18 +96,27 @@ export const loginCustomer = async (request: LoginRequest): Promise<LoginRespons
     password: request.password
   };
 
-  // Default to GR shop for login if not specified, or we could detect from email/domain
-  const response = await sendToPrestaShop(payload, "GR");
+  try {
+    const response = await sendToPrestaShop(payload, "GR");
 
-  if (response.status === "SUCCESS") {
-    return {
-      token: response.token || "fake-jwt-token",
-      customerId: response.customerId,
-      firstName: response.firstName || "",
-      lastName: response.lastName || ""
-    };
+    if (response.status === "SUCCESS") {
+      return {
+        token: response.token || "fake-jwt-token",
+        customerId: response.customerId,
+        firstName: response.firstName || "",
+        lastName: response.lastName || ""
+      };
+    }
+
+    const err: any = new Error(response.message || "Login failed");
+    err.status = 401;
+    throw err;
+  } catch (error: any) {
+    if (error.status) throw error;
+    const err: any = new Error(error.message || "Authentication failed");
+    err.status = 401;
+    throw err;
   }
-  throw new Error(response.message || "Login failed");
 };
 
 const sendToPrestaShop = async (payload: any, countryIso: string): Promise<any> => {
@@ -127,13 +136,18 @@ const sendToPrestaShop = async (payload: any, countryIso: string): Promise<any> 
       validateStatus: () => true
     });
 
-    if (response.status >= 200 && response.status < 300 && response.data?.ok !== false) {
+    if (response.status >= 200 && response.status < 300) {
       return response.data;
     }
 
-    const errorDetail = response.data?.error || response.data?.message || `Error ${response.status}`;
-    throw new Error(errorDetail);
+    const errorDetail = response.data?.message || response.data?.error || `PrestaShop Error ${response.status}`;
+    const err: any = new Error(errorDetail);
+    err.status = response.status === 401 || response.status === 403 ? 401 : 502;
+    throw err;
   } catch (error: any) {
-    throw { status: 502, message: error.message };
+    if (error.status) throw error;
+    const err: any = new Error(error.message || "Failed to communicate with PrestaShop");
+    err.status = 502;
+    throw err;
   }
 };
