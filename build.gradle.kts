@@ -103,6 +103,9 @@ dependencies {
     implementation(libs.mlkit.barcode.scanning)
     implementation(libs.google.play.services.auth)
     
+    // Splash Screen API
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.6.0")
 
