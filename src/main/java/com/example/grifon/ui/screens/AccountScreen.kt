@@ -28,7 +28,7 @@ fun AccountScreen(viewModel: AccountViewModel, onSettings: () -> Unit) {
         is UiState.Error -> {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
                 ErrorScreen(message = state.message)
-                Button(onClick = { viewModel.logout() }) { // Retry/Reset
+                Button(onClick = { viewModel.logout() }) { 
                    Text("Retry")
                 }
             }
@@ -55,9 +55,15 @@ fun AccountScreen(viewModel: AccountViewModel, onSettings: () -> Unit) {
                         Text(text = "Logout")
                     }
                 } else {
-                    LoginForm(onLogin = { email, password ->
-                        viewModel.login(email, password)
-                    })
+                    LoginForm(
+                        errorMessage = account.loginError,
+                        onLogin = { email, password ->
+                            viewModel.login(email, password)
+                        },
+                        onValueChange = {
+                            viewModel.clearError()
+                        }
+                    )
                 }
             }
         }
@@ -65,7 +71,11 @@ fun AccountScreen(viewModel: AccountViewModel, onSettings: () -> Unit) {
 }
 
 @Composable
-fun LoginForm(onLogin: (String, String) -> Unit) {
+fun LoginForm(
+    errorMessage: String?,
+    onLogin: (String, String) -> Unit,
+    onValueChange: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -99,23 +109,39 @@ fun LoginForm(onLogin: (String, String) -> Unit) {
                 style = MaterialTheme.typography.titleLarge
             )
 
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { 
+                    email = it
+                    onValueChange()
+                },
                 label = { Text(stringResource(R.string.email)) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true
+                singleLine = true,
+                isError = errorMessage != null
             )
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = { 
+                    password = it
+                    onValueChange()
+                },
                 label = { Text(stringResource(R.string.password)) },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true
+                singleLine = true,
+                isError = errorMessage != null
             )
 
             Button(
