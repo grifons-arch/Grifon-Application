@@ -1,5 +1,7 @@
 package com.example.grifon.ui
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.core.os.LocaleListCompat
 
 /**
  * Data class representing a category in the navigation drawer.
@@ -43,12 +46,6 @@ private data class DrawerCategory(
 
 /**
  * The main entry point for the Grifon application UI.
- * 
- * This composable sets up the overall structure of the app, including:
- * - A [ModalNavigationDrawer] for category-based navigation.
- * - A [Scaffold] containing the [AppTopBar], [AppSearchBar], and [AppBottomNav].
- * - The [AppNavHost] to manage screen transitions.
- * - Logic for debounced search navigation.
  */
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
@@ -62,7 +59,9 @@ fun GrifonApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Categories for the drawer (hamburger menu) using string resources
+    var showLanguageDialog by remember { mutableStateOf(false) }
+
+    // Categories for the drawer
     val categories = listOf(
         DrawerCategory(nameRes = R.string.ceramics, id = "3"),
         DrawerCategory(nameRes = R.string.lighting, id = "4"),
@@ -72,7 +71,7 @@ fun GrifonApp() {
         DrawerCategory(nameRes = R.string.textiles, id = "8"),
     )
 
-    // Effect to handle search query changes with debounce and navigation to PLP
+    // Effect for search debounce
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
             .filter { it.length >= 2 }
@@ -85,13 +84,30 @@ fun GrifonApp() {
             }
     }
 
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(stringResource(R.string.nav_language)) },
+            text = {
+                Column {
+                    LanguageOption("English", "en") { showLanguageDialog = false }
+                    LanguageOption("Ελληνικά", "el") { showLanguageDialog = false }
+                    LanguageOption("Svenska", "sv") { showLanguageDialog = false }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = true,
         drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier.width(300.dp)
-            ) {
+            ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     stringResource(R.string.shop_by_category), 
@@ -145,9 +161,7 @@ fun GrifonApp() {
                 Column {
                     AppTopBar(
                         shopLabel = if (appState.activeShopId == "1") "SE" else "GR",
-                        onMenuClick = { 
-                            scope.launch { drawerState.open() } 
-                        },
+                        onMenuClick = { scope.launch { drawerState.open() } },
                         onHomeClick = { navController.navigateToTopLevel(Routes.HOME) },
                         onCartClick = { navController.navigateToTopLevel(Routes.CART) },
                         onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) }
@@ -160,7 +174,10 @@ fun GrifonApp() {
                 }
             },
             bottomBar = {
-                AppBottomNav(navController = navController)
+                AppBottomNav(
+                    navController = navController,
+                    onLanguageClick = { showLanguageDialog = true }
+                )
             },
         ) { innerPadding ->
             Surface(
@@ -178,14 +195,24 @@ fun GrifonApp() {
     }
 }
 
+@Composable
+private fun LanguageOption(label: String, tag: String, onClick: () -> Unit) {
+    Text(
+        text = label,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(tag)
+                AppCompatDelegate.setApplicationLocales(appLocale)
+                onClick()
+            }
+            .padding(vertical = 12.dp, horizontal = 8.dp),
+        style = MaterialTheme.typography.bodyLarge
+    )
+}
+
 /**
  * Extension function to navigate to a top-level destination.
- * 
- * It ensures that the back stack is popped up to the start destination,
- * avoids multiple copies of the same destination when re-selecting,
- * and restores state when re-selecting a previously selected item.
- * 
- * @param route The destination route to navigate to.
  */
 private fun NavHostController.navigateToTopLevel(route: String) {
     navigate(route) {
