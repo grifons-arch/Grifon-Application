@@ -29,11 +29,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 
+/**
+ * Data class representing a category in the navigation drawer.
+ * @property name The display name of the category.
+ * @property id The unique identifier of the category used for navigation.
+ */
 private data class DrawerCategory(
     val name: String,
     val id: String,
 )
 
+/**
+ * The main entry point for the Grifon application UI.
+ * 
+ * This composable sets up the overall structure of the app, including:
+ * - A [ModalNavigationDrawer] for category-based navigation.
+ * - A [Scaffold] containing the [AppTopBar], [AppSearchBar], and [AppBottomNav].
+ * - The [AppNavHost] to manage screen transitions.
+ * - Logic for debounced search navigation.
+ */
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun GrifonApp() {
@@ -56,6 +70,7 @@ fun GrifonApp() {
         DrawerCategory(name = "Υφασμάτινα", id = "8"),
     )
 
+    // Effect to handle search query changes with debounce and navigation to PLP
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
             .filter { it.length >= 2 }
@@ -161,6 +176,15 @@ fun GrifonApp() {
     }
 }
 
+/**
+ * Extension function to navigate to a top-level destination.
+ * 
+ * It ensures that the back stack is popped up to the start destination,
+ * avoids multiple copies of the same destination when re-selecting,
+ * and restores state when re-selecting a previously selected item.
+ * 
+ * @param route The destination route to navigate to.
+ */
 private fun NavHostController.navigateToTopLevel(route: String) {
     navigate(route) {
         popUpTo(graph.findStartDestination().id) {
