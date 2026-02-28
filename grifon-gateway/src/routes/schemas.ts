@@ -64,6 +64,11 @@ export const productIdSchema = z.object({
   productId: z.preprocess(toNumber, z.number().int().positive())
 });
 
+export const loginBodySchema = z.object({
+  email: z.string().trim().email(),
+  password: z.string().min(1)
+});
+
 export const registerBodySchema = z
   .object({
     email: z.string().trim().email(),

@@ -6,6 +6,7 @@ import { validateQuery, validateParams, validateBody } from "../middleware/valid
 import {
   categoryIdSchema,
   customerIdSchema,
+  loginBodySchema,
   paginationSchema,
   productIdSchema,
   productPaginationSchema,
@@ -19,11 +20,11 @@ import { listProductsByCategory, getProductDetail, listAllProducts } from "../se
 import { listGroupsWithMembers } from "../services/groupService";
 import { cache, buildCacheKey } from "../utils/cache";
 import { getPriceAccess } from "../services/priceAccessService";
-import { registerCustomer } from "../services/authService";
+import { registerCustomer, loginCustomer } from "../services/authService";
 
 export const apiRouter = Router();
 
-const registerRateLimiter = rateLimit({
+const authRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   limit: config.registerRateLimitPerMin,
   standardHeaders: true,
@@ -58,10 +59,25 @@ apiRouter.get("/v1/images/products/:productId/:imageId", async (req, res, next) 
   }
 });
 
+// LOGIN ROUTE (V1)
+apiRouter.post(
+  "/v1/auth/login",
+  authRateLimiter,
+  validateBody(loginBodySchema),
+  async (req, res, next) => {
+    try {
+      const response = await loginCustomer(req.body as any);
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 // REGISTER ROUTE (V1)
 apiRouter.post(
   "/v1/auth/register",
-  registerRateLimiter,
+  authRateLimiter,
   validateBody(registerBodySchema),
   async (req, res, next) => {
     try {
