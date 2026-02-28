@@ -24,4 +24,12 @@
     <string name="nav_settings">Ρυθμίσεις</string>
     <string name="nav_info">Πληροφορίες</string>
     <string name="nav_chat">Συνομιλία</string>
+
+    <string name="email">Email</string>
+    <string name="password">Κωδικός</string>
+    <string name="login_button">Σύνδεση</string>
+    <string name="welcome_back">Καλώς ήρθες</string>
+    <string name="login_title">Σύνδεση</string>
+    <string name="register_prompt">Αν δεν έχεις λογαριασμό, δημιούργησε έναν </string>
+    <string name="here">εδώ</string>
 </resources>

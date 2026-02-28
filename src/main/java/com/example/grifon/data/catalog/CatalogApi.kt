@@ -1,7 +1,9 @@
 package com.example.grifon.data.catalog
 
 import com.squareup.moshi.JsonClass
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -35,7 +37,24 @@ interface CatalogApi {
         @Query("pageSize") pageSize: Int = 100,
         @Query("sort") sort: String = "[id_DESC]",
     ): ProductsResponseDto
+
+    @POST("v1/auth/login")
+    suspend fun login(@Body request: LoginRequestDto): LoginResponseDto
 }
+
+@JsonClass(generateAdapter = true)
+data class LoginRequestDto(
+    val email: String,
+    val password: String,
+)
+
+@JsonClass(generateAdapter = true)
+data class LoginResponseDto(
+    val token: String? = null,
+    val customerId: String? = null,
+    val firstName: String? = null,
+    val lastName: String? = null,
+)
 
 @JsonClass(generateAdapter = true)
 data class ShopDto(

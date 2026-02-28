@@ -147,4 +147,13 @@ class FakeCartRepository : CartRepository {
 class FakeUserRepository : UserRepository {
     private val loggedIn = MutableStateFlow(false)
     override fun isLoggedIn(): Flow<Boolean> = loggedIn
+
+    override suspend fun login(email: String, password: String): Result<Unit> {
+        loggedIn.value = true
+        return Result.success(Unit)
+    }
+
+    override suspend fun logout() {
+        loggedIn.value = false
+    }
 }
