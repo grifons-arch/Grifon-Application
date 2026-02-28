@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -74,6 +75,7 @@ fun ProductListScreen(
                 if (filtersOpen) {
                     FiltersSheet(
                         currentFilters = data.filters,
+                        products = data.products,
                         onDismiss = { filtersOpen = false },
                         onApply = { newFilters ->
                             viewModel.updateFilters(newFilters)
@@ -99,15 +101,27 @@ fun ProductListScreen(
 @Composable
 private fun FiltersSheet(
     currentFilters: FilterState,
+    products: List<Product>,
     onDismiss: () -> Unit,
     onApply: (FilterState) -> Unit,
 ) {
     val scrollState = rememberScrollState()
-    var tempFilters by remember { mutableStateOf(currentFilters) }
-    val colors = mapOf(
-        "Μπλε" to Color.Blue, "Κόκκινο" to Color.Red, "Κίτρινο" to Color.Yellow, 
-        "Πράσινο" to Color.Green, "Μαύρο" to Color.Black, "Λευκό" to Color.White
-    )
+    var tempFilters by remember(currentFilters) { mutableStateOf(currentFilters) }
+    val brands = remember(products) { products.map { it.brand }.filter { it.isNotBlank() }.distinct().sorted() }
+    val maxPrice = remember(products) {
+        products.maxOfOrNull { it.price }?.coerceAtLeast(10.0) ?: 500.0
+    }
+    val colorPalette = remember {
+        mapOf(
+            "Μπλε" to Color(0xFF0D47A1),
+            "Κόκκινο" to Color(0xFFC62828),
+            "Κίτρινο" to Color(0xFFFBC02D),
+            "Πράσινο" to Color(0xFF2E7D32),
+            "Μαύρο" to Color(0xFF111111),
+            "Λευκό" to Color(0xFFF8F8F8),
+            "Γκρι" to Color(0xFF757575)
+        )
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -119,13 +133,46 @@ private fun FiltersSheet(
             Text("Φιλτράρισμα κατά", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
             Spacer(Modifier.height(16.dp))
 
-            // ΕΝΟΤΗΤΑ ΧΡΩΜΑΤΩΝ
+            FilterSectionTitle(title = "Τιμή")
+            val sliderRange = 0f..maxPrice.toFloat()
+            val selectedStart = tempFilters.priceRange.start.toFloat().coerceIn(sliderRange.start, sliderRange.endInclusive)
+            val selectedEnd = tempFilters.priceRange.endInclusive.toFloat().coerceIn(selectedStart, sliderRange.endInclusive)
+            RangeSlider(
+                value = selectedStart..selectedEnd,
+                onValueChange = { range ->
+                    tempFilters = tempFilters.copy(priceRange = range.start.toDouble()..range.endInclusive.toDouble())
+                },
+                valueRange = sliderRange
+            )
+            Text(
+                text = String.format("%.0f€ - %.0f€", selectedStart, selectedEnd),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            if (brands.isNotEmpty()) {
+                FilterSectionTitle(title = "Brand")
+                brands.forEach { brand ->
+                    FilterItemRow(
+                        label = brand,
+                        count = products.count { it.brand == brand },
+                        selected = tempFilters.brands.contains(brand),
+                        onToggle = {
+                            val next = if (tempFilters.brands.contains(brand)) {
+                                tempFilters.brands - brand
+                            } else {
+                                tempFilters.brands + brand
+                            }
+                            tempFilters = tempFilters.copy(brands = next)
+                        }
+                    )
+                }
+            }
+
             FilterSectionTitle(title = "Χρωματισμοί")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                colors.forEach { (name, color) ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                colorPalette.forEach { (name, color) ->
                     ColorCircle(name, color, tempFilters.colors.contains(name)) {
-                        val currentColors = tempFilters.colors
-                        val nextColors = if (currentColors.contains(name)) currentColors - name else currentColors + name
+                        val nextColors = if (tempFilters.colors.contains(name)) tempFilters.colors - name else tempFilters.colors + name
                         tempFilters = tempFilters.copy(colors = nextColors)
                     }
                 }
@@ -134,9 +181,19 @@ private fun FiltersSheet(
             FilterSectionTitle(title = "Διαθεσιμότητα")
             FilterItemRow(
                 label = "Σε απόθεμα", 
-                count = 77, 
+                count = products.count { it.inStock },
                 selected = tempFilters.inStockOnly,
                 onToggle = { tempFilters = tempFilters.copy(inStockOnly = !tempFilters.inStockOnly) }
+            )
+
+            FilterSectionTitle(title = "Αξιολόγηση")
+            FilterItemRow(
+                label = "4★ και άνω",
+                count = products.count { it.rating >= 4.0 },
+                selected = tempFilters.ratingMin >= 4.0,
+                onToggle = {
+                    tempFilters = tempFilters.copy(ratingMin = if (tempFilters.ratingMin >= 4.0) 0.0 else 4.0)
+                }
             )
 
             Spacer(Modifier.height(24.dp))
@@ -158,7 +215,15 @@ private fun ColorCircle(name: String, color: Color, isSelected: Boolean, onClick
             .background(color)
             .border(2.dp, if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent, CircleShape)
             .clickable { onClick() }
-    )
+    ) {
+        if (isSelected) {
+            Text(
+                text = "✓",
+                color = if (color.luminance() > 0.5f) Color.Black else Color.White,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    }
 }
 
 // ... (τα υπόλοιπα composables παραμένουν ως έχουν)

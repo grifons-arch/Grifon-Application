@@ -92,7 +92,11 @@ class FakeCatalogRepository : CatalogRepository {
             product.price in filters.priceRange &&
                 (!filters.inStockOnly || product.inStock) &&
                 (filters.ratingMin <= product.rating) &&
-                (filters.brands.isEmpty() || filters.brands.contains(product.brand))
+                (filters.brands.isEmpty() || filters.brands.contains(product.brand)) &&
+                (filters.colors.isEmpty() || filters.colors.any { color ->
+                    product.title.contains(color, ignoreCase = true) ||
+                        product.attributesMap.values.any { it.contains(color, ignoreCase = true) }
+                })
         }
         filters.attributes.forEach { (key, values) ->
             if (values.isNotEmpty()) {

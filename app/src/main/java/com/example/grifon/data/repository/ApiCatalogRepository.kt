@@ -53,6 +53,15 @@ class ApiCatalogRepository @Inject constructor(
                 .filter { product ->
                     val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
                     val matchesStock = if (filters.inStockOnly) product.inStock else true
+                    val matchesBrand = filters.brands.isEmpty() || filters.brands.contains(product.brand)
+                    val matchesRating = product.rating >= filters.ratingMin
+                    val selectedColors = filters.colors
+                    val matchesColor = if (selectedColors.isNotEmpty()) {
+                        selectedColors.any { color ->
+                            product.title.contains(color, ignoreCase = true) ||
+                                product.attributesMap.values.any { it.contains(color, ignoreCase = true) }
+                        }
+                    } else true
                     
                     // Φιλτράρισμα βάσει ονόματος για τις κατηγορίες (π.χ. Μινωικά) αν δεν έχουμε attributes
                     val selectedMinoan = filters.attributes["minoan"] ?: emptySet()
@@ -60,7 +69,7 @@ class ApiCatalogRepository @Inject constructor(
                         selectedMinoan.any { product.title.contains(it, ignoreCase = true) }
                     } else true
 
-                    matchesPrice && matchesStock && matchesMinoan
+                    matchesPrice && matchesStock && matchesBrand && matchesRating && matchesColor && matchesMinoan
                 }
                 .let { list ->
                     // ΕΦΑΡΜΟΓΗ ΤΑΞΙΝΟΜΗΣΗΣ
@@ -93,8 +102,18 @@ class ApiCatalogRepository @Inject constructor(
                                  product.attributesMap["reference"]?.contains(query, ignoreCase = true) == true
                 
                 val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
+                val matchesStock = if (filters.inStockOnly) product.inStock else true
+                val matchesBrand = filters.brands.isEmpty() || filters.brands.contains(product.brand)
+                val matchesRating = product.rating >= filters.ratingMin
+                val selectedColors = filters.colors
+                val matchesColor = if (selectedColors.isNotEmpty()) {
+                    selectedColors.any { color ->
+                        product.title.contains(color, ignoreCase = true) ||
+                            product.attributesMap.values.any { it.contains(color, ignoreCase = true) }
+                    }
+                } else true
                 
-                matchesQuery && matchesPrice
+                matchesQuery && matchesPrice && matchesStock && matchesBrand && matchesRating && matchesColor
             }
             emit(filtered)
         } catch (e: Exception) {
