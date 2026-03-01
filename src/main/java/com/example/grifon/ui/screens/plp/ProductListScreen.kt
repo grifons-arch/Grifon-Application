@@ -300,10 +300,24 @@ private fun CategoryTreeFilter(
         return
     }
 
-    val parentIds = categories.mapNotNull { it.parentId }.toSet()
-    val roots = categories.filter { it.parentId == null || !parentIds.contains(it.id) }
+    val categoryIds = categories.map { it.id }.toSet()
+    val roots = categories
+        .filter { it.parentId == null || !categoryIds.contains(it.parentId) }
+        .sortedBy { it.name.lowercase() }
 
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFFF5F5F5), RoundedCornerShape(6.dp))
+            .padding(horizontal = 6.dp, vertical = 4.dp)
+    ) {
+        CategoryLeafRow(
+            label = "Home",
+            level = 0,
+            selected = selectedCategoryId.isBlank(),
+            onClick = { onSelectCategory("") }
+        )
         roots.forEach { root ->
             CategoryTreeNode(
                 node = root,
@@ -328,31 +342,30 @@ private fun CategoryTreeNode(
     onToggleExpanded: (String) -> Unit,
     onSelectCategory: (String) -> Unit,
 ) {
-    val children = allCategories.filter { it.parentId == node.id }
+    val children = allCategories.filter { it.parentId == node.id }.sortedBy { it.name.lowercase() }
     val hasChildren = children.isNotEmpty()
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onSelectCategory(node.id) }
-            .padding(start = (level * 12).dp, top = 2.dp, bottom = 2.dp),
+            .padding(start = (level * 14).dp, top = 1.dp, bottom = 1.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = if (hasChildren) if (expanded.contains(node.id)) "⌄" else "›" else " ",
             modifier = Modifier
-                .width(16.dp)
+                .width(14.dp)
                 .clickable(enabled = hasChildren) { onToggleExpanded(node.id) },
-            color = Color.Gray
+            color = Color(0xFF8A8A8A),
+            fontSize = 12.sp
         )
-        RadioButton(
-            selected = selectedCategoryId == node.id,
-            onClick = { onSelectCategory(node.id) }
-        )
+        SelectionCircle(selected = selectedCategoryId == node.id, onClick = { onSelectCategory(node.id) })
         Text(
             text = node.name,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(start = 4.dp)
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+            color = Color(0xFF4A4A4A),
+            modifier = Modifier.padding(start = 6.dp)
         )
     }
 
@@ -369,6 +382,43 @@ private fun CategoryTreeNode(
             )
         }
     }
+}
+
+@Composable
+private fun CategoryLeafRow(
+    label: String,
+    level: Int,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(start = (level * 14).dp, top = 1.dp, bottom = 1.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(" ", modifier = Modifier.width(14.dp))
+        SelectionCircle(selected = selected, onClick = onClick)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+            color = Color(0xFF4A4A4A),
+            modifier = Modifier.padding(start = 6.dp)
+        )
+    }
+}
+
+@Composable
+private fun SelectionCircle(selected: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(16.dp)
+            .clip(CircleShape)
+            .border(1.dp, Color(0xFF909090), CircleShape)
+            .background(if (selected) Color(0xFF6E8BB6) else Color.Transparent)
+            .clickable { onClick() }
+    )
 }
 
 @Composable

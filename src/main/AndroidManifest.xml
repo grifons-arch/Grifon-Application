@@ -4,16 +4,20 @@
         android:allowBackup="true"
         android:name=".GrifonApplication"
         android:label="@string/app_name"
-        android:theme="@style/Theme.App.SplashScreen">
+        android:theme="@style/Theme.Grifon">
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.App.SplashScreen">
+            android:theme="@style/Theme.App.Launch">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Grifon" />
         <activity
             android:name=".LoginActivity"
             android:exported="false" />

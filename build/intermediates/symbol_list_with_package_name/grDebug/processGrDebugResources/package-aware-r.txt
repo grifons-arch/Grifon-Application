@@ -3049,6 +3049,7 @@ drawable skakitabli
 drawable test_level_drawable
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
+drawable transparent_splash_icon
 drawable veroza
 drawable yfasmatina
 id ALT
@@ -3439,6 +3440,8 @@ id snap
 id snapMargins
 id spacer
 id special_effects_controller_view_tag
+id splash_logo
+id splash_progress
 id splashscreen_icon_view
 id spline
 id split_action_bar
@@ -3642,6 +3645,7 @@ layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_main
+layout activity_splash
 layout custom_dialog
 layout design_bottom_navigation_item
 layout design_bottom_sheet_dialog
@@ -4548,7 +4552,7 @@ style TextAppearance_MaterialComponents_Tooltip
 style TextAppearance_Widget_AppCompat_ExpandedMenu_Item
 style TextAppearance_Widget_AppCompat_Toolbar_Subtitle
 style TextAppearance_Widget_AppCompat_Toolbar_Title
-style Theme_App_SplashScreen
+style Theme_App_Launch
 style Theme_AppCompat
 style Theme_AppCompat_CompactMenu
 style Theme_AppCompat_DayNight

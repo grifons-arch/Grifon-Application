@@ -10,10 +10,14 @@ drawable paixnidiarouytrina
 drawable polwesterika
 drawable sapounia
 drawable skakitabli
+drawable transparent_splash_icon
 drawable veroza
 drawable yfasmatina
 id company_logo
+id splash_logo
+id splash_progress
 layout activity_main
+layout activity_splash
 string app_name
 string bronze
 string cart_description
@@ -43,5 +47,5 @@ string textiles
 string toys
 string welcome_back
 string wholesale_intro
-style Theme.App.SplashScreen
+style Theme.App.Launch
 style Theme.Grifon

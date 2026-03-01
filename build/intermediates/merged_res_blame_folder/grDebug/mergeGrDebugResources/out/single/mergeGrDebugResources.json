@@ -4,8 +4,16 @@
         "source": "com.example.grifon.app-main-86:/drawable/diakosmitika_keramikago.jpg"
     },
     {
+        "merged": "com.example.grifon.app-grDebug-82:/drawable_transparent_splash_icon.xml.flat",
+        "source": "com.example.grifon.app-main-86:/drawable/transparent_splash_icon.xml"
+    },
+    {
         "merged": "com.example.grifon.app-grDebug-82:/drawable_fvthsthka.jpg.flat",
         "source": "com.example.grifon.app-main-86:/drawable/fvthsthka.jpg"
+    },
+    {
+        "merged": "com.example.grifon.app-grDebug-82:/layout_activity_splash.xml.flat",
+        "source": "com.example.grifon.app-main-86:/layout/activity_splash.xml"
     },
     {
         "merged": "com.example.grifon.app-grDebug-82:/layout_activity_main.xml.flat",

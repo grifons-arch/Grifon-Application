@@ -196,6 +196,7 @@ public final class GrifonApplication_HiltComponents {
   )
   @ActivityScoped
   public abstract static class ActivityC implements MainActivity_GeneratedInjector,
+      SplashActivity_GeneratedInjector,
       ActivityComponent,
       DefaultViewModelFactories.ActivityEntryPoint,
       HiltWrapper_HiltViewModelFactory_ActivityCreatorEntryPoint,
