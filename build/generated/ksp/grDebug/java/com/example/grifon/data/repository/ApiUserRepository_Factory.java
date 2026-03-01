@@ -2,6 +2,7 @@ package com.example.grifon.data.repository;
 
 import com.example.grifon.data.catalog.CatalogApi;
 import com.example.grifon.data.local.UserPreferences;
+import com.squareup.moshi.Moshi;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -29,24 +30,27 @@ public final class ApiUserRepository_Factory implements Factory<ApiUserRepositor
 
   private final Provider<UserPreferences> userPreferencesProvider;
 
+  private final Provider<Moshi> moshiProvider;
+
   public ApiUserRepository_Factory(Provider<CatalogApi> catalogApiProvider,
-      Provider<UserPreferences> userPreferencesProvider) {
+      Provider<UserPreferences> userPreferencesProvider, Provider<Moshi> moshiProvider) {
     this.catalogApiProvider = catalogApiProvider;
     this.userPreferencesProvider = userPreferencesProvider;
+    this.moshiProvider = moshiProvider;
   }
 
   @Override
   public ApiUserRepository get() {
-    return newInstance(catalogApiProvider.get(), userPreferencesProvider.get());
+    return newInstance(catalogApiProvider.get(), userPreferencesProvider.get(), moshiProvider.get());
   }
 
   public static ApiUserRepository_Factory create(Provider<CatalogApi> catalogApiProvider,
-      Provider<UserPreferences> userPreferencesProvider) {
-    return new ApiUserRepository_Factory(catalogApiProvider, userPreferencesProvider);
+      Provider<UserPreferences> userPreferencesProvider, Provider<Moshi> moshiProvider) {
+    return new ApiUserRepository_Factory(catalogApiProvider, userPreferencesProvider, moshiProvider);
   }
 
   public static ApiUserRepository newInstance(CatalogApi catalogApi,
-      UserPreferences userPreferences) {
-    return new ApiUserRepository(catalogApi, userPreferences);
+      UserPreferences userPreferences, Moshi moshi) {
+    return new ApiUserRepository(catalogApi, userPreferences, moshi);
   }
 }

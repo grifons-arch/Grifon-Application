@@ -95,8 +95,9 @@ object AppModule {
     @Singleton
     fun provideUserRepository(
         catalogApi: CatalogApi,
-        userPreferences: UserPreferences
-    ): UserRepository = ApiUserRepository(catalogApi, userPreferences)
+        userPreferences: UserPreferences,
+        moshi: Moshi
+    ): UserRepository = ApiUserRepository(catalogApi, userPreferences, moshi)
 
     @Provides
     @Singleton
