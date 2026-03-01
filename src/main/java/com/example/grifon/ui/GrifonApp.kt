@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.grifon.R
 import com.example.grifon.navigation.AppNavHost
 import com.example.grifon.navigation.Routes
@@ -60,6 +61,13 @@ fun GrifonApp() {
     val scope = rememberCoroutineScope()
 
     var showLanguageDialog by remember { mutableStateOf(false) }
+
+    // Observe current destination to show/hide search bar
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    
+    // Show search bar only on Home and PLP screens
+    val showSearchBar = currentRoute == Routes.HOME || currentRoute?.startsWith("plp") == true
 
     // Categories for the drawer
     val categories = listOf(
@@ -166,11 +174,13 @@ fun GrifonApp() {
                         onCartClick = { navController.navigateToTopLevel(Routes.CART) },
                         onNotificationsClick = { navController.navigateToTopLevel(Routes.ACCOUNT) }
                     )
-                    AppSearchBar(
-                        query = searchQuery,
-                        onQueryChange = { searchQuery = it },
-                        onScanClick = { navController.navigate(Routes.SCAN) }
-                    )
+                    if (showSearchBar) {
+                        AppSearchBar(
+                            query = searchQuery,
+                            onQueryChange = { searchQuery = it },
+                            onScanClick = { navController.navigate(Routes.SCAN) }
+                        )
+                    }
                 }
             },
             bottomBar = {
