@@ -9,3 +9,4 @@ local.properties
 backend/node_modules/
 grifon-gateway/node_modules/
 backend/dist/
+backend/prestashop_modules

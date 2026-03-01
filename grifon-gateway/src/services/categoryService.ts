@@ -25,7 +25,8 @@ export const listCategories = async (
   try {
     const data = await client.get("categories", {
       "filter[active]": 1,
-      sort: "[position_ASC]",
+      display: "full",
+      sort: "[id_ASC]",
       limit: toLimitParam(page, pageSize)
     });
 
@@ -36,7 +37,7 @@ export const listCategories = async (
 
     const items: CategoryItem[] = categories.map((category) => ({
       id: Number(category.id),
-      parentId: toNumber(category.id_parent),
+      parentId: category.id_parent ? toNumber(category.id_parent) : null,
       name: getLocalizedValue(category.name, lang),
       position: toNumber(category.position),
       active: toNumber(category.active),
@@ -50,16 +51,21 @@ export const listCategories = async (
 
     const tree: CategoryTreeNode[] = [];
     nodeMap.forEach((node) => {
-      if (node.parentId && nodeMap.has(node.parentId)) {
+      // Root categories in PS usually have parent ID 0, 1 (Root) or 2 (Home)
+      if (node.parentId && node.parentId > 2 && nodeMap.has(node.parentId)) {
         nodeMap.get(node.parentId)?.children.push(node);
-      } else {
+      } else if (node.id > 2) {
         tree.push(node);
       }
     });
 
     return { items, tree };
-  } catch (error) {
-    console.error("Category fetch failed, returning empty list:", error);
-    return { items: [], tree: [] }; // Επιστροφή κενής λίστας αντί για 500
+  } catch (error: any) {
+    console.error("Category fetch failed:", {
+        status: error.status,
+        message: error.message,
+        details: error.details
+    });
+    return { items: [], tree: [] };
   }
 };
