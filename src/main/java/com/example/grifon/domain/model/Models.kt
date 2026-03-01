@@ -34,7 +34,7 @@ data class CartItem(
 data class FilterState(
     val priceRange: ClosedFloatingPointRange<Double> = 0.0..500.0,
     val brands: Set<String> = emptySet(),
-    val colors: Set<String> = emptySet(), // Προσθήκη για τα χρώματα
+    val colors: Set<String> = emptySet(),
     val inStockOnly: Boolean = false,
     val ratingMin: Double = 0.0,
     val saleOnly: Boolean = false,
@@ -43,8 +43,8 @@ data class FilterState(
 )
 
 enum class SortOption(val label: String) {
-    RELEVANCE("Σχετικότητα"),
-    PRICE_LOW_HIGH("Τιμή ↑"),
-    PRICE_HIGH_LOW("Τιμή ↓"),
-    RATING("Rating"),
+    RELEVANCE("S?et???t?ta"),
+    PRICE_LOW_HIGH("??µ? ?"),
+    PRICE_HIGH_LOW("??µ? ?"),
+    RATING("????????s?"),
 }

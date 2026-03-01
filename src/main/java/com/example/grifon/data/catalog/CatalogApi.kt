@@ -18,6 +18,10 @@ interface CatalogApi {
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 50,
         @Query("sort") sort: String = "[id_DESC]",
+        @Query("search") search: String? = null,
+        @Query("minPrice") minPrice: Double? = null,
+        @Query("maxPrice") maxPrice: Double? = null,
+        @Query("inStockOnly") inStockOnly: Boolean? = null,
     ): ProductsResponseDto
 
     @GET("v1/categories")
@@ -36,6 +40,10 @@ interface CatalogApi {
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 100,
         @Query("sort") sort: String = "[id_DESC]",
+        @Query("search") search: String? = null,
+        @Query("minPrice") minPrice: Double? = null,
+        @Query("maxPrice") maxPrice: Double? = null,
+        @Query("inStockOnly") inStockOnly: Boolean? = null,
     ): ProductsResponseDto
 
     @POST("v1/auth/login")
@@ -83,6 +91,8 @@ data class CategoriesResponseDto(
 data class CategoryDto(
     val id: Int,
     val name: String? = null,
+    val parentId: Int? = null,
+    val childrenCount: Int? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -96,6 +106,9 @@ data class ProductDto(
     val name: String? = null,
     val price: Double? = null,
     val reference: String? = null,
+    val brand: String? = null,
+    val quantity: Int? = null,
+    val inStock: Boolean? = null,
     val defaultImage: ImageDto? = null,
 )
 

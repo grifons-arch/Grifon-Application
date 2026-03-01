@@ -1,13 +1,15 @@
-package com.example.grifon.data.repository
+﻿package com.example.grifon.data.repository
 
+import com.example.grifon.BuildConfig
 import com.example.grifon.data.catalog.CatalogApi
-import com.example.grifon.domain.model.*
+import com.example.grifon.domain.model.Category
+import com.example.grifon.domain.model.FilterState
+import com.example.grifon.domain.model.Product
+import com.example.grifon.domain.model.SortOption
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
-import android.util.Log
-import com.example.grifon.BuildConfig
 
 @Singleton
 class ApiCatalogRepository @Inject constructor(
@@ -20,14 +22,16 @@ class ApiCatalogRepository @Inject constructor(
         try {
             val id = shopId.toIntOrNull() ?: 4
             val response = catalogApi.getCategories(shopId = id)
-            emit(response.items.map { 
-                Category(
-                    id = it.id.toString(), 
-                    name = it.name ?: "",
-                    parentId = null,
-                    childrenCount = 0
-                ) 
-            })
+            emit(
+                response.items.map {
+                    Category(
+                        id = it.id.toString(),
+                        name = it.name ?: "",
+                        parentId = it.parentId?.toString(),
+                        childrenCount = it.childrenCount ?: 0
+                    )
+                }
+            )
         } catch (e: Exception) {
             emit(emptyList())
         }
@@ -42,34 +46,27 @@ class ApiCatalogRepository @Inject constructor(
         try {
             val sId = shopId.toIntOrNull() ?: 4
             val response = if (categoryId == "2" || categoryId.isBlank()) {
-                catalogApi.getProducts(shopId = sId, pageSize = 100)
+                catalogApi.getProducts(
+                    shopId = sId,
+                    pageSize = 100,
+                    minPrice = filters.priceRange.start,
+                    maxPrice = filters.priceRange.endInclusive,
+                    inStockOnly = filters.inStockOnly
+                )
             } else {
-                catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = sId)
+                catalogApi.getCategoryProducts(
+                    categoryId = categoryId.toInt(),
+                    shopId = sId,
+                    minPrice = filters.priceRange.start,
+                    maxPrice = filters.priceRange.endInclusive,
+                    inStockOnly = filters.inStockOnly
+                )
             }
-            
-            // ΕΦΑΡΜΟΓΗ ΦΙΛΤΡΩΝ ΣΤΗ ΛΙΣΤΑ
+
             val filteredProducts = response.items
                 .map { it.toDomain(sId) }
-                .filter { product ->
-                    val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
-                    val matchesStock = if (filters.inStockOnly) product.inStock else true
-                    
-                    // Φιλτράρισμα βάσει ονόματος για τις κατηγορίες (π.χ. Μινωικά) αν δεν έχουμε attributes
-                    val selectedMinoan = filters.attributes["minoan"] ?: emptySet()
-                    val matchesMinoan = if (selectedMinoan.isNotEmpty()) {
-                        selectedMinoan.any { product.title.contains(it, ignoreCase = true) }
-                    } else true
-
-                    matchesPrice && matchesStock && matchesMinoan
-                }
-                .let { list ->
-                    // ΕΦΑΡΜΟΓΗ ΤΑΞΙΝΟΜΗΣΗΣ
-                    when (sortOption) {
-                        SortOption.PRICE_LOW_HIGH -> list.sortedBy { it.price }
-                        SortOption.PRICE_HIGH_LOW -> list.sortedByDescending { it.price }
-                        else -> list
-                    }
-                }
+                .applyClientSideFallbackFilters(filters)
+                .applySort(sortOption)
 
             emit(filteredProducts)
         } catch (e: Exception) {
@@ -85,17 +82,20 @@ class ApiCatalogRepository @Inject constructor(
     ): Flow<List<Product>> = flow {
         try {
             val sId = shopId.toIntOrNull() ?: 4
-            val response = catalogApi.getProducts(shopId = sId, pageSize = 100)
-            val allProducts = response.items.map { it.toDomain(sId) }
-            
-            val filtered = allProducts.filter { product ->
-                val matchesQuery = product.title.contains(query, ignoreCase = true) || 
-                                 product.attributesMap["reference"]?.contains(query, ignoreCase = true) == true
-                
-                val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
-                
-                matchesQuery && matchesPrice
-            }
+            val response = catalogApi.getProducts(
+                shopId = sId,
+                pageSize = 100,
+                search = query.takeIf { it.isNotBlank() },
+                minPrice = filters.priceRange.start,
+                maxPrice = filters.priceRange.endInclusive,
+                inStockOnly = filters.inStockOnly
+            )
+
+            val filtered = response.items
+                .map { it.toDomain(sId) }
+                .applyClientSideFallbackFilters(filters)
+                .applySort(sortOption)
+
             emit(filtered)
         } catch (e: Exception) {
             emit(emptyList())
@@ -116,10 +116,41 @@ class ApiCatalogRepository @Inject constructor(
             price = price ?: 0.0,
             currency = "EUR",
             imageUrl = fullImageUrl,
-            brand = if (shopId == 4) "Grifon GR" else "Grifon SE",
+            brand = brand ?: if (shopId == 4) "Grifon GR" else "Grifon SE",
             rating = 0.0,
-            inStock = true,
+            inStock = inStock ?: ((quantity ?: 1) > 0),
             attributesMap = mapOf("reference" to (reference ?: ""))
         )
+    }
+
+    private fun List<Product>.applyClientSideFallbackFilters(filters: FilterState): List<Product> {
+        var filtered = this
+
+        if (filters.brands.isNotEmpty()) {
+            filtered = filtered.filter { filters.brands.contains(it.brand) }
+        }
+
+        if (filters.attributes.isNotEmpty()) {
+            filters.attributes.forEach { (key, values) ->
+                if (values.isNotEmpty()) {
+                    filtered = filtered.filter { product ->
+                        val attributeValue = product.attributesMap[key]
+                        (attributeValue != null && values.contains(attributeValue)) ||
+                            values.any { selected -> product.title.contains(selected, ignoreCase = true) }
+                    }
+                }
+            }
+        }
+
+        return filtered
+    }
+
+    private fun List<Product>.applySort(sortOption: SortOption): List<Product> {
+        return when (sortOption) {
+            SortOption.RELEVANCE -> this
+            SortOption.PRICE_LOW_HIGH -> sortedBy { it.price }
+            SortOption.PRICE_HIGH_LOW -> sortedByDescending { it.price }
+            SortOption.RATING -> sortedByDescending { it.rating }
+        }
     }
 }
