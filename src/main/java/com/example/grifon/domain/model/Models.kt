@@ -32,7 +32,7 @@ data class CartItem(
 )
 
 data class FilterState(
-    val priceRange: ClosedFloatingPointRange<Double> = 0.0..500.0,
+    val priceRange: ClosedFloatingPointRange<Double> = 0.0..Double.MAX_VALUE,
     val brands: Set<String> = emptySet(),
     val colors: Set<String> = emptySet(),
     val inStockOnly: Boolean = false,

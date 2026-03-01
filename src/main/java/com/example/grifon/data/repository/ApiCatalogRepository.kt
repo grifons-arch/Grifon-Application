@@ -45,20 +45,24 @@ class ApiCatalogRepository @Inject constructor(
     ): Flow<List<Product>> = flow {
         try {
             val sId = shopId.toIntOrNull() ?: 4
-            val response = if (categoryId == "2" || categoryId.isBlank()) {
+            val catId = categoryId.toIntOrNull()
+            val minPrice = filters.toRequestMinPrice()
+            val maxPrice = filters.toRequestMaxPrice()
+            
+            val response = if (catId == null || catId <= 2) {
                 catalogApi.getProducts(
                     shopId = sId,
                     pageSize = 100,
-                    minPrice = filters.priceRange.start,
-                    maxPrice = filters.priceRange.endInclusive,
+                    minPrice = minPrice,
+                    maxPrice = maxPrice,
                     inStockOnly = filters.inStockOnly
                 )
             } else {
                 catalogApi.getCategoryProducts(
-                    categoryId = categoryId.toInt(),
+                    categoryId = catId,
                     shopId = sId,
-                    minPrice = filters.priceRange.start,
-                    maxPrice = filters.priceRange.endInclusive,
+                    minPrice = minPrice,
+                    maxPrice = maxPrice,
                     inStockOnly = filters.inStockOnly
                 )
             }
@@ -82,12 +86,14 @@ class ApiCatalogRepository @Inject constructor(
     ): Flow<List<Product>> = flow {
         try {
             val sId = shopId.toIntOrNull() ?: 4
+            val minPrice = filters.toRequestMinPrice()
+            val maxPrice = filters.toRequestMaxPrice()
             val response = catalogApi.getProducts(
                 shopId = sId,
                 pageSize = 100,
                 search = query.takeIf { it.isNotBlank() },
-                minPrice = filters.priceRange.start,
-                maxPrice = filters.priceRange.endInclusive,
+                minPrice = minPrice,
+                maxPrice = maxPrice,
                 inStockOnly = filters.inStockOnly
             )
 
@@ -111,7 +117,7 @@ class ApiCatalogRepository @Inject constructor(
         val fullImageUrl = if (rawUrl.startsWith("/")) "$gatewayBaseUrl$rawUrl" else rawUrl
 
         return Product(
-            id = "${shopId}_$id",
+            id = id.toString(),
             title = name ?: "",
             price = price ?: 0.0,
             currency = "EUR",
@@ -153,4 +159,10 @@ class ApiCatalogRepository @Inject constructor(
             SortOption.RATING -> sortedByDescending { it.rating }
         }
     }
+
+    private fun FilterState.toRequestMinPrice(): Double? =
+        if (priceRange.start > 0.0) priceRange.start else null
+
+    private fun FilterState.toRequestMaxPrice(): Double? =
+        if (priceRange.endInclusive < Double.MAX_VALUE) priceRange.endInclusive else null
 }
