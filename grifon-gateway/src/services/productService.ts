@@ -120,26 +120,71 @@ export const listProductsByCategory = async (
   allowPrice = true,
   filters: ProductQueryFilters = {}
 ): Promise<ProductListItem[]> => {
-  if (categoryId === 2) {
+  if (categoryId <= 2) {
     return listAllProducts(client, shopId, page, pageSize, sort, lang, allowPrice, filters);
   }
 
-  const data = await client.get("products", {
-    "filter[active]": 1,
-    "filter[id_category_default]": categoryId,
-    sort,
-    limit: toLimitParam(page, pageSize),
-    display: "full",
-    ...(filters.search ? { "filter[name]": `%${filters.search}%` } : {}),
-    ...(filters.minPrice !== undefined || filters.maxPrice !== undefined
-      ? {
-          "filter[price]": `[${filters.minPrice ?? ""},${filters.maxPrice ?? ""}]`
-        }
-      : {})
-  });
+  let products: any[] = [];
 
-  const items = extractResourceList<any>("products", data);
-  const normalized = items.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
+  // Προσπάθεια 1: id_category_default (το πιο γρήγορο)
+  try {
+    const data = await client.get("products", {
+      "filter[active]": 1,
+      "filter[id_category_default]": categoryId,
+      display: "full",
+      limit: toLimitParam(page, pageSize),
+      sort
+    });
+    products = extractResourceList<any>("products", data);
+  } catch (e) {
+    console.error("Method 1 (default category) failed:", e);
+  }
+
+  // Προσπάθεια 2: Αν δεν βρέθηκαν προϊόντα, ψάχνουμε μέσω associations
+  if (products.length === 0) {
+    try {
+      // Δοκιμάζουμε απευθείας το ID της κατηγορίας
+      const catData = await client.getById("categories", categoryId, { display: "full" });
+      const category = extractResourceItem<any>("categories", catData);
+      const associations = category?.associations?.products;
+      const productIds = extractResourceList<any>("products", { products: associations })
+        .map(p => p.id)
+        .filter(id => id !== undefined);
+
+      if (productIds.length > 0) {
+        const start = (page - 1) * pageSize;
+        const slice = productIds.slice(start, start + pageSize);
+        if (slice.length > 0) {
+          const productsData = await client.get("products", {
+            "filter[id]": `[${slice.join("|")}]`,
+            display: "full",
+            sort
+          });
+          products = extractResourceList<any>("products", productsData);
+        }
+      }
+    } catch (e) {
+      console.error("Method 2 (associations) failed:", e);
+    }
+  }
+
+  // Προσπάθεια 3: Αν ακόμα τίποτα, δοκιμάζουμε με φίλτρο στην κατηγορία αλλά με άλλο τρόπο
+  if (products.length === 0) {
+    try {
+      const data = await client.get("products", {
+        "filter[active]": 1,
+        "filter[id_category]": categoryId, // Κάποια plugins υποστηρίζουν αυτό το φίλτρο
+        display: "full",
+        limit: toLimitParam(page, pageSize),
+        sort
+      });
+      products = extractResourceList<any>("products", data);
+    } catch (e) {
+      // Αγνοούμε το σφάλμα εδώ
+    }
+  }
+
+  const normalized = products.map((p) => normalizeProduct(p, shopId, lang, allowPrice));
   return applyServerSideFilters(normalized, filters);
 };
 
