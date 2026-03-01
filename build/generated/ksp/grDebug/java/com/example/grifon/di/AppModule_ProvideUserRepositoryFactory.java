@@ -3,6 +3,7 @@ package com.example.grifon.di;
 import com.example.grifon.data.catalog.CatalogApi;
 import com.example.grifon.data.local.UserPreferences;
 import com.example.grifon.data.repository.UserRepository;
+import com.squareup.moshi.Moshi;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Preconditions;
@@ -31,24 +32,28 @@ public final class AppModule_ProvideUserRepositoryFactory implements Factory<Use
 
   private final Provider<UserPreferences> userPreferencesProvider;
 
+  private final Provider<Moshi> moshiProvider;
+
   public AppModule_ProvideUserRepositoryFactory(Provider<CatalogApi> catalogApiProvider,
-      Provider<UserPreferences> userPreferencesProvider) {
+      Provider<UserPreferences> userPreferencesProvider, Provider<Moshi> moshiProvider) {
     this.catalogApiProvider = catalogApiProvider;
     this.userPreferencesProvider = userPreferencesProvider;
+    this.moshiProvider = moshiProvider;
   }
 
   @Override
   public UserRepository get() {
-    return provideUserRepository(catalogApiProvider.get(), userPreferencesProvider.get());
+    return provideUserRepository(catalogApiProvider.get(), userPreferencesProvider.get(), moshiProvider.get());
   }
 
   public static AppModule_ProvideUserRepositoryFactory create(
-      Provider<CatalogApi> catalogApiProvider, Provider<UserPreferences> userPreferencesProvider) {
-    return new AppModule_ProvideUserRepositoryFactory(catalogApiProvider, userPreferencesProvider);
+      Provider<CatalogApi> catalogApiProvider, Provider<UserPreferences> userPreferencesProvider,
+      Provider<Moshi> moshiProvider) {
+    return new AppModule_ProvideUserRepositoryFactory(catalogApiProvider, userPreferencesProvider, moshiProvider);
   }
 
   public static UserRepository provideUserRepository(CatalogApi catalogApi,
-      UserPreferences userPreferences) {
-    return Preconditions.checkNotNullFromProvides(AppModule.INSTANCE.provideUserRepository(catalogApi, userPreferences));
+      UserPreferences userPreferences, Moshi moshi) {
+    return Preconditions.checkNotNullFromProvides(AppModule.INSTANCE.provideUserRepository(catalogApi, userPreferences, moshi));
   }
 }

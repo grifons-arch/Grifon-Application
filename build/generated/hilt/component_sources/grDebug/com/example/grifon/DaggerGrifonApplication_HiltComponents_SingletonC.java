@@ -449,38 +449,29 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_example_grifon_viewmodel_SettingsViewModel = "com.example.grifon.viewmodel.SettingsViewModel";
-
-      static String com_example_grifon_viewmodel_CategoriesViewModel = "com.example.grifon.viewmodel.CategoriesViewModel";
-
       static String com_example_grifon_viewmodel_PdpViewModel = "com.example.grifon.viewmodel.PdpViewModel";
 
-      static String com_example_grifon_viewmodel_AccountViewModel = "com.example.grifon.viewmodel.AccountViewModel";
-
-      static String com_example_grifon_viewmodel_HomeViewModel = "com.example.grifon.viewmodel.HomeViewModel";
+      static String com_example_grifon_viewmodel_PlpViewModel = "com.example.grifon.viewmodel.PlpViewModel";
 
       static String com_example_grifon_viewmodel_AppViewModel = "com.example.grifon.viewmodel.AppViewModel";
 
       static String com_example_grifon_viewmodel_ScanViewModel = "com.example.grifon.viewmodel.ScanViewModel";
 
-      static String com_example_grifon_viewmodel_PlpViewModel = "com.example.grifon.viewmodel.PlpViewModel";
+      static String com_example_grifon_viewmodel_SettingsViewModel = "com.example.grifon.viewmodel.SettingsViewModel";
+
+      static String com_example_grifon_viewmodel_CategoriesViewModel = "com.example.grifon.viewmodel.CategoriesViewModel";
+
+      static String com_example_grifon_viewmodel_AccountViewModel = "com.example.grifon.viewmodel.AccountViewModel";
+
+      static String com_example_grifon_viewmodel_HomeViewModel = "com.example.grifon.viewmodel.HomeViewModel";
 
       static String com_example_grifon_viewmodel_CartViewModel = "com.example.grifon.viewmodel.CartViewModel";
-
-      @KeepFieldType
-      SettingsViewModel com_example_grifon_viewmodel_SettingsViewModel2;
-
-      @KeepFieldType
-      CategoriesViewModel com_example_grifon_viewmodel_CategoriesViewModel2;
 
       @KeepFieldType
       PdpViewModel com_example_grifon_viewmodel_PdpViewModel2;
 
       @KeepFieldType
-      AccountViewModel com_example_grifon_viewmodel_AccountViewModel2;
-
-      @KeepFieldType
-      HomeViewModel com_example_grifon_viewmodel_HomeViewModel2;
+      PlpViewModel com_example_grifon_viewmodel_PlpViewModel2;
 
       @KeepFieldType
       AppViewModel com_example_grifon_viewmodel_AppViewModel2;
@@ -489,7 +480,16 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
       ScanViewModel com_example_grifon_viewmodel_ScanViewModel2;
 
       @KeepFieldType
-      PlpViewModel com_example_grifon_viewmodel_PlpViewModel2;
+      SettingsViewModel com_example_grifon_viewmodel_SettingsViewModel2;
+
+      @KeepFieldType
+      CategoriesViewModel com_example_grifon_viewmodel_CategoriesViewModel2;
+
+      @KeepFieldType
+      AccountViewModel com_example_grifon_viewmodel_AccountViewModel2;
+
+      @KeepFieldType
+      HomeViewModel com_example_grifon_viewmodel_HomeViewModel2;
 
       @KeepFieldType
       CartViewModel com_example_grifon_viewmodel_CartViewModel2;
@@ -561,41 +561,41 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
+      static String com_example_grifon_viewmodel_AppViewModel = "com.example.grifon.viewmodel.AppViewModel";
+
       static String com_example_grifon_viewmodel_CategoriesViewModel = "com.example.grifon.viewmodel.CategoriesViewModel";
 
-      static String com_example_grifon_viewmodel_AccountViewModel = "com.example.grifon.viewmodel.AccountViewModel";
+      static String com_example_grifon_viewmodel_SettingsViewModel = "com.example.grifon.viewmodel.SettingsViewModel";
 
       static String com_example_grifon_viewmodel_PlpViewModel = "com.example.grifon.viewmodel.PlpViewModel";
 
-      static String com_example_grifon_viewmodel_ScanViewModel = "com.example.grifon.viewmodel.ScanViewModel";
+      static String com_example_grifon_viewmodel_AccountViewModel = "com.example.grifon.viewmodel.AccountViewModel";
 
       static String com_example_grifon_viewmodel_CartViewModel = "com.example.grifon.viewmodel.CartViewModel";
-
-      static String com_example_grifon_viewmodel_SettingsViewModel = "com.example.grifon.viewmodel.SettingsViewModel";
 
       static String com_example_grifon_viewmodel_HomeViewModel = "com.example.grifon.viewmodel.HomeViewModel";
 
       static String com_example_grifon_viewmodel_PdpViewModel = "com.example.grifon.viewmodel.PdpViewModel";
 
-      static String com_example_grifon_viewmodel_AppViewModel = "com.example.grifon.viewmodel.AppViewModel";
+      static String com_example_grifon_viewmodel_ScanViewModel = "com.example.grifon.viewmodel.ScanViewModel";
+
+      @KeepFieldType
+      AppViewModel com_example_grifon_viewmodel_AppViewModel2;
 
       @KeepFieldType
       CategoriesViewModel com_example_grifon_viewmodel_CategoriesViewModel2;
 
       @KeepFieldType
-      AccountViewModel com_example_grifon_viewmodel_AccountViewModel2;
+      SettingsViewModel com_example_grifon_viewmodel_SettingsViewModel2;
 
       @KeepFieldType
       PlpViewModel com_example_grifon_viewmodel_PlpViewModel2;
 
       @KeepFieldType
-      ScanViewModel com_example_grifon_viewmodel_ScanViewModel2;
+      AccountViewModel com_example_grifon_viewmodel_AccountViewModel2;
 
       @KeepFieldType
       CartViewModel com_example_grifon_viewmodel_CartViewModel2;
-
-      @KeepFieldType
-      SettingsViewModel com_example_grifon_viewmodel_SettingsViewModel2;
 
       @KeepFieldType
       HomeViewModel com_example_grifon_viewmodel_HomeViewModel2;
@@ -604,7 +604,7 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
       PdpViewModel com_example_grifon_viewmodel_PdpViewModel2;
 
       @KeepFieldType
-      AppViewModel com_example_grifon_viewmodel_AppViewModel2;
+      ScanViewModel com_example_grifon_viewmodel_ScanViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -851,7 +851,7 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.example.grifon.data.repository.UserRepository 
-          return (T) AppModule_ProvideUserRepositoryFactory.provideUserRepository(singletonCImpl.provideCatalogApiProvider.get(), singletonCImpl.provideUserPreferencesProvider.get());
+          return (T) AppModule_ProvideUserRepositoryFactory.provideUserRepository(singletonCImpl.provideCatalogApiProvider.get(), singletonCImpl.provideUserPreferencesProvider.get(), singletonCImpl.provideMoshiProvider.get());
 
           case 1: // com.example.grifon.data.catalog.CatalogApi 
           return (T) AppModule_ProvideCatalogApiFactory.provideCatalogApi(singletonCImpl.provideRetrofitProvider.get());

@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.grifon.data.catalog.CatalogApi;
 import com.example.grifon.data.catalog.HomeProductsWebService;
 import com.example.grifon.data.local.ShopPreferences;
+import com.example.grifon.data.local.UserPreferences;
 import com.example.grifon.data.repository.BarcodeScannerService;
 import com.example.grifon.data.repository.CartRepository;
 import com.example.grifon.data.repository.CatalogRepository;
@@ -35,6 +36,7 @@ import com.example.grifon.di.AppModule_ProvideSearchProductsUseCaseFactory;
 import com.example.grifon.di.AppModule_ProvideSetActiveShopUseCaseFactory;
 import com.example.grifon.di.AppModule_ProvideShopPreferencesFactory;
 import com.example.grifon.di.AppModule_ProvideShopRepositoryFactory;
+import com.example.grifon.di.AppModule_ProvideUserPreferencesFactory;
 import com.example.grifon.di.AppModule_ProvideUserRepositoryFactory;
 import com.example.grifon.domain.usecase.AddToCartUseCase;
 import com.example.grifon.domain.usecase.GetActiveShopUseCase;
@@ -447,50 +449,50 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_example_grifon_viewmodel_ScanViewModel = "com.example.grifon.viewmodel.ScanViewModel";
-
-      static String com_example_grifon_viewmodel_AccountViewModel = "com.example.grifon.viewmodel.AccountViewModel";
-
-      static String com_example_grifon_viewmodel_PlpViewModel = "com.example.grifon.viewmodel.PlpViewModel";
-
-      static String com_example_grifon_viewmodel_PdpViewModel = "com.example.grifon.viewmodel.PdpViewModel";
-
-      static String com_example_grifon_viewmodel_AppViewModel = "com.example.grifon.viewmodel.AppViewModel";
-
-      static String com_example_grifon_viewmodel_CartViewModel = "com.example.grifon.viewmodel.CartViewModel";
+      static String com_example_grifon_viewmodel_SettingsViewModel = "com.example.grifon.viewmodel.SettingsViewModel";
 
       static String com_example_grifon_viewmodel_CategoriesViewModel = "com.example.grifon.viewmodel.CategoriesViewModel";
 
-      static String com_example_grifon_viewmodel_SettingsViewModel = "com.example.grifon.viewmodel.SettingsViewModel";
+      static String com_example_grifon_viewmodel_PdpViewModel = "com.example.grifon.viewmodel.PdpViewModel";
+
+      static String com_example_grifon_viewmodel_AccountViewModel = "com.example.grifon.viewmodel.AccountViewModel";
 
       static String com_example_grifon_viewmodel_HomeViewModel = "com.example.grifon.viewmodel.HomeViewModel";
 
-      @KeepFieldType
-      ScanViewModel com_example_grifon_viewmodel_ScanViewModel2;
+      static String com_example_grifon_viewmodel_AppViewModel = "com.example.grifon.viewmodel.AppViewModel";
 
-      @KeepFieldType
-      AccountViewModel com_example_grifon_viewmodel_AccountViewModel2;
+      static String com_example_grifon_viewmodel_ScanViewModel = "com.example.grifon.viewmodel.ScanViewModel";
 
-      @KeepFieldType
-      PlpViewModel com_example_grifon_viewmodel_PlpViewModel2;
+      static String com_example_grifon_viewmodel_PlpViewModel = "com.example.grifon.viewmodel.PlpViewModel";
 
-      @KeepFieldType
-      PdpViewModel com_example_grifon_viewmodel_PdpViewModel2;
-
-      @KeepFieldType
-      AppViewModel com_example_grifon_viewmodel_AppViewModel2;
-
-      @KeepFieldType
-      CartViewModel com_example_grifon_viewmodel_CartViewModel2;
-
-      @KeepFieldType
-      CategoriesViewModel com_example_grifon_viewmodel_CategoriesViewModel2;
+      static String com_example_grifon_viewmodel_CartViewModel = "com.example.grifon.viewmodel.CartViewModel";
 
       @KeepFieldType
       SettingsViewModel com_example_grifon_viewmodel_SettingsViewModel2;
 
       @KeepFieldType
+      CategoriesViewModel com_example_grifon_viewmodel_CategoriesViewModel2;
+
+      @KeepFieldType
+      PdpViewModel com_example_grifon_viewmodel_PdpViewModel2;
+
+      @KeepFieldType
+      AccountViewModel com_example_grifon_viewmodel_AccountViewModel2;
+
+      @KeepFieldType
       HomeViewModel com_example_grifon_viewmodel_HomeViewModel2;
+
+      @KeepFieldType
+      AppViewModel com_example_grifon_viewmodel_AppViewModel2;
+
+      @KeepFieldType
+      ScanViewModel com_example_grifon_viewmodel_ScanViewModel2;
+
+      @KeepFieldType
+      PlpViewModel com_example_grifon_viewmodel_PlpViewModel2;
+
+      @KeepFieldType
+      CartViewModel com_example_grifon_viewmodel_CartViewModel2;
     }
   }
 
@@ -559,50 +561,50 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_example_grifon_viewmodel_AppViewModel = "com.example.grifon.viewmodel.AppViewModel";
-
-      static String com_example_grifon_viewmodel_HomeViewModel = "com.example.grifon.viewmodel.HomeViewModel";
-
-      static String com_example_grifon_viewmodel_ScanViewModel = "com.example.grifon.viewmodel.ScanViewModel";
-
       static String com_example_grifon_viewmodel_CategoriesViewModel = "com.example.grifon.viewmodel.CategoriesViewModel";
-
-      static String com_example_grifon_viewmodel_PlpViewModel = "com.example.grifon.viewmodel.PlpViewModel";
 
       static String com_example_grifon_viewmodel_AccountViewModel = "com.example.grifon.viewmodel.AccountViewModel";
 
-      static String com_example_grifon_viewmodel_SettingsViewModel = "com.example.grifon.viewmodel.SettingsViewModel";
+      static String com_example_grifon_viewmodel_PlpViewModel = "com.example.grifon.viewmodel.PlpViewModel";
 
-      static String com_example_grifon_viewmodel_PdpViewModel = "com.example.grifon.viewmodel.PdpViewModel";
+      static String com_example_grifon_viewmodel_ScanViewModel = "com.example.grifon.viewmodel.ScanViewModel";
 
       static String com_example_grifon_viewmodel_CartViewModel = "com.example.grifon.viewmodel.CartViewModel";
 
-      @KeepFieldType
-      AppViewModel com_example_grifon_viewmodel_AppViewModel2;
+      static String com_example_grifon_viewmodel_SettingsViewModel = "com.example.grifon.viewmodel.SettingsViewModel";
 
-      @KeepFieldType
-      HomeViewModel com_example_grifon_viewmodel_HomeViewModel2;
+      static String com_example_grifon_viewmodel_HomeViewModel = "com.example.grifon.viewmodel.HomeViewModel";
 
-      @KeepFieldType
-      ScanViewModel com_example_grifon_viewmodel_ScanViewModel2;
+      static String com_example_grifon_viewmodel_PdpViewModel = "com.example.grifon.viewmodel.PdpViewModel";
+
+      static String com_example_grifon_viewmodel_AppViewModel = "com.example.grifon.viewmodel.AppViewModel";
 
       @KeepFieldType
       CategoriesViewModel com_example_grifon_viewmodel_CategoriesViewModel2;
 
       @KeepFieldType
+      AccountViewModel com_example_grifon_viewmodel_AccountViewModel2;
+
+      @KeepFieldType
       PlpViewModel com_example_grifon_viewmodel_PlpViewModel2;
 
       @KeepFieldType
-      AccountViewModel com_example_grifon_viewmodel_AccountViewModel2;
+      ScanViewModel com_example_grifon_viewmodel_ScanViewModel2;
+
+      @KeepFieldType
+      CartViewModel com_example_grifon_viewmodel_CartViewModel2;
 
       @KeepFieldType
       SettingsViewModel com_example_grifon_viewmodel_SettingsViewModel2;
 
       @KeepFieldType
+      HomeViewModel com_example_grifon_viewmodel_HomeViewModel2;
+
+      @KeepFieldType
       PdpViewModel com_example_grifon_viewmodel_PdpViewModel2;
 
       @KeepFieldType
-      CartViewModel com_example_grifon_viewmodel_CartViewModel2;
+      AppViewModel com_example_grifon_viewmodel_AppViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -733,12 +735,6 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
 
     private final SingletonCImpl singletonCImpl = this;
 
-    private Provider<UserRepository> provideUserRepositoryProvider;
-
-    private Provider<DataStore<Preferences>> provideDataStoreProvider;
-
-    private Provider<ShopPreferences> provideShopPreferencesProvider;
-
     private Provider<OkHttpClient> provideOkHttpClientProvider;
 
     private Provider<Moshi> provideMoshiProvider;
@@ -746,6 +742,14 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
     private Provider<Retrofit> provideRetrofitProvider;
 
     private Provider<CatalogApi> provideCatalogApiProvider;
+
+    private Provider<DataStore<Preferences>> provideDataStoreProvider;
+
+    private Provider<UserPreferences> provideUserPreferencesProvider;
+
+    private Provider<UserRepository> provideUserRepositoryProvider;
+
+    private Provider<ShopPreferences> provideShopPreferencesProvider;
 
     private Provider<ShopRepository> provideShopRepositoryProvider;
 
@@ -799,17 +803,18 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
 
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
+      this.provideOkHttpClientProvider = DoubleCheck.provider(new SwitchingProvider<OkHttpClient>(singletonCImpl, 3));
+      this.provideMoshiProvider = DoubleCheck.provider(new SwitchingProvider<Moshi>(singletonCImpl, 4));
+      this.provideRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 2));
+      this.provideCatalogApiProvider = DoubleCheck.provider(new SwitchingProvider<CatalogApi>(singletonCImpl, 1));
+      this.provideDataStoreProvider = DoubleCheck.provider(new SwitchingProvider<DataStore<Preferences>>(singletonCImpl, 6));
+      this.provideUserPreferencesProvider = DoubleCheck.provider(new SwitchingProvider<UserPreferences>(singletonCImpl, 5));
       this.provideUserRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<UserRepository>(singletonCImpl, 0));
-      this.provideDataStoreProvider = DoubleCheck.provider(new SwitchingProvider<DataStore<Preferences>>(singletonCImpl, 3));
-      this.provideShopPreferencesProvider = DoubleCheck.provider(new SwitchingProvider<ShopPreferences>(singletonCImpl, 2));
-      this.provideOkHttpClientProvider = DoubleCheck.provider(new SwitchingProvider<OkHttpClient>(singletonCImpl, 6));
-      this.provideMoshiProvider = DoubleCheck.provider(new SwitchingProvider<Moshi>(singletonCImpl, 7));
-      this.provideRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 5));
-      this.provideCatalogApiProvider = DoubleCheck.provider(new SwitchingProvider<CatalogApi>(singletonCImpl, 4));
-      this.provideShopRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ShopRepository>(singletonCImpl, 1));
-      this.provideCartRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<CartRepository>(singletonCImpl, 8));
-      this.provideCatalogRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<CatalogRepository>(singletonCImpl, 9));
-      this.provideBarcodeScannerServiceProvider = DoubleCheck.provider(new SwitchingProvider<BarcodeScannerService>(singletonCImpl, 10));
+      this.provideShopPreferencesProvider = DoubleCheck.provider(new SwitchingProvider<ShopPreferences>(singletonCImpl, 8));
+      this.provideShopRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ShopRepository>(singletonCImpl, 7));
+      this.provideCartRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<CartRepository>(singletonCImpl, 9));
+      this.provideCatalogRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<CatalogRepository>(singletonCImpl, 10));
+      this.provideBarcodeScannerServiceProvider = DoubleCheck.provider(new SwitchingProvider<BarcodeScannerService>(singletonCImpl, 11));
     }
 
     @Override
@@ -846,36 +851,39 @@ public final class DaggerGrifonApplication_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.example.grifon.data.repository.UserRepository 
-          return (T) AppModule_ProvideUserRepositoryFactory.provideUserRepository();
+          return (T) AppModule_ProvideUserRepositoryFactory.provideUserRepository(singletonCImpl.provideCatalogApiProvider.get(), singletonCImpl.provideUserPreferencesProvider.get());
 
-          case 1: // com.example.grifon.data.repository.ShopRepository 
-          return (T) AppModule_ProvideShopRepositoryFactory.provideShopRepository(singletonCImpl.provideShopPreferencesProvider.get(), singletonCImpl.provideCatalogApiProvider.get());
-
-          case 2: // com.example.grifon.data.local.ShopPreferences 
-          return (T) AppModule_ProvideShopPreferencesFactory.provideShopPreferences(singletonCImpl.provideDataStoreProvider.get());
-
-          case 3: // androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> 
-          return (T) AppModule_ProvideDataStoreFactory.provideDataStore(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
-
-          case 4: // com.example.grifon.data.catalog.CatalogApi 
+          case 1: // com.example.grifon.data.catalog.CatalogApi 
           return (T) AppModule_ProvideCatalogApiFactory.provideCatalogApi(singletonCImpl.provideRetrofitProvider.get());
 
-          case 5: // retrofit2.Retrofit 
+          case 2: // retrofit2.Retrofit 
           return (T) AppModule_ProvideRetrofitFactory.provideRetrofit(singletonCImpl.provideOkHttpClientProvider.get(), singletonCImpl.provideMoshiProvider.get());
 
-          case 6: // okhttp3.OkHttpClient 
+          case 3: // okhttp3.OkHttpClient 
           return (T) AppModule_ProvideOkHttpClientFactory.provideOkHttpClient();
 
-          case 7: // com.squareup.moshi.Moshi 
+          case 4: // com.squareup.moshi.Moshi 
           return (T) AppModule_ProvideMoshiFactory.provideMoshi();
 
-          case 8: // com.example.grifon.data.repository.CartRepository 
+          case 5: // com.example.grifon.data.local.UserPreferences 
+          return (T) AppModule_ProvideUserPreferencesFactory.provideUserPreferences(singletonCImpl.provideDataStoreProvider.get());
+
+          case 6: // androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> 
+          return (T) AppModule_ProvideDataStoreFactory.provideDataStore(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 7: // com.example.grifon.data.repository.ShopRepository 
+          return (T) AppModule_ProvideShopRepositoryFactory.provideShopRepository(singletonCImpl.provideShopPreferencesProvider.get(), singletonCImpl.provideCatalogApiProvider.get());
+
+          case 8: // com.example.grifon.data.local.ShopPreferences 
+          return (T) AppModule_ProvideShopPreferencesFactory.provideShopPreferences(singletonCImpl.provideDataStoreProvider.get());
+
+          case 9: // com.example.grifon.data.repository.CartRepository 
           return (T) AppModule_ProvideCartRepositoryFactory.provideCartRepository();
 
-          case 9: // com.example.grifon.data.repository.CatalogRepository 
+          case 10: // com.example.grifon.data.repository.CatalogRepository 
           return (T) AppModule_ProvideCatalogRepositoryFactory.provideCatalogRepository(singletonCImpl.provideCatalogApiProvider.get());
 
-          case 10: // com.example.grifon.data.repository.BarcodeScannerService 
+          case 11: // com.example.grifon.data.repository.BarcodeScannerService 
           return (T) AppModule_ProvideBarcodeScannerServiceFactory.provideBarcodeScannerService();
 
           default: throw new AssertionError(id);
