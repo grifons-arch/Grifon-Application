@@ -42,6 +42,4 @@ interface CartRepository {
 
 interface UserRepository {
     fun isLoggedIn(): Flow<Boolean>
-    suspend fun login(email: String, password: String): Result<Unit>
-    suspend fun logout()
 }

@@ -1,35 +1,8 @@
 <resources>
     <string name="app_name">Grifon Menu</string>
-    <string name="wholesale_intro"><![CDATA[To be able to order or see prices, you must first <a href="https://grifon-eshop.example/register">create an account</a> or <a href="https://grifon-eshop.example/login">log in with your existing account</a>.
 
-If you create a new account, you must first apply for a wholesale account. Once we approve your request, you will be able to order and see wholesale prices.]]></string>
-    <string name="shop_by_category">Shop By Category</string>
-    <string name="ceramics">Ceramics</string>
-    <string name="lighting">Lighting</string>
-    <string name="bronze">Bronze</string>
-    <string name="toys">Toys</string>
-    <string name="soaps">Soaps</string>
-    <string name="textiles">Textiles</string>
-    <string name="my_account">My Account</string>
-    <string name="search_placeholder">Search products…</string>
-    <string name="menu_description">Menu</string>
-    <string name="home_description">Home</string>
-    <string name="cart_description">Cart</string>
-    <string name="notifications_description">Notifications</string>
-    <string name="scan_description">Scan</string>
+    <string name="wholesale_intro"><![CDATA[Για να μπορείτε να παραγγείλετε ή να δείτε τιμές, θα πρέπει πρώτα να <a href="https://grifon-eshop.example/register">δημιουργήσετε ένα λογαριασμό</a> ή να <a href="https://grifon-eshop.example/login">συνδεθείτε με τον υπάρχον λογαριασμό σας</a>.
 
-    <string name="nav_language">Language</string>
-    <string name="nav_profile">Profile</string>
-    <string name="nav_favs">Favorites</string>
-    <string name="nav_settings">Settings</string>
-    <string name="nav_info">Info</string>
-    <string name="nav_chat">Chat</string>
 
-    <string name="email">Email</string>
-    <string name="password">Password</string>
-    <string name="login_button">Login</string>
-    <string name="welcome_back">Welcome back</string>
-    <string name="login_title">Login</string>
-    <string name="register_prompt">If you don\'t have an account, create one </string>
-    <string name="here">here</string>
+Αν δημιουργήσετε ένα νέο λογαριασμό, θα πρέπει πρώτα να υποβάλετε αίτηση για λογαριασμό χονδρικής πώλησης. Αφού εγκρίνουμε το αίτημά σας, θα μπορείτε να παραγγείλετε και να δείτε τιμές χονδρικής.]]></string>
 </resources>
