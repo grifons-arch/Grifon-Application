@@ -48,11 +48,15 @@ const resolveSyncUrl = (countryIso: string = "GR"): string => {
   return `${rootUrl}/index.php?fc=module&module=grifoncustomersync&controller=sync`;
 };
 
+/**
+ * Creates a signature compatible with the PrestaShop grifoncustomersync module.
+ * Format: base64(HMAC_SHA256("<timestamp>\n<body>", secret))
+ */
 const createSignature = (payload: string, secret: string): { timestamp: string, signature: string } => {
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const signature = crypto
     .createHmac("sha256", secret)
-    .update(timestamp + payload) 
+    .update(timestamp + "\n" + payload) // Added \n to match PHP side: $ts . "\n" . $rawBody
     .digest("base64");
   return { timestamp, signature };
 };

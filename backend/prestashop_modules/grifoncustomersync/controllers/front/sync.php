@@ -1,13 +1,8 @@
 <?php
 /**
  * POST /module/grifoncustomersync/sync
- *
- * Headers:
- *   X-Grifon-Timestamp: unix seconds
- *   X-Grifon-Signature: base64(HMAC_SHA256("<timestamp>\n<body>", secret))
  */
 
-use PrestaShop\PrestaShop\Adapter\ServiceLocator;
 use PrestaShop\PrestaShop\Core\Crypto\Hashing;
 
 if (!defined('_PS_VERSION_')) {
@@ -32,13 +27,13 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         header('Content-Type: application/json; charset=utf-8');
 
         if (Tools::strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST') {
-            $this->respond(405, ['ok' => false, 'error' => 'METHOD_NOT_ALLOWED']);
+            $this->respond(405, ['ok' => false, 'status' => 'ERROR', 'message' => 'METHOD_NOT_ALLOWED']);
         }
 
         $raw = (string)file_get_contents('php://input');
         $payload = json_decode($raw, true);
         if (!is_array($payload)) {
-            $this->respond(400, ['ok' => false, 'error' => 'INVALID_JSON']);
+            $this->respond(400, ['ok' => false, 'status' => 'ERROR', 'message' => 'INVALID_JSON']);
         }
 
         // Auth
@@ -48,11 +43,16 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
 
         $action = isset($payload['action']) ? trim((string)$payload['action']) : 'sync';
 
-        if ($action === 'login') {
-            $this->handleLogin($payload);
-        } else {
-            // Default sync/register logic
-            $this->handleSync($payload);
+        try {
+            if ($action === 'login') {
+                $this->handleLogin($payload);
+            } else {
+                $this->handleSync($payload);
+            }
+        } catch (Exception $e) {
+            $this->respond(500, ['ok' => false, 'status' => 'ERROR', 'message' => $e->getMessage()]);
+        } catch (Error $err) {
+            $this->respond(500, ['ok' => false, 'status' => 'ERROR', 'message' => $err->getMessage()]);
         }
     }
 
@@ -71,9 +71,8 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         }
 
         $customer = new Customer($idCustomer);
-        /** @var Hashing $crypto */
-        $crypto = ServiceLocator::get(Hashing::class);
 
+        $crypto = new Hashing();
         if (!$crypto->checkHash($password, $customer->passwd)) {
             $this->respond(401, ['status' => 'ERROR', 'message' => 'Invalid password']);
         }
@@ -99,15 +98,12 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $groups = (isset($payload['groups']) && is_array($payload['groups'])) ? $payload['groups'] : [];
 
         if ($externalCustomerId === '') {
-            $this->respond(400, ['ok' => false, 'error' => 'MISSING_externalCustomerId']);
+            $this->respond(400, ['ok' => false, 'status' => 'ERROR', 'message' => 'MISSING_externalCustomerId']);
         }
 
         $email = isset($customerData['email']) ? trim((string)$customerData['email']) : '';
-        $firstname = isset($customerData['firstname']) ? trim((string)$customerData['firstname']) : '';
-        $lastname = isset($customerData['lastname']) ? trim((string)$customerData['lastname']) : '';
-
         if ($email === '' || !Validate::isEmail($email)) {
-            $this->respond(400, ['ok' => false, 'error' => 'INVALID_email']);
+            $this->respond(400, ['ok' => false, 'status' => 'ERROR', 'message' => 'INVALID_email']);
         }
 
         $result = [
@@ -115,32 +111,27 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
             'status' => 'SUCCESS',
             'created' => false,
             'updated' => false,
-            'warnings' => [],
             'psCustomerId' => null,
             'id_customer' => null,
             'psAddressIds' => [],
         ];
 
-        try {
-            $idCustomer = $this->upsertCustomer($externalCustomerId, $customerData, $groups, $result);
-            $result['psCustomerId'] = (int)$idCustomer;
-            $result['id_customer'] = (int)$idCustomer;
+        $idCustomer = $this->upsertCustomer($externalCustomerId, $customerData, $groups, $result);
+        $result['psCustomerId'] = (int)$idCustomer;
+        $result['id_customer'] = (int)$idCustomer;
 
-            foreach ($addresses as $addr) {
-                if (!is_array($addr)) continue;
-                $idAddress = $this->upsertAddress($idCustomer, $addr, $result);
-                if ($idAddress) {
-                    $extAddrId = isset($addr['externalAddressId']) ? trim((string)$addr['externalAddressId']) : '';
-                    if ($extAddrId !== '') {
-                        $result['psAddressIds'][$extAddrId] = (int)$idAddress;
-                    }
+        foreach ($addresses as $addr) {
+            if (!is_array($addr)) continue;
+            $idAddress = $this->upsertAddress($idCustomer, $addr, $result);
+            if ($idAddress) {
+                $extAddrId = isset($addr['externalAddressId']) ? trim((string)$addr['externalAddressId']) : '';
+                if ($extAddrId !== '') {
+                    $result['psAddressIds'][$extAddrId] = (int)$idAddress;
                 }
             }
-
-            $this->respond(200, $result);
-        } catch (Exception $e) {
-            $this->respond(500, ['ok' => false, 'status' => 'ERROR', 'message' => $e->getMessage()]);
         }
+
+        $this->respond(200, $result);
     }
 
     private function requireAuth($secret, $maxSkew, $rawBody)
@@ -150,28 +141,42 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $sig = isset($headers['x-grifon-signature']) ? trim((string)$headers['x-grifon-signature']) : '';
 
         if ($ts <= 0 || $sig === '' || $secret === '') {
-            $this->respond(401, ['ok' => false, 'error' => 'UNAUTHORIZED']);
+            $this->respond(401, ['ok' => false, 'status' => 'ERROR', 'message' => 'UNAUTHORIZED_MISSING_HEADERS']);
         }
 
         $now = time();
         if (abs($now - $ts) > (int)$maxSkew) {
-            $this->respond(401, ['ok' => false, 'error' => 'STALE_TIMESTAMP']);
+            $this->respond(401, ['ok' => false, 'status' => 'ERROR', 'message' => 'STALE_TIMESTAMP']);
         }
 
-        $base = $ts . "\n" . $rawBody;
-        $calc = base64_encode(hash_hmac('sha256', $base, $secret, true));
+        $baseWithNL = $ts . "\n" . $rawBody;
+        $baseNoNL = $ts . $rawBody;
 
-        if (!hash_equals($calc, $sig)) {
-            $this->respond(401, ['ok' => false, 'error' => 'BAD_SIGNATURE']);
+        $calcWithNL = base64_encode(hash_hmac('sha256', $baseWithNL, $secret, true));
+        $calcNoNL = base64_encode(hash_hmac('sha256', $baseNoNL, $secret, true));
+
+        if (!hash_equals($calcWithNL, $sig) && !hash_equals($calcNoNL, $sig)) {
+            $this->respond(401, ['ok' => false, 'status' => 'ERROR', 'message' => 'BAD_SIGNATURE']);
         }
     }
 
     private function getHeadersLower()
     {
+        $headers = [];
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+        } else {
+            foreach ($_SERVER as $name => $value) {
+                if (substr($name, 0, 5) == 'HTTP_') {
+                    $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+                    $headers[$key] = $value;
+                }
+            }
+        }
+
         $out = [];
-        $headers = function_exists('getallheaders') ? getallheaders() : [];
         foreach ($headers as $k => $v) {
-            $out[Tools::strtolower((string)$k)] = $v;
+            $out[strtolower((string)$k)] = $v;
         }
         return $out;
     }
@@ -185,17 +190,8 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
             $idCustomer = (int)$this->getCustomerIdByEmail((string)$customerData['email']);
         }
 
-        $customer = null;
-        $isCreate = false;
-
-        if ($idCustomer) {
-            $customer = new Customer($idCustomer);
-            if (!Validate::isLoadedObject($customer)) $idCustomer = 0;
-        }
-
+        $customer = $idCustomer ? new Customer($idCustomer) : new Customer();
         if (!$idCustomer) {
-            $customer = new Customer();
-            $isCreate = true;
             if (property_exists($customer, 'id_shop')) $customer->id_shop = (int)$this->context->shop->id;
         }
 
@@ -210,12 +206,11 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $passHashed = isset($customerData['password_hashed']) ? trim((string)$customerData['password_hashed']) : '';
         $passPlain  = isset($customerData['password']) ? (string)$customerData['password'] : '';
 
-        if ($isCreate || $passHashed !== '' || $passPlain !== '') {
+        if (!$idCustomer || $passHashed !== '' || $passPlain !== '') {
             if ($passHashed !== '') {
                 $customer->passwd = $passHashed;
             } elseif ($passPlain !== '') {
-                /** @var Hashing $crypto */
-                $crypto = ServiceLocator::get(Hashing::class);
+                $crypto = new Hashing();
                 $customer->passwd = $crypto->hash($passPlain);
             }
         }
@@ -223,7 +218,7 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $defaultGroup = isset($groups['default']) ? (int)$groups['default'] : (int)Configuration::get(Grifoncustomersync::CFG_DEFAULT_GROUP);
         $list = (isset($groups['list']) && is_array($groups['list'])) ? $groups['list'] : [];
 
-        if ($isCreate) {
+        if (!$idCustomer) {
             $customer->add();
             $result['created'] = true;
         } else {
@@ -242,7 +237,7 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
     {
         $externalAddressId = isset($addr['externalAddressId']) ? trim((string)$addr['externalAddressId']) : 'default_'.time();
         $alias = isset($addr['alias']) ? trim((string)$addr['alias']) : 'Main';
-        $countryIso = isset($addr['countryIso']) ? Tools::strtoupper(trim((string)$addr['countryIso'])) : 'GR';
+        $countryIso = isset($addr['countryIso']) ? strtoupper(trim((string)$addr['countryIso'])) : 'GR';
 
         $idCountry = (int)Country::getByIso($countryIso);
         if ($idCountry <= 0) return 0;
@@ -271,53 +266,82 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
 
     private function getCustomerIdByEmail($email)
     {
-        $sql = 'SELECT `id_customer` FROM `'._DB_PREFIX_.'customer` WHERE `email` = "'.pSQL($email).'" LIMIT 1';
-        return (int)Db::getInstance()->getValue($sql);
+        $q = new DbQuery();
+        $q->select('id_customer');
+        $q->from('customer');
+        $q->where('email = \'' . pSQL($email) . '\'');
+        return (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($q);
     }
 
     private function getCustomerMapByExternal($externalCustomerId)
     {
-        $sql = 'SELECT * FROM `'._DB_PREFIX_.'grifon_customer_map` WHERE `external_customer_id` = "'.pSQL($externalCustomerId).'" LIMIT 1';
-        return Db::getInstance()->getRow($sql);
+        $q = new DbQuery();
+        $q->from('grifon_customer_map');
+        $q->where('external_customer_id = \'' . pSQL($externalCustomerId) . '\'');
+        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($q);
     }
 
     private function upsertCustomerMap($externalCustomerId, $idCustomer, $email)
     {
         $now = date('Y-m-d H:i:s');
         $row = $this->getCustomerMapByExternal($externalCustomerId);
+
+        $data = [
+            'id_customer' => (int)$idCustomer,
+            'email' => pSQL($email),
+            'date_upd' => pSQL($now)
+        ];
+
         if ($row) {
-            Db::getInstance()->update('grifon_customer_map', ['id_customer' => (int)$idCustomer, 'email' => pSQL($email), 'date_upd' => pSQL($now)], 'external_customer_id = "'.pSQL($externalCustomerId).'"');
+            Db::getInstance()->update('grifon_customer_map', $data, 'external_customer_id = \'' . pSQL($externalCustomerId) . '\'', 0, false, true, true);
         } else {
-            Db::getInstance()->insert('grifon_customer_map', ['external_customer_id' => pSQL($externalCustomerId), 'id_customer' => (int)$idCustomer, 'email' => pSQL($email), 'date_add' => pSQL($now), 'date_upd' => pSQL($now)]);
+            $data['external_customer_id'] = pSQL($externalCustomerId);
+            $data['date_add'] = pSQL($now);
+            Db::getInstance()->insert('grifon_customer_map', $data, false, true, Db::INSERT, true);
         }
     }
 
     private function getAddressMapByExternal($externalAddressId)
     {
-        $sql = 'SELECT * FROM `'._DB_PREFIX_.'grifon_address_map` WHERE `external_address_id` = "'.pSQL($externalAddressId).'" LIMIT 1';
-        return Db::getInstance()->getRow($sql);
+        $q = new DbQuery();
+        $q->from('grifon_address_map');
+        $q->where('external_address_id = \'' . pSQL($externalAddressId) . '\'');
+        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($q);
     }
 
     private function upsertAddressMap($externalAddressId, $idAddress, $idCustomer, $alias)
     {
         $now = date('Y-m-d H:i:s');
         $row = $this->getAddressMapByExternal($externalAddressId);
+
+        $data = [
+            'id_address' => (int)$idAddress,
+            'id_customer' => (int)$idCustomer,
+            'alias' => pSQL($alias),
+            'date_upd' => pSQL($now)
+        ];
+
         if ($row) {
-            Db::getInstance()->update('grifon_address_map', ['id_address' => (int)$idAddress, 'id_customer' => (int)$idCustomer, 'alias' => pSQL($alias), 'date_upd' => pSQL($now)], 'external_address_id = "'.pSQL($externalAddressId).'"');
+            Db::getInstance()->update('grifon_address_map', $data, 'external_address_id = \'' . pSQL($externalAddressId) . '\'', 0, false, true, true);
         } else {
-            Db::getInstance()->insert('grifon_address_map', ['external_address_id' => pSQL($externalAddressId), 'id_address' => (int)$idAddress, 'id_customer' => (int)$idCustomer, 'alias' => pSQL($alias), 'date_add' => pSQL($now), 'date_upd' => pSQL($now)]);
+            $data['external_address_id'] = pSQL($externalAddressId);
+            $data['date_add'] = pSQL($now);
+            Db::getInstance()->insert('grifon_address_map', $data, false, true, Db::INSERT, true);
         }
     }
 
     private function replaceCustomerGroups($idCustomer, $groupIds, $defaultGroup)
     {
-        Db::getInstance()->delete('customer_group', 'id_customer = '.(int)$idCustomer);
+        Db::getInstance()->delete('customer_group', 'id_customer = '.(int)$idCustomer, 0, true, true);
         $groupIds[] = (int)$defaultGroup;
         $groupIds = array_unique(array_filter(array_map('intval', $groupIds)));
         foreach ($groupIds as $idGroup) {
-            Db::getInstance()->execute('INSERT IGNORE INTO `'._DB_PREFIX_.'customer_group` (`id_customer`, `id_group`) VALUES ('.(int)$idCustomer.', '.(int)$idGroup.')');
+            Db::getInstance()->insert('customer_group', [
+                'id_customer' => (int)$idCustomer,
+                'id_group' => (int)$idGroup
+            ], false, true, Db::INSERT, true);
         }
-        Db::getInstance()->update('customer', ['id_default_group' => (int)$defaultGroup], 'id_customer = '.(int)$idCustomer);
+        Db::getInstance()->update('customer', ['id_default_group' => (int)$defaultGroup], 'id_customer = '.(int)$idCustomer, 0, false, true, true);
     }
 
     private function respond($statusCode, $data)
