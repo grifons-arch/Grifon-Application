@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Grifon Menu</string>
+    <string name="bronze">Bronze</string>
+    <string name="cart_description">Cart</string>
+    <string name="ceramics">Ceramics</string>
+    <string name="email">Email</string>
+    <string name="here">here</string>
+    <string name="home_description">Home</string>
+    <string name="lighting">Lighting</string>
+    <string name="login_button">Login</string>
+    <string name="login_title">Login</string>
+    <string name="menu_description">Menu</string>
+    <string name="my_account">My Account</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_favs">Favorites</string>
+    <string name="nav_info">Info</string>
+    <string name="nav_language">Language</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_settings">Settings</string>
+    <string name="notifications_description">Notifications</string>
+    <string name="password">Password</string>
+    <string name="register_prompt">If you don\'t have an account, create one </string>
+    <string name="scan_description">Scan</string>
+    <string name="search_placeholder">Search products…</string>
+    <string name="shop_by_category">Shop By Category</string>
+    <string name="soaps">Soaps</string>
+    <string name="textiles">Textiles</string>
+    <string name="toys">Toys</string>
+    <string name="welcome_back">Welcome back</string>
+    <string name="wholesale_intro"><![CDATA[To be able to order or see prices, you must first <a href="https://grifon-eshop.example/register">create an account</a> or <a href="https://grifon-eshop.example/login">log in with your existing account</a>.
+
+If you create a new account, you must first apply for a wholesale account. Once we approve your request, you will be able to order and see wholesale prices.]]></string>
+    <style name="Theme.App.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#6200EE</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.Grifon</item>
+    </style>
+    <style name="Theme.Grifon" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#6200EE</item>
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+</resources>

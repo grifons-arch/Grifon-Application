@@ -1,0 +1,705 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:1:1-25:12
+MERGED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:1:1-25:12
+INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml:1:1-6:12
+INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml:1:1-6:12
+INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml:1:1-6:12
+MERGED from [com.google.android.material:material:1.10.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1ed468c63051bafb2db08f1d61567303\transformed\material-1.10.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.camera:camera-video:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\4edac4bc9f3c643ab68954744e76a394\transformed\camera-video-1.3.4\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.camera:camera-lifecycle:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\9de7d5ec98f80e57071971e74a276c34\transformed\camera-lifecycle-1.3.4\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:17:1-36:12
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\f24b520d227741667b2abaa276749df8\transformed\camera-core-1.3.4\AndroidManifest.xml:17:1-36:12
+MERGED from [androidx.camera:camera-view:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\17db47fcf7a436770f85ad6ced7f38d8\transformed\camera-view-1.3.4\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\d3685e07798e8790fb85adccd64cc208\transformed\coil-compose-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\10018f97a73357b33b73fe7dae4cc165\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0c187dbc651f22ce8ab0d0fcf83f4a4c\transformed\coil-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ffe8aaef0d98eca7525a6e9bcc308816\transformed\coil-base-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\cc777f4f2f69f0292bbbfc1a01d83623\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3c3211a3de69e42f0957cf14c887159d\transformed\constraintlayout-2.0.1\AndroidManifest.xml:2:1-11:12
+MERGED from [com.google.mlkit:barcode-scanning:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\68439dd1fc5f0d4af112c15f34c0fa7f\transformed\barcode-scanning-17.3.0\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:2:1-18:12
+MERGED from [com.google.mlkit:barcode-scanning-common:17.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\270b0834a1886b6db411f812cc60fdf5\transformed\barcode-scanning-common-17.0.0\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d64fc13d833ffcc7ed755b32c845e7f\transformed\vision-common-17.3.0\AndroidManifest.xml:2:1-18:12
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:2:1-26:12
+MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\830b2adf0dcec3a57d639500366d45be\transformed\appcompat-1.6.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\485ccfd4e30f679f9ea0698821869788\transformed\hilt-navigation-compose-1.2.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.hilt:hilt-navigation:1.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\68d3a6e312d294579c1adc2b4d7674dc\transformed\hilt-navigation-1.2.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-common:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\8f7a84be0827193f061b7d093b7c76d1\transformed\navigation-common-2.8.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.navigation:navigation-runtime:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\bee73b666199647b4d5660872eee376d\transformed\navigation-runtime-2.8.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.navigation:navigation-common-ktx:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\b376df33d926ad78f51bc76c176f13fa\transformed\navigation-common-ktx-2.8.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a1086993598b9f0e4d16c701a5eff8d\transformed\navigation-runtime-ktx-2.8.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-compose:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\c4ca202f8df904aacafd4b721ed63c50\transformed\navigation-compose-2.8.1\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.dagger:hilt-android:2.52] C:\Users\Grifon\.gradle\caches\8.13\transforms\50a71c97c572c2b77ad5fb2619f65994\transformed\hilt-android-2.52\AndroidManifest.xml:16:1-19:12
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\28f630433739a270a13f3cd92d1d2382\transformed\room-runtime-2.6.1\AndroidManifest.xml:17:1-31:12
+MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3b971697bb6c1e37b699a1f3733e3402\transformed\room-ktx-2.6.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.datastore:datastore-core-android:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\510b09b65a077685e40f94700675d34e\transformed\datastore-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.datastore:datastore-android:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\bfd598e06190f5555378c2e3ad9e3b42\transformed\datastore-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.datastore:datastore-preferences-android:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3a04aeec3eca9b4363a392893a47cd2\transformed\datastore-preferences-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.material3:material3-android:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a66f08a3830d4facf70ba6afcbbadf20\transformed\material3-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.animation:animation-core-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\207c786a46137c3a7d1978336b603496\transformed\animation-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-ripple-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\1e903cf10ea12379da769b313a8ef7b8\transformed\material-ripple-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.animation:animation-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\155749900d0d9b5e89eae27e063bdf97\transformed\animation-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\560be7e98e41218ed2eec068e75d24bf\transformed\foundation-layout-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\e82f3370821bf41659c8046b8967e5a2\transformed\foundation-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-unit-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d970b7a958dc5b3a268a6ecc35fa60e0\transformed\ui-unit-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-graphics-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d0096c038ae66bbbf2289f8f07f8c1c7\transformed\ui-graphics-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-geometry-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d70366b35e168f6e5825923fbc9c46fc\transformed\ui-geometry-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-util-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\499b9601b2af907aa9b36e293675d208\transformed\ui-util-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-text-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d425147d4bb8ef3c62631d249caa6fc9\transformed\ui-text-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\71d644eaea5c00bbf26e2e6023d012fa\transformed\ui-tooling-preview-release\AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1f069f2e0bbe85cb57ff8772137c701b\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:17:1-23:12
+MERGED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:17:1-40:12
+MERGED from [androidx.viewpager2:viewpager2:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\9f9a8bfff61c9ac8685270fc18366552\transformed\viewpager2-1.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.android.gms:play-services-auth-api-phone:18.0.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\546c707e8a0bef93f2f9930145e135a2\transformed\play-services-auth-api-phone-18.0.2\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.gms:play-services-auth-base:18.0.10] C:\Users\Grifon\.gradle\caches\8.13\transforms\bc529f5b3b487e7b71a99e53eeaa83de\transformed\play-services-auth-base-18.0.10\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.gms:play-services-fido:20.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\30438267f04a55445f278651b09f8c2b\transformed\play-services-fido-20.0.1\AndroidManifest.xml:2:1-10:12
+MERGED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2429780cd0a1ce7091273747cd6f8794\transformed\play-services-base-18.5.0\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.mlkit:vision-interfaces:16.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\78497a9bcfe41dff8360ed2a11430ac2\transformed\vision-interfaces-16.3.0\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1f2517cb8a018db3c6dd69807cd2226c\transformed\play-services-tasks-18.2.0\AndroidManifest.xml:2:1-5:12
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\494f50e0c2c3ab7d32173de6b1f1bcd9\transformed\play-services-basement-18.4.0\AndroidManifest.xml:2:1-9:12
+MERGED from [androidx.fragment:fragment:1.5.7] C:\Users\Grifon\.gradle\caches\8.13\transforms\49fca8968a472ae65eb824d8cea9bbef\transformed\fragment-1.5.7\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.activity:activity:1.8.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\ff8fc8d117899c45f132af1da112241f\transformed\activity-1.8.2\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.activity:activity-ktx:1.8.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\7de39fd6a84fd72d6b907d4d44784df7\transformed\activity-ktx-1.8.2\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity-compose:1.8.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\7fa16a8a35624ee57cec91d97d00f4fb\transformed\activity-compose-1.8.2\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-icons-extended-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\812da0fdd4b55c481081f96087781ab9\transformed\material-icons-extended-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\cc61eae22bda440d2e1dc6354634b7b8\transformed\material-icons-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.dynamicanimation:dynamicanimation:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\f9af8b2191892c9710547ccd914e6442\transformed\dynamicanimation-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\48340ace92c070d049b62081112debd6\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.loader:loader:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\9d3b1228ac639d46636d4575c425e48c\transformed\loader-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\76a6e859e9643f6b674ad92d5c401e86\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d40f9a91995f9a01ca5daf148eb1dd47\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9a0574b899959e855d07e14525bd056a\transformed\savedstate-1.2.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.drawerlayout:drawerlayout:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\87ee7f937162ffc5dbaef05a8bc5d984\transformed\drawerlayout-1.1.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\b323b2a4a295f24a8f1b6caf69b79773\transformed\coordinatorlayout-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.transition:transition:1.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a9fd6873c382b982615fd4a76d797d23\transformed\transition-1.2.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\b597f885bc2347a6a5a1347742d22077\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\806bc05213a9cb0e279dc44ffbb59963\transformed\vectordrawable-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.recyclerview:recyclerview:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\f26c79b482229ac16a0ed89a00b9c334\transformed\recyclerview-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ad1cbb6e040b566b21f9f743c822f7de\transformed\viewpager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\651bf5c35dfd8edf7b1df697240f4e51\transformed\customview-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1af7f24d34c3d7f9d2441669e590a048\transformed\autofill-1.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d479bc222f03f4f0e45f254e544a762\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.core:core-ktx:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\acb6435e7c63c07bae2e2b7f1950f04a\transformed\core-ktx-1.13.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\ea6d5e3e1a9335ffdc760114af831ff8\transformed\graphics-path-1.0.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:17:1-30:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\978004260245348fe4d5feb742165036\transformed\lifecycle-runtime-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\efca990b03e30a5776f06f3091ca4394\transformed\lifecycle-viewmodel-2.8.3\AndroidManifest.xml:2:1-5:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\70bd122237f067f22262af6ad31dd2d8\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\43731008143ea9e418f938ab2c1067af\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b6ed065257c549bd9d80c3c6b5dd83a\transformed\lifecycle-livedata-core-ktx-2.8.3\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\40b31353f00d8a48f061ead6985ad647\transformed\lifecycle-viewmodel-savedstate-2.8.3\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\530c5cae571518c2bc7c042be153537f\transformed\lifecycle-viewmodel-ktx-2.8.3\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\74a97756a8add28d68a2757cfc2eb32b\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\be7c6353c060ad5ea376ae7b51b9cd51\transformed\lifecycle-livedata-core-2.8.3\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\6d03770c7fb2bb9f605e83959e12cd05\transformed\lifecycle-livedata-2.8.3\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\2e7148f85440a3c687ffbeff3677c490\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\b3318711fefddd7e01b89518a01e7a96\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\55bd9ab947ca68e6ed93a31ff3309109\transformed\ui-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\7a8a4fc4e36e94faf16ffef1526333a6\transformed\runtime-saveable-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\c9ae9fcf4f27ee55019486ffdd081cd6\transformed\runtime-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.core:core-splashscreen:1.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4c01c6f0b9024e8400e66fe9b0a66306\transformed\core-splashscreen-1.0.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\97c82308e9a329192cb061d76f4a771b\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cddbacb9b16ddb2f22fdcb2651774524\transformed\sqlite-2.4.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\571b70da2959463798c278f9594b4df5\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d05dd2149037f319463a0ce70dc1aa77\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\78bd91335472fc34f3409469e1cb208f\transformed\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\67bac0d1ddf483d63b85f4a7e8798f78\transformed\cardview-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0f337023796ef44cf2e85cfdc17951c5\transformed\core-runtime-2.2.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:15:1-38:12
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:15:1-41:12
+MERGED from [com.google.android.datatransport:transport-api:2.2.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\0ee3efdca4e0a1c7d0eada7a881b0079\transformed\transport-api-2.2.1\AndroidManifest.xml:15:1-22:12
+MERGED from [com.google.firebase:firebase-components:16.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\f9296fbd3c8b486076d2040402f6ec1f\transformed\firebase-components-16.1.0\AndroidManifest.xml:15:1-23:12
+MERGED from [com.google.firebase:firebase-encoders-json:17.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3a6533c3d5e0b152f5a7561724e92be\transformed\firebase-encoders-json-17.1.0\AndroidManifest.xml:15:1-23:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\5a49d5bfe6d73b23b030b8b9ada3a2f2\transformed\interpolator-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:17:1-55:12
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a9c5d6cc7da9bb8272b9f61f8498ef05\transformed\documentfile-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ac0e8177f96011da0a413dab8867fb7b\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.print:print:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\35e36cb6184452f59fe5c8825f5c11ae\transformed\print-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\Grifon\.gradle\caches\8.13\transforms\bc1d883f2df36a727c60eedc6d6f05aa\transformed\exifinterface-1.3.7\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\20843db7d3b741fd40411f77243f1ff5\transformed\startup-runtime-1.1.1\AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\73077a19236cfd075cb3f3d070556c09\transformed\tracing-1.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.dagger:dagger-lint-aar:2.52] C:\Users\Grifon\.gradle\caches\8.13\transforms\d2949bf5b9f7558505e9dabf1075a838\transformed\dagger-lint-aar-2.52\AndroidManifest.xml:16:1-19:12
+MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\Grifon\.gradle\caches\8.13\transforms\05431b0013ed8756f09e2ccd53c45e80\transformed\image-1.0.0-beta1\AndroidManifest.xml:2:1-9:12
+	package
+		INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml
+	android:versionName
+		INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml
+	android:versionCode
+		INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:1:11-69
+application
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:3:5-23:19
+MERGED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:3:5-23:19
+MERGED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:3:5-23:19
+INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml:3:5-4:47
+MERGED from [com.google.android.material:material:1.10.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1ed468c63051bafb2db08f1d61567303\transformed\material-1.10.0\AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.material:material:1.10.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1ed468c63051bafb2db08f1d61567303\transformed\material-1.10.0\AndroidManifest.xml:22:5-20
+MERGED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:23:5-34:19
+MERGED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:23:5-34:19
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\f24b520d227741667b2abaa276749df8\transformed\camera-core-1.3.4\AndroidManifest.xml:23:5-34:19
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\f24b520d227741667b2abaa276749df8\transformed\camera-core-1.3.4\AndroidManifest.xml:23:5-34:19
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3c3211a3de69e42f0957cf14c887159d\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3c3211a3de69e42f0957cf14c887159d\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
+MERGED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d64fc13d833ffcc7ed755b32c845e7f\transformed\vision-common-17.3.0\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d64fc13d833ffcc7ed755b32c845e7f\transformed\vision-common-17.3.0\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:8:5-24:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:8:5-24:19
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\28f630433739a270a13f3cd92d1d2382\transformed\room-runtime-2.6.1\AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\28f630433739a270a13f3cd92d1d2382\transformed\room-runtime-2.6.1\AndroidManifest.xml:23:5-29:19
+MERGED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:22:5-38:19
+MERGED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:22:5-38:19
+MERGED from [com.google.android.gms:play-services-fido:20.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\30438267f04a55445f278651b09f8c2b\transformed\play-services-fido-20.0.1\AndroidManifest.xml:7:5-8:19
+MERGED from [com.google.android.gms:play-services-fido:20.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\30438267f04a55445f278651b09f8c2b\transformed\play-services-fido-20.0.1\AndroidManifest.xml:7:5-8:19
+MERGED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2429780cd0a1ce7091273747cd6f8794\transformed\play-services-base-18.5.0\AndroidManifest.xml:4:5-6:19
+MERGED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2429780cd0a1ce7091273747cd6f8794\transformed\play-services-base-18.5.0\AndroidManifest.xml:4:5-6:19
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1f2517cb8a018db3c6dd69807cd2226c\transformed\play-services-tasks-18.2.0\AndroidManifest.xml:4:5-20
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1f2517cb8a018db3c6dd69807cd2226c\transformed\play-services-tasks-18.2.0\AndroidManifest.xml:4:5-20
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\494f50e0c2c3ab7d32173de6b1f1bcd9\transformed\play-services-basement-18.4.0\AndroidManifest.xml:5:5-7:19
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\494f50e0c2c3ab7d32173de6b1f1bcd9\transformed\play-services-basement-18.4.0\AndroidManifest.xml:5:5-7:19
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:28:5-89
+MERGED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:28:5-89
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\74a97756a8add28d68a2757cfc2eb32b\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\74a97756a8add28d68a2757cfc2eb32b\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d05dd2149037f319463a0ce70dc1aa77\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d05dd2149037f319463a0ce70dc1aa77\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:28:5-36:19
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:28:5-36:19
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:25:5-39:19
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:25:5-39:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\20843db7d3b741fd40411f77243f1ff5\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\20843db7d3b741fd40411f77243f1ff5\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\Grifon\.gradle\caches\8.13\transforms\05431b0013ed8756f09e2ccd53c45e80\transformed\image-1.0.0-beta1\AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\Grifon\.gradle\caches\8.13\transforms\05431b0013ed8756f09e2ccd53c45e80\transformed\image-1.0.0-beta1\AndroidManifest.xml:7:5-20
+	android:extractNativeLibs
+		INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+	android:label
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:6:9-41
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:6:9-41
+	android:allowBackup
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:4:9-35
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:4:9-35
+	android:theme
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:7:9-54
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:7:9-54
+	android:usesCleartextTraffic
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml:4:9-44
+	android:name
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:5:9-42
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:5:9-42
+activity#com.example.grifon.MainActivity
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:8:9-16:20
+	android:exported
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:10:13-36
+	android:theme
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:11:13-58
+	android:name
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:9:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:12:13-15:29
+action#android.intent.action.MAIN
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:13:17-69
+	android:name
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:13:25-66
+category#android.intent.category.LAUNCHER
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:14:17-77
+	android:name
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:14:27-74
+activity#com.example.grifon.LoginActivity
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:17:9-19:40
+	android:exported
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:19:13-37
+	android:name
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:18:13-42
+activity#com.example.grifon.RegisterActivity
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:20:9-22:40
+	android:exported
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:22:13-37
+	android:name
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:21:13-45
+uses-sdk
+INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml
+INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml
+MERGED from [com.google.android.material:material:1.10.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1ed468c63051bafb2db08f1d61567303\transformed\material-1.10.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.material:material:1.10.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1ed468c63051bafb2db08f1d61567303\transformed\material-1.10.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.camera:camera-video:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\4edac4bc9f3c643ab68954744e76a394\transformed\camera-video-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-video:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\4edac4bc9f3c643ab68954744e76a394\transformed\camera-video-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-lifecycle:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\9de7d5ec98f80e57071971e74a276c34\transformed\camera-lifecycle-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-lifecycle:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\9de7d5ec98f80e57071971e74a276c34\transformed\camera-lifecycle-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:21:5-44
+MERGED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:21:5-44
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\f24b520d227741667b2abaa276749df8\transformed\camera-core-1.3.4\AndroidManifest.xml:21:5-44
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\f24b520d227741667b2abaa276749df8\transformed\camera-core-1.3.4\AndroidManifest.xml:21:5-44
+MERGED from [androidx.camera:camera-view:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\17db47fcf7a436770f85ad6ced7f38d8\transformed\camera-view-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-view:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\17db47fcf7a436770f85ad6ced7f38d8\transformed\camera-view-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\d3685e07798e8790fb85adccd64cc208\transformed\coil-compose-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\d3685e07798e8790fb85adccd64cc208\transformed\coil-compose-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\10018f97a73357b33b73fe7dae4cc165\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\10018f97a73357b33b73fe7dae4cc165\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0c187dbc651f22ce8ab0d0fcf83f4a4c\transformed\coil-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0c187dbc651f22ce8ab0d0fcf83f4a4c\transformed\coil-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ffe8aaef0d98eca7525a6e9bcc308816\transformed\coil-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ffe8aaef0d98eca7525a6e9bcc308816\transformed\coil-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\cc777f4f2f69f0292bbbfc1a01d83623\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\cc777f4f2f69f0292bbbfc1a01d83623\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3c3211a3de69e42f0957cf14c887159d\transformed\constraintlayout-2.0.1\AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3c3211a3de69e42f0957cf14c887159d\transformed\constraintlayout-2.0.1\AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.mlkit:barcode-scanning:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\68439dd1fc5f0d4af112c15f34c0fa7f\transformed\barcode-scanning-17.3.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:barcode-scanning:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\68439dd1fc5f0d4af112c15f34c0fa7f\transformed\barcode-scanning-17.3.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:6:5-44
+MERGED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:barcode-scanning-common:17.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\270b0834a1886b6db411f812cc60fdf5\transformed\barcode-scanning-common-17.0.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:barcode-scanning-common:17.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\270b0834a1886b6db411f812cc60fdf5\transformed\barcode-scanning-common-17.0.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d64fc13d833ffcc7ed755b32c845e7f\transformed\vision-common-17.3.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d64fc13d833ffcc7ed755b32c845e7f\transformed\vision-common-17.3.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:6:5-44
+MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\830b2adf0dcec3a57d639500366d45be\transformed\appcompat-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\830b2adf0dcec3a57d639500366d45be\transformed\appcompat-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\485ccfd4e30f679f9ea0698821869788\transformed\hilt-navigation-compose-1.2.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\485ccfd4e30f679f9ea0698821869788\transformed\hilt-navigation-compose-1.2.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.hilt:hilt-navigation:1.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\68d3a6e312d294579c1adc2b4d7674dc\transformed\hilt-navigation-1.2.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.hilt:hilt-navigation:1.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\68d3a6e312d294579c1adc2b4d7674dc\transformed\hilt-navigation-1.2.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-common:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\8f7a84be0827193f061b7d093b7c76d1\transformed\navigation-common-2.8.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-common:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\8f7a84be0827193f061b7d093b7c76d1\transformed\navigation-common-2.8.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-runtime:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\bee73b666199647b4d5660872eee376d\transformed\navigation-runtime-2.8.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-runtime:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\bee73b666199647b4d5660872eee376d\transformed\navigation-runtime-2.8.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-common-ktx:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\b376df33d926ad78f51bc76c176f13fa\transformed\navigation-common-ktx-2.8.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-common-ktx:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\b376df33d926ad78f51bc76c176f13fa\transformed\navigation-common-ktx-2.8.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a1086993598b9f0e4d16c701a5eff8d\transformed\navigation-runtime-ktx-2.8.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a1086993598b9f0e4d16c701a5eff8d\transformed\navigation-runtime-ktx-2.8.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-compose:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\c4ca202f8df904aacafd4b721ed63c50\transformed\navigation-compose-2.8.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-compose:2.8.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\c4ca202f8df904aacafd4b721ed63c50\transformed\navigation-compose-2.8.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.dagger:hilt-android:2.52] C:\Users\Grifon\.gradle\caches\8.13\transforms\50a71c97c572c2b77ad5fb2619f65994\transformed\hilt-android-2.52\AndroidManifest.xml:18:3-42
+MERGED from [com.google.dagger:hilt-android:2.52] C:\Users\Grifon\.gradle\caches\8.13\transforms\50a71c97c572c2b77ad5fb2619f65994\transformed\hilt-android-2.52\AndroidManifest.xml:18:3-42
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\28f630433739a270a13f3cd92d1d2382\transformed\room-runtime-2.6.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\28f630433739a270a13f3cd92d1d2382\transformed\room-runtime-2.6.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3b971697bb6c1e37b699a1f3733e3402\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3b971697bb6c1e37b699a1f3733e3402\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-core-android:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\510b09b65a077685e40f94700675d34e\transformed\datastore-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-core-android:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\510b09b65a077685e40f94700675d34e\transformed\datastore-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-android:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\bfd598e06190f5555378c2e3ad9e3b42\transformed\datastore-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-android:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\bfd598e06190f5555378c2e3ad9e3b42\transformed\datastore-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-preferences-android:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3a04aeec3eca9b4363a392893a47cd2\transformed\datastore-preferences-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-preferences-android:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3a04aeec3eca9b4363a392893a47cd2\transformed\datastore-preferences-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material3:material3-android:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a66f08a3830d4facf70ba6afcbbadf20\transformed\material3-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material3:material3-android:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a66f08a3830d4facf70ba6afcbbadf20\transformed\material3-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\207c786a46137c3a7d1978336b603496\transformed\animation-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\207c786a46137c3a7d1978336b603496\transformed\animation-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\1e903cf10ea12379da769b313a8ef7b8\transformed\material-ripple-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\1e903cf10ea12379da769b313a8ef7b8\transformed\material-ripple-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\155749900d0d9b5e89eae27e063bdf97\transformed\animation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\155749900d0d9b5e89eae27e063bdf97\transformed\animation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\560be7e98e41218ed2eec068e75d24bf\transformed\foundation-layout-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\560be7e98e41218ed2eec068e75d24bf\transformed\foundation-layout-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\e82f3370821bf41659c8046b8967e5a2\transformed\foundation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\e82f3370821bf41659c8046b8967e5a2\transformed\foundation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d970b7a958dc5b3a268a6ecc35fa60e0\transformed\ui-unit-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d970b7a958dc5b3a268a6ecc35fa60e0\transformed\ui-unit-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d0096c038ae66bbbf2289f8f07f8c1c7\transformed\ui-graphics-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d0096c038ae66bbbf2289f8f07f8c1c7\transformed\ui-graphics-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d70366b35e168f6e5825923fbc9c46fc\transformed\ui-geometry-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d70366b35e168f6e5825923fbc9c46fc\transformed\ui-geometry-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\499b9601b2af907aa9b36e293675d208\transformed\ui-util-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\499b9601b2af907aa9b36e293675d208\transformed\ui-util-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d425147d4bb8ef3c62631d249caa6fc9\transformed\ui-text-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\d425147d4bb8ef3c62631d249caa6fc9\transformed\ui-text-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\71d644eaea5c00bbf26e2e6023d012fa\transformed\ui-tooling-preview-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\71d644eaea5c00bbf26e2e6023d012fa\transformed\ui-tooling-preview-release\AndroidManifest.xml:20:5-44
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1f069f2e0bbe85cb57ff8772137c701b\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:21:5-44
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1f069f2e0bbe85cb57ff8772137c701b\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:21:5-44
+MERGED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager2:viewpager2:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\9f9a8bfff61c9ac8685270fc18366552\transformed\viewpager2-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.viewpager2:viewpager2:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\9f9a8bfff61c9ac8685270fc18366552\transformed\viewpager2-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.android.gms:play-services-auth-api-phone:18.0.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\546c707e8a0bef93f2f9930145e135a2\transformed\play-services-auth-api-phone-18.0.2\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-auth-api-phone:18.0.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\546c707e8a0bef93f2f9930145e135a2\transformed\play-services-auth-api-phone-18.0.2\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-auth-base:18.0.10] C:\Users\Grifon\.gradle\caches\8.13\transforms\bc529f5b3b487e7b71a99e53eeaa83de\transformed\play-services-auth-base-18.0.10\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-auth-base:18.0.10] C:\Users\Grifon\.gradle\caches\8.13\transforms\bc529f5b3b487e7b71a99e53eeaa83de\transformed\play-services-auth-base-18.0.10\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-fido:20.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\30438267f04a55445f278651b09f8c2b\transformed\play-services-fido-20.0.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-fido:20.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\30438267f04a55445f278651b09f8c2b\transformed\play-services-fido-20.0.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2429780cd0a1ce7091273747cd6f8794\transformed\play-services-base-18.5.0\AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2429780cd0a1ce7091273747cd6f8794\transformed\play-services-base-18.5.0\AndroidManifest.xml:3:5-44
+MERGED from [com.google.mlkit:vision-interfaces:16.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\78497a9bcfe41dff8360ed2a11430ac2\transformed\vision-interfaces-16.3.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:vision-interfaces:16.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\78497a9bcfe41dff8360ed2a11430ac2\transformed\vision-interfaces-16.3.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1f2517cb8a018db3c6dd69807cd2226c\transformed\play-services-tasks-18.2.0\AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1f2517cb8a018db3c6dd69807cd2226c\transformed\play-services-tasks-18.2.0\AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\494f50e0c2c3ab7d32173de6b1f1bcd9\transformed\play-services-basement-18.4.0\AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\494f50e0c2c3ab7d32173de6b1f1bcd9\transformed\play-services-basement-18.4.0\AndroidManifest.xml:3:5-44
+MERGED from [androidx.fragment:fragment:1.5.7] C:\Users\Grifon\.gradle\caches\8.13\transforms\49fca8968a472ae65eb824d8cea9bbef\transformed\fragment-1.5.7\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.5.7] C:\Users\Grifon\.gradle\caches\8.13\transforms\49fca8968a472ae65eb824d8cea9bbef\transformed\fragment-1.5.7\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity:1.8.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\ff8fc8d117899c45f132af1da112241f\transformed\activity-1.8.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.8.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\ff8fc8d117899c45f132af1da112241f\transformed\activity-1.8.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity-ktx:1.8.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\7de39fd6a84fd72d6b907d4d44784df7\transformed\activity-ktx-1.8.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.8.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\7de39fd6a84fd72d6b907d4d44784df7\transformed\activity-ktx-1.8.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-compose:1.8.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\7fa16a8a35624ee57cec91d97d00f4fb\transformed\activity-compose-1.8.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-compose:1.8.2] C:\Users\Grifon\.gradle\caches\8.13\transforms\7fa16a8a35624ee57cec91d97d00f4fb\transformed\activity-compose-1.8.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-extended-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\812da0fdd4b55c481081f96087781ab9\transformed\material-icons-extended-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-extended-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\812da0fdd4b55c481081f96087781ab9\transformed\material-icons-extended-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\cc61eae22bda440d2e1dc6354634b7b8\transformed\material-icons-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\cc61eae22bda440d2e1dc6354634b7b8\transformed\material-icons-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.dynamicanimation:dynamicanimation:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\f9af8b2191892c9710547ccd914e6442\transformed\dynamicanimation-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.dynamicanimation:dynamicanimation:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\f9af8b2191892c9710547ccd914e6442\transformed\dynamicanimation-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\48340ace92c070d049b62081112debd6\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\48340ace92c070d049b62081112debd6\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\9d3b1228ac639d46636d4575c425e48c\transformed\loader-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.loader:loader:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\9d3b1228ac639d46636d4575c425e48c\transformed\loader-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\76a6e859e9643f6b674ad92d5c401e86\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\76a6e859e9643f6b674ad92d5c401e86\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d40f9a91995f9a01ca5daf148eb1dd47\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d40f9a91995f9a01ca5daf148eb1dd47\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9a0574b899959e855d07e14525bd056a\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9a0574b899959e855d07e14525bd056a\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\87ee7f937162ffc5dbaef05a8bc5d984\transformed\drawerlayout-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.drawerlayout:drawerlayout:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\87ee7f937162ffc5dbaef05a8bc5d984\transformed\drawerlayout-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\b323b2a4a295f24a8f1b6caf69b79773\transformed\coordinatorlayout-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\b323b2a4a295f24a8f1b6caf69b79773\transformed\coordinatorlayout-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a9fd6873c382b982615fd4a76d797d23\transformed\transition-1.2.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a9fd6873c382b982615fd4a76d797d23\transformed\transition-1.2.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\b597f885bc2347a6a5a1347742d22077\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\b597f885bc2347a6a5a1347742d22077\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\806bc05213a9cb0e279dc44ffbb59963\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\806bc05213a9cb0e279dc44ffbb59963\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.recyclerview:recyclerview:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\f26c79b482229ac16a0ed89a00b9c334\transformed\recyclerview-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.recyclerview:recyclerview:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\f26c79b482229ac16a0ed89a00b9c334\transformed\recyclerview-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ad1cbb6e040b566b21f9f743c822f7de\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ad1cbb6e040b566b21f9f743c822f7de\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\651bf5c35dfd8edf7b1df697240f4e51\transformed\customview-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.customview:customview:1.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\651bf5c35dfd8edf7b1df697240f4e51\transformed\customview-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1af7f24d34c3d7f9d2441669e590a048\transformed\autofill-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1af7f24d34c3d7f9d2441669e590a048\transformed\autofill-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d479bc222f03f4f0e45f254e544a762\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d479bc222f03f4f0e45f254e544a762\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.core:core-ktx:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\acb6435e7c63c07bae2e2b7f1950f04a\transformed\core-ktx-1.13.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\acb6435e7c63c07bae2e2b7f1950f04a\transformed\core-ktx-1.13.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\ea6d5e3e1a9335ffdc760114af831ff8\transformed\graphics-path-1.0.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\ea6d5e3e1a9335ffdc760114af831ff8\transformed\graphics-path-1.0.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\978004260245348fe4d5feb742165036\transformed\lifecycle-runtime-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\978004260245348fe4d5feb742165036\transformed\lifecycle-runtime-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\efca990b03e30a5776f06f3091ca4394\transformed\lifecycle-viewmodel-2.8.3\AndroidManifest.xml:4:5-43
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\efca990b03e30a5776f06f3091ca4394\transformed\lifecycle-viewmodel-2.8.3\AndroidManifest.xml:4:5-43
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\70bd122237f067f22262af6ad31dd2d8\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\70bd122237f067f22262af6ad31dd2d8\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\43731008143ea9e418f938ab2c1067af\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\43731008143ea9e418f938ab2c1067af\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b6ed065257c549bd9d80c3c6b5dd83a\transformed\lifecycle-livedata-core-ktx-2.8.3\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b6ed065257c549bd9d80c3c6b5dd83a\transformed\lifecycle-livedata-core-ktx-2.8.3\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\40b31353f00d8a48f061ead6985ad647\transformed\lifecycle-viewmodel-savedstate-2.8.3\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\40b31353f00d8a48f061ead6985ad647\transformed\lifecycle-viewmodel-savedstate-2.8.3\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\530c5cae571518c2bc7c042be153537f\transformed\lifecycle-viewmodel-ktx-2.8.3\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\530c5cae571518c2bc7c042be153537f\transformed\lifecycle-viewmodel-ktx-2.8.3\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\74a97756a8add28d68a2757cfc2eb32b\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\74a97756a8add28d68a2757cfc2eb32b\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\be7c6353c060ad5ea376ae7b51b9cd51\transformed\lifecycle-livedata-core-2.8.3\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\be7c6353c060ad5ea376ae7b51b9cd51\transformed\lifecycle-livedata-core-2.8.3\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\6d03770c7fb2bb9f605e83959e12cd05\transformed\lifecycle-livedata-2.8.3\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\6d03770c7fb2bb9f605e83959e12cd05\transformed\lifecycle-livedata-2.8.3\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\2e7148f85440a3c687ffbeff3677c490\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\2e7148f85440a3c687ffbeff3677c490\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\b3318711fefddd7e01b89518a01e7a96\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\b3318711fefddd7e01b89518a01e7a96\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\55bd9ab947ca68e6ed93a31ff3309109\transformed\ui-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\55bd9ab947ca68e6ed93a31ff3309109\transformed\ui-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\7a8a4fc4e36e94faf16ffef1526333a6\transformed\runtime-saveable-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\7a8a4fc4e36e94faf16ffef1526333a6\transformed\runtime-saveable-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\c9ae9fcf4f27ee55019486ffdd081cd6\transformed\runtime-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.7.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\c9ae9fcf4f27ee55019486ffdd081cd6\transformed\runtime-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-splashscreen:1.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4c01c6f0b9024e8400e66fe9b0a66306\transformed\core-splashscreen-1.0.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core-splashscreen:1.0.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4c01c6f0b9024e8400e66fe9b0a66306\transformed\core-splashscreen-1.0.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\97c82308e9a329192cb061d76f4a771b\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\97c82308e9a329192cb061d76f4a771b\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cddbacb9b16ddb2f22fdcb2651774524\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cddbacb9b16ddb2f22fdcb2651774524\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\571b70da2959463798c278f9594b4df5\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\571b70da2959463798c278f9594b4df5\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d05dd2149037f319463a0ce70dc1aa77\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d05dd2149037f319463a0ce70dc1aa77\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\78bd91335472fc34f3409469e1cb208f\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\78bd91335472fc34f3409469e1cb208f\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\67bac0d1ddf483d63b85f4a7e8798f78\transformed\cardview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\67bac0d1ddf483d63b85f4a7e8798f78\transformed\cardview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0f337023796ef44cf2e85cfdc17951c5\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0f337023796ef44cf2e85cfdc17951c5\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-api:2.2.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\0ee3efdca4e0a1c7d0eada7a881b0079\transformed\transport-api-2.2.1\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-api:2.2.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\0ee3efdca4e0a1c7d0eada7a881b0079\transformed\transport-api-2.2.1\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.firebase:firebase-components:16.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\f9296fbd3c8b486076d2040402f6ec1f\transformed\firebase-components-16.1.0\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-components:16.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\f9296fbd3c8b486076d2040402f6ec1f\transformed\firebase-components-16.1.0\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-encoders-json:17.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3a6533c3d5e0b152f5a7561724e92be\transformed\firebase-encoders-json-17.1.0\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-encoders-json:17.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3a6533c3d5e0b152f5a7561724e92be\transformed\firebase-encoders-json-17.1.0\AndroidManifest.xml:19:5-21:41
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\5a49d5bfe6d73b23b030b8b9ada3a2f2\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\5a49d5bfe6d73b23b030b8b9ada3a2f2\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a9c5d6cc7da9bb8272b9f61f8498ef05\transformed\documentfile-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a9c5d6cc7da9bb8272b9f61f8498ef05\transformed\documentfile-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ac0e8177f96011da0a413dab8867fb7b\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ac0e8177f96011da0a413dab8867fb7b\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\35e36cb6184452f59fe5c8825f5c11ae\transformed\print-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\35e36cb6184452f59fe5c8825f5c11ae\transformed\print-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\Grifon\.gradle\caches\8.13\transforms\bc1d883f2df36a727c60eedc6d6f05aa\transformed\exifinterface-1.3.7\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\Grifon\.gradle\caches\8.13\transforms\bc1d883f2df36a727c60eedc6d6f05aa\transformed\exifinterface-1.3.7\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\20843db7d3b741fd40411f77243f1ff5\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\20843db7d3b741fd40411f77243f1ff5\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\73077a19236cfd075cb3f3d070556c09\transformed\tracing-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\73077a19236cfd075cb3f3d070556c09\transformed\tracing-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.dagger:dagger-lint-aar:2.52] C:\Users\Grifon\.gradle\caches\8.13\transforms\d2949bf5b9f7558505e9dabf1075a838\transformed\dagger-lint-aar-2.52\AndroidManifest.xml:18:3-42
+MERGED from [com.google.dagger:dagger-lint-aar:2.52] C:\Users\Grifon\.gradle\caches\8.13\transforms\d2949bf5b9f7558505e9dabf1075a838\transformed\dagger-lint-aar-2.52\AndroidManifest.xml:18:3-42
+MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\Grifon\.gradle\caches\8.13\transforms\05431b0013ed8756f09e2ccd53c45e80\transformed\image-1.0.0-beta1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\Grifon\.gradle\caches\8.13\transforms\05431b0013ed8756f09e2ccd53c45e80\transformed\image-1.0.0-beta1\AndroidManifest.xml:5:5-44
+	android:targetSdkVersion
+		INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml
+service#androidx.camera.core.impl.MetadataHolderService
+ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:24:9-33:19
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\f24b520d227741667b2abaa276749df8\transformed\camera-core-1.3.4\AndroidManifest.xml:29:9-33:78
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\f24b520d227741667b2abaa276749df8\transformed\camera-core-1.3.4\AndroidManifest.xml:29:9-33:78
+	tools:node
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:29:13-31
+	android:enabled
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:26:13-36
+	android:exported
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:27:13-37
+	tools:ignore
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:28:13-75
+	android:name
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:25:13-75
+meta-data#androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER
+ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:30:13-32:89
+	android:value
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:32:17-86
+	android:name
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\1197b2a2cab02aa289e595736b6535ee\transformed\camera-camera2-1.3.4\AndroidManifest.xml:31:17-103
+service#com.google.mlkit.common.internal.MlKitComponentDiscoveryService
+ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d64fc13d833ffcc7ed755b32c845e7f\transformed\vision-common-17.3.0\AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d64fc13d833ffcc7ed755b32c845e7f\transformed\vision-common-17.3.0\AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:15:9-23:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:15:9-23:19
+	android:exported
+		ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:11:13-37
+	tools:targetApi
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:19:13-32
+	android:directBootAware
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:17:13-43
+	android:name
+		ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:10:13-91
+meta-data#com.google.firebase.components:com.google.mlkit.vision.barcode.internal.BarcodeRegistrar
+ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:12:13-14:85
+	android:value
+		ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:14:17-82
+	android:name
+		ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\4b2595bb3c51f4ab9efeb38b1a90abe3\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:13:17-120
+meta-data#com.google.firebase.components:com.google.mlkit.vision.common.internal.VisionCommonRegistrar
+ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d64fc13d833ffcc7ed755b32c845e7f\transformed\vision-common-17.3.0\AndroidManifest.xml:12:13-14:85
+	android:value
+		ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d64fc13d833ffcc7ed755b32c845e7f\transformed\vision-common-17.3.0\AndroidManifest.xml:14:17-82
+	android:name
+		ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1d64fc13d833ffcc7ed755b32c845e7f\transformed\vision-common-17.3.0\AndroidManifest.xml:13:17-124
+provider#com.google.mlkit.common.internal.MlKitInitProvider
+ADDED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:9:9-13:38
+	android:authorities
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:11:13-69
+	android:exported
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:12:13-37
+	android:initOrder
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:13:13-35
+	android:name
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:10:13-78
+meta-data#com.google.firebase.components:com.google.mlkit.common.internal.CommonComponentRegistrar
+ADDED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:20:13-22:85
+	android:value
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:22:17-82
+	android:name
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0e9c396bb690963369b91de3fa2b1ee4\transformed\common-18.11.0\AndroidManifest.xml:21:17-120
+service#androidx.room.MultiInstanceInvalidationService
+ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\28f630433739a270a13f3cd92d1d2382\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+	android:exported
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\28f630433739a270a13f3cd92d1d2382\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+	tools:ignore
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\28f630433739a270a13f3cd92d1d2382\transformed\room-runtime-2.6.1\AndroidManifest.xml:28:13-60
+	android:directBootAware
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\28f630433739a270a13f3cd92d1d2382\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+	android:name
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\28f630433739a270a13f3cd92d1d2382\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+activity#com.google.android.gms.auth.api.signin.internal.SignInHubActivity
+ADDED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:23:9-27:75
+	android:excludeFromRecents
+		ADDED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:25:13-46
+	android:exported
+		ADDED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:26:13-37
+	android:theme
+		ADDED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:27:13-72
+	android:name
+		ADDED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:24:13-93
+service#com.google.android.gms.auth.api.signin.RevocationBoundService
+ADDED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:33:9-37:51
+	android:exported
+		ADDED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:35:13-36
+	android:visibleToInstantApps
+		ADDED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:37:13-48
+	android:permission
+		ADDED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:36:13-107
+	android:name
+		ADDED from [com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\7cbaa673724c1e65a84f8ba253340584\transformed\play-services-auth-21.3.0\AndroidManifest.xml:34:13-89
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2429780cd0a1ce7091273747cd6f8794\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:9-173
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2429780cd0a1ce7091273747cd6f8794\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:146-170
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2429780cd0a1ce7091273747cd6f8794\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:86-145
+	android:name
+		ADDED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2429780cd0a1ce7091273747cd6f8794\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:19-85
+meta-data#com.google.android.gms.version
+ADDED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\494f50e0c2c3ab7d32173de6b1f1bcd9\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:9-122
+	android:value
+		ADDED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\494f50e0c2c3ab7d32173de6b1f1bcd9\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:66-119
+	android:name
+		ADDED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\494f50e0c2c3ab7d32173de6b1f1bcd9\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:20-65
+provider#androidx.startup.InitializationProvider
+ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\74a97756a8add28d68a2757cfc2eb32b\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\74a97756a8add28d68a2757cfc2eb32b\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\20843db7d3b741fd40411f77243f1ff5\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\20843db7d3b741fd40411f77243f1ff5\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
+	tools:node
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:28:13-31
+	android:authorities
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+	android:exported
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+meta-data#androidx.emoji2.text.EmojiCompatInitializer
+ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6a184817429e3f24c38ddbc5bdc5a8da\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+permission#com.grifon.eshop.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+uses-permission#com.grifon.eshop.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\a5acd518cee7495418213f374fefc112\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+meta-data#androidx.lifecycle.ProcessLifecycleInitializer
+ADDED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\74a97756a8add28d68a2757cfc2eb32b\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\74a97756a8add28d68a2757cfc2eb32b\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\74a97756a8add28d68a2757cfc2eb32b\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:30:17-78
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:25:5-79
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:22:5-79
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:22:5-79
+	android:name
+		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:25:22-76
+uses-permission#android.permission.INTERNET
+ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:26:5-67
+	android:name
+		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:26:22-64
+service#com.google.android.datatransport.runtime.backends.TransportBackendDiscovery
+ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:29:9-35:19
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:36:9-38:40
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:36:9-38:40
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:31:13-37
+	android:name
+		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:30:13-103
+meta-data#backend:com.google.android.datatransport.cct.CctBackendFactory
+ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:32:13-34:39
+	android:value
+		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:34:17-36
+	android:name
+		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\040f4a14cdfd55715222eebab5c7d4c6\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:33:17-94
+service#com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService
+ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:26:9-30:19
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:28:13-37
+	android:permission
+		ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:29:13-69
+	android:name
+		ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:27:13-117
+receiver#com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver
+ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:32:9-34:40
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:34:13-37
+	android:name
+		ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\fd712c426d0766f24b84cad01280a349\transformed\transport-runtime-2.2.6\AndroidManifest.xml:33:13-132
+meta-data#androidx.profileinstaller.ProfileInstallerInitializer
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+receiver#androidx.profileinstaller.ProfileInstallReceiver
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+	android:enabled
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+	android:exported
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+	android:permission
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+	android:directBootAware
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+intent-filter#action:name:androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+action#androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+intent-filter#action:name:androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+action#androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+intent-filter#action:name:androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+action#androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+intent-filter#action:name:androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+action#androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\1b08df4d8dcb65389ba550279d953382\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Grifon Menu</string>
+    <string name="bronze">Μπρούτζινα</string>
+    <string name="cart_description">Καλάθι</string>
+    <string name="ceramics">Κεραμικά</string>
+    <string name="email">Email</string>
+    <string name="here">εδώ</string>
+    <string name="home_description">Αρχική</string>
+    <string name="lighting">Φωτιστικά</string>
+    <string name="login_button">Σύνδεση</string>
+    <string name="login_title">Σύνδεση</string>
+    <string name="menu_description">Μενού</string>
+    <string name="my_account">Ο Λογαριασμός μου</string>
+    <string name="nav_chat">Συνομιλία</string>
+    <string name="nav_favs">Αγαπημένα</string>
+    <string name="nav_info">Πληροφορίες</string>
+    <string name="nav_language">Γλώσσα</string>
+    <string name="nav_profile">Προφίλ</string>
+    <string name="nav_settings">Ρυθμίσεις</string>
+    <string name="notifications_description">Ειδοποιήσεις</string>
+    <string name="password">Κωδικός</string>
+    <string name="register_prompt">Αν δεν έχεις λογαριασμό, δημιούργησε έναν </string>
+    <string name="scan_description">Σάρωση</string>
+    <string name="search_placeholder">Αναζήτηση προϊόντων…</string>
+    <string name="shop_by_category">Ψωνίστε Ανά Κατηγορία</string>
+    <string name="soaps">Σαπούνια</string>
+    <string name="textiles">Υφασμάτινα</string>
+    <string name="toys">Παιχνίδια</string>
+    <string name="welcome_back">Καλώς ήρθες</string>
+    <string name="wholesale_intro"><![CDATA[Για να μπορείτε να παραγγείλετε ή να δείτε τιμές, θα πρέπει πρώτα να <a href="https://grifon-eshop.example/register">δημιουργήσετε ένα λογαριασμό</a> ή να <a href="https://grifon-eshop.example/login">συνδεθείτε με τον υπάρχον λογαριασμό σας</a>.
+
+Αν δημιουργήσετε ένα νέο λογαριασμό, θα πρέπει πρώτα να υποβάλετε αίτηση για λογαριασμό χονδρικής πώλησης. Αφού εγκρίνουμε το αίτημά σας, θα μπορείτε να παραγγείλετε και να δείτε τιμές χονδρικής.]]></string>
+</resources>
