@@ -1,4 +1,4 @@
-import { PrestaShopClient } from "../clients/PrestaShopClient";
+﻿import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { extractResourceItem, extractResourceList } from "./prestashopParser";
 import { toLimitParam } from "../utils/pagination";
 import { getLocalizedValue, toNumber } from "../utils/prestashopFields";
@@ -9,8 +9,18 @@ export interface ProductListItem {
   name: string | null;
   price: number | null;
   reference: string | null;
+  brand: string | null;
+  quantity: number | null;
+  inStock: boolean;
   defaultImage: { id: number; url: string } | null;
   active: number | null;
+}
+
+export interface ProductQueryFilters {
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStockOnly?: boolean;
 }
 
 const buildImageUrl = (shopId: ShopId, productId: number, imageId: number): string => {
@@ -29,14 +39,46 @@ const normalizeProduct = (
     const images = extractResourceList<any>("images", product.associations);
     if (images.length > 0) idImage = Number(images[0].id);
   }
+
+  const quantity = toNumber(product.quantity);
+  const parsedQuantity = typeof quantity === "number" ? quantity : null;
+  const brandName = typeof product.manufacturer_name === "string" ? product.manufacturer_name : null;
+
   return {
     id,
     name: getLocalizedValue(product.name, lang),
     price: allowPrice ? toNumber(product.price) : null,
     reference: product.reference ?? null,
+    brand: brandName,
+    quantity: parsedQuantity,
+    inStock: parsedQuantity === null ? true : parsedQuantity > 0,
     defaultImage: idImage ? { id: idImage, url: buildImageUrl(shopId, id, idImage) } : null,
     active: toNumber(product.active)
   };
+};
+
+const applyServerSideFilters = (
+  items: ProductListItem[],
+  filters: ProductQueryFilters
+): ProductListItem[] => {
+  const normalizedSearch = filters.search?.trim().toLowerCase();
+
+  return items.filter((item) => {
+    const matchesSearch =
+      !normalizedSearch ||
+      item.name?.toLowerCase().includes(normalizedSearch) ||
+      item.reference?.toLowerCase().includes(normalizedSearch);
+
+    const matchesMinPrice =
+      filters.minPrice === undefined || (item.price !== null && item.price >= filters.minPrice);
+
+    const matchesMaxPrice =
+      filters.maxPrice === undefined || (item.price !== null && item.price <= filters.maxPrice);
+
+    const matchesStock = !filters.inStockOnly || item.inStock;
+
+    return Boolean(matchesSearch && matchesMinPrice && matchesMaxPrice && matchesStock);
+  });
 };
 
 export const listAllProducts = async (
@@ -46,17 +88,25 @@ export const listAllProducts = async (
   pageSize: number,
   sort: string,
   lang?: number,
-  allowPrice = true
+  allowPrice = true,
+  filters: ProductQueryFilters = {}
 ): Promise<ProductListItem[]> => {
   const data = await client.get("products", {
     "filter[active]": 1,
     sort,
-    limit: toLimitParam(page, pageSize), // Χρήση δυναμικού limit για σελιδοποίηση
-    display: "full" 
+    limit: toLimitParam(page, pageSize),
+    display: "full",
+    ...(filters.search ? { "filter[name]": `%${filters.search}%` } : {}),
+    ...(filters.minPrice !== undefined || filters.maxPrice !== undefined
+      ? {
+          "filter[price]": `[${filters.minPrice ?? ""},${filters.maxPrice ?? ""}]`
+        }
+      : {})
   });
 
   const items = extractResourceList<any>("products", data);
-  return items.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
+  const normalized = items.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
+  return applyServerSideFilters(normalized, filters);
 };
 
 export const listProductsByCategory = async (
@@ -67,10 +117,11 @@ export const listProductsByCategory = async (
   pageSize: number,
   sort: string,
   lang?: number,
-  allowPrice = true
+  allowPrice = true,
+  filters: ProductQueryFilters = {}
 ): Promise<ProductListItem[]> => {
   if (categoryId === 2) {
-    return listAllProducts(client, shopId, page, pageSize, sort, lang, allowPrice);
+    return listAllProducts(client, shopId, page, pageSize, sort, lang, allowPrice, filters);
   }
 
   const data = await client.get("products", {
@@ -78,11 +129,18 @@ export const listProductsByCategory = async (
     "filter[id_category_default]": categoryId,
     sort,
     limit: toLimitParam(page, pageSize),
-    display: "full"
+    display: "full",
+    ...(filters.search ? { "filter[name]": `%${filters.search}%` } : {}),
+    ...(filters.minPrice !== undefined || filters.maxPrice !== undefined
+      ? {
+          "filter[price]": `[${filters.minPrice ?? ""},${filters.maxPrice ?? ""}]`
+        }
+      : {})
   });
 
   const items = extractResourceList<any>("products", data);
-  return items.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
+  const normalized = items.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
+  return applyServerSideFilters(normalized, filters);
 };
 
 export const getProductDetail = async (

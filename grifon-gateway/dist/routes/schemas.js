@@ -1,12 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerBodySchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
+exports.registerBodySchema = exports.loginBodySchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
 const zod_1 = require("zod");
 const toNumber = (value) => {
     if (value === undefined || value === null || value === "")
         return undefined;
     const parsed = Number(value);
     return Number.isNaN(parsed) ? value : parsed;
+};
+const toBoolean = (value) => {
+    if (value === undefined || value === null || value === "")
+        return undefined;
+    if (typeof value === "boolean")
+        return value;
+    if (typeof value === "number")
+        return value === 1;
+    if (typeof value !== "string")
+        return value;
+    const normalized = value.trim().toLowerCase();
+    if (["1", "true", "yes", "on"].includes(normalized))
+        return true;
+    if (["0", "false", "no", "off"].includes(normalized))
+        return false;
+    return value;
 };
 const toOptionalString = (value) => {
     if (value === undefined || value === null)
@@ -15,6 +31,27 @@ const toOptionalString = (value) => {
         return value;
     const trimmed = value.trim();
     return trimmed === "" ? undefined : trimmed;
+};
+const toOptionalSocialTitle = (value) => {
+    const normalizedValue = toOptionalString(value);
+    if (normalizedValue === undefined || typeof normalizedValue !== "string") {
+        return normalizedValue;
+    }
+    switch (normalizedValue.toLowerCase()) {
+        case "mr":
+        case "m":
+        case "κος":
+        case "κος.":
+            return "mr";
+        case "mrs":
+        case "ms":
+        case "f":
+        case "κα":
+        case "κα.":
+            return "mrs";
+        default:
+            return normalizedValue;
+    }
 };
 exports.shopQuerySchema = zod_1.z.object({
     shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)])).default(4),
@@ -27,7 +64,11 @@ exports.paginationSchema = zod_1.z.object({
 exports.productPaginationSchema = zod_1.z.object({
     page: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(1000)).default(1),
     pageSize: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(200)).default(20),
-    sort: zod_1.z.string().optional().default("[id_DESC]")
+    sort: zod_1.z.string().optional().default("[id_DESC]"),
+    search: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+    minPrice: zod_1.z.preprocess(toNumber, zod_1.z.number().min(0).optional()),
+    maxPrice: zod_1.z.preprocess(toNumber, zod_1.z.number().min(0).optional()),
+    inStockOnly: zod_1.z.preprocess(toBoolean, zod_1.z.boolean().optional()).default(false)
 });
 exports.customerIdSchema = zod_1.z.object({
     customerId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive())
@@ -38,12 +79,16 @@ exports.categoryIdSchema = zod_1.z.object({
 exports.productIdSchema = zod_1.z.object({
     productId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive())
 });
+exports.loginBodySchema = zod_1.z.object({
+    email: zod_1.z.string().trim().email(),
+    password: zod_1.z.string().min(1)
+});
 exports.registerBodySchema = zod_1.z
     .object({
     email: zod_1.z.string().trim().email(),
     password: zod_1.z.string().min(8).optional(),
     passwd: zod_1.z.string().min(8).optional(),
-    socialTitle: zod_1.z.preprocess(toOptionalString, zod_1.z.enum(["mr", "mrs"]).optional()),
+    socialTitle: zod_1.z.preprocess(toOptionalSocialTitle, zod_1.z.enum(["mr", "mrs"]).optional()),
     firstName: zod_1.z.string().trim().min(1),
     lastName: zod_1.z.string().trim().min(1),
     countryIso: zod_1.z.string().trim().length(2),

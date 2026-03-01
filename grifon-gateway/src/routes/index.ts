@@ -95,9 +95,14 @@ apiRouter.get(
   validateQuery(shopQuerySchema.merge(productPaginationSchema)),
   async (req, res, next) => {
     try {
-      const { shopId, lang, page, pageSize, sort } = req.query as any;
+      const { shopId, lang, page, pageSize, sort, search, minPrice, maxPrice, inStockOnly } = req.query as any;
       const client = new PrestaShopClient({ shopId, lang });
-      const items = await listAllProducts(client, shopId, page, pageSize, sort, lang);
+      const items = await listAllProducts(client, shopId, page, pageSize, sort, lang, true, {
+        search,
+        minPrice,
+        maxPrice,
+        inStockOnly
+      });
       res.json({ page, pageSize, items });
     } catch (error) {
       next(error);
@@ -126,10 +131,15 @@ apiRouter.get(
   validateQuery(shopQuerySchema.merge(productPaginationSchema)),
   async (req, res, next) => {
     try {
-      const { shopId, lang, page, pageSize, sort } = req.query as any;
+      const { shopId, lang, page, pageSize, sort, search, minPrice, maxPrice, inStockOnly } = req.query as any;
       const { categoryId } = req.params as any;
       const client = new PrestaShopClient({ shopId, lang });
-      const items = await listProductsByCategory(client, shopId, Number(categoryId), page, pageSize, sort, lang);
+      const items = await listProductsByCategory(client, shopId, Number(categoryId), page, pageSize, sort, lang, true, {
+        search,
+        minPrice,
+        maxPrice,
+        inStockOnly
+      });
       res.json({ page, pageSize, items });
     } catch (error) {
       next(error);

@@ -1,103 +1,92 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProductDetail = exports.listProductsByCategory = void 0;
+exports.getProductDetail = exports.listProductsByCategory = exports.listAllProducts = void 0;
 const prestashopParser_1 = require("./prestashopParser");
 const pagination_1 = require("../utils/pagination");
 const prestashopFields_1 = require("../utils/prestashopFields");
-const env_1 = require("../config/env");
 const buildImageUrl = (shopId, productId, imageId) => {
-    const base = env_1.config.shopBaseUrls[shopId];
-    return `${base}/images/products/${productId}/${imageId}`;
+    return `/v1/images/products/${productId}/${imageId}?shopId=${shopId}`;
 };
 const normalizeProduct = (product, shopId, lang, allowPrice = true) => {
     const id = Number(product.id);
-    const idDefaultImage = (0, prestashopFields_1.toNumber)(product.id_default_image);
-    const priceValue = (0, prestashopFields_1.toNumber)(product.price);
+    let idImage = (0, prestashopFields_1.toNumber)(product.id_default_image);
+    if (!idImage && product.associations?.images) {
+        const images = (0, prestashopParser_1.extractResourceList)("images", product.associations);
+        if (images.length > 0)
+            idImage = Number(images[0].id);
+    }
+    const quantity = (0, prestashopFields_1.toNumber)(product.quantity);
+    const parsedQuantity = typeof quantity === "number" ? quantity : null;
+    const brandName = typeof product.manufacturer_name === "string" ? product.manufacturer_name : null;
     return {
         id,
         name: (0, prestashopFields_1.getLocalizedValue)(product.name, lang),
-        price: allowPrice ? priceValue : null,
+        price: allowPrice ? (0, prestashopFields_1.toNumber)(product.price) : null,
         reference: product.reference ?? null,
-        defaultImage: idDefaultImage
-            ? { id: idDefaultImage, url: buildImageUrl(shopId, id, idDefaultImage) }
-            : null,
+        brand: brandName,
+        quantity: parsedQuantity,
+        inStock: parsedQuantity === null ? true : parsedQuantity > 0,
+        defaultImage: idImage ? { id: idImage, url: buildImageUrl(shopId, id, idImage) } : null,
         active: (0, prestashopFields_1.toNumber)(product.active)
     };
 };
-const normalizeProductDetail = (product, shopId, lang, allowPrice = true) => {
-    const id = Number(product.id);
-    const images = (0, prestashopParser_1.extractResourceList)("images", product?.associations ?? {});
-    const imageItems = images.map((image) => ({
-        id: Number(image.id),
-        url: buildImageUrl(shopId, id, Number(image.id))
-    }));
-    const categories = (0, prestashopParser_1.extractResourceList)("categories", product?.associations ?? {});
-    const stock = (0, prestashopParser_1.extractResourceList)("stock_availables", product?.associations ?? {});
-    const stockItem = stock[0];
-    const priceValue = (0, prestashopFields_1.toNumber)(product.price);
-    return {
-        id,
-        name: (0, prestashopFields_1.getLocalizedValue)(product.name, lang),
-        descriptionShort: (0, prestashopFields_1.getLocalizedValue)(product.description_short, lang),
-        description: (0, prestashopFields_1.getLocalizedValue)(product.description, lang),
-        reference: product.reference ?? null,
-        price: allowPrice ? priceValue : null,
-        images: imageItems,
-        manufacturer: product.id_manufacturer
-            ? { id: Number(product.id_manufacturer), name: product.manufacturer_name ?? null }
-            : undefined,
-        categories: categories.length ? categories.map((category) => ({ id: Number(category.id) })) : undefined,
-        stock: stockItem ? { quantity: (0, prestashopFields_1.toNumber)(stockItem.quantity) } : undefined
-    };
+const applyServerSideFilters = (items, filters) => {
+    const normalizedSearch = filters.search?.trim().toLowerCase();
+    return items.filter((item) => {
+        const matchesSearch = !normalizedSearch ||
+            item.name?.toLowerCase().includes(normalizedSearch) ||
+            item.reference?.toLowerCase().includes(normalizedSearch);
+        const matchesMinPrice = filters.minPrice === undefined || (item.price !== null && item.price >= filters.minPrice);
+        const matchesMaxPrice = filters.maxPrice === undefined || (item.price !== null && item.price <= filters.maxPrice);
+        const matchesStock = !filters.inStockOnly || item.inStock;
+        return Boolean(matchesSearch && matchesMinPrice && matchesMaxPrice && matchesStock);
+    });
 };
-const listProductsByCategory = async (client, shopId, categoryId, page, pageSize, sort, lang, allowPrice = false) => {
-    const baseParams = {
+const listAllProducts = async (client, shopId, page, pageSize, sort, lang, allowPrice = true, filters = {}) => {
+    const data = await client.get("products", {
         "filter[active]": 1,
         sort,
         limit: (0, pagination_1.toLimitParam)(page, pageSize),
-        display: "[id,name,price,reference,active,id_default_image]"
-    };
-    const filteredData = await client.get("products", {
-        ...baseParams,
-        "filter[id_category_default]": categoryId
+        display: "full",
+        ...(filters.search ? { "filter[name]": `%${filters.search}%` } : {}),
+        ...(filters.minPrice !== undefined || filters.maxPrice !== undefined
+            ? {
+                "filter[price]": `[${filters.minPrice ?? ""},${filters.maxPrice ?? ""}]`
+            }
+            : {})
     });
-    const filteredItems = (0, prestashopParser_1.extractResourceList)("products", filteredData);
-    if (filteredItems.length > 0) {
-        return filteredItems.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
+    const items = (0, prestashopParser_1.extractResourceList)("products", data);
+    const normalized = items.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
+    return applyServerSideFilters(normalized, filters);
+};
+exports.listAllProducts = listAllProducts;
+const listProductsByCategory = async (client, shopId, categoryId, page, pageSize, sort, lang, allowPrice = true, filters = {}) => {
+    if (categoryId === 2) {
+        return (0, exports.listAllProducts)(client, shopId, page, pageSize, sort, lang, allowPrice, filters);
     }
-    const categoryData = await client.getById("categories", categoryId);
-    const category = (0, prestashopParser_1.extractResourceItem)("categories", categoryData);
-    const associations = category?.associations?.products?.product;
-    const productIds = Array.isArray(associations)
-        ? associations.map((item) => Number(item.id))
-        : associations
-            ? [Number(associations.id)]
-            : [];
-    const pagedIds = productIds.slice((page - 1) * pageSize, page * pageSize);
-    const chunks = (0, pagination_1.chunkArray)(pagedIds, 20);
-    const results = [];
-    for (const chunk of chunks) {
-        const chunkData = await client.get("products", {
-            "filter[active]": 1,
-            "filter[id]": `[${chunk.join("|")}]`,
-            display: "[id,name,price,reference,active,id_default_image]"
-        });
-        const chunkItems = (0, prestashopParser_1.extractResourceList)("products", chunkData);
-        results.push(...chunkItems.map((product) => normalizeProduct(product, shopId, lang, allowPrice)));
-    }
-    return results;
+    const data = await client.get("products", {
+        "filter[active]": 1,
+        "filter[id_category_default]": categoryId,
+        sort,
+        limit: (0, pagination_1.toLimitParam)(page, pageSize),
+        display: "full",
+        ...(filters.search ? { "filter[name]": `%${filters.search}%` } : {}),
+        ...(filters.minPrice !== undefined || filters.maxPrice !== undefined
+            ? {
+                "filter[price]": `[${filters.minPrice ?? ""},${filters.maxPrice ?? ""}]`
+            }
+            : {})
+    });
+    const items = (0, prestashopParser_1.extractResourceList)("products", data);
+    const normalized = items.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
+    return applyServerSideFilters(normalized, filters);
 };
 exports.listProductsByCategory = listProductsByCategory;
-const getProductDetail = async (client, shopId, productId, lang, allowPrice = false) => {
-    const data = await client.getById("products", productId, {
-        display: "full"
-    });
+const getProductDetail = async (client, shopId, productId, lang, allowPrice = true) => {
+    const data = await client.getById("products", productId, { display: "full" });
     const product = (0, prestashopParser_1.extractResourceItem)("products", data);
     if (!product)
         return null;
-    const active = (0, prestashopFields_1.toBooleanFlag)(product.active);
-    if (!active)
-        return null;
-    return normalizeProductDetail(product, shopId, lang, allowPrice);
+    return normalizeProduct(product, shopId, lang, allowPrice);
 };
 exports.getProductDetail = getProductDetail;
