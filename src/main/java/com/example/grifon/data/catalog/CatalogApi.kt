@@ -57,6 +57,18 @@ data class LoginResponseDto(
 )
 
 @JsonClass(generateAdapter = true)
+data class ErrorResponseDto(
+    val error: ErrorDetailDto
+)
+
+@JsonClass(generateAdapter = true)
+data class ErrorDetailDto(
+    val code: String,
+    val message: String,
+    val details: Any? = null
+)
+
+@JsonClass(generateAdapter = true)
 data class ShopDto(
     val id: Int,
     val code: String? = null,
