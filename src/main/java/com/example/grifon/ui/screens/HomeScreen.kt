@@ -1,4 +1,4 @@
-package com.example.grifon.ui.screens
+﻿package com.example.grifon.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -63,17 +63,17 @@ fun HomeScreen(
                 val products = data.popular
 
                 val mainCategories = listOf(
-                    CategoryDisplayItem("Κεραμικά", "Ceramics", R.drawable.kersmiks_diskodmhtiks),
-                    CategoryDisplayItem("Αγαλματίδια", "Statuettes", R.drawable.veroza),
-                    CategoryDisplayItem("Διακοσμητικά", "Decorative", R.drawable.diakosmitika_keramikago),
-                    CategoryDisplayItem("Για χρήση", "For use", R.drawable.sapounia),
-                    CategoryDisplayItem("Χόμπι", "Hobbies", R.drawable.paixnidiarouytrina),
-                    CategoryDisplayItem("Αξεσουάρ", "Accessory", R.drawable.yfasmatina)
+                    CategoryDisplayItem("ÎšÎµÏÎ±Î¼Î¹ÎºÎ¬", "Ceramics", R.drawable.kersmiks_diskodmhtiks),
+                    CategoryDisplayItem("Î‘Î³Î±Î»Î¼Î±Ï„Î¯Î´Î¹Î±", "Statuettes", R.drawable.veroza),
+                    CategoryDisplayItem("Î”Î¹Î±ÎºÎ¿ÏƒÎ¼Î·Ï„Î¹ÎºÎ¬", "Decorative", R.drawable.diakosmitika_keramikago),
+                    CategoryDisplayItem("Î“Î¹Î± Ï‡ÏÎ®ÏƒÎ·", "For use", R.drawable.sapounia),
+                    CategoryDisplayItem("Î§ÏŒÎ¼Ï€Î¹", "Hobbies", R.drawable.paixnidiarouytrina),
+                    CategoryDisplayItem("Î‘Î¾ÎµÏƒÎ¿Ï…Î¬Ï", "Accessory", R.drawable.yfasmatina)
                 )
 
                 val displayCategories = remember(data.categories) {
                     val list = mutableListOf<Pair<CategoryDisplayItem, String?>>()
-                    list.add(CategoryDisplayItem("Όλα", "Home", R.drawable.logo) to null)
+                    list.add(CategoryDisplayItem("ÎŒÎ»Î±", "Home", R.drawable.logo) to null)
                     
                     mainCategories.forEach { item ->
                         val cat = data.categories.find { 
@@ -88,12 +88,13 @@ fun HomeScreen(
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 16.dp)
+                    contentPadding = PaddingValues(bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     item(span = { GridItemSpan(3) }) {
                         Column(modifier = Modifier.padding(vertical = 16.dp)) {
                             Text(
-                                "Κύριες Κατηγορίες", 
+                                "ÎšÏÏÎ¹ÎµÏ‚ ÎšÎ±Ï„Î·Î³Î¿ÏÎ¯ÎµÏ‚", 
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
@@ -118,19 +119,11 @@ fun HomeScreen(
                     if (products.isEmpty()) {
                         item(span = { GridItemSpan(3) }) {
                             Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                                Text("Δεν βρέθηκαν προϊόντα")
+                                Text("Î”ÎµÎ½ Î²ÏÎ­Î¸Î·ÎºÎ±Î½ Ï€ÏÎ¿ÏŠÏŒÎ½Ï„Î±")
                             }
                         }
                     }
 
-                    itemsIndexed(products) { index, product ->
-                        // Δυναμικό Span: Το πρώτο προϊόν καταλαμβάνει όλο το πλάτος, τα άλλα 1/3
-                        val span = if (index == 0) GridItemSpan(3) else GridItemSpan(1)
-                        // Σημείωση: Στο Grid cells fixed 3, το span 3 πιάνει όλη τη γραμμή.
-                        // Για να δουλέψει σωστά η κατανομή στο itemsIndexed χρησιμοποιούμε την παράμετρο span
-                    }
-                    
-                    // Επαναληπτική λίστα με σωστά spans
                     itemsIndexed(
                         items = products,
                         span = { index, _ -> if (index == 0) GridItemSpan(3) else GridItemSpan(1) }
@@ -211,7 +204,7 @@ fun FeaturedProductCard(product: Product, onClick: () -> Unit, onImageClick: () 
             AsyncImage(model = product.imageUrl.ifEmpty { R.drawable.logo }, contentDescription = product.title, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(12.dp).clickable { onImageClick() })
             Column(modifier = Modifier.align(Alignment.BottomStart).background(Color.Black.copy(alpha = 0.6f)).fillMaxWidth().padding(8.dp)) {
                 Text(text = product.title, color = Color.White, fontSize = 14.sp, maxLines = 2)
-                Text(text = "${product.price}€", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(text = "${product.price}â‚¬", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
         }
     }
@@ -228,7 +221,7 @@ fun SmallProductCard(product: Product, onClick: () -> Unit, onImageClick: () -> 
             AsyncImage(model = product.imageUrl.ifEmpty { R.drawable.logo }, contentDescription = product.title, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(8.dp).clickable { onImageClick() })
             Column(modifier = Modifier.align(Alignment.BottomStart).background(Color.Black.copy(alpha = 0.6f)).fillMaxWidth().padding(4.dp)) {
                 Text(text = product.title, color = Color.White, fontSize = 10.sp, maxLines = 1)
-                Text(text = "${product.price}€", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text(text = "${product.price}â‚¬", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -247,3 +240,6 @@ fun ImageZoomDialog(model: Any, onDismiss: () -> Unit) {
         }
     }
 }
+
+
+
