@@ -10,7 +10,6 @@ drawable paixnidiarouytrina
 drawable polwesterika
 drawable sapounia
 drawable skakitabli
-drawable transparent_splash_icon
 drawable veroza
 drawable yfasmatina
 id company_logo

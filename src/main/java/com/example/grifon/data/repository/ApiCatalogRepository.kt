@@ -46,26 +46,20 @@ class ApiCatalogRepository @Inject constructor(
         try {
             val sId = shopId.toIntOrNull() ?: 4
             val catId = categoryId.toIntOrNull()
+            if (catId == null || catId <= 0) {
+                emit(emptyList())
+                return@flow
+            }
             val minPrice = filters.toRequestMinPrice()
             val maxPrice = filters.toRequestMaxPrice()
-            
-            val response = if (catId == null || catId <= 2) {
-                catalogApi.getProducts(
-                    shopId = sId,
-                    pageSize = 100,
-                    minPrice = minPrice,
-                    maxPrice = maxPrice,
-                    inStockOnly = filters.inStockOnly
-                )
-            } else {
-                catalogApi.getCategoryProducts(
-                    categoryId = catId,
-                    shopId = sId,
-                    minPrice = minPrice,
-                    maxPrice = maxPrice,
-                    inStockOnly = filters.inStockOnly
-                )
-            }
+
+            val response = catalogApi.getCategoryProducts(
+                categoryId = catId,
+                shopId = sId,
+                minPrice = minPrice,
+                maxPrice = maxPrice,
+                inStockOnly = filters.inStockOnly
+            )
 
             val filteredProducts = response.items
                 .map { it.toDomain(sId) }

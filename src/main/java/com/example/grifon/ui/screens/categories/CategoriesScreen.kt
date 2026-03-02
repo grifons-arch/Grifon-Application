@@ -3,16 +3,12 @@ package com.example.grifon.ui.screens.categories
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,15 +40,7 @@ fun CategoriesScreen(
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
             ) {
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        QuickLinkChip(label = "Προσφορές") { onCategorySelected("offers") }
-                        QuickLinkChip(label = "Δημοφιλή") { onCategorySelected("popular") }
-                        QuickLinkChip(label = "Brands") { onCategorySelected("brands") }
-                        QuickLinkChip(label = "Πρόσφατα") { onCategorySelected("recent") }
-                    }
-                }
-                item {
-                    Text(text = "Κατηγορίες", style = MaterialTheme.typography.titleMedium)
+                    Text(text = "Categories", style = MaterialTheme.typography.titleMedium)
                 }
                 items(categories.filter { it.parentId == null }) { category ->
                     CategoryNode(
@@ -67,15 +55,6 @@ fun CategoriesScreen(
             }
         }
     }
-}
-
-@Composable
-private fun QuickLinkChip(label: String, onClick: () -> Unit) {
-    AssistChip(
-        onClick = onClick,
-        label = { Text(text = label) },
-        colors = AssistChipDefaults.assistChipColors(),
-    )
 }
 
 @Composable
@@ -101,13 +80,13 @@ private fun CategoryNode(
                     }
                 },
         ) {
-            Row(
+            androidx.compose.foundation.layout.Row(
                 modifier = Modifier.padding(12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(text = category.name)
                 if (children.isNotEmpty()) {
-                    Text(text = if (expanded.contains(category.id)) "−" else "+")
+                    Text(text = if (expanded.contains(category.id)) "-" else "+")
                 }
             }
         }

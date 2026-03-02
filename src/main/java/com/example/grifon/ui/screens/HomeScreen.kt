@@ -40,7 +40,11 @@ import com.example.grifon.core.UiState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.viewmodel.HomeViewModel
 
-data class CategoryIconItem(val label: String, val resId: Int, val categoryId: String?)
+data class CategoryDisplayItem(
+    val name: String,
+    val id: String?,
+    val imageRes: Int
+)
 
 @Composable
 fun HomeScreen(
@@ -49,77 +53,80 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var zoomedImageUrl by remember { mutableStateOf<String?>(null) }
-    var filtersOpen by remember { mutableStateOf(false) }
 
-    val categoryIcons = listOf(
-        CategoryIconItem("Όλα", R.drawable.logo, null),
-        CategoryIconItem("Κεραμικά", R.drawable.kersmiks_diskodmhtiks, "3"),
-        CategoryIconItem("Φωτιστικά", R.drawable.fvthsthka, "4"),
-        CategoryIconItem("Μπρούτζινα", R.drawable.mproytzinna, "5"),
-        CategoryIconItem("Παιχνίδια", R.drawable.paixnidiarouytrina, "6"),
-        CategoryIconItem("Σαπούνια", R.drawable.sapounia, "7"),
-        CategoryIconItem("Υφασμάτινα", R.drawable.yfasmatina, "8")
-    )
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.White
-    ) {
+    Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
         when (val state = uiState) {
-            UiState.Loading -> LoadingScreen()
-            is UiState.Error -> ErrorScreen(message = state.message)
+            UiState.Loading -> HomeLoadingIndicator()
+            is UiState.Error -> HomeErrorMessage(message = state.message)
             is UiState.Success -> {
                 val data = state.data
                 val products = data.popular
+
+                val displayCategories = remember(data.categories) {
+                    val list = mutableListOf<CategoryDisplayItem>()
+                    list.add(CategoryDisplayItem("Όλα", null, R.drawable.logo))
+                    
+                    val mapping = listOf(
+                        Triple("Κεραμικά", "Ceramics", R.drawable.kersmiks_diskodmhtiks),
+                        Triple("Φωτιστικά", "Lighting", R.drawable.fvthsthka),
+                        Triple("Διακοσμητικά", "Decorative", R.drawable.diakosmitika_keramikago),
+                        Triple("Παιχνίδια", "Hobbies", R.drawable.paixnidiarouytrina),
+                        Triple("Σαπούνια", "Soaps", R.drawable.sapounia)
+                    )
+                    
+                    mapping.forEach { (gr, en, img) ->
+                        val cat = data.categories.find { 
+                            it.name.contains(gr, ignoreCase = true) || it.name.contains(en, ignoreCase = true) 
+                        }
+                        if (cat != null) list.add(CategoryDisplayItem(gr, cat.id, img))
+                    }
+                    list
+                }
 
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     contentPadding = PaddingValues(bottom = 80.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // 1. Ενότητα Κατηγοριών με Συντόμευση Φίλτρου
                     item(span = { GridItemSpan(3) }) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                        Column(modifier = Modifier.padding(vertical = 16.dp)) {
+                            Text(
+                                "Κατηγορίες", 
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                contentPadding = PaddingValues(horizontal = 16.dp)
                             ) {
-                                Text(
-                                    "Κατηγορίες", 
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                                )
-                                IconButton(onClick = { filtersOpen = true }) {
-                                    Icon(Icons.Default.FilterList, contentDescription = "Φίλτρα", tint = MaterialTheme.colorScheme.primary)
+                                items(displayCategories) { item ->
+                                    CategoryCircleItem(
+                                        item = item,
+                                        isSelected = data.selectedCategoryId == item.id,
+                                        onClick = { viewModel.selectCategory(item.id) }
+                                    )
                                 }
                             }
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
-                                items(categoryIcons) { item -> 
-                                    CategoryIconComponent(
-                                        item = item, 
-                                        isSelected = data.selectedCategoryId == item.categoryId,
-                                        onClick = { viewModel.selectCategory(item.categoryId) }
-                                    ) 
-                                }
-                            }
+                            Spacer(Modifier.height(16.dp))
                             HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
                         }
                     }
 
-                    // 2. Πλέγμα Πραγματικών Προϊόντων (Χωρίς προκαθορισμένες φωτο)
-                    itemsIndexed(
-                        items = products,
-                        span = { index, _ -> if (index == 0) GridItemSpan(3) else GridItemSpan(1) }
-                    ) { index, product ->
+                    if (products.isEmpty()) {
+                        item(span = { GridItemSpan(3) }) {
+                            Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                                Text("Δεν βρέθηκαν προϊόντα")
+                            }
+                        }
+                    }
+
+                    itemsIndexed(products, span = { index, _ -> if (index == 0) GridItemSpan(3) else GridItemSpan(1) }) { index, product ->
                         Box(modifier = Modifier.padding(4.dp)) {
                             if (index == 0) {
-                                FeaturedProductCard(product, null, { onProductClick(product.id) }) { 
-                                    zoomedImageUrl = product.imageUrl 
-                                }
+                                FeaturedProductCard(product, null, { onProductClick(product.id) }) { zoomedImageUrl = product.imageUrl }
                             } else {
-                                SmallProductCard(product, null, { onProductClick(product.id) }) { 
-                                    zoomedImageUrl = product.imageUrl 
-                                }
+                                SmallProductCard(product, null, { onProductClick(product.id) }) { zoomedImageUrl = product.imageUrl }
                             }
                         }
                     }
@@ -134,52 +141,70 @@ fun HomeScreen(
 }
 
 @Composable
-fun CategoryIconComponent(item: CategoryIconItem, isSelected: Boolean, onClick: () -> Unit) {
+fun CategoryCircleItem(item: CategoryDisplayItem, isSelected: Boolean, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(70.dp).clickable { onClick() }
+        modifier = Modifier
+            .width(75.dp)
+            .clickable { onClick() }
     ) {
         Box(
             modifier = Modifier
-                .size(60.dp)
+                .size(65.dp)
                 .clip(CircleShape)
                 .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color(0xFFF5F5F5))
-                .border(if (isSelected) 2.dp else 0.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                .border(
+                    width = if (isSelected) 2.dp else 1.dp,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray.copy(alpha = 0.5f),
+                    shape = CircleShape
+                ),
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = item.resId), 
-                contentDescription = item.label, 
-                contentScale = ContentScale.Crop, 
-                modifier = Modifier.fillMaxSize()
+                painter = painterResource(id = item.imageRes),
+                contentDescription = item.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().clip(CircleShape)
             )
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
-            text = item.label, 
-            fontSize = 10.sp, 
-            textAlign = TextAlign.Center, 
-            maxLines = 1, 
+            text = item.name,
+            fontSize = 11.sp,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
             color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Black,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+            textAlign = TextAlign.Center,
+            maxLines = 1
         )
+    }
+}
+
+@Composable
+fun HomeLoadingIndicator() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+fun HomeErrorMessage(message: String) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(text = message, color = Color.Red, textAlign = TextAlign.Center, modifier = Modifier.padding(16.dp))
     }
 }
 
 @Composable
 fun FeaturedProductCard(product: Product, overrideImageRes: Int? = null, onClick: () -> Unit, onImageClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().height(220.dp).clickable(onClick = onClick),
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+        modifier = Modifier.fillMaxWidth().height(240.dp).clickable(onClick = onClick),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val imgModifier = Modifier.fillMaxSize().padding(16.dp).clickable { onImageClick() }
-            AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(product.imageUrl.ifEmpty { R.drawable.logo }).crossfade(true).build(), contentDescription = product.title, contentScale = ContentScale.Fit, modifier = imgModifier)
-            
-            Row(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(Color.Black.copy(alpha = 0.5f)).padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text(text = product.title, color = Color.White, fontSize = 14.sp, maxLines = 1)
-                Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+            AsyncImage(model = product.imageUrl.ifEmpty { R.drawable.logo }, contentDescription = product.title, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(12.dp).clickable { onImageClick() })
+            Column(modifier = Modifier.align(Alignment.BottomStart).background(Color.Black.copy(alpha = 0.6f)).fillMaxWidth().padding(8.dp)) {
+                Text(text = product.title, color = Color.White, fontSize = 14.sp, maxLines = 2)
+                Text(text = "${product.price}€", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
         }
     }
@@ -188,17 +213,15 @@ fun FeaturedProductCard(product: Product, overrideImageRes: Int? = null, onClick
 @Composable
 fun SmallProductCard(product: Product, overrideImageRes: Int? = null, onClick: () -> Unit, onImageClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().aspectRatio(0.85f).clickable(onClick = onClick),
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFAFAFA))
+        modifier = Modifier.fillMaxWidth().aspectRatio(0.75f).clickable(onClick = onClick),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val imgModifier = Modifier.fillMaxSize().padding(8.dp).clickable { onImageClick() }
-            AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(product.imageUrl.ifEmpty { R.drawable.logo }).crossfade(true).build(), contentDescription = product.title, contentScale = ContentScale.Fit, modifier = imgModifier)
-            
-            Row(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(Color.Black.copy(alpha = 0.4f)).padding(4.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text(text = product.title, color = Color.White, fontSize = 9.sp, maxLines = 1, modifier = Modifier.weight(1f))
-                Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.White, modifier = Modifier.size(10.dp))
+            AsyncImage(model = product.imageUrl.ifEmpty { R.drawable.logo }, contentDescription = product.title, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(8.dp).clickable { onImageClick() })
+            Column(modifier = Modifier.align(Alignment.BottomStart).background(Color.Black.copy(alpha = 0.6f)).fillMaxWidth().padding(4.dp)) {
+                Text(text = product.title, color = Color.White, fontSize = 10.sp, maxLines = 1)
+                Text(text = "${product.price}€", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

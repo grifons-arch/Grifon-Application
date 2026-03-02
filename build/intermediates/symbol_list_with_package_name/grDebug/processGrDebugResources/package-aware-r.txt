@@ -3049,7 +3049,6 @@ drawable skakitabli
 drawable test_level_drawable
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
-drawable transparent_splash_icon
 drawable veroza
 drawable yfasmatina
 id ALT
