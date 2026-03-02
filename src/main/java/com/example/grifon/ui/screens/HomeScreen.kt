@@ -42,7 +42,7 @@ import com.example.grifon.viewmodel.HomeViewModel
 
 data class CategoryDisplayItem(
     val name: String,
-    val id: String?,
+    val searchName: String,
     val imageRes: Int
 )
 
@@ -62,49 +62,51 @@ fun HomeScreen(
                 val data = state.data
                 val products = data.popular
 
+                val mainCategories = listOf(
+                    CategoryDisplayItem("Κεραμικά", "Ceramics", R.drawable.kersmiks_diskodmhtiks),
+                    CategoryDisplayItem("Αγαλματίδια", "Statuettes", R.drawable.veroza),
+                    CategoryDisplayItem("Διακοσμητικά", "Decorative", R.drawable.diakosmitika_keramikago),
+                    CategoryDisplayItem("Για χρήση", "For use", R.drawable.sapounia),
+                    CategoryDisplayItem("Χόμπι", "Hobbies", R.drawable.paixnidiarouytrina),
+                    CategoryDisplayItem("Αξεσουάρ", "Accessory", R.drawable.yfasmatina)
+                )
+
                 val displayCategories = remember(data.categories) {
-                    val list = mutableListOf<CategoryDisplayItem>()
-                    list.add(CategoryDisplayItem("Όλα", null, R.drawable.logo))
+                    val list = mutableListOf<Pair<CategoryDisplayItem, String?>>()
+                    list.add(CategoryDisplayItem("Όλα", "Home", R.drawable.logo) to null)
                     
-                    val mapping = listOf(
-                        Triple("Κεραμικά", "Ceramics", R.drawable.kersmiks_diskodmhtiks),
-                        Triple("Φωτιστικά", "Lighting", R.drawable.fvthsthka),
-                        Triple("Διακοσμητικά", "Decorative", R.drawable.diakosmitika_keramikago),
-                        Triple("Παιχνίδια", "Hobbies", R.drawable.paixnidiarouytrina),
-                        Triple("Σαπούνια", "Soaps", R.drawable.sapounia)
-                    )
-                    
-                    mapping.forEach { (gr, en, img) ->
+                    mainCategories.forEach { item ->
                         val cat = data.categories.find { 
-                            it.name.contains(gr, ignoreCase = true) || it.name.contains(en, ignoreCase = true) 
+                            it.name.contains(item.name, ignoreCase = true) || 
+                            it.name.contains(item.searchName, ignoreCase = true) 
                         }
-                        if (cat != null) list.add(CategoryDisplayItem(gr, cat.id, img))
+                        list.add(item to cat?.id)
                     }
                     list
                 }
 
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
-                    contentPadding = PaddingValues(bottom = 80.dp),
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
                     item(span = { GridItemSpan(3) }) {
                         Column(modifier = Modifier.padding(vertical = 16.dp)) {
                             Text(
-                                "Κατηγορίες", 
+                                "Κύριες Κατηγορίες", 
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
                             Spacer(Modifier.height(12.dp))
                             LazyRow(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 contentPadding = PaddingValues(horizontal = 16.dp)
                             ) {
-                                items(displayCategories) { item ->
-                                    CategoryCircleItem(
+                                items(displayCategories) { (item, id) ->
+                                    CategoryCircleComponent(
                                         item = item,
-                                        isSelected = data.selectedCategoryId == item.id,
-                                        onClick = { viewModel.selectCategory(item.id) }
+                                        isSelected = data.selectedCategoryId == id,
+                                        onClick = { viewModel.selectCategory(id) }
                                     )
                                 }
                             }
@@ -121,12 +123,23 @@ fun HomeScreen(
                         }
                     }
 
-                    itemsIndexed(products, span = { index, _ -> if (index == 0) GridItemSpan(3) else GridItemSpan(1) }) { index, product ->
+                    itemsIndexed(products) { index, product ->
+                        // Δυναμικό Span: Το πρώτο προϊόν καταλαμβάνει όλο το πλάτος, τα άλλα 1/3
+                        val span = if (index == 0) GridItemSpan(3) else GridItemSpan(1)
+                        // Σημείωση: Στο Grid cells fixed 3, το span 3 πιάνει όλη τη γραμμή.
+                        // Για να δουλέψει σωστά η κατανομή στο itemsIndexed χρησιμοποιούμε την παράμετρο span
+                    }
+                    
+                    // Επαναληπτική λίστα με σωστά spans
+                    itemsIndexed(
+                        items = products,
+                        span = { index, _ -> if (index == 0) GridItemSpan(3) else GridItemSpan(1) }
+                    ) { index, product ->
                         Box(modifier = Modifier.padding(4.dp)) {
                             if (index == 0) {
-                                FeaturedProductCard(product, null, { onProductClick(product.id) }) { zoomedImageUrl = product.imageUrl }
+                                FeaturedProductCard(product, onClick = { onProductClick(product.id) }) { zoomedImageUrl = product.imageUrl }
                             } else {
-                                SmallProductCard(product, null, { onProductClick(product.id) }) { zoomedImageUrl = product.imageUrl }
+                                SmallProductCard(product, onClick = { onProductClick(product.id) }) { zoomedImageUrl = product.imageUrl }
                             }
                         }
                     }
@@ -141,36 +154,30 @@ fun HomeScreen(
 }
 
 @Composable
-fun CategoryCircleItem(item: CategoryDisplayItem, isSelected: Boolean, onClick: () -> Unit) {
+fun CategoryCircleComponent(item: CategoryDisplayItem, isSelected: Boolean, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .width(75.dp)
-            .clickable { onClick() }
+        modifier = Modifier.width(75.dp).clickable { onClick() }
     ) {
         Box(
             modifier = Modifier
                 .size(65.dp)
                 .clip(CircleShape)
                 .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color(0xFFF5F5F5))
-                .border(
-                    width = if (isSelected) 2.dp else 1.dp,
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray.copy(alpha = 0.5f),
-                    shape = CircleShape
-                ),
+                .border(if (isSelected) 2.dp else 0.dp, MaterialTheme.colorScheme.primary, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = item.imageRes),
                 contentDescription = item.name,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().clip(CircleShape)
+                modifier = Modifier.fillMaxSize()
             )
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = item.name,
-            fontSize = 11.sp,
+            fontSize = 10.sp,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
             color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Black,
             textAlign = TextAlign.Center,
@@ -194,7 +201,7 @@ fun HomeErrorMessage(message: String) {
 }
 
 @Composable
-fun FeaturedProductCard(product: Product, overrideImageRes: Int? = null, onClick: () -> Unit, onImageClick: () -> Unit) {
+fun FeaturedProductCard(product: Product, onClick: () -> Unit, onImageClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().height(240.dp).clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
@@ -211,7 +218,7 @@ fun FeaturedProductCard(product: Product, overrideImageRes: Int? = null, onClick
 }
 
 @Composable
-fun SmallProductCard(product: Product, overrideImageRes: Int? = null, onClick: () -> Unit, onImageClick: () -> Unit) {
+fun SmallProductCard(product: Product, onClick: () -> Unit, onImageClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().aspectRatio(0.75f).clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),

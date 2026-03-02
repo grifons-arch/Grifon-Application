@@ -35,19 +35,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.core.os.LocaleListCompat
 
-/**
- * Data class representing a category in the navigation drawer.
- * @property nameRes The resource ID for the display name of the category.
- * @property id The unique identifier of the category used for navigation.
- */
 private data class DrawerCategory(
-    val nameRes: Int,
+    val name: String,
     val id: String,
 )
 
-/**
- * The main entry point for the Grifon application UI.
- */
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun GrifonApp() {
@@ -62,24 +54,20 @@ fun GrifonApp() {
 
     var showLanguageDialog by remember { mutableStateOf(false) }
 
-    // Observe current destination to show/hide search bar
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    
-    // Show search bar only on Home and PLP screens
     val showSearchBar = currentRoute == Routes.HOME || currentRoute?.startsWith("plp") == true
 
-    // Categories for the drawer
+    // Κατηγορίες βάσει του δέντρου σας
     val categories = listOf(
-        DrawerCategory(nameRes = R.string.ceramics, id = "3"),
-        DrawerCategory(nameRes = R.string.lighting, id = "4"),
-        DrawerCategory(nameRes = R.string.bronze, id = "5"),
-        DrawerCategory(nameRes = R.string.toys, id = "6"),
-        DrawerCategory(nameRes = R.string.soaps, id = "7"),
-        DrawerCategory(nameRes = R.string.textiles, id = "8"),
+        DrawerCategory("Κεραμικά", "4000"),
+        DrawerCategory("Αγαλματίδια κ.α.", "4500"),
+        DrawerCategory("Διακοσμητικά", "5000"),
+        DrawerCategory("Για χρήση", "7500"),
+        DrawerCategory("Χόμπι και παιχνίδια", "7000"),
+        DrawerCategory("Αξεσουάρ", "8000"),
     )
 
-    // Effect for search debounce
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
             .filter { it.length >= 2 }
@@ -95,7 +83,7 @@ fun GrifonApp() {
     if (showLanguageDialog) {
         AlertDialog(
             onDismissRequest = { showLanguageDialog = false },
-            title = { Text(stringResource(R.string.nav_language)) },
+            title = { Text("Γλώσσα / Language") },
             text = {
                 Column {
                     LanguageOption("English", "en") { showLanguageDialog = false }
@@ -118,7 +106,7 @@ fun GrifonApp() {
             ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    stringResource(R.string.shop_by_category), 
+                    "Κατηγορίες Προϊόντων", 
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp), 
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
@@ -132,8 +120,8 @@ fun GrifonApp() {
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(stringResource(category.nameRes), fontSize = 16.sp)
-                                    Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
+                                    Text(category.name, fontSize = 16.sp)
+                                    Icon(Icons.Default.ChevronRight, contentDescription = null)
                                 }
                             },
                             selected = false,
@@ -144,27 +132,12 @@ fun GrifonApp() {
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
                     }
-                    
-                    item {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                        NavigationDrawerItem(
-                            label = { Text(stringResource(R.string.my_account)) },
-                            selected = false,
-                            onClick = { 
-                                scope.launch { drawerState.close() }
-                                navController.navigateToTopLevel(Routes.ACCOUNT) 
-                            },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                        )
-                    }
                 }
             }
         }
     ) {
         Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
+            modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 Column {
                     AppTopBar(
@@ -190,15 +163,14 @@ fun GrifonApp() {
                 )
             },
         ) { innerPadding ->
+            // ΔΙΟΡΘΩΣΗ: Αφαίρεση του padding από το Surface για να λειτουργεί το Scroll
             Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
+                modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding()),
                 color = MaterialTheme.colorScheme.background
             ) {
                 AppNavHost(
                     navController = navController,
-                    paddingValues = PaddingValues(0.dp)
+                    paddingValues = innerPadding
                 )
             }
         }
@@ -221,9 +193,6 @@ private fun LanguageOption(label: String, tag: String, onClick: () -> Unit) {
     )
 }
 
-/**
- * Extension function to navigate to a top-level destination.
- */
 private fun NavHostController.navigateToTopLevel(route: String) {
     navigate(route) {
         popUpTo(graph.findStartDestination().id) {

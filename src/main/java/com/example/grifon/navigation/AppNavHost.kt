@@ -1,6 +1,7 @@
 package com.example.grifon.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
@@ -67,8 +68,12 @@ fun AppNavHost(
             val query = backStackEntry.arguments?.getString("query") ?: ""
             val category = backStackEntry.arguments?.getString("category") ?: ""
             val viewModel: PlpViewModel = hiltViewModel()
-            viewModel.updateQuery(query)
-            viewModel.updateCategory(category)
+            LaunchedEffect(query) {
+                viewModel.updateQuery(query)
+            }
+            LaunchedEffect(category) {
+                viewModel.updateCategory(category)
+            }
             ProductListScreen(viewModel = viewModel) { productId ->
                 navController.navigate(Routes.productRoute(productId))
             }
