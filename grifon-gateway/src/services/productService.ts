@@ -24,7 +24,8 @@ export interface ProductQueryFilters {
 }
 
 const buildImageUrl = (shopId: ShopId, productId: number, imageId: number): string => {
-  return `/v1/images/products/${productId}/${imageId}?shopId=${shopId}`;
+  const url = `/v1/images/products/${productId}/${imageId}?shopId=${shopId}`;
+  return url;
 };
 
 const normalizeProduct = (
@@ -35,6 +36,7 @@ const normalizeProduct = (
 ): ProductListItem => {
   const id = Number(product.id);
   let idImage = toNumber(product.id_default_image);
+
   if (!idImage && product.associations?.images) {
     const images = extractResourceList<any>("images", product.associations);
     if (images.length > 0) idImage = Number(images[0].id);
@@ -106,7 +108,9 @@ export const listAllProducts = async (
 
   const items = extractResourceList<any>("products", data);
   const normalized = items.map((product) => normalizeProduct(product, shopId, lang, allowPrice));
-  return applyServerSideFilters(normalized, filters);
+  const filtered = applyServerSideFilters(normalized, filters);
+  console.log(`[Gateway] listAllProducts: shopId=${shopId}, count=${filtered.length}`);
+  return filtered;
 };
 
 export const listProductsByCategory = async (
@@ -120,13 +124,15 @@ export const listProductsByCategory = async (
   allowPrice = true,
   filters: ProductQueryFilters = {}
 ): Promise<ProductListItem[]> => {
+  console.log(`[Gateway] Fetching category ${categoryId} (Shop ${shopId})`);
+
   if (categoryId <= 2) {
     return listAllProducts(client, shopId, page, pageSize, sort, lang, allowPrice, filters);
   }
 
-  let products: any[] = [];
+  let productsRaw: any[] = [];
 
-  // Προσπάθεια 1: id_category_default (το πιο γρήγορο)
+  // ΜΕΘΟΔΟΣ 1: id_category_default (δοκιμασμένη)
   try {
     const data = await client.get("products", {
       "filter[active]": 1,
@@ -135,57 +141,60 @@ export const listProductsByCategory = async (
       limit: toLimitParam(page, pageSize),
       sort
     });
-    products = extractResourceList<any>("products", data);
-  } catch (e) {
-    console.error("Method 1 (default category) failed:", e);
+    productsRaw = extractResourceList<any>("products", data);
+    console.log(`[Gateway] Method 1 (default category) found ${productsRaw.length} products.`);
+  } catch (e: any) {
+    console.warn(`[Gateway] Method 1 failed: ${e.message}`);
   }
 
-  // Προσπάθεια 2: Αν δεν βρέθηκαν προϊόντα, ψάχνουμε μέσω associations
-  if (products.length === 0) {
+  // ΜΕΘΟΔΟΣ 2: Αναζήτηση μέσω συσχετίσεων (associations) αλλά με "get" αντί για "getById"
+  if (productsRaw.length === 0) {
     try {
-      // Δοκιμάζουμε απευθείας το ID της κατηγορίας
-      const catData = await client.getById("categories", categoryId, { display: "full" });
-      const category = extractResourceItem<any>("categories", catData);
-      const associations = category?.associations?.products;
-      const productIds = extractResourceList<any>("products", { products: associations })
-        .map(p => p.id)
-        .filter(id => id !== undefined);
-
-      if (productIds.length > 0) {
-        const start = (page - 1) * pageSize;
-        const slice = productIds.slice(start, start + pageSize);
-        if (slice.length > 0) {
-          const productsData = await client.get("products", {
-            "filter[id]": `[${slice.join("|")}]`,
-            display: "full",
-            sort
-          });
-          products = extractResourceList<any>("products", productsData);
-        }
-      }
-    } catch (e) {
-      console.error("Method 2 (associations) failed:", e);
-    }
-  }
-
-  // Προσπάθεια 3: Αν ακόμα τίποτα, δοκιμάζουμε με φίλτρο στην κατηγορία αλλά με άλλο τρόπο
-  if (products.length === 0) {
-    try {
-      const data = await client.get("products", {
-        "filter[active]": 1,
-        "filter[id_category]": categoryId, // Κάποια plugins υποστηρίζουν αυτό το φίλτρο
-        display: "full",
-        limit: toLimitParam(page, pageSize),
-        sort
+      console.log(`[Gateway] Method 2: Fetching category ${categoryId} info to find associations...`);
+      const catResponse = await client.get("categories", {
+        "filter[id]": categoryId,
+        display: "full"
       });
-      products = extractResourceList<any>("products", data);
-    } catch (e) {
-      // Αγνοούμε το σφάλμα εδώ
+      const category = extractResourceItem<any>("categories", catResponse);
+
+      const associations = category?.associations?.products;
+      if (associations) {
+        const productList = extractResourceList<any>("products", { products: associations });
+        const productIds = productList.map(p => toNumber(p.id)).filter(id => id !== null);
+        console.log(`[Gateway] Method 2: Found ${productIds.length} IDs in associations for category ${categoryId}.`);
+
+        if (productIds.length > 0) {
+          const start = (page - 1) * pageSize;
+          const slice = productIds.slice(start, start + pageSize);
+          if (slice.length > 0) {
+            const productsData = await client.get("products", {
+              "filter[id]": `[${slice.join("|")}]`,
+              display: "full",
+              sort
+            });
+            productsRaw = extractResourceList<any>("products", productsData);
+            console.log(`[Gateway] Method 2 success: Fetched ${productsRaw.length} products details.`);
+          }
+        }
+      } else {
+        console.log(`[Gateway] Method 2: No product associations found in category data.`);
+      }
+    } catch (e: any) {
+      console.warn(`[Gateway] Method 2 failed: ${e.message}`);
     }
   }
 
-  const normalized = products.map((p) => normalizeProduct(p, shopId, lang, allowPrice));
-  return applyServerSideFilters(normalized, filters);
+  const normalized = productsRaw.map((p) => normalizeProduct(p, shopId, lang, allowPrice));
+  const filtered = applyServerSideFilters(normalized, filters);
+
+  console.log(`[Gateway] FINAL: Category ${categoryId} returns ${filtered.length} products.`);
+
+  if (filtered.length > 0) {
+      const sample = filtered[0];
+      console.log(`[Gateway] Sample Product (ID: ${sample.id}): Name="${sample.name}", ImageURL="${sample.defaultImage?.url || "NONE"}"`);
+  }
+
+  return filtered;
 };
 
 export const getProductDetail = async (
