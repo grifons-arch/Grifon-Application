@@ -31,6 +31,20 @@ const authRateLimiter = rateLimit({
   legacyHeaders: false
 });
 
+/**
+ * Ελέγχει αν ένας χρήστης δικαιούται να βλέπει τιμές (χονδρική).
+ */
+const checkPriceAccess = async (shopId: any, customerId?: number): Promise<boolean> => {
+  if (!customerId) return false;
+  try {
+    const client = new PrestaShopClient({ shopId });
+    const access = await getPriceAccess(client, customerId);
+    return access.allowed;
+  } catch {
+    return false;
+  }
+};
+
 apiRouter.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
@@ -92,12 +106,15 @@ apiRouter.post(
 // ALL PRODUCTS ROUTE
 apiRouter.get(
   "/v1/products",
-  validateQuery(shopQuerySchema.merge(productPaginationSchema)),
+  validateQuery(shopQuerySchema.merge(productPaginationSchema).merge(customerIdSchema.partial())),
   async (req, res, next) => {
     try {
-      const { shopId, lang, page, pageSize, sort, search, minPrice, maxPrice, inStockOnly } = req.query as any;
+      const { shopId, lang, page, pageSize, sort, search, minPrice, maxPrice, inStockOnly, customerId } = req.query as any;
+
+      const allowPrice = await checkPriceAccess(shopId, customerId ? Number(customerId) : undefined);
+
       const client = new PrestaShopClient({ shopId, lang });
-      const items = await listAllProducts(client, shopId, page, pageSize, sort, lang, true, {
+      const items = await listAllProducts(client, shopId, page, pageSize, sort, lang, allowPrice, {
         search,
         minPrice,
         maxPrice,
@@ -128,13 +145,16 @@ apiRouter.get(
 apiRouter.get(
   "/v1/categories/:categoryId/products",
   validateParams(categoryIdSchema),
-  validateQuery(shopQuerySchema.merge(productPaginationSchema)),
+  validateQuery(shopQuerySchema.merge(productPaginationSchema).merge(customerIdSchema.partial())),
   async (req, res, next) => {
     try {
-      const { shopId, lang, page, pageSize, sort, search, minPrice, maxPrice, inStockOnly } = req.query as any;
+      const { shopId, lang, page, pageSize, sort, search, minPrice, maxPrice, inStockOnly, customerId } = req.query as any;
       const { categoryId } = req.params as any;
+
+      const allowPrice = await checkPriceAccess(shopId, customerId ? Number(customerId) : undefined);
+
       const client = new PrestaShopClient({ shopId, lang });
-      const items = await listProductsByCategory(client, shopId, Number(categoryId), page, pageSize, sort, lang, true, {
+      const items = await listProductsByCategory(client, shopId, Number(categoryId), page, pageSize, sort, lang, allowPrice, {
         search,
         minPrice,
         maxPrice,
@@ -155,8 +175,11 @@ apiRouter.get(
     try {
       const { shopId, lang, customerId } = req.query as any;
       const { productId } = req.params as any;
+
+      const allowPrice = await checkPriceAccess(shopId, customerId ? Number(customerId) : undefined);
+
       const client = new PrestaShopClient({ shopId, lang });
-      const item = await getProductDetail(client, shopId, Number(productId), lang, true);
+      const item = await getProductDetail(client, shopId, Number(productId), lang, allowPrice);
       res.json(item);
     } catch (error) {
       next(error);
