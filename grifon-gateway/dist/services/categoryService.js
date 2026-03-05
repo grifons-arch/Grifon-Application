@@ -8,7 +8,8 @@ const listCategories = async (client, page, pageSize, lang) => {
     try {
         const data = await client.get("categories", {
             "filter[active]": 1,
-            sort: "[position_ASC]",
+            display: "full",
+            sort: "[id_ASC]",
             limit: (0, pagination_1.toLimitParam)(page, pageSize)
         });
         const categories = (0, prestashopParser_1.extractResourceList)("categories", data);
@@ -17,7 +18,7 @@ const listCategories = async (client, page, pageSize, lang) => {
         }
         const items = categories.map((category) => ({
             id: Number(category.id),
-            parentId: (0, prestashopFields_1.toNumber)(category.id_parent),
+            parentId: category.id_parent ? (0, prestashopFields_1.toNumber)(category.id_parent) : null,
             name: (0, prestashopFields_1.getLocalizedValue)(category.name, lang),
             position: (0, prestashopFields_1.toNumber)(category.position),
             active: (0, prestashopFields_1.toNumber)(category.active),
@@ -29,18 +30,23 @@ const listCategories = async (client, page, pageSize, lang) => {
         });
         const tree = [];
         nodeMap.forEach((node) => {
-            if (node.parentId && nodeMap.has(node.parentId)) {
+            // Root categories in PS usually have parent ID 0, 1 (Root) or 2 (Home)
+            if (node.parentId && node.parentId > 2 && nodeMap.has(node.parentId)) {
                 nodeMap.get(node.parentId)?.children.push(node);
             }
-            else {
+            else if (node.id > 2) {
                 tree.push(node);
             }
         });
         return { items, tree };
     }
     catch (error) {
-        console.error("Category fetch failed, returning empty list:", error);
-        return { items: [], tree: [] }; // Επιστροφή κενής λίστας αντί για 500
+        console.error("Category fetch failed:", {
+            status: error.status,
+            message: error.message,
+            details: error.details
+        });
+        return { items: [], tree: [] };
     }
 };
 exports.listCategories = listCategories;
