@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.grifon.app-mergeGrDebugResources-80:/values-sw600dp-v13/values-sw600dp-v13.xml",
+            "outputFile": "com.example.grifon.app-mergeGrDebugResources-81:/values-sw600dp-v13/values-sw600dp-v13.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\1ed468c63051bafb2db08f1d61567303\\transformed\\material-1.10.0\\res\\values-sw600dp-v13\\values-sw600dp-v13.xml",
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\ba07b1a7be2c6fc786c67f410bb26db1\\transformed\\material-1.10.0\\res\\values-sw600dp-v13\\values-sw600dp-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,10,11,12,13,14",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4",
@@ -23,7 +23,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\830b2adf0dcec3a57d639500366d45be\\transformed\\appcompat-1.6.1\\res\\values-sw600dp-v13\\values-sw600dp-v13.xml",
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\2131c4bb00da1bb73d06c4a81d0a581d\\transformed\\appcompat-1.6.1\\res\\values-sw600dp-v13\\values-sw600dp-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",

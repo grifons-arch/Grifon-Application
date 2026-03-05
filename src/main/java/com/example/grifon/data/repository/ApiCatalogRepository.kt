@@ -103,24 +103,49 @@ class ApiCatalogRepository @Inject constructor(
     }
 
     override fun getProductById(shopId: String, productId: String): Flow<Product?> = flow {
-        emit(null)
+        try {
+            val sId = shopId.toIntOrNull() ?: 4
+            val pId = productId.toIntOrNull()
+            if (pId == null || pId <= 0) {
+                emit(null)
+                return@flow
+            }
+            val dto = catalogApi.getProductById(productId = pId, shopId = sId)
+            emit(dto.toDomain(sId))
+        } catch (e: Exception) {
+            emit(null)
+        }
     }
 
     private fun com.example.grifon.data.catalog.ProductDto.toDomain(shopId: Int): Product {
-        val rawUrl = defaultImage?.url ?: ""
-        val fullImageUrl = if (rawUrl.startsWith("/")) "$gatewayBaseUrl$rawUrl" else rawUrl
+        val resolvedDefaultImage = resolveImageUrl(defaultImage?.url)
+        val resolvedImages = images
+            .mapNotNull { image -> resolveImageUrl(image.url).takeIf { it.isNotBlank() } }
+            .distinct()
+        val allImages = buildList {
+            if (resolvedDefaultImage.isNotBlank()) add(resolvedDefaultImage)
+            addAll(resolvedImages.filterNot { it == resolvedDefaultImage })
+        }
+        val primaryImage = allImages.firstOrNull().orEmpty()
 
         return Product(
             id = id.toString(),
             title = name ?: "",
             price = price ?: 0.0,
             currency = "EUR",
-            imageUrl = fullImageUrl,
+            imageUrl = primaryImage,
+            images = allImages,
             brand = brand ?: if (shopId == 4) "Grifon GR" else "Grifon SE",
             rating = 0.0,
             inStock = inStock ?: ((quantity ?: 1) > 0),
             attributesMap = mapOf("reference" to (reference ?: ""))
         )
+    }
+
+    private fun resolveImageUrl(rawUrl: String?): String {
+        val safeUrl = rawUrl.orEmpty()
+        if (safeUrl.isBlank()) return ""
+        return if (safeUrl.startsWith("/")) "$gatewayBaseUrl$safeUrl" else safeUrl
     }
 
     private fun List<Product>.applyClientSideFallbackFilters(filters: FilterState): List<Product> {

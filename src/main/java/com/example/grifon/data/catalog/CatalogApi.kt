@@ -46,6 +46,13 @@ interface CatalogApi {
         @Query("inStockOnly") inStockOnly: Boolean? = null,
     ): ProductsResponseDto
 
+    @GET("v1/products/{productId}")
+    suspend fun getProductById(
+        @Path("productId") productId: Int,
+        @Query("shopId") shopId: Int,
+        @Query("lang") lang: Int = 1,
+    ): ProductDto
+
     @POST("v1/auth/login")
     suspend fun login(@Body request: LoginRequestDto): LoginResponseDto
 }
@@ -110,6 +117,7 @@ data class ProductDto(
     val quantity: Int? = null,
     val inStock: Boolean? = null,
     val defaultImage: ImageDto? = null,
+    val images: List<ImageDto> = emptyList(),
 )
 
 @JsonClass(generateAdapter = true)

@@ -3,6 +3,8 @@ local
 drawable diakosmitika_keramikago
 drawable fvthsthka
 drawable ic_splash_logo
+drawable img
+drawable img_1
 drawable kersmiks_diskodmhtiks
 drawable logo
 drawable mproytzinna
@@ -12,10 +14,9 @@ drawable sapounia
 drawable skakitabli
 drawable veroza
 drawable yfasmatina
-id company_logo
 id splash_logo
 id splash_progress
-layout activity_main
+id textView2
 layout activity_splash
 string app_name
 string bronze

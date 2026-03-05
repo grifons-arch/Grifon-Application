@@ -1,62 +1,90 @@
 [
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\layout_activity_splash.xml.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\layout\\activity_splash.xml"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_fvthsthka.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\fvthsthka.jpg"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_transparent_splash_icon.xml.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\transparent_splash_icon.xml"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_polwesterika.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\polwesterika.jpg"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\layout_activity_main.xml.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\layout\\activity_main.xml"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_grifonapp1.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\grifonapp1.jpg"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_skakitabli.jpg.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\skakitabli.jpg"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_img.png.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\img.png"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_mproytzinna.jpg.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\mproytzinna.jpg"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\layout_activity_splash.xml.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\layout\\activity_splash.xml"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_yfasmatina.jpg.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\yfasmatina.jpg"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\layout_activity_main.xml.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\layout\\activity_main.xml"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_veroza.jpg.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\veroza.jpg"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_kersmiks_diskodmhtiks.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\kersmiks_diskodmhtiks.jpg"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_sapounia.jpg.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\sapounia.jpg"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_grifonapp2.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\grifonapp2.jpg"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_paixnidiarouytrina.jpg.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\paixnidiarouytrina.jpg"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_paixnidiarouytrina.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\paixnidiarouytrina.jpg"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_kersmiks_diskodmhtiks.jpg.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\kersmiks_diskodmhtiks.jpg"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_screenshot_2026_03_03_06_40_58_454_com_brave_browser.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\screenshot_2026_03_03_06_40_58_454_com_brave_browser.jpg"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_logo.png.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\logo.png"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_img_2.png.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\img_2.png"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_fvthsthka.jpg.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\fvthsthka.jpg"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_skakitabli.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\skakitabli.jpg"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_ic_splash_logo.xml.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\ic_splash_logo.xml"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_mproytzinna.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\mproytzinna.jpg"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_diakosmitika_keramikago.jpg.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\diakosmitika_keramikago.jpg"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_img_3.png.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\img_3.png"
     },
     {
-        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-82:\\drawable_polwesterika.jpg.flat",
-        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-86:\\drawable\\polwesterika.jpg"
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_yfasmatina.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\yfasmatina.jpg"
+    },
+    {
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_veroza.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\veroza.jpg"
+    },
+    {
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_sapounia.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\sapounia.jpg"
+    },
+    {
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_img_1.png.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\img_1.png"
+    },
+    {
+        "merged": "com.example.grifon.app-grDebug-83:/drawable_img_1.png.flat",
+        "source": "com.example.grifon.app-main-87:/drawable/img_1.png"
+    },
+    {
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_logo.png.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\logo.png"
+    },
+    {
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_diakosmitika_keramikago.jpg.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\diakosmitika_keramikago.jpg"
+    },
+    {
+        "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_ic_splash_logo.xml.flat",
+        "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\ic_splash_logo.xml"
     }
 ]

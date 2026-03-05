@@ -2,12 +2,11 @@ package com.example.grifon.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,57 +28,100 @@ fun AppTopBar(
     onCartClick: () -> Unit,
     onNotificationsClick: () -> Unit
 ) {
-    val purpleColor = Color(0xFF6200EE)
+    val headerBackground = Color(0xFF0A0E14)
+    val announcementColor = Color(0xFF0A2A8C)
+    val dividerColor = Color(0xFF1A1F2B)
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(purpleColor)
+            .background(headerBackground)
             .statusBarsPadding()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .background(announcementColor)
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onMenuClick) {
-                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu_description), tint = Color.White)
-            }
-            
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onHomeClick) {
-                    Icon(Icons.Default.Home, contentDescription = stringResource(R.string.home_description), tint = Color.White)
-                }
-                IconButton(onClick = onNotificationsClick) {
-                    Icon(Icons.Default.Notifications, contentDescription = stringResource(R.string.notifications_description), tint = Color.White)
-                }
-                IconButton(onClick = onCartClick) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = stringResource(R.string.cart_description), tint = Color.White)
-                }
-            }
+            Text(
+                text = "To place an order or see prices, create an account or sign in.",
+                color = Color.White,
+                style = MaterialTheme.typography.bodySmall,
+                lineHeight = 18.sp,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = null,
+                tint = Color(0xFFC8D6FF),
+                modifier = Modifier.size(16.dp)
+            )
         }
 
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            contentAlignment = Alignment.Center
+                .padding(vertical = 6.dp),
+            horizontalArrangement = Arrangement.Center
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "Grifon Logo",
-                    modifier = Modifier.height(40.dp),
-                    contentScale = ContentScale.Fit
+            Text(
+                text = "Greek ($shopLabel)",
+                color = Color(0xFFB6BDC9),
+                style = MaterialTheme.typography.labelLarge
+            )
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = Color(0xFFB6BDC9)
+            )
+        }
+
+        HorizontalDivider(color = dividerColor)
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onMenuClick) {
+                Icon(
+                    Icons.Default.Menu,
+                    contentDescription = stringResource(R.string.menu_description),
+                    tint = Color.White
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "GRIFON ($shopLabel)",
-                    color = Color.White,
-                    style = MaterialTheme.typography.headlineSmall,
-                    letterSpacing = 2.sp
+            }
+
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Grifon Logo",
+                modifier = Modifier
+                    .height(34.dp)
+                    .weight(1f),
+                contentScale = ContentScale.Fit
+            )
+
+            IconButton(onClick = onHomeClick) {
+                Icon(
+                    Icons.Default.Person,
+                    contentDescription = stringResource(R.string.home_description),
+                    tint = Color.White
+                )
+            }
+            IconButton(onClick = onNotificationsClick) {
+                Icon(
+                    Icons.Default.Favorite,
+                    contentDescription = stringResource(R.string.notifications_description),
+                    tint = Color.White
+                )
+            }
+            IconButton(onClick = onCartClick) {
+                Icon(
+                    Icons.Default.ShoppingCart,
+                    contentDescription = stringResource(R.string.cart_description),
+                    tint = Color.White
                 )
             }
         }
@@ -96,20 +138,25 @@ fun AppSearchBar(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp), // Fixed padding parameters
         shape = RoundedCornerShape(8.dp),
-        color = Color(0xFFF5F5F5),
-        tonalElevation = 2.dp
+        color = Color(0xFF131821)
     ) {
         TextField(
             value = query,
             onValueChange = onQueryChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(stringResource(R.string.search_placeholder), color = Color.Gray) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, Color(0xFF2A313D), RoundedCornerShape(8.dp)),
+            placeholder = { Text(stringResource(R.string.search_placeholder), color = Color(0xFF7F8794)) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF7F8794)) },
             trailingIcon = {
                 IconButton(onClick = onScanClick) {
-                    Icon(Icons.Default.QrCodeScanner, contentDescription = stringResource(R.string.scan_description), tint = Color.Gray)
+                    Icon(
+                        Icons.Default.QrCodeScanner,
+                        contentDescription = stringResource(R.string.scan_description),
+                        tint = Color(0xFF7F8794)
+                    )
                 }
             },
             colors = TextFieldDefaults.colors(
@@ -118,6 +165,9 @@ fun AppSearchBar(
                 disabledContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                cursorColor = Color.White
             ),
             singleLine = true
         )

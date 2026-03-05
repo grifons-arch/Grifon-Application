@@ -67,6 +67,7 @@ androidComponents {
 }
 
 dependencies {
+    implementation(libs.androidx.legacy.support.v4)
     constraints {
         implementation(libs.javapoet)
         ksp(libs.javapoet)
