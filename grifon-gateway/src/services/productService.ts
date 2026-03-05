@@ -36,22 +36,29 @@ const normalizeProduct = (
   allowPrice = true
 ): ProductListItem => {
   const id = Number(product.id);
+
+  // 1. Get Default Image ID
   let idImage = toNumber(product.id_default_image);
+
+  // 2. Get all Associated Image IDs
   const associationImages = product.associations?.images
     ? extractResourceList<any>("images", product.associations)
     : [];
+
   const imageIds = associationImages
-    .map((image) => toNumber(image?.id))
+    .map((image: any) => toNumber(image?.id))
     .filter((imageId): imageId is number => typeof imageId === "number");
 
+  // If no default image, use the first one from associations
   if (!idImage && imageIds.length > 0) {
     idImage = imageIds[0];
   }
 
+  // Deduplicate and filter valid IDs
   const uniqueImageIds = Array.from(
     new Set(
-      (idImage ? [idImage, ...imageIds] : imageIds).filter((imageId): imageId is number =>
-        Number.isFinite(imageId)
+      (idImage ? [idImage, ...imageIds] : imageIds).filter((imgId): imgId is number =>
+        Number.isFinite(imgId) && imgId > 0
       )
     )
   );
@@ -148,45 +155,35 @@ export const listProductsByCategory = async (
     return listAllProducts(client, shopId, page, pageSize, sort, lang, allowPrice, filters);
   }
 
-  // Χρησιμοποιούμε Set για να αποφύγουμε διπλότυπα προϊόντα
   const allProductsMap = new Map<number, any>();
 
-  // ΜΕΘΟΔΟΣ 1: Προϊόντα της κύριας κατηγορίας
+  // METHOD 1: Direct category products
   try {
     const data = await client.get("products", {
       "filter[active]": 1,
       "filter[id_category_default]": categoryId,
       display: "full",
-      limit: "250",
+      limit: "300",
       sort
     });
     const mainProducts = extractResourceList<any>("products", data);
     mainProducts.forEach(p => allProductsMap.set(Number(p.id), p));
-    console.log(`[Gateway] Method 1: Found ${mainProducts.length} products for category ${categoryId}`);
   } catch (e: any) {}
 
-  // ΜΕΘΟΔΟΣ 2: Προϊόντα από υποκατηγορίες
+  // METHOD 2: Subcategories products
   try {
     let childIds: number[] = [];
-
-    // Ειδικές περιπτώσεις βάσει του categories_gr.json και του screenshot img_1.png
     if (categoryId === 4000) {
-      // Ceramics Subcategories
       childIds = [4025, 4030];
     } else if (categoryId === 5000) {
-      // Decorative Subcategories (Ενημερωμένο από img_1.png)
       childIds = [5015, 5025, 5030, 5040, 5080];
     } else if (categoryId === 4500) {
-      // Statuettes Subcategories
       childIds = [4504, 4510, 4520, 4530, 4550];
     } else if (categoryId === 7000) {
-      // Hobbies Subcategories
       childIds = [7025, 7040, 7030, 7035];
     } else if (categoryId === 7500) {
-      // For Use Subcategories
       childIds = [7540, 7545];
     } else if (categoryId === 8000) {
-      // Accessory Subcategories
       childIds = [8030];
     } else {
       const catResponse = await client.get("categories", { "filter[id]": categoryId, display: "full" });
@@ -195,26 +192,22 @@ export const listProductsByCategory = async (
       if (subCategories) {
         childIds = extractResourceList<any>("categories", { categories: subCategories })
           .map(c => toNumber(c.id))
-          .filter(id => id !== null) as number[];
+          .filter((id): id is number => id !== null);
       }
     }
 
     if (childIds.length > 0) {
-      console.log(`[Gateway] Fetching products for ${categoryId} subcategories: ${childIds.join(",")}`);
       const subData = await client.get("products", {
         "filter[active]": 1,
         "filter[id_category_default]": `[${childIds.join("|")}]`,
         display: "full",
-        limit: "500",
+        limit: "1000", // Fetch more to ensure we get everything
         sort
       });
       const subProducts = extractResourceList<any>("products", subData);
       subProducts.forEach(p => allProductsMap.set(Number(p.id), p));
-      console.log(`[Gateway] Method 2: Added ${subProducts.length} products from subcategories`);
     }
-  } catch (e: any) {
-    console.warn(`[Gateway] Method 2 failed for category ${categoryId}: ${e.message}`);
-  }
+  } catch (e: any) {}
 
   let productsRaw = Array.from(allProductsMap.values());
   const start = (page - 1) * pageSize;
@@ -223,7 +216,7 @@ export const listProductsByCategory = async (
   const normalized = productsRaw.map((p) => normalizeProduct(p, shopId, lang, allowPrice));
   const filtered = applyServerSideFilters(normalized, filters);
 
-  console.log(`[Gateway] FINAL: Category ${categoryId} returns ${filtered.length} products (Total available: ${allProductsMap.size})`);
+  console.log(`[Gateway] FINAL: Category ${categoryId} returns ${filtered.length} products`);
   return filtered;
 };
 
