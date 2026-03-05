@@ -2,21 +2,28 @@
 
 import com.example.grifon.BuildConfig
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.data.local.UserPreferences
 import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.model.FilterState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.SortOption
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ApiCatalogRepository @Inject constructor(
-    private val catalogApi: CatalogApi
+    private val catalogApi: CatalogApi,
+    private val userPreferences: UserPreferences
 ) : CatalogRepository {
 
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
+
+    private suspend fun getCustomerIdInt(): Int? {
+        return userPreferences.customerId.firstOrNull()?.toIntOrNull()
+    }
 
     override fun getCategoryTree(shopId: String): Flow<List<Category>> = flow {
         try {
@@ -47,15 +54,17 @@ class ApiCatalogRepository @Inject constructor(
             val sId = shopId.toIntOrNull() ?: 4
             val catId = categoryId.toIntOrNull()
             if (catId == null || catId <= 0) {
-                emit(emptyList())
+                emit(emptyList<Product>())
                 return@flow
             }
             val minPrice = filters.toRequestMinPrice()
             val maxPrice = filters.toRequestMaxPrice()
+            val cId = getCustomerIdInt()
 
             val response = catalogApi.getCategoryProducts(
                 categoryId = catId,
                 shopId = sId,
+                customerId = cId,
                 minPrice = minPrice,
                 maxPrice = maxPrice,
                 inStockOnly = filters.inStockOnly
@@ -68,7 +77,7 @@ class ApiCatalogRepository @Inject constructor(
 
             emit(filteredProducts)
         } catch (e: Exception) {
-            emit(emptyList())
+            emit(emptyList<Product>())
         }
     }
 
@@ -82,8 +91,11 @@ class ApiCatalogRepository @Inject constructor(
             val sId = shopId.toIntOrNull() ?: 4
             val minPrice = filters.toRequestMinPrice()
             val maxPrice = filters.toRequestMaxPrice()
+            val cId = getCustomerIdInt()
+            
             val response = catalogApi.getProducts(
                 shopId = sId,
+                customerId = cId,
                 pageSize = 100,
                 search = query.takeIf { it.isNotBlank() },
                 minPrice = minPrice,
@@ -98,7 +110,7 @@ class ApiCatalogRepository @Inject constructor(
 
             emit(filtered)
         } catch (e: Exception) {
-            emit(emptyList())
+            emit(emptyList<Product>())
         }
     }
 
@@ -110,7 +122,8 @@ class ApiCatalogRepository @Inject constructor(
                 emit(null)
                 return@flow
             }
-            val dto = catalogApi.getProductById(productId = pId, shopId = sId)
+            val cId = getCustomerIdInt()
+            val dto = catalogApi.getProductById(productId = pId, shopId = sId, customerId = cId)
             emit(dto.toDomain(sId))
         } catch (e: Exception) {
             emit(null)

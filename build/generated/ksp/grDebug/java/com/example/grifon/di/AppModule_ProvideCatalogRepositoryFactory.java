@@ -1,6 +1,7 @@
 package com.example.grifon.di;
 
 import com.example.grifon.data.catalog.CatalogApi;
+import com.example.grifon.data.local.UserPreferences;
 import com.example.grifon.data.repository.CatalogRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -28,21 +29,26 @@ import javax.inject.Provider;
 public final class AppModule_ProvideCatalogRepositoryFactory implements Factory<CatalogRepository> {
   private final Provider<CatalogApi> catalogApiProvider;
 
-  public AppModule_ProvideCatalogRepositoryFactory(Provider<CatalogApi> catalogApiProvider) {
+  private final Provider<UserPreferences> userPreferencesProvider;
+
+  public AppModule_ProvideCatalogRepositoryFactory(Provider<CatalogApi> catalogApiProvider,
+      Provider<UserPreferences> userPreferencesProvider) {
     this.catalogApiProvider = catalogApiProvider;
+    this.userPreferencesProvider = userPreferencesProvider;
   }
 
   @Override
   public CatalogRepository get() {
-    return provideCatalogRepository(catalogApiProvider.get());
+    return provideCatalogRepository(catalogApiProvider.get(), userPreferencesProvider.get());
   }
 
   public static AppModule_ProvideCatalogRepositoryFactory create(
-      Provider<CatalogApi> catalogApiProvider) {
-    return new AppModule_ProvideCatalogRepositoryFactory(catalogApiProvider);
+      Provider<CatalogApi> catalogApiProvider, Provider<UserPreferences> userPreferencesProvider) {
+    return new AppModule_ProvideCatalogRepositoryFactory(catalogApiProvider, userPreferencesProvider);
   }
 
-  public static CatalogRepository provideCatalogRepository(CatalogApi catalogApi) {
-    return Preconditions.checkNotNullFromProvides(AppModule.INSTANCE.provideCatalogRepository(catalogApi));
+  public static CatalogRepository provideCatalogRepository(CatalogApi catalogApi,
+      UserPreferences userPreferences) {
+    return Preconditions.checkNotNullFromProvides(AppModule.INSTANCE.provideCatalogRepository(catalogApi, userPreferences));
   }
 }

@@ -14,6 +14,7 @@ interface CatalogApi {
     @GET("v1/products")
     suspend fun getProducts(
         @Query("shopId") shopId: Int,
+        @Query("customerId") customerId: Int? = null,
         @Query("lang") lang: Int = 1,
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 50,
@@ -36,6 +37,7 @@ interface CatalogApi {
     suspend fun getCategoryProducts(
         @Path("categoryId") categoryId: Int,
         @Query("shopId") shopId: Int,
+        @Query("customerId") customerId: Int? = null,
         @Query("lang") lang: Int = 1,
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 100,
@@ -50,6 +52,7 @@ interface CatalogApi {
     suspend fun getProductById(
         @Path("productId") productId: Int,
         @Query("shopId") shopId: Int,
+        @Query("customerId") customerId: Int? = null,
         @Query("lang") lang: Int = 1,
     ): ProductDto
 

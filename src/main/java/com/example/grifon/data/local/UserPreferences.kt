@@ -12,6 +12,7 @@ class UserPreferences(private val dataStore: DataStore<Preferences>) {
     private val customerIdKey = stringPreferencesKey("customer_id")
 
     val authToken: Flow<String?> = dataStore.data.map { it[tokenKey] }
+    val customerId: Flow<String?> = dataStore.data.map { it[customerIdKey] }
     val isLoggedIn: Flow<Boolean> = dataStore.data.map { it[tokenKey] != null }
 
     suspend fun saveAuthData(token: String, customerId: String) {
