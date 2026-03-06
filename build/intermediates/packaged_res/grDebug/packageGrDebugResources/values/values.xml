@@ -32,14 +32,18 @@
 
 If you create a new account, you must first apply for a wholesale account. Once we approve your request, you will be able to order and see wholesale prices.]]></string>
     <style name="Theme.App.Launch" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@android:color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        
+        <item name="windowSplashScreenBackground">#0A0E14</item>
+        
+        <item name="windowSplashScreenAnimatedIcon">@drawable/transparent_icon</item>
         <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
         <item name="windowSplashScreenAnimationDuration">0</item>
         <item name="postSplashScreenTheme">@style/Theme.Grifon</item>
     </style>
     <style name="Theme.Grifon" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">#6200EE</item>
-        <item name="android:windowBackground">@android:color/white</item>
+        <item name="colorPrimary">#3F51B5</item>
+        
+        <item name="android:windowBackground">#0A0E14</item>
+        <item name="android:statusBarColor">#0A0E14</item>
     </style>
 </resources>

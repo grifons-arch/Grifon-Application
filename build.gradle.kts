@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.mlkit.barcode.scanning)
     implementation(libs.google.play.services.auth)
+    implementation(libs.google.play.services.places)
     
     // Splash Screen API
     implementation("androidx.core:core-splashscreen:1.0.1")

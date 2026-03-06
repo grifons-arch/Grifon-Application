@@ -1,14 +1,18 @@
 <resources>
     <style name="Theme.App.Launch" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@android:color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <!-- Χρώμα φόντου συστήματος ίδιο με το custom splash -->
+        <item name="windowSplashScreenBackground">#0A0E14</item>
+        <!-- Χρήση του διαφανούς εικονιδίου για να "κρύψουμε" τον κύκλο -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/transparent_icon</item>
         <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
         <item name="windowSplashScreenAnimationDuration">0</item>
         <item name="postSplashScreenTheme">@style/Theme.Grifon</item>
     </style>
 
     <style name="Theme.Grifon" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">#6200EE</item>
-        <item name="android:windowBackground">@android:color/white</item>
+        <item name="colorPrimary">#3F51B5</item>
+        <!-- Dark background για όλη την εφαρμογή για να μην υπάρχει λευκό flash -->
+        <item name="android:windowBackground">#0A0E14</item>
+        <item name="android:statusBarColor">#0A0E14</item>
     </style>
 </resources>

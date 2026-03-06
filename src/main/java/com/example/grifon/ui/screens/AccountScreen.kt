@@ -130,7 +130,8 @@ fun LoginForm(
                 },
                 label = { Text(stringResource(R.string.email)) },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                // Change KeyboardType.Email to KeyboardType.Text to allow Greek characters
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
                 isError = errorMessage != null
             )

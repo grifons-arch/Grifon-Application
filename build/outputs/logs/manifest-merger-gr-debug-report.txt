@@ -1,7 +1,7 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:1:1-29:12
-MERGED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:1:1-29:12
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:1:1-33:12
+MERGED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:1:1-33:12
 INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml:1:1-6:12
 INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml:1:1-6:12
 INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml:1:1-6:12
@@ -136,10 +136,24 @@ MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\Grifon\.gradle\
 		INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml
 	xmlns:android
 		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:1:11-69
+uses-permission#android.permission.INTERNET
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:3:5-67
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:26:5-67
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:26:5-67
+	android:name
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:3:22-64
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:4:5-79
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:25:5-79
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:25:5-79
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:22:5-79
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:22:5-79
+	android:name
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:4:22-76
 application
-ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:3:5-27:19
-MERGED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:3:5-27:19
-MERGED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:3:5-27:19
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:6:5-31:19
+MERGED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:6:5-31:19
+MERGED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:6:5-31:19
 INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml:3:5-4:47
 MERGED from [com.google.android.material:material:1.10.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ba07b1a7be2c6fc786c67f410bb26db1\transformed\material-1.10.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.10.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ba07b1a7be2c6fc786c67f410bb26db1\transformed\material-1.10.0\AndroidManifest.xml:22:5-20
@@ -190,57 +204,57 @@ MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\Grifon\.gradle\
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\44b9fdebddd566319b29c1f5c6b2b15f\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
 	android:label
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:6:9-41
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:6:9-41
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:9:9-41
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:9:9-41
 	android:allowBackup
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:4:9-35
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:4:9-35
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:7:9-35
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:7:9-35
 	android:theme
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:7:9-44
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:7:9-44
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:11:9-44
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:11:9-44
 	android:usesCleartextTraffic
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml:4:9-44
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:10:9-44
 	android:name
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:5:9-42
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:5:9-42
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:8:9-42
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:8:9-42
 activity#com.example.grifon.SplashActivity
-ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:8:9-16:20
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:12:9-20:20
 	android:exported
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:10:13-36
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:14:13-36
 	android:theme
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:11:13-52
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:15:13-52
 	android:name
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:9:13-43
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:13:13-43
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:12:13-15:29
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:16:13-19:29
 action#android.intent.action.MAIN
-ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:13:17-69
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:17:17-69
 	android:name
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:13:25-66
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:17:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:14:17-77
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:18:17-77
 	android:name
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:14:27-74
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:18:27-74
 activity#com.example.grifon.MainActivity
-ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:17:9-20:51
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:21:9-24:51
 	android:exported
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:19:13-36
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:23:13-36
 	android:theme
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:20:13-48
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:24:13-48
 	android:name
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:18:13-41
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:22:13-41
 activity#com.example.grifon.LoginActivity
-ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:21:9-23:40
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:25:9-27:40
 	android:exported
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:23:13-37
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:27:13-37
 	android:name
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:22:13-42
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:26:13-42
 activity#com.example.grifon.RegisterActivity
-ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:24:9-26:40
+ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:28:9-30:40
 	android:exported
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:26:13-37
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:30:13-37
 	android:name
-		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:25:13-45
+		ADDED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:29:13-45
 uses-sdk
 INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\debug\AndroidManifest.xml
@@ -649,16 +663,6 @@ ADDED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\
 		ADDED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\9716814bd38e3c1cdfc9ff8b177b1d54\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:31:17-49
 	android:name
 		ADDED from [androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\9716814bd38e3c1cdfc9ff8b177b1d54\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:30:17-78
-uses-permission#android.permission.ACCESS_NETWORK_STATE
-ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:25:5-79
-MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:22:5-79
-MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:22:5-79
-	android:name
-		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:25:22-76
-uses-permission#android.permission.INTERNET
-ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:26:5-67
-	android:name
-		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:26:22-64
 service#com.google.android.datatransport.runtime.backends.TransportBackendDiscovery
 ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:29:9-35:19
 MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:36:9-38:40
