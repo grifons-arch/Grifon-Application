@@ -186,10 +186,19 @@ fun FeaturedProductCard(product: Product, onClick: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = Color(0xFF121923))
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            AsyncImage(model = product.imageUrl.ifEmpty { R.drawable.logo }, contentDescription = product.title, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(12.dp))
+            AsyncImage(
+                model = product.imageUrl.ifEmpty { null }, 
+                contentDescription = product.title, 
+                contentScale = ContentScale.Fit, 
+                modifier = Modifier.fillMaxSize().padding(12.dp)
+            )
             Column(modifier = Modifier.align(Alignment.BottomStart).background(Color.Black.copy(alpha = 0.7f)).fillMaxWidth().padding(8.dp)) {
                 Text(text = product.title, color = Color.White, fontSize = 13.sp, maxLines = 1)
-                Text(text = "${product.price}€", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                if (product.price > 0) {
+                    Text(text = "${product.price}€", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                } else {
+                    Text(text = "Συνδεθείτε για τιμή", color = Color(0xFFB6BDC9), fontSize = 12.sp)
+                }
             }
         }
     }
@@ -203,10 +212,19 @@ fun SmallProductCard(product: Product, onClick: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = Color(0xFF121923))
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            AsyncImage(model = product.imageUrl.ifEmpty { R.drawable.logo }, contentDescription = product.title, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(8.dp))
+            AsyncImage(
+                model = product.imageUrl.ifEmpty { null }, 
+                contentDescription = product.title, 
+                contentScale = ContentScale.Fit, 
+                modifier = Modifier.fillMaxSize().padding(8.dp)
+            )
             Column(modifier = Modifier.align(Alignment.BottomStart).background(Color.Black.copy(alpha = 0.6f)).fillMaxWidth().padding(4.dp)) {
                 Text(text = product.title, color = Color.White, fontSize = 9.sp, maxLines = 1)
-                Text(text = "${product.price}€", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                if (product.price > 0) {
+                    Text(text = "${product.price}€", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                } else {
+                    Text(text = "Τιμή: --", color = Color(0xFFB6BDC9), fontSize = 9.sp)
+                }
             }
         }
     }

@@ -131,22 +131,26 @@ class ApiCatalogRepository @Inject constructor(
     }
 
     private fun com.example.grifon.data.catalog.ProductDto.toDomain(shopId: Int): Product {
+        // Καθαρισμός: resolveImageUrl επιστρέφει "" αν δεν υπάρχει URL
         val resolvedDefaultImage = resolveImageUrl(defaultImage?.url)
         val resolvedImages = images
             .mapNotNull { image -> resolveImageUrl(image.url).takeIf { it.isNotBlank() } }
             .distinct()
+        
         val allImages = buildList {
             if (resolvedDefaultImage.isNotBlank()) add(resolvedDefaultImage)
             addAll(resolvedImages.filterNot { it == resolvedDefaultImage })
         }
-        val primaryImage = allImages.firstOrNull().orEmpty()
+        
+        // Αν allImages είναι άδειο, το imageUrl θα είναι ""
+        val primaryImage = allImages.firstOrNull() ?: ""
 
         return Product(
             id = id.toString(),
             title = name ?: "",
             price = price ?: 0.0,
             currency = "EUR",
-            imageUrl = primaryImage,
+            imageUrl = primaryImage, // Δεν βάζουμε πλέον fallback logo εδώ
             images = allImages,
             brand = brand ?: if (shopId == 4) "Grifon GR" else "Grifon SE",
             rating = 0.0,
@@ -158,6 +162,7 @@ class ApiCatalogRepository @Inject constructor(
     private fun resolveImageUrl(rawUrl: String?): String {
         val safeUrl = rawUrl.orEmpty()
         if (safeUrl.isBlank()) return ""
+        // Αν το Gateway επιστρέφει null ή άδειο URL, επιστρέφουμε ""
         return if (safeUrl.startsWith("/")) "$gatewayBaseUrl$safeUrl" else safeUrl
     }
 

@@ -8,6 +8,10 @@
         "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\polwesterika.jpg"
     },
     {
+        "merged": "com.example.grifon.app-grDebug-83:/drawable_img_3.png.flat",
+        "source": "com.example.grifon.app-main-87:/drawable/img_3.png"
+    },
+    {
         "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_grifonapp1.jpg.flat",
         "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\grifonapp1.jpg"
     },
@@ -70,10 +74,6 @@
     {
         "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_img_1.png.flat",
         "source": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-main-87:\\drawable\\img_1.png"
-    },
-    {
-        "merged": "com.example.grifon.app-grDebug-83:/drawable_img_1.png.flat",
-        "source": "com.example.grifon.app-main-87:/drawable/img_1.png"
     },
     {
         "merged": "C:\\Users\\Grifon\\.gradle\\daemon\\8.13\\com.example.grifon.app-grDebug-83:\\drawable_logo.png.flat",

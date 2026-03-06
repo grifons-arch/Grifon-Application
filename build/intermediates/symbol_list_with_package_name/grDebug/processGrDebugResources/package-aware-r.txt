@@ -2973,6 +2973,8 @@ drawable ic_splash_logo
 drawable icon_background
 drawable img
 drawable img_1
+drawable img_2
+drawable img_3
 drawable kersmiks_diskodmhtiks
 drawable logo
 drawable m3_appbar_background
@@ -3493,7 +3495,6 @@ id textSpacerNoButtons
 id textSpacerNoTitle
 id textStart
 id textTop
-id textView2
 id text_input_end_icon
 id text_input_error_icon
 id text_input_start_icon

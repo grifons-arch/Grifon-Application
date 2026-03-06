@@ -5,6 +5,8 @@ drawable fvthsthka
 drawable ic_splash_logo
 drawable img
 drawable img_1
+drawable img_2
+drawable img_3
 drawable kersmiks_diskodmhtiks
 drawable logo
 drawable mproytzinna
@@ -16,7 +18,6 @@ drawable veroza
 drawable yfasmatina
 id splash_logo
 id splash_progress
-id textView2
 layout activity_splash
 string app_name
 string bronze

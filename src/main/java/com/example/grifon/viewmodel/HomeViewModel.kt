@@ -2,6 +2,7 @@ package com.example.grifon.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.grifon.BuildConfig
 import com.example.grifon.core.UiState
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.catalog.HomeProductsWebService
@@ -24,6 +25,7 @@ class HomeViewModel @Inject constructor(
     private val catalogApi: CatalogApi,
     private val userPreferences: UserPreferences,
 ) : ViewModel() {
+    private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
     private val _uiState = MutableStateFlow<UiState<HomeState>>(UiState.Loading)
     val uiState: StateFlow<UiState<HomeState>> = _uiState
 
@@ -98,22 +100,32 @@ class HomeViewModel @Inject constructor(
             pageSize = 50
         )
         return response.items.map { dto ->
-            val gatewayBaseUrl = "http://10.0.2.2:3000"
-            val rawUrl = dto.defaultImage?.url ?: ""
-            val fullImageUrl = if (rawUrl.startsWith("/")) "$gatewayBaseUrl$rawUrl" else rawUrl
+            val resolvedDefaultImage = resolveImageUrl(dto.defaultImage?.url)
+            val resolvedImages = dto.images
+                .mapNotNull { image -> resolveImageUrl(image.url).takeIf { it.isNotBlank() } }
+                .distinct()
+            val primaryImage = resolvedDefaultImage
+                .takeIf { it.isNotBlank() }
+                ?: resolvedImages.firstOrNull().orEmpty()
 
             Product(
                 id = dto.id.toString(),
                 title = dto.name ?: "",
                 price = dto.price ?: 0.0,
                 currency = "EUR",
-                imageUrl = fullImageUrl,
+                imageUrl = primaryImage,
                 brand = dto.brand ?: "Grifon",
                 rating = 0.0,
                 inStock = dto.inStock ?: true,
                 attributesMap = mapOf("reference" to (dto.reference ?: ""))
             )
         }
+    }
+
+    private fun resolveImageUrl(rawUrl: String?): String {
+        val safeUrl = rawUrl.orEmpty()
+        if (safeUrl.isBlank()) return ""
+        return if (safeUrl.startsWith("/")) "$gatewayBaseUrl$safeUrl" else safeUrl
     }
 
     fun selectCategory(categoryId: String?) {

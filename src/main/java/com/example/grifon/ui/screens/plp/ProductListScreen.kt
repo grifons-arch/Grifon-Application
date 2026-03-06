@@ -76,8 +76,6 @@ import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.model.FilterState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.SortOption
-import com.example.grifon.ui.screens.ErrorScreen
-import com.example.grifon.ui.screens.LoadingScreen
 import com.example.grifon.viewmodel.PlpViewModel
 
 @Composable
@@ -89,10 +87,14 @@ fun ProductListScreen(
     var filtersOpen by remember { mutableStateOf(false) }
     var sortOpen by remember { mutableStateOf(false) }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
+    Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF090D14)) {
         when (val state = uiState) {
-            UiState.Loading -> LoadingScreen()
-            is UiState.Error -> ErrorScreen(message = state.message)
+            UiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                androidx.compose.material3.CircularProgressIndicator(color = Color.White)
+            }
+            is UiState.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(state.message, color = Color.Red)
+            }
             is UiState.Success -> {
                 val data = state.data
                 LazyVerticalGrid(
@@ -178,111 +180,118 @@ private fun FiltersSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .verticalScroll(scrollState)
-        ) {
-            Text(
-                text = "Φιλτράρισμα κατά",
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
-            )
-            Spacer(Modifier.height(12.dp))
-
-            FilterSectionTitle(title = "Κατηγορίες")
-            CategoryTreeFilter(
-                categories = categories,
-                selectedCategoryId = tempSelectedCategory,
-                expanded = tempExpanded,
-                onToggleExpanded = { categoryId ->
-                    tempExpanded = if (tempExpanded.contains(categoryId)) tempExpanded - categoryId else tempExpanded + categoryId
-                },
-                onSelectCategory = { categoryId -> tempSelectedCategory = categoryId }
-            )
-
-            FilterSectionTitle(title = "Τιμή")
-            Text(
-                text = "${tempFilters.priceRange.start.toInt()}€ - ${tempFilters.priceRange.endInclusive.toInt()}€",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            RangeSlider(
-                value = tempFilters.priceRange.start.toFloat()..tempFilters.priceRange.endInclusive.toFloat(),
-                onValueChange = { range ->
-                    tempFilters = tempFilters.copy(
-                        priceRange = range.start.toDouble()..range.endInclusive.toDouble()
-                    )
-                },
-                valueRange = availablePriceRange.start.toFloat()..availablePriceRange.endInclusive.toFloat()
-            )
-
-            if (availableBrands.isNotEmpty()) {
-                FilterSectionTitle(title = "Μάρκες")
-                MultiSelectChips(
-                    options = availableBrands,
-                    selected = tempFilters.brands,
-                    onToggle = { brand ->
-                        tempFilters = tempFilters.copy(brands = tempFilters.brands.toggle(brand))
-                    }
+        val sheetBgColor = Color(0xFF0A0E14)
+        Surface(color = sheetBgColor, modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .verticalScroll(scrollState)
+            ) {
+                Text(
+                    text = "Φιλτράρισμα κατά",
+                    color = Color.White,
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
                 )
-            }
+                Spacer(Modifier.height(12.dp))
 
-            if (availableColors.isNotEmpty()) {
-                FilterSectionTitle(title = "Χρώματα")
-                ColorChips(
-                    options = availableColors,
-                    selected = tempFilters.colors,
-                    onToggle = { color ->
-                        tempFilters = tempFilters.copy(colors = tempFilters.colors.toggle(color))
-                    }
+                FilterSectionTitle(title = "Κατηγορίες")
+                CategoryTreeFilter(
+                    categories = categories,
+                    selectedCategoryId = tempSelectedCategory,
+                    expanded = tempExpanded,
+                    onToggleExpanded = { categoryId ->
+                        tempExpanded = if (tempExpanded.contains(categoryId)) tempExpanded - categoryId else tempExpanded + categoryId
+                    },
+                    onSelectCategory = { categoryId -> tempSelectedCategory = categoryId }
                 )
-            }
 
-            availableAttributes.forEach { (attributeKey, options) ->
-                if (options.isNotEmpty()) {
-                    FilterSectionTitle(title = attributeKey)
+                FilterSectionTitle(title = "Τιμή")
+                Text(
+                    text = "${tempFilters.priceRange.start.toInt()}€ - ${tempFilters.priceRange.endInclusive.toInt()}€",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                RangeSlider(
+                    value = tempFilters.priceRange.start.toFloat()..tempFilters.priceRange.endInclusive.toFloat(),
+                    onValueChange = { range ->
+                        tempFilters = tempFilters.copy(
+                            priceRange = range.start.toDouble()..range.endInclusive.toDouble()
+                        )
+                    },
+                    valueRange = availablePriceRange.start.toFloat()..availablePriceRange.endInclusive.toFloat()
+                )
+
+                if (availableBrands.isNotEmpty()) {
+                    FilterSectionTitle(title = "Μάρκες")
                     MultiSelectChips(
-                        options = options,
-                        selected = tempFilters.attributes[attributeKey] ?: emptySet(),
-                        onToggle = { value ->
-                            val current = tempFilters.attributes[attributeKey].orEmpty()
-                            tempFilters = tempFilters.copy(
-                                attributes = tempFilters.attributes + (attributeKey to current.toggle(value))
-                            )
+                        options = availableBrands,
+                        selected = tempFilters.brands,
+                        onToggle = { brand ->
+                            tempFilters = tempFilters.copy(brands = tempFilters.brands.toggle(brand))
                         }
                     )
                 }
-            }
 
-            FilterSectionTitle(title = "Διαθεσιμότητα")
-            FilterItemRow(
-                label = "Σε απόθεμα",
-                selected = tempFilters.inStockOnly,
-                onToggle = { tempFilters = tempFilters.copy(inStockOnly = !tempFilters.inStockOnly) }
-            )
+                if (availableColors.isNotEmpty()) {
+                    FilterSectionTitle(title = "Χρώματα")
+                    ColorChips(
+                        options = availableColors,
+                        selected = tempFilters.colors,
+                        onToggle = { color ->
+                            tempFilters = tempFilters.copy(colors = tempFilters.colors.toggle(color))
+                        }
+                    )
+                }
 
-            Spacer(Modifier.height(24.dp))
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedButton(
-                    onClick = {
-                        tempSelectedCategory = ""
-                        onApply(FilterState(), "")
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Καθαρισμός")
+                availableAttributes.forEach { (attributeKey, options) ->
+                    if (options.isNotEmpty()) {
+                        FilterSectionTitle(title = attributeKey)
+                        MultiSelectChips(
+                            options = options,
+                            selected = tempFilters.attributes[attributeKey] ?: emptySet(),
+                            onToggle = { value ->
+                                val current = tempFilters.attributes[attributeKey].orEmpty()
+                                tempFilters = tempFilters.copy(
+                                    attributes = tempFilters.attributes + (attributeKey to current.toggle(value))
+                                )
+                            }
+                        )
+                    }
                 }
-                Button(
-                    onClick = { onApply(tempFilters, tempSelectedCategory) },
-                    modifier = Modifier.weight(1f)
+
+                FilterSectionTitle(title = "Διαθεσιμότητα")
+                FilterItemRow(
+                    label = "Σε απόθεμα",
+                    selected = tempFilters.inStockOnly,
+                    onToggle = { tempFilters = tempFilters.copy(inStockOnly = !tempFilters.inStockOnly) }
+                )
+
+                Spacer(Modifier.height(24.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Εφαρμογή")
+                    OutlinedButton(
+                        onClick = {
+                            tempSelectedCategory = ""
+                            onApply(FilterState(), "")
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("Καθαρισμός")
+                    }
+                    Button(
+                        onClick = { onApply(tempFilters, tempSelectedCategory) },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5))
+                    ) {
+                        Text("Εφαρμογή")
+                    }
                 }
+                Spacer(Modifier.height(32.dp))
             }
-            Spacer(Modifier.height(32.dp))
         }
     }
 }
@@ -296,7 +305,7 @@ private fun CategoryTreeFilter(
     onSelectCategory: (String) -> Unit,
 ) {
     if (categories.isEmpty()) {
-        Text("Δεν βρέθηκαν κατηγορίες", style = MaterialTheme.typography.bodySmall)
+        Text("Δεν βρέθηκαν κατηγορίες", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
         return
     }
 
@@ -309,7 +318,7 @@ private fun CategoryTreeFilter(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFF5F5F5), RoundedCornerShape(6.dp))
+            .background(Color(0xFF121923), RoundedCornerShape(6.dp))
             .padding(horizontal = 6.dp, vertical = 4.dp)
     ) {
         CategoryLeafRow(
@@ -364,7 +373,7 @@ private fun CategoryTreeNode(
         Text(
             text = node.name,
             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-            color = Color(0xFF4A4A4A),
+            color = Color.White,
             modifier = Modifier.padding(start = 6.dp)
         )
     }
@@ -403,7 +412,7 @@ private fun CategoryLeafRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-            color = Color(0xFF4A4A4A),
+            color = Color.White,
             modifier = Modifier.padding(start = 6.dp)
         )
     }
@@ -416,7 +425,7 @@ private fun SelectionCircle(selected: Boolean, onClick: () -> Unit) {
             .size(16.dp)
             .clip(CircleShape)
             .border(1.dp, Color(0xFF909090), CircleShape)
-            .background(if (selected) Color(0xFF6E8BB6) else Color.Transparent)
+            .background(if (selected) Color(0xFF3F51B5) else Color.Transparent)
             .clickable { onClick() }
     )
 }
@@ -426,21 +435,24 @@ private fun FilterBar(activeFiltersCount: Int, onFiltersClick: () -> Unit, onSor
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp),
+            .background(Color(0xFF090D14))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Button(
             onClick = onFiltersClick,
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(4.dp),
             modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF121923))
         ) {
-            Text(if (activeFiltersCount == 0) "Φίλτρα" else "Φίλτρα ($activeFiltersCount)")
+            Text(if (activeFiltersCount == 0) "Φίλτρα" else "Φίλτρα ($activeFiltersCount)", color = Color.White)
         }
         OutlinedButton(
             onClick = onSortClick,
-            shape = RoundedCornerShape(20.dp),
-            modifier = Modifier.weight(1f)
+            shape = RoundedCornerShape(4.dp),
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+            border = border(1.dp, Color(0xFF1A1F2B))
         ) {
             Text("Ταξινόμηση")
         }
@@ -473,14 +485,17 @@ private fun SortDialog(currentSort: SortOption, onDismiss: () -> Unit, onSelect:
     )
 }
 
+private fun border(width: androidx.compose.ui.unit.Dp, color: Color) = androidx.compose.foundation.BorderStroke(width, color)
+
 @Composable
 private fun FilterSectionTitle(title: String) {
     Text(
         text = title,
+        color = Color.White,
         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
     )
-    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+    HorizontalDivider(color = Color(0xFF1A1F2B))
 }
 
 @Composable
@@ -495,7 +510,7 @@ private fun FilterItemRow(label: String, selected: Boolean, onToggle: () -> Unit
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(checked = selected, onCheckedChange = { onToggle() })
-            Text(text = label, style = MaterialTheme.typography.bodyMedium)
+            Text(text = label, color = Color.White, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -555,7 +570,7 @@ private fun ColorChips(
                                 shape = CircleShape
                             )
                     )
-                    Text(colorName)
+                    Text(colorName, color = if (selected.contains(colorName)) Color.Black else Color.White)
                 }
             }
         }
@@ -631,52 +646,66 @@ private fun activeFiltersCount(filters: FilterState, selectedCategoryId: String)
 
 @Composable
 fun ProductGridItem(product: Product, onClick: () -> Unit) {
+    val cardBg = Color(0xFF121923)
+    val borderCol = Color(0xFF1A1F2B)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(Color.Transparent)
     ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f),
+                .aspectRatio(0.85f),
             shape = RoundedCornerShape(4.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
+            colors = CardDefaults.cardColors(containerColor = cardBg),
+            border = border(1.dp, borderCol),
             onClick = onClick
         ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(product.imageUrl.ifEmpty { R.drawable.logo })
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = product.title,
-                    placeholder = painterResource(R.drawable.logo),
-                    error = painterResource(R.drawable.logo),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp)
-                )
+                if (product.imageUrl.isNotEmpty()) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(product.imageUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = product.title,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp)
+                    )
+                } else {
+                    Box(modifier = Modifier.fillMaxSize().background(cardBg))
+                }
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = product.title.uppercase(),
             style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 12.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Medium
             ),
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            color = Color.Black
+            color = Color.White
         )
-        Text(
-            text = "${product.price} €",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+        if (product.price > 0) {
+            Text(
+                text = "${product.price} €",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    fontSize = 13.sp
+                )
             )
-        )
+        } else {
+            Text(
+                text = "-- €",
+                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+            )
+        }
     }
 }

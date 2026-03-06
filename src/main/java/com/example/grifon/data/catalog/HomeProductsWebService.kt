@@ -37,24 +37,30 @@ class HomeProductsWebService @Inject constructor(
 
     private fun ProductDto.toDomain(shopId: Int, shopCode: String?): Product {
         val normalizedShopCode = shopCode ?: "SHOP"
-        
-        val rawUrl = defaultImage?.url ?: ""
-        val fullImageUrl = if (rawUrl.startsWith("/")) {
-            "$gatewayBaseUrl$rawUrl"
-        } else {
-            rawUrl
-        }
+        val resolvedDefaultImage = resolveImageUrl(defaultImage?.url)
+        val resolvedImages = images
+            .mapNotNull { image -> resolveImageUrl(image.url).takeIf { it.isNotBlank() } }
+            .distinct()
+        val primaryImage = resolvedDefaultImage
+            .takeIf { it.isNotBlank() }
+            ?: resolvedImages.firstOrNull().orEmpty()
 
         return Product(
             id = "${shopId}_$id",
             title = name ?: "Προϊόν #$id",
             price = price ?: 0.0,
             currency = "EUR",
-            imageUrl = fullImageUrl,
+            imageUrl = primaryImage,
             brand = normalizedShopCode,
             rating = 0.0,
             inStock = true,
             attributesMap = mapOf("reference" to (reference ?: "")),
         )
+    }
+
+    private fun resolveImageUrl(rawUrl: String?): String {
+        val safeUrl = rawUrl.orEmpty()
+        if (safeUrl.isBlank()) return ""
+        return if (safeUrl.startsWith("/")) "$gatewayBaseUrl$safeUrl" else safeUrl
     }
 }
