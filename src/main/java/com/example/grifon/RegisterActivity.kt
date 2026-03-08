@@ -69,7 +69,7 @@ private fun RegisterScreen(
         if (result.resultCode == Activity.RESULT_OK) {
             val place = Autocomplete.getPlaceFromIntent(result.data!!)
             registerViewModel.onPlaceSelected(place)
-        } else if (result.resultCode == AutocompleteActivityMode.FULLSCREEN.toInt()) {
+        } else if (result.resultCode == Autocomplete.RESULT_ERROR) {
             // Handle error
             val status = Autocomplete.getStatusFromIntent(result.data!!)
             Toast.makeText(context, "Error: ${status.statusMessage}", Toast.LENGTH_SHORT).show()
@@ -154,7 +154,7 @@ private fun RegisterScreen(
                         Place.Field.ADDRESS
                     )
                     val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                        .setCountry("GR") // Προαιρετικά περιορισμός στην Ελλάδα
+                        .setCountries(listOf("GR")) // Updated from setCountry to setCountries
                         .build(context)
                     launcher.launch(intent)
                 }
