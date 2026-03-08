@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.grifon.app-mergeGrDebugResources-81:/values-zh-rHK/values-zh-rHK.xml",
+            "outputFile": "com.example.grifon.app-mergeGrDebugResources-83:/values-zh-rHK/values-zh-rHK.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\cf739d7c6815bdaaecce564375226b1c\\transformed\\play-services-base-18.5.0\\res\\values-zh-rHK\\values.xml",
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\4076f6711e0c2d897c01a68d391c4a06\\transformed\\play-services-base-18.5.0\\res\\values-zh-rHK\\values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
                         "startColumns": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
@@ -21,24 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\2131c4bb00da1bb73d06c4a81d0a581d\\transformed\\appcompat-1.6.1\\res\\values-zh-rHK\\values-zh-rHK.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "105,200,293,393,475,572,680,757,832,924,1018,1109,1205,1300,1394,1490,1582,1674,1766,1844,1940,2035,2130,2227,2323,2421,2572,2666",
-                        "endColumns": "94,92,99,81,96,107,76,74,91,93,90,95,94,93,95,91,91,91,77,95,94,94,96,95,97,150,93,78",
-                        "endOffsets": "195,288,388,470,567,675,752,827,919,1013,1104,1200,1295,1389,1485,1577,1669,1761,1839,1935,2030,2125,2222,2318,2416,2567,2661,2740"
-                    },
-                    "to": {
-                        "startLines": "6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,194",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "297,392,485,585,667,764,872,949,1024,1116,1210,1301,1397,1492,1586,1682,1774,1866,1958,2036,2132,2227,2322,2419,2515,2613,2764,16480",
-                        "endColumns": "94,92,99,81,96,107,76,74,91,93,90,95,94,93,95,91,91,91,77,95,94,94,96,95,97,150,93,78",
-                        "endOffsets": "387,480,580,662,759,867,944,1019,1111,1205,1296,1392,1487,1581,1677,1769,1861,1953,2031,2127,2222,2317,2414,2510,2608,2759,2853,16554"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\ec1eb81b956780d886192696b6e08457\\transformed\\material3-release\\res\\values-zh-rHK\\values-zh-rHK.xml",
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\b4fbb8de4b521809864c740978fe6a55\\transformed\\material3-release\\res\\values-zh-rHK\\values-zh-rHK.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -55,7 +38,58 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\ba07b1a7be2c6fc786c67f410bb26db1\\transformed\\material-1.10.0\\res\\values-zh-rHK\\values-zh-rHK.xml",
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\302b974040bad06c115cb675a491db0f\\transformed\\core-1.13.1\\res\\values-zh-rHK\\values-zh-rHK.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,147,246,340,434,527,620,716",
+                        "endColumns": "91,98,93,93,92,92,95,100",
+                        "endOffsets": "142,241,335,429,522,615,711,812"
+                    },
+                    "to": {
+                        "startLines": "38,39,40,41,42,43,44,207",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "3195,3287,3386,3480,3574,3667,3760,17335",
+                        "endColumns": "91,98,93,93,92,92,95,100",
+                        "endOffsets": "3282,3381,3475,3569,3662,3755,3851,17431"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\9088d25fa66a24359e1010b116c5cb9f\\transformed\\appcompat-1.6.1\\res\\values-zh-rHK\\values-zh-rHK.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,200,293,393,475,572,680,757,832,924,1018,1109,1205,1300,1394,1490,1582,1674,1766,1844,1940,2035,2130,2227,2323,2421,2572,2666",
+                        "endColumns": "94,92,99,81,96,107,76,74,91,93,90,95,94,93,95,91,91,91,77,95,94,94,96,95,97,150,93,78",
+                        "endOffsets": "195,288,388,470,567,675,752,827,919,1013,1104,1200,1295,1389,1485,1577,1669,1761,1839,1935,2030,2125,2222,2318,2416,2567,2661,2740"
+                    },
+                    "to": {
+                        "startLines": "6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,202",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "297,392,485,585,667,764,872,949,1024,1116,1210,1301,1397,1492,1586,1682,1774,1866,1958,2036,2132,2227,2322,2419,2515,2613,2764,16977",
+                        "endColumns": "94,92,99,81,96,107,76,74,91,93,90,95,94,93,95,91,91,91,77,95,94,94,96,95,97,150,93,78",
+                        "endOffsets": "387,480,580,662,759,867,944,1019,1111,1205,1296,1392,1487,1581,1677,1769,1861,1953,2031,2127,2222,2317,2414,2510,2608,2759,2853,17051"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\a909a375ff0091c442dcbfa71dd7e6db\\transformed\\places-4.1.0\\res\\values-zh-rHK\\values.xml",
+                    "from": {
+                        "startLines": "4,5,6,7,8,9,10,11",
+                        "startColumns": "0,0,0,0,0,0,0,0",
+                        "startOffsets": "188,250,305,388,449,490,553,607",
+                        "endColumns": "61,54,82,60,40,62,53,45",
+                        "endOffsets": "249,304,387,448,489,552,606,652"
+                    },
+                    "to": {
+                        "startLines": "192,193,194,195,196,197,198,199",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "16332,16398,16457,16544,16609,16654,16721,16779",
+                        "endColumns": "65,58,86,64,44,66,57,49",
+                        "endOffsets": "16393,16452,16539,16604,16649,16716,16774,16824"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\d68e63ef649dc8479b07f63761b492e8\\transformed\\material-1.10.0\\res\\values-zh-rHK\\values-zh-rHK.xml",
                     "from": {
                         "startLines": "2,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -74,24 +108,41 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\44b9fdebddd566319b29c1f5c6b2b15f\\transformed\\core-1.13.1\\res\\values-zh-rHK\\values-zh-rHK.xml",
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\a29ada004d4af5dac1d4a12d54a26678\\transformed\\foundation-release\\res\\values-zh-rHK\\values-zh-rHK.xml",
                     "from": {
-                        "startLines": "2,3,4,5,6,7,8,9",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,147,246,340,434,527,620,716",
-                        "endColumns": "91,98,93,93,92,92,95,100",
-                        "endOffsets": "142,241,335,429,522,615,711,812"
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,136",
+                        "endColumns": "80,76",
+                        "endOffsets": "131,208"
                     },
                     "to": {
-                        "startLines": "38,39,40,41,42,43,44,199",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "3195,3287,3386,3480,3574,3667,3760,16838",
-                        "endColumns": "91,98,93,93,92,92,95,100",
-                        "endOffsets": "3282,3381,3475,3569,3662,3755,3851,16934"
+                        "startLines": "211,212",
+                        "startColumns": "4,4",
+                        "startOffsets": "17692,17773",
+                        "endColumns": "80,76",
+                        "endOffsets": "17768,17845"
                     }
                 },
                 {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\2def05c5917a43714503923fb5e5fe1c\\transformed\\play-services-basement-18.4.0\\res\\values-zh-rHK\\values.xml",
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\1c81ae24122d089278fc732bba88b7f5\\transformed\\ui-release\\res\\values-zh-rHK\\values-zh-rHK.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,181,255,343,434,512,586,663,741,815,888,963,1030,1103,1173,1242,1317,1382",
+                        "endColumns": "75,73,87,90,77,73,76,77,73,72,74,66,72,69,68,74,64,115",
+                        "endOffsets": "176,250,338,429,507,581,658,736,810,883,958,1025,1098,1168,1237,1312,1377,1493"
+                    },
+                    "to": {
+                        "startLines": "48,49,68,69,70,74,75,189,190,200,201,203,204,205,206,208,209,210",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "4126,4202,6102,6190,6281,6558,6632,16111,16189,16829,16902,17056,17123,17196,17266,17436,17511,17576",
+                        "endColumns": "75,73,87,90,77,73,76,77,73,72,74,66,72,69,68,74,64,115",
+                        "endOffsets": "4197,4271,6185,6276,6354,6627,6704,16184,16258,16897,16972,17118,17191,17261,17330,17506,17571,17687"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\d036b908b7606c1dd0ee9f21a4ad805f\\transformed\\play-services-basement-18.4.0\\res\\values-zh-rHK\\values.xml",
                     "from": {
                         "startLines": "4",
                         "startColumns": "0",
@@ -105,40 +156,6 @@
                         "startOffsets": "5140",
                         "endColumns": "107",
                         "endOffsets": "5243"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\3f2ac0eeb572509a9eaf5d52469e2ebb\\transformed\\ui-release\\res\\values-zh-rHK\\values-zh-rHK.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "105,181,255,343,434,512,586,663,741,815,888,963,1030,1103,1173,1242,1317,1382",
-                        "endColumns": "75,73,87,90,77,73,76,77,73,72,74,66,72,69,68,74,64,115",
-                        "endOffsets": "176,250,338,429,507,581,658,736,810,883,958,1025,1098,1168,1237,1312,1377,1493"
-                    },
-                    "to": {
-                        "startLines": "48,49,68,69,70,74,75,189,190,192,193,195,196,197,198,200,201,202",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "4126,4202,6102,6190,6281,6558,6632,16111,16189,16332,16405,16559,16626,16699,16769,16939,17014,17079",
-                        "endColumns": "75,73,87,90,77,73,76,77,73,72,74,66,72,69,68,74,64,115",
-                        "endOffsets": "4197,4271,6185,6276,6354,6627,6704,16184,16258,16400,16475,16621,16694,16764,16833,17009,17074,17190"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\4a068a096f08d726e4af190a5c83274b\\transformed\\foundation-release\\res\\values-zh-rHK\\values-zh-rHK.xml",
-                    "from": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,136",
-                        "endColumns": "80,76",
-                        "endOffsets": "131,208"
-                    },
-                    "to": {
-                        "startLines": "203,204",
-                        "startColumns": "4,4",
-                        "startOffsets": "17195,17276",
-                        "endColumns": "80,76",
-                        "endOffsets": "17271,17348"
                     }
                 }
             ]

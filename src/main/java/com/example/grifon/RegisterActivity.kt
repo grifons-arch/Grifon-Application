@@ -1,43 +1,29 @@
 package com.example.grifon
 
+import android.app.Activity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -47,6 +33,9 @@ import com.example.grifon.presentation.register.RegisterStatus
 import com.example.grifon.presentation.register.RegisterViewModel
 import com.example.grifon.presentation.register.RegisterViewModelFactory
 import com.example.grifon.ui.theme.GrifonTheme
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 
 class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,8 +58,23 @@ private fun RegisterScreen(
 ) {
     val state by registerViewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isPasswordConfirmationVisible by remember { mutableStateOf(false) }
+
+    // Launcher for Google Places Autocomplete
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val place = Autocomplete.getPlaceFromIntent(result.data!!)
+            registerViewModel.onPlaceSelected(place)
+        } else if (result.resultCode == AutocompleteActivityMode.FULLSCREEN.toInt()) {
+            // Handle error
+            val status = Autocomplete.getStatusFromIntent(result.data!!)
+            Toast.makeText(context, "Error: ${status.statusMessage}", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -115,6 +119,7 @@ private fun RegisterScreen(
             value = state.phone,
             onValueChange = registerViewModel::onPhoneChange,
             placeholder = "Τηλέφωνο",
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
         )
         RegistrationTextField(
             value = state.iban,
@@ -134,7 +139,32 @@ private fun RegisterScreen(
             placeholder = "Α.Φ.Μ",
         )
 
-        SectionTitle(title = "Διεύθυνση +")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SectionTitle(title = "Διεύθυνση +")
+            TextButton(
+                onClick = {
+                    val fields = listOf(
+                        Place.Field.ID,
+                        Place.Field.NAME,
+                        Place.Field.ADDRESS_COMPONENTS,
+                        Place.Field.ADDRESS
+                    )
+                    val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                        .setCountry("GR") // Προαιρετικά περιορισμός στην Ελλάδα
+                        .build(context)
+                    launcher.launch(intent)
+                }
+            ) {
+                Icon(Icons.Default.Map, contentDescription = null)
+                Spacer(Modifier.width(4.dp))
+                Text("Αναζήτηση στο Χάρτη")
+            }
+        }
+
         RegistrationTextField(
             value = state.country,
             onValueChange = registerViewModel::onCountryChange,
@@ -161,11 +191,13 @@ private fun RegisterScreen(
             value = state.email,
             onValueChange = registerViewModel::onEmailChange,
             placeholder = "Email *",
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
         RegistrationTextField(
             value = state.emailConfirmation,
             onValueChange = registerViewModel::onEmailConfirmationChange,
             placeholder = "Επιβεβαίωση Email *",
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
         RegistrationTextField(
             value = state.password,
@@ -174,6 +206,7 @@ private fun RegisterScreen(
             isPassword = true,
             isPasswordVisible = isPasswordVisible,
             onPasswordVisibilityChange = { isPasswordVisible = !isPasswordVisible },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
         RegistrationTextField(
             value = state.passwordConfirmation,
@@ -184,6 +217,7 @@ private fun RegisterScreen(
             onPasswordVisibilityChange = {
                 isPasswordConfirmationVisible = !isPasswordConfirmationVisible
             },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
         ConsentOption(
@@ -269,6 +303,7 @@ private fun RegistrationTextField(
     isPassword: Boolean = false,
     isPasswordVisible: Boolean = false,
     onPasswordVisibilityChange: (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     TextField(
         value = value,
@@ -303,6 +338,7 @@ private fun RegistrationTextField(
         } else {
             null
         },
+        keyboardOptions = keyboardOptions,
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,

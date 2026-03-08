@@ -1,4 +1,5 @@
 import com.android.build.api.variant.BuildConfigField
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -7,6 +8,13 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
+
+val localProperties = Properties()
+val localPropertiesFile = project.rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+val googleMapsApiKey = localProperties.getProperty("GOOGLE_MAPS_API_KEY") ?: ""
 
 val defaultGatewayUrl = (project.findProperty("API_BASE_URL") as String?)
     ?: "http://10.0.2.2:3000/"
@@ -27,6 +35,8 @@ android {
         targetSdk = 34
         versionCode = 3
         versionName = "1.2.0"
+
+        buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$googleMapsApiKey\"")
     }
 
     flavorDimensions += "shop"

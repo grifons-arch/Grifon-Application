@@ -14,273 +14,310 @@
 12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 12-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:4:5-79
 12-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:4:22-76
-13
-14    <permission
-14-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\44b9fdebddd566319b29c1f5c6b2b15f\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
-15        android:name="com.grifon.eshop.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-15-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\44b9fdebddd566319b29c1f5c6b2b15f\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
-16        android:protectionLevel="signature" />
-16-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\44b9fdebddd566319b29c1f5c6b2b15f\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
-17
-18    <uses-permission android:name="com.grifon.eshop.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-18-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\44b9fdebddd566319b29c1f5c6b2b15f\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
-18-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\44b9fdebddd566319b29c1f5c6b2b15f\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
-19
-20    <application
-20-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:6:5-31:19
-21        android:name="com.example.grifon.GrifonApplication"
-21-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:8:9-42
-22        android:allowBackup="true"
-22-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:7:9-35
-23        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-23-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\44b9fdebddd566319b29c1f5c6b2b15f\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
-24        android:debuggable="true"
-25        android:extractNativeLibs="false"
-26        android:label="@string/app_name"
-26-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:9:9-41
-27        android:testOnly="true"
-28        android:theme="@style/Theme.Grifon"
-28-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:11:9-44
-29        android:usesCleartextTraffic="true" >
-29-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:10:9-44
-30        <activity
-30-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:12:9-20:20
-31            android:name="com.example.grifon.SplashActivity"
-31-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:13:13-43
-32            android:exported="true"
-32-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:14:13-36
-33            android:theme="@style/Theme.App.Launch" >
-33-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:15:13-52
-34            <intent-filter>
-34-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:16:13-19:29
-35                <action android:name="android.intent.action.MAIN" />
-35-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:17:17-69
-35-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:17:25-66
-36
-37                <category android:name="android.intent.category.LAUNCHER" />
-37-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:18:17-77
-37-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:18:27-74
-38            </intent-filter>
-39        </activity>
-40        <activity
-40-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:21:9-24:51
-41            android:name="com.example.grifon.MainActivity"
-41-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:22:13-41
-42            android:exported="true"
-42-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:23:13-36
-43            android:theme="@style/Theme.Grifon" />
-43-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:24:13-48
-44        <activity
-44-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:25:9-27:40
-45            android:name="com.example.grifon.LoginActivity"
-45-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:26:13-42
-46            android:exported="false" />
-46-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:27:13-37
+13    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+13-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:9:5-81
+13-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:9:22-78
+14    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+14-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:10:5-79
+14-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:10:22-76
+15    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+15-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:11:5-76
+15-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:11:22-73
+16
+17    <uses-feature
+17-->[com.google.android.gms:play-services-maps:17.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\15ed1859b5cad1cf0ea4a48597999083\transformed\play-services-maps-17.0.0\AndroidManifest.xml:26:5-28:35
+18        android:glEsVersion="0x00020000"
+18-->[com.google.android.gms:play-services-maps:17.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\15ed1859b5cad1cf0ea4a48597999083\transformed\play-services-maps-17.0.0\AndroidManifest.xml:27:9-41
+19        android:required="true" />
+19-->[com.google.android.gms:play-services-maps:17.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\15ed1859b5cad1cf0ea4a48597999083\transformed\play-services-maps-17.0.0\AndroidManifest.xml:28:9-32
+20
+21    <permission
+21-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\302b974040bad06c115cb675a491db0f\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+22        android:name="com.grifon.eshop.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+22-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\302b974040bad06c115cb675a491db0f\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+23        android:protectionLevel="signature" />
+23-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\302b974040bad06c115cb675a491db0f\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+24
+25    <uses-permission android:name="com.grifon.eshop.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+25-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\302b974040bad06c115cb675a491db0f\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+25-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\302b974040bad06c115cb675a491db0f\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+26
+27    <application
+27-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:6:5-31:19
+28        android:name="com.example.grifon.GrifonApplication"
+28-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:8:9-42
+29        android:allowBackup="true"
+29-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:7:9-35
+30        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+30-->[androidx.core:core:1.13.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\302b974040bad06c115cb675a491db0f\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+31        android:debuggable="true"
+32        android:extractNativeLibs="false"
+33        android:label="@string/app_name"
+33-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:9:9-41
+34        android:testOnly="true"
+35        android:theme="@style/Theme.Grifon"
+35-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:11:9-44
+36        android:usesCleartextTraffic="true" >
+36-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:10:9-44
+37        <activity
+37-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:12:9-20:20
+38            android:name="com.example.grifon.SplashActivity"
+38-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:13:13-43
+39            android:exported="true"
+39-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:14:13-36
+40            android:theme="@style/Theme.App.Launch" >
+40-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:15:13-52
+41            <intent-filter>
+41-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:16:13-19:29
+42                <action android:name="android.intent.action.MAIN" />
+42-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:17:17-69
+42-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:17:25-66
+43
+44                <category android:name="android.intent.category.LAUNCHER" />
+44-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:18:17-77
+44-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:18:27-74
+45            </intent-filter>
+46        </activity>
 47        <activity
-47-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:28:9-30:40
-48            android:name="com.example.grifon.RegisterActivity"
-48-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:29:13-45
-49            android:exported="false" />
-49-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:30:13-37
-50
-51        <service
-51-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\ccd8af3a6a4a0b4c08f3d959704a42a3\transformed\camera-camera2-1.3.4\AndroidManifest.xml:24:9-33:19
-52            android:name="androidx.camera.core.impl.MetadataHolderService"
-52-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\ccd8af3a6a4a0b4c08f3d959704a42a3\transformed\camera-camera2-1.3.4\AndroidManifest.xml:25:13-75
-53            android:enabled="false"
-53-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\ccd8af3a6a4a0b4c08f3d959704a42a3\transformed\camera-camera2-1.3.4\AndroidManifest.xml:26:13-36
-54            android:exported="false" >
-54-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\ccd8af3a6a4a0b4c08f3d959704a42a3\transformed\camera-camera2-1.3.4\AndroidManifest.xml:27:13-37
-55            <meta-data
-55-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\ccd8af3a6a4a0b4c08f3d959704a42a3\transformed\camera-camera2-1.3.4\AndroidManifest.xml:30:13-32:89
-56                android:name="androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER"
-56-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\ccd8af3a6a4a0b4c08f3d959704a42a3\transformed\camera-camera2-1.3.4\AndroidManifest.xml:31:17-103
-57                android:value="androidx.camera.camera2.Camera2Config$DefaultProvider" />
-57-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\ccd8af3a6a4a0b4c08f3d959704a42a3\transformed\camera-camera2-1.3.4\AndroidManifest.xml:32:17-86
-58        </service>
-59        <service
-59-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\93db79522e5be19693d5c266172f52e0\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:9:9-15:19
-60            android:name="com.google.mlkit.common.internal.MlKitComponentDiscoveryService"
-60-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\93db79522e5be19693d5c266172f52e0\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:10:13-91
-61            android:directBootAware="true"
-61-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6cbbc561e2ca1e831f352c9eb96c43ef\transformed\common-18.11.0\AndroidManifest.xml:17:13-43
-62            android:exported="false" >
-62-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\93db79522e5be19693d5c266172f52e0\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:11:13-37
-63            <meta-data
-63-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\93db79522e5be19693d5c266172f52e0\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:12:13-14:85
-64                android:name="com.google.firebase.components:com.google.mlkit.vision.barcode.internal.BarcodeRegistrar"
-64-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\93db79522e5be19693d5c266172f52e0\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:13:17-120
-65                android:value="com.google.firebase.components.ComponentRegistrar" />
-65-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\93db79522e5be19693d5c266172f52e0\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:14:17-82
-66            <meta-data
-66-->[com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2d393b1b8826ff00b1aba70d1f0772cd\transformed\vision-common-17.3.0\AndroidManifest.xml:12:13-14:85
-67                android:name="com.google.firebase.components:com.google.mlkit.vision.common.internal.VisionCommonRegistrar"
-67-->[com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2d393b1b8826ff00b1aba70d1f0772cd\transformed\vision-common-17.3.0\AndroidManifest.xml:13:17-124
-68                android:value="com.google.firebase.components.ComponentRegistrar" />
-68-->[com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2d393b1b8826ff00b1aba70d1f0772cd\transformed\vision-common-17.3.0\AndroidManifest.xml:14:17-82
-69            <meta-data
-69-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6cbbc561e2ca1e831f352c9eb96c43ef\transformed\common-18.11.0\AndroidManifest.xml:20:13-22:85
-70                android:name="com.google.firebase.components:com.google.mlkit.common.internal.CommonComponentRegistrar"
-70-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6cbbc561e2ca1e831f352c9eb96c43ef\transformed\common-18.11.0\AndroidManifest.xml:21:17-120
-71                android:value="com.google.firebase.components.ComponentRegistrar" />
-71-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6cbbc561e2ca1e831f352c9eb96c43ef\transformed\common-18.11.0\AndroidManifest.xml:22:17-82
-72        </service>
-73
-74        <provider
-74-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6cbbc561e2ca1e831f352c9eb96c43ef\transformed\common-18.11.0\AndroidManifest.xml:9:9-13:38
-75            android:name="com.google.mlkit.common.internal.MlKitInitProvider"
-75-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6cbbc561e2ca1e831f352c9eb96c43ef\transformed\common-18.11.0\AndroidManifest.xml:10:13-78
-76            android:authorities="com.grifon.eshop.mlkitinitprovider"
-76-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6cbbc561e2ca1e831f352c9eb96c43ef\transformed\common-18.11.0\AndroidManifest.xml:11:13-69
-77            android:exported="false"
-77-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6cbbc561e2ca1e831f352c9eb96c43ef\transformed\common-18.11.0\AndroidManifest.xml:12:13-37
-78            android:initOrder="99" />
-78-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\6cbbc561e2ca1e831f352c9eb96c43ef\transformed\common-18.11.0\AndroidManifest.xml:13:13-35
-79
-80        <service
-80-->[androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d03eb1b55243b4b284f5c9e1c1ecd02a\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
-81            android:name="androidx.room.MultiInstanceInvalidationService"
-81-->[androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d03eb1b55243b4b284f5c9e1c1ecd02a\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
-82            android:directBootAware="true"
-82-->[androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d03eb1b55243b4b284f5c9e1c1ecd02a\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
-83            android:exported="false" />
-83-->[androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\d03eb1b55243b4b284f5c9e1c1ecd02a\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
-84
-85        <activity
-85-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a1107f0a4a1b62cda7e5182e420a3557\transformed\play-services-auth-21.3.0\AndroidManifest.xml:23:9-27:75
-86            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
-86-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a1107f0a4a1b62cda7e5182e420a3557\transformed\play-services-auth-21.3.0\AndroidManifest.xml:24:13-93
-87            android:excludeFromRecents="true"
-87-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a1107f0a4a1b62cda7e5182e420a3557\transformed\play-services-auth-21.3.0\AndroidManifest.xml:25:13-46
-88            android:exported="false"
-88-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a1107f0a4a1b62cda7e5182e420a3557\transformed\play-services-auth-21.3.0\AndroidManifest.xml:26:13-37
-89            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-89-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a1107f0a4a1b62cda7e5182e420a3557\transformed\play-services-auth-21.3.0\AndroidManifest.xml:27:13-72
-90        <!--
-91            Service handling Google Sign-In user revocation. For apps that do not integrate with
-92            Google Sign-In, this service will never be started.
-93        -->
-94        <service
-94-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a1107f0a4a1b62cda7e5182e420a3557\transformed\play-services-auth-21.3.0\AndroidManifest.xml:33:9-37:51
-95            android:name="com.google.android.gms.auth.api.signin.RevocationBoundService"
-95-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a1107f0a4a1b62cda7e5182e420a3557\transformed\play-services-auth-21.3.0\AndroidManifest.xml:34:13-89
-96            android:exported="true"
-96-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a1107f0a4a1b62cda7e5182e420a3557\transformed\play-services-auth-21.3.0\AndroidManifest.xml:35:13-36
-97            android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION"
-97-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a1107f0a4a1b62cda7e5182e420a3557\transformed\play-services-auth-21.3.0\AndroidManifest.xml:36:13-107
-98            android:visibleToInstantApps="true" />
-98-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a1107f0a4a1b62cda7e5182e420a3557\transformed\play-services-auth-21.3.0\AndroidManifest.xml:37:13-48
-99
-100        <activity
-100-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cf739d7c6815bdaaecce564375226b1c\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:9-173
-101            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-101-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cf739d7c6815bdaaecce564375226b1c\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:19-85
-102            android:exported="false"
-102-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cf739d7c6815bdaaecce564375226b1c\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:146-170
-103            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-103-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cf739d7c6815bdaaecce564375226b1c\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:86-145
-104
-105        <meta-data
-105-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2def05c5917a43714503923fb5e5fe1c\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:9-122
-106            android:name="com.google.android.gms.version"
-106-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2def05c5917a43714503923fb5e5fe1c\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:20-65
-107            android:value="@integer/google_play_services_version" />
-107-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\2def05c5917a43714503923fb5e5fe1c\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:66-119
-108
-109        <provider
-109-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0926d1fb4f03c8ad67cb4fa5064872e9\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
-110            android:name="androidx.startup.InitializationProvider"
-110-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0926d1fb4f03c8ad67cb4fa5064872e9\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
-111            android:authorities="com.grifon.eshop.androidx-startup"
-111-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0926d1fb4f03c8ad67cb4fa5064872e9\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
-112            android:exported="false" >
-112-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0926d1fb4f03c8ad67cb4fa5064872e9\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
-113            <meta-data
-113-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0926d1fb4f03c8ad67cb4fa5064872e9\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
-114                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-114-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0926d1fb4f03c8ad67cb4fa5064872e9\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
-115                android:value="androidx.startup" />
-115-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\0926d1fb4f03c8ad67cb4fa5064872e9\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
-116            <meta-data
-116-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\9716814bd38e3c1cdfc9ff8b177b1d54\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:29:13-31:52
-117                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-117-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\9716814bd38e3c1cdfc9ff8b177b1d54\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:30:17-78
-118                android:value="androidx.startup" />
-118-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\9716814bd38e3c1cdfc9ff8b177b1d54\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:31:17-49
-119            <meta-data
-119-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
-120                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-120-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
-121                android:value="androidx.startup" />
-121-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
-122        </provider>
+47-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:21:9-24:51
+48            android:name="com.example.grifon.MainActivity"
+48-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:22:13-41
+49            android:exported="true"
+49-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:23:13-36
+50            android:theme="@style/Theme.Grifon" />
+50-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:24:13-48
+51        <activity
+51-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:25:9-27:40
+52            android:name="com.example.grifon.LoginActivity"
+52-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:26:13-42
+53            android:exported="false" />
+53-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:27:13-37
+54        <activity
+54-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:28:9-30:40
+55            android:name="com.example.grifon.RegisterActivity"
+55-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:29:13-45
+56            android:exported="false" />
+56-->C:\Users\Grifon\AndroidStudioProjects\Grifon\app\src\main\AndroidManifest.xml:30:13-37
+57
+58        <service
+58-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\b8dc8e9f98bec48ba474324408577fe0\transformed\camera-camera2-1.3.4\AndroidManifest.xml:24:9-33:19
+59            android:name="androidx.camera.core.impl.MetadataHolderService"
+59-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\b8dc8e9f98bec48ba474324408577fe0\transformed\camera-camera2-1.3.4\AndroidManifest.xml:25:13-75
+60            android:enabled="false"
+60-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\b8dc8e9f98bec48ba474324408577fe0\transformed\camera-camera2-1.3.4\AndroidManifest.xml:26:13-36
+61            android:exported="false" >
+61-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\b8dc8e9f98bec48ba474324408577fe0\transformed\camera-camera2-1.3.4\AndroidManifest.xml:27:13-37
+62            <meta-data
+62-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\b8dc8e9f98bec48ba474324408577fe0\transformed\camera-camera2-1.3.4\AndroidManifest.xml:30:13-32:89
+63                android:name="androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER"
+63-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\b8dc8e9f98bec48ba474324408577fe0\transformed\camera-camera2-1.3.4\AndroidManifest.xml:31:17-103
+64                android:value="androidx.camera.camera2.Camera2Config$DefaultProvider" />
+64-->[androidx.camera:camera-camera2:1.3.4] C:\Users\Grifon\.gradle\caches\8.13\transforms\b8dc8e9f98bec48ba474324408577fe0\transformed\camera-camera2-1.3.4\AndroidManifest.xml:32:17-86
+65        </service>
+66
+67        <activity
+67-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:15:9-21:20
+68            android:name="com.google.android.libraries.places.widget.AutocompleteActivity"
+68-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:16:13-91
+69            android:exported="false"
+69-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:17:13-37
+70            android:label="@string/places_autocomplete_label"
+70-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:18:13-62
+71            android:theme="@style/PlacesAutocompleteOverlay"
+71-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:19:13-61
+72            android:windowSoftInputMode="adjustResize" >
+72-->[com.google.android.libraries.places:places:4.1.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\a909a375ff0091c442dcbfa71dd7e6db\transformed\places-4.1.0\AndroidManifest.xml:20:13-55
+73        </activity>
+74
+75        <service
+75-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\5e86e8d6c298c9c3c5aea8621f6ec245\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:9:9-15:19
+76            android:name="com.google.mlkit.common.internal.MlKitComponentDiscoveryService"
+76-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\5e86e8d6c298c9c3c5aea8621f6ec245\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:10:13-91
+77            android:directBootAware="true"
+77-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cb46d646beebfd2d655e7a4f36e59c01\transformed\common-18.11.0\AndroidManifest.xml:17:13-43
+78            android:exported="false" >
+78-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\5e86e8d6c298c9c3c5aea8621f6ec245\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:11:13-37
+79            <meta-data
+79-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\5e86e8d6c298c9c3c5aea8621f6ec245\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:12:13-14:85
+80                android:name="com.google.firebase.components:com.google.mlkit.vision.barcode.internal.BarcodeRegistrar"
+80-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\5e86e8d6c298c9c3c5aea8621f6ec245\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:13:17-120
+81                android:value="com.google.firebase.components.ComponentRegistrar" />
+81-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\5e86e8d6c298c9c3c5aea8621f6ec245\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:14:17-82
+82            <meta-data
+82-->[com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\b3ad045a56f15a1074e7e5a1d5783f16\transformed\vision-common-17.3.0\AndroidManifest.xml:12:13-14:85
+83                android:name="com.google.firebase.components:com.google.mlkit.vision.common.internal.VisionCommonRegistrar"
+83-->[com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\b3ad045a56f15a1074e7e5a1d5783f16\transformed\vision-common-17.3.0\AndroidManifest.xml:13:17-124
+84                android:value="com.google.firebase.components.ComponentRegistrar" />
+84-->[com.google.mlkit:vision-common:17.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\b3ad045a56f15a1074e7e5a1d5783f16\transformed\vision-common-17.3.0\AndroidManifest.xml:14:17-82
+85            <meta-data
+85-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cb46d646beebfd2d655e7a4f36e59c01\transformed\common-18.11.0\AndroidManifest.xml:20:13-22:85
+86                android:name="com.google.firebase.components:com.google.mlkit.common.internal.CommonComponentRegistrar"
+86-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cb46d646beebfd2d655e7a4f36e59c01\transformed\common-18.11.0\AndroidManifest.xml:21:17-120
+87                android:value="com.google.firebase.components.ComponentRegistrar" />
+87-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cb46d646beebfd2d655e7a4f36e59c01\transformed\common-18.11.0\AndroidManifest.xml:22:17-82
+88        </service>
+89
+90        <provider
+90-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cb46d646beebfd2d655e7a4f36e59c01\transformed\common-18.11.0\AndroidManifest.xml:9:9-13:38
+91            android:name="com.google.mlkit.common.internal.MlKitInitProvider"
+91-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cb46d646beebfd2d655e7a4f36e59c01\transformed\common-18.11.0\AndroidManifest.xml:10:13-78
+92            android:authorities="com.grifon.eshop.mlkitinitprovider"
+92-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cb46d646beebfd2d655e7a4f36e59c01\transformed\common-18.11.0\AndroidManifest.xml:11:13-69
+93            android:exported="false"
+93-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cb46d646beebfd2d655e7a4f36e59c01\transformed\common-18.11.0\AndroidManifest.xml:12:13-37
+94            android:initOrder="99" />
+94-->[com.google.mlkit:common:18.11.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\cb46d646beebfd2d655e7a4f36e59c01\transformed\common-18.11.0\AndroidManifest.xml:13:13-35
+95
+96        <service
+96-->[androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3ffb9e913afc5dad51f1cf313103cc41\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+97            android:name="androidx.room.MultiInstanceInvalidationService"
+97-->[androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3ffb9e913afc5dad51f1cf313103cc41\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+98            android:directBootAware="true"
+98-->[androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3ffb9e913afc5dad51f1cf313103cc41\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+99            android:exported="false" />
+99-->[androidx.room:room-runtime:2.6.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\3ffb9e913afc5dad51f1cf313103cc41\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+100
+101        <activity
+101-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ced13cade247c253017b8a09ab735446\transformed\play-services-auth-21.3.0\AndroidManifest.xml:23:9-27:75
+102            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
+102-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ced13cade247c253017b8a09ab735446\transformed\play-services-auth-21.3.0\AndroidManifest.xml:24:13-93
+103            android:excludeFromRecents="true"
+103-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ced13cade247c253017b8a09ab735446\transformed\play-services-auth-21.3.0\AndroidManifest.xml:25:13-46
+104            android:exported="false"
+104-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ced13cade247c253017b8a09ab735446\transformed\play-services-auth-21.3.0\AndroidManifest.xml:26:13-37
+105            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+105-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ced13cade247c253017b8a09ab735446\transformed\play-services-auth-21.3.0\AndroidManifest.xml:27:13-72
+106        <!--
+107            Service handling Google Sign-In user revocation. For apps that do not integrate with
+108            Google Sign-In, this service will never be started.
+109        -->
+110        <service
+110-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ced13cade247c253017b8a09ab735446\transformed\play-services-auth-21.3.0\AndroidManifest.xml:33:9-37:51
+111            android:name="com.google.android.gms.auth.api.signin.RevocationBoundService"
+111-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ced13cade247c253017b8a09ab735446\transformed\play-services-auth-21.3.0\AndroidManifest.xml:34:13-89
+112            android:exported="true"
+112-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ced13cade247c253017b8a09ab735446\transformed\play-services-auth-21.3.0\AndroidManifest.xml:35:13-36
+113            android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION"
+113-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ced13cade247c253017b8a09ab735446\transformed\play-services-auth-21.3.0\AndroidManifest.xml:36:13-107
+114            android:visibleToInstantApps="true" /> <!-- Needs to be explicitly declared on P+ -->
+114-->[com.google.android.gms:play-services-auth:21.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\ced13cade247c253017b8a09ab735446\transformed\play-services-auth-21.3.0\AndroidManifest.xml:37:13-48
+115        <uses-library
+115-->[com.google.android.gms:play-services-maps:17.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\15ed1859b5cad1cf0ea4a48597999083\transformed\play-services-maps-17.0.0\AndroidManifest.xml:33:9-35:40
+116            android:name="org.apache.http.legacy"
+116-->[com.google.android.gms:play-services-maps:17.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\15ed1859b5cad1cf0ea4a48597999083\transformed\play-services-maps-17.0.0\AndroidManifest.xml:34:13-50
+117            android:required="false" />
+117-->[com.google.android.gms:play-services-maps:17.0.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\15ed1859b5cad1cf0ea4a48597999083\transformed\play-services-maps-17.0.0\AndroidManifest.xml:35:13-37
+118
+119        <activity
+119-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\4076f6711e0c2d897c01a68d391c4a06\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:9-173
+120            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+120-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\4076f6711e0c2d897c01a68d391c4a06\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:19-85
+121            android:exported="false"
+121-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\4076f6711e0c2d897c01a68d391c4a06\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:146-170
+122            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+122-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\4076f6711e0c2d897c01a68d391c4a06\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:86-145
 123
-124        <service
-124-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:29:9-35:19
-125            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
-125-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:30:13-103
-126            android:exported="false" >
-126-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:31:13-37
-127            <meta-data
-127-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:32:13-34:39
-128                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
-128-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:33:17-94
-129                android:value="cct" />
-129-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\61a8fba5412b182bc1925ce14fe2b231\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:34:17-36
-130        </service>
-131        <service
-131-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:26:9-30:19
-132            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
-132-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:27:13-117
-133            android:exported="false"
-133-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:28:13-37
-134            android:permission="android.permission.BIND_JOB_SERVICE" >
-134-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:29:13-69
-135        </service>
-136
-137        <receiver
-137-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:32:9-34:40
-138            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
-138-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:33:13-132
-139            android:exported="false" />
-139-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Grifon\.gradle\caches\8.13\transforms\e2dea3418580b80afdac3f86c40ab98b\transformed\transport-runtime-2.2.6\AndroidManifest.xml:34:13-37
-140        <receiver
-140-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
-141            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-141-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
-142            android:directBootAware="false"
-142-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
-143            android:enabled="true"
-143-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
-144            android:exported="true"
-144-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
-145            android:permission="android.permission.DUMP" >
-145-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
-146            <intent-filter>
-146-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
-147                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-147-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
-147-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
-148            </intent-filter>
-149            <intent-filter>
-149-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
-150                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-150-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
-150-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
-151            </intent-filter>
-152            <intent-filter>
-152-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
-153                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-153-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
-153-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
-154            </intent-filter>
-155            <intent-filter>
-155-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
-156                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-156-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
-156-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\6515a4c39a28c9299ae41c042fc1c803\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
-157            </intent-filter>
-158        </receiver>
-159    </application>
-160
-161</manifest>
+124        <meta-data
+124-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\d036b908b7606c1dd0ee9f21a4ad805f\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:9-122
+125            android:name="com.google.android.gms.version"
+125-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\d036b908b7606c1dd0ee9f21a4ad805f\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:20-65
+126            android:value="@integer/google_play_services_version" />
+126-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\d036b908b7606c1dd0ee9f21a4ad805f\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:66-119
+127
+128        <provider
+128-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1936b89036c056d09813d0d83a2bd25a\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+129            android:name="androidx.startup.InitializationProvider"
+129-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1936b89036c056d09813d0d83a2bd25a\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+130            android:authorities="com.grifon.eshop.androidx-startup"
+130-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1936b89036c056d09813d0d83a2bd25a\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+131            android:exported="false" >
+131-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1936b89036c056d09813d0d83a2bd25a\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+132            <meta-data
+132-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1936b89036c056d09813d0d83a2bd25a\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+133                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+133-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1936b89036c056d09813d0d83a2bd25a\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+134                android:value="androidx.startup" />
+134-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\1936b89036c056d09813d0d83a2bd25a\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+135            <meta-data
+135-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\64bd7ab859cdc59b960d3e2c1a594f4c\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:29:13-31:52
+136                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+136-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\64bd7ab859cdc59b960d3e2c1a594f4c\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:30:17-78
+137                android:value="androidx.startup" />
+137-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\Grifon\.gradle\caches\8.13\transforms\64bd7ab859cdc59b960d3e2c1a594f4c\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:31:17-49
+138            <meta-data
+138-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+139                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+139-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+140                android:value="androidx.startup" />
+140-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+141        </provider>
+142
+143        <service
+143-->[com.google.android.datatransport:transport-backend-cct:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3d08bd9c16e3be4a0d9f4a118001dbc\transformed\transport-backend-cct-3.2.0\AndroidManifest.xml:26:9-32:19
+144            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+144-->[com.google.android.datatransport:transport-backend-cct:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3d08bd9c16e3be4a0d9f4a118001dbc\transformed\transport-backend-cct-3.2.0\AndroidManifest.xml:27:13-103
+145            android:exported="false" >
+145-->[com.google.android.datatransport:transport-backend-cct:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3d08bd9c16e3be4a0d9f4a118001dbc\transformed\transport-backend-cct-3.2.0\AndroidManifest.xml:28:13-37
+146            <meta-data
+146-->[com.google.android.datatransport:transport-backend-cct:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3d08bd9c16e3be4a0d9f4a118001dbc\transformed\transport-backend-cct-3.2.0\AndroidManifest.xml:29:13-31:39
+147                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+147-->[com.google.android.datatransport:transport-backend-cct:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3d08bd9c16e3be4a0d9f4a118001dbc\transformed\transport-backend-cct-3.2.0\AndroidManifest.xml:30:17-94
+148                android:value="cct" />
+148-->[com.google.android.datatransport:transport-backend-cct:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\c3d08bd9c16e3be4a0d9f4a118001dbc\transformed\transport-backend-cct-3.2.0\AndroidManifest.xml:31:17-36
+149        </service>
+150        <service
+150-->[com.google.android.datatransport:transport-runtime:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\e9fddfbc7a5b389b4b02027c12dcf32f\transformed\transport-runtime-3.2.0\AndroidManifest.xml:24:9-28:19
+151            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+151-->[com.google.android.datatransport:transport-runtime:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\e9fddfbc7a5b389b4b02027c12dcf32f\transformed\transport-runtime-3.2.0\AndroidManifest.xml:25:13-117
+152            android:exported="false"
+152-->[com.google.android.datatransport:transport-runtime:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\e9fddfbc7a5b389b4b02027c12dcf32f\transformed\transport-runtime-3.2.0\AndroidManifest.xml:26:13-37
+153            android:permission="android.permission.BIND_JOB_SERVICE" >
+153-->[com.google.android.datatransport:transport-runtime:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\e9fddfbc7a5b389b4b02027c12dcf32f\transformed\transport-runtime-3.2.0\AndroidManifest.xml:27:13-69
+154        </service>
+155
+156        <receiver
+156-->[com.google.android.datatransport:transport-runtime:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\e9fddfbc7a5b389b4b02027c12dcf32f\transformed\transport-runtime-3.2.0\AndroidManifest.xml:30:9-32:40
+157            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+157-->[com.google.android.datatransport:transport-runtime:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\e9fddfbc7a5b389b4b02027c12dcf32f\transformed\transport-runtime-3.2.0\AndroidManifest.xml:31:13-132
+158            android:exported="false" />
+158-->[com.google.android.datatransport:transport-runtime:3.2.0] C:\Users\Grifon\.gradle\caches\8.13\transforms\e9fddfbc7a5b389b4b02027c12dcf32f\transformed\transport-runtime-3.2.0\AndroidManifest.xml:32:13-37
+159        <receiver
+159-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+160            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+160-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+161            android:directBootAware="false"
+161-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+162            android:enabled="true"
+162-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+163            android:exported="true"
+163-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+164            android:permission="android.permission.DUMP" >
+164-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+165            <intent-filter>
+165-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+166                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+166-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+166-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+167            </intent-filter>
+168            <intent-filter>
+168-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+169                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+169-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+169-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+170            </intent-filter>
+171            <intent-filter>
+171-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+172                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+172-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+172-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+173            </intent-filter>
+174            <intent-filter>
+174-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+175                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+175-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+175-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Grifon\.gradle\caches\8.13\transforms\9c2407ede2ecbd36d74a137712479393\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+176            </intent-filter>
+177        </receiver>
+178    </application>
+179
+180</manifest>

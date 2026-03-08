@@ -6,6 +6,7 @@ import com.example.grifon.domain.auth.RegisterOutcome
 import com.example.grifon.domain.auth.RegisterParams
 import com.example.grifon.domain.auth.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.libraries.places.api.model.Place
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -69,6 +70,36 @@ class RegisterViewModel(
 
     fun onPostalCodeChange(value: String) {
         _uiState.update { it.copy(postalCode = value) }
+    }
+
+    fun onPlaceSelected(place: Place) {
+        val components = place.addressComponents?.asList() ?: emptyList()
+        var streetName = ""
+        var streetNumber = ""
+        var city = ""
+        var country = ""
+        var postalCode = ""
+
+        components.forEach { component ->
+            when {
+                component.types.contains("route") -> streetName = component.name
+                component.types.contains("street_number") -> streetNumber = component.name
+                component.types.contains("locality") -> city = component.name
+                component.types.contains("postal_code") -> postalCode = component.name
+                component.types.contains("country") -> country = component.shortName ?: component.name
+            }
+        }
+
+        val fullStreet = if (streetNumber.isNotBlank()) "$streetName $streetNumber" else streetName
+
+        _uiState.update {
+            it.copy(
+                street = fullStreet.ifBlank { it.street },
+                city = city.ifBlank { it.city },
+                postalCode = postalCode.ifBlank { it.postalCode },
+                country = country.ifBlank { it.country }
+            )
+        }
     }
 
     fun onPasswordChange(value: String) {

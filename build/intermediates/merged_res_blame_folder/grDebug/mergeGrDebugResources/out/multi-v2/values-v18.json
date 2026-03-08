@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.grifon.app-mergeGrDebugResources-81:/values-v18/values-v18.xml",
+            "outputFile": "com.example.grifon.app-mergeGrDebugResources-83:/values-v18/values-v18.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\2131c4bb00da1bb73d06c4a81d0a581d\\transformed\\appcompat-1.6.1\\res\\values-v18\\values-v18.xml",
+                    "source": "C:\\Users\\Grifon\\.gradle\\caches\\8.13\\transforms\\9088d25fa66a24359e1010b116c5cb9f\\transformed\\appcompat-1.6.1\\res\\values-v18\\values-v18.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
