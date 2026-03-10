@@ -17,26 +17,26 @@ const asArray = (value) => {
 };
 const extractResourceList = (resource, payload) => {
     const root = payload?.prestashop ?? payload;
+    // Προσπάθεια εύρεσης στον πληθυντικό (π.χ. payload.categories.category)
     const container = root?.[resource];
-    if (!container)
-        return [];
-    const itemKey = resourceMap[resource];
-    if (itemKey && container[itemKey]) {
-        return asArray(container[itemKey]);
+    if (container) {
+        const itemKey = resourceMap[resource];
+        if (itemKey && container[itemKey]) {
+            return asArray(container[itemKey]);
+        }
+        if (Array.isArray(container))
+            return container;
     }
-    if (Array.isArray(container))
-        return container;
-    return asArray(container);
+    // Προσπάθεια εύρεσης στον ενικό (π.χ. payload.category) - για getById
+    const singularKey = resourceMap[resource];
+    if (singularKey && root?.[singularKey]) {
+        return asArray(root[singularKey]);
+    }
+    return [];
 };
 exports.extractResourceList = extractResourceList;
 const extractResourceItem = (resource, payload) => {
     const list = (0, exports.extractResourceList)(resource, payload);
-    if (list.length > 0)
-        return list[0];
-    const root = payload?.prestashop ?? payload;
-    const direct = root?.[resource];
-    if (!direct)
-        return null;
-    return direct;
+    return list.length > 0 ? list[0] : null;
 };
 exports.extractResourceItem = extractResourceItem;

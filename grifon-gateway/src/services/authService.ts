@@ -26,9 +26,21 @@ export interface RegisterResponse {
   message: string;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  customerId: string;
+  firstName: string;
+  lastName: string;
+}
+
 const PASSWORD_SALT_ROUNDS = 10;
 
-const resolveSyncUrl = (countryIso: string): string => {
+const resolveSyncUrl = (countryIso: string = "GR"): string => {
   const shopId = countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
   const baseUrl = config.shopBaseUrls[shopId] || config.prestashopBaseUrl;
   const url = new URL(baseUrl);
@@ -36,13 +48,16 @@ const resolveSyncUrl = (countryIso: string): string => {
   return `${rootUrl}/index.php?fc=module&module=grifoncustomersync&controller=sync`;
 };
 
-// Νέα λογική υπογραφής: Base64 με Timestamp (Standard Pattern)
+/**
+ * Creates a signature compatible with the PrestaShop grifoncustomersync module.
+ * Format: base64(HMAC_SHA256("<timestamp>\n<body>", secret))
+ */
 const createSignature = (payload: string, secret: string): { timestamp: string, signature: string } => {
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const signature = crypto
     .createHmac("sha256", secret)
-    .update(timestamp + payload) 
-    .digest("base64"); // Αλλαγή σε Base64
+    .update(timestamp + "\n" + payload) // Added \n to match PHP side: $ts . "\n" . $rawBody
+    .digest("base64");
   return { timestamp, signature };
 };
 
@@ -51,6 +66,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
   const hashedPassword = await bcrypt.hash(request.password, PASSWORD_SALT_ROUNDS);
   
   const payload = {
+    action: "register",
     externalCustomerId: email,
     customer: {
       email,
@@ -74,13 +90,44 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
     }]
   };
 
+  return await sendToPrestaShop(payload, request.countryIso);
+};
+
+export const loginCustomer = async (request: LoginRequest): Promise<LoginResponse> => {
+  const payload = {
+    action: "login",
+    email: request.email.trim().toLowerCase(),
+    password: request.password
+  };
+
+  try {
+    const response = await sendToPrestaShop(payload, "GR");
+
+    if (response.status === "SUCCESS") {
+      return {
+        token: response.token || "fake-jwt-token",
+        customerId: response.customerId,
+        firstName: response.firstName || "",
+        lastName: response.lastName || ""
+      };
+    }
+
+    const err: any = new Error(response.message || "Login failed");
+    err.status = 401;
+    throw err;
+  } catch (error: any) {
+    if (error.status) throw error;
+    const err: any = new Error(error.message || "Authentication failed");
+    err.status = 401;
+    throw err;
+  }
+};
+
+const sendToPrestaShop = async (payload: any, countryIso: string): Promise<any> => {
   const body = JSON.stringify(payload);
   const secret = process.env.GRIFON_CUSTOMER_SYNC_SECRET || config.prestashopApiKey;
   const { timestamp, signature } = createSignature(body, secret);
-  const syncUrl = resolveSyncUrl(request.countryIso);
-
-  console.log("Registration Attempt:", email);
-  console.log("Using Signature (Base64):", signature);
+  const syncUrl = resolveSyncUrl(countryIso);
 
   try {
     const response = await axios.post(syncUrl, body, {
@@ -93,21 +140,18 @@ export const registerCustomer = async (request: RegisterRequest): Promise<Regist
       validateStatus: () => true
     });
 
-    console.log("PrestaShop Response Status:", response.status);
-    console.log("PrestaShop Response Data:", JSON.stringify(response.data));
-
-    if (response.status >= 200 && response.status < 300 && response.data?.ok !== false) {
-      return {
-        customerId: String(response.data?.id_customer || email),
-        status: "SUCCESS",
-        message: "Η εγγραφή ολοκληρώθηκε! Αναμένεται έγκριση από τη Grifon."
-      };
+    if (response.status >= 200 && response.status < 300) {
+      return response.data;
     }
 
-    const errorDetail = response.data?.error || response.data?.message || `Error ${response.status}`;
-    throw new Error(errorDetail);
+    const errorDetail = response.data?.message || response.data?.error || `PrestaShop Error ${response.status}`;
+    const err: any = new Error(errorDetail);
+    err.status = response.status === 401 || response.status === 403 ? 401 : 502;
+    throw err;
   } catch (error: any) {
-    console.error("Sync Error:", error.message);
-    throw { status: 502, message: `Σφάλμα εγγραφής: ${error.message}.` };
+    if (error.status) throw error;
+    const err: any = new Error(error.message || "Failed to communicate with PrestaShop");
+    err.status = 502;
+    throw err;
   }
 };

@@ -6,6 +6,17 @@ const toNumber = (value: unknown) => {
   return Number.isNaN(parsed) ? value : parsed;
 };
 
+const toBoolean = (value: unknown) => {
+  if (value === undefined || value === null || value === "") return undefined;
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+  if (typeof value !== "string") return value;
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) return true;
+  if (["0", "false", "no", "off"].includes(normalized)) return false;
+  return value;
+};
+
 const toOptionalString = (value: unknown) => {
   if (value === undefined || value === null) return undefined;
   if (typeof value !== "string") return value;
@@ -49,7 +60,11 @@ export const paginationSchema = z.object({
 export const productPaginationSchema = z.object({
   page: z.preprocess(toNumber, z.number().int().min(1).max(1000)).default(1),
   pageSize: z.preprocess(toNumber, z.number().int().min(1).max(200)).default(20),
-  sort: z.string().optional().default("[id_DESC]")
+  sort: z.string().optional().default("[id_DESC]"),
+  search: z.preprocess(toOptionalString, z.string().optional()),
+  minPrice: z.preprocess(toNumber, z.number().min(0).optional()),
+  maxPrice: z.preprocess(toNumber, z.number().min(0).optional()),
+  inStockOnly: z.preprocess(toBoolean, z.boolean().optional()).default(false)
 });
 
 export const customerIdSchema = z.object({
@@ -62,6 +77,11 @@ export const categoryIdSchema = z.object({
 
 export const productIdSchema = z.object({
   productId: z.preprocess(toNumber, z.number().int().positive())
+});
+
+export const loginBodySchema = z.object({
+  email: z.string().trim().email(),
+  password: z.string().min(1)
 });
 
 export const registerBodySchema = z

@@ -31,15 +31,13 @@ class PrestaShopClient {
         });
     }
     createDnsLookup() {
-        const alias = env_1.config.replicaHostname?.trim();
-        const resolveTo = env_1.config.replicaResolveTo?.trim();
-        if (!alias || !resolveTo) {
+        const aliases = env_1.config.upstreamHostAliases;
+        if (!aliases || Object.keys(aliases).length === 0) {
             return undefined;
         }
-        const normalizedAlias = alias.toLowerCase();
         return (hostname, options, callback) => {
             const host = String(hostname).toLowerCase();
-            const targetHost = host === normalizedAlias ? resolveTo : String(hostname);
+            const targetHost = aliases[host] ?? String(hostname);
             return dns_1.default.lookup(targetHost, options, callback);
         };
     }
