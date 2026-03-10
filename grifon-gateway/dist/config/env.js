@@ -47,6 +47,7 @@ const envSchema = zod_1.z.object({
     SHOP_SE_BASE_URL: zod_1.z.string().url().default("https://replica/grifon.se/api"),
     REPLICA_HOSTNAME: zod_1.z.string().default("replica"),
     REPLICA_RESOLVE_TO: zod_1.z.string().default(""),
+    UPSTREAM_HOST_ALIASES: zod_1.z.string().optional().default("{}"),
     GRIFON_CUSTOMER_SYNC_SECRET: zod_1.z.string().optional().default(customerSyncSecret ?? ""),
     GRIFON_CUSTOMER_SYNC_PATH: zod_1.z
         .string()
@@ -86,6 +87,35 @@ const parseCountryGroupMap = (value) => {
         return {};
     }
 };
+const parseHostAliases = (value, legacyAlias, legacyResolveTo) => {
+    const aliases = {};
+    if (legacyAlias && legacyResolveTo) {
+        const normalizedLegacyResolveTo = legacyResolveTo.trim();
+        aliases[legacyAlias.trim().toLowerCase()] = normalizedLegacyResolveTo;
+        aliases["prestashop-demo"] = normalizedLegacyResolveTo;
+    }
+    if (!value) {
+        return aliases;
+    }
+    try {
+        const parsedMap = JSON.parse(value);
+        if (typeof parsedMap !== "object" || parsedMap === null) {
+            return aliases;
+        }
+        for (const [hostname, resolveTo] of Object.entries(parsedMap)) {
+            const normalizedHostname = hostname.trim().toLowerCase();
+            const normalizedResolveTo = typeof resolveTo === "string" ? resolveTo.trim() : "";
+            if (!normalizedHostname || !normalizedResolveTo) {
+                continue;
+            }
+            aliases[normalizedHostname] = normalizedResolveTo;
+        }
+    }
+    catch {
+        return aliases;
+    }
+    return aliases;
+};
 exports.config = {
     port: Number(env.PORT),
     allowedOrigins: env.ALLOWED_ORIGINS,
@@ -97,8 +127,11 @@ exports.config = {
     },
     replicaHostname: env.REPLICA_HOSTNAME,
     replicaResolveTo: env.REPLICA_RESOLVE_TO,
+    upstreamHostAliases: parseHostAliases(env.UPSTREAM_HOST_ALIASES, env.REPLICA_HOSTNAME, env.REPLICA_RESOLVE_TO),
     customerSyncSecret: trimToUndefined(env.GRIFON_CUSTOMER_SYNC_SECRET) ?? customerSyncSecret ?? "",
-    customerSyncPath: trimToUndefined(env.GRIFON_CUSTOMER_SYNC_PATH) ?? customerSyncPath ?? "/module/grifoncustomersync/sync",
+    customerSyncPath: trimToUndefined(env.GRIFON_CUSTOMER_SYNC_PATH) ??
+        customerSyncPath ??
+        "/module/grifoncustomersync/sync",
     defaultShopId: env.DEFAULT_SHOP_ID === "1" ? 1 : 4,
     pendingWholesaleGroupId: env.PENDING_WHOLESALE_GROUP_ID
         ? Number(env.PENDING_WHOLESALE_GROUP_ID)
