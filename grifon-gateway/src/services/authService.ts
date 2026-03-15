@@ -15,6 +15,7 @@ export interface RegisterRequest {
   company?: string;
   vatNumber?: string;
   newsletter?: boolean;
+  wholesaleRequested?: boolean;
 }
 
 const resolveSyncUrl = (countryIso: string = "GR"): string => {
@@ -35,9 +36,10 @@ const createSignature = (payload: string, secret: string): { timestamp: string, 
 export const registerCustomer = async (request: RegisterRequest): Promise<any> => {
   const email = request.email.trim().toLowerCase();
 
-  // Χρήση του VAT Number ως DNI αν υπάρχει, αλλιώς ένα πιο πειστικό placeholder
-  // Αν το 000000000 απορρίπτεται, το 123456789 συνήθως περνάει.
-  const identificationNumber = request.vatNumber?.trim() || "123456789";
+  // Βελτιωμένο DNI: Χρησιμοποιούμε το ΑΦΜ αν υπάρχει, αλλιώς ένα τυποποιημένο 9-ψήφιο
+  const identificationNumber = (request.vatNumber && request.vatNumber.length > 5)
+    ? request.vatNumber.trim()
+    : "123456789";
 
   const payload = {
     externalCustomerId: email,
@@ -48,7 +50,9 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       password: request.password, 
       company: request.company || "",
       newsletter: request.newsletter ? 1 : 0,
-      active: 1
+      active: 1,
+      is_wholesale: request.wholesaleRequested ? 1 : 0,
+      siret: request.vatNumber || "", // Προσθήκη siret για εταιρικούς λογαριασμούς
     },
     addresses: [{
       externalAddressId: `addr_${email}`,
@@ -56,20 +60,17 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       firstname: request.firstName, 
       lastname: request.lastName,
       address1: request.street || "Δεν δηλώθηκε οδός",
-      postcode: (request.postalCode || "00000").replace(/\s/g, ""), // Καθαρισμός κενών
+      postcode: (request.postalCode || "00000").replace(/\s/g, ""),
       city: request.city || "Δεν δηλώθηκε πόλη",
-      countryIso: request.countryIso || "GR",
+      countryIso: (request.countryIso || "GR").toUpperCase(),
       vat_number: request.vatNumber || "",
-      dni: identificationNumber
+      dni: identificationNumber // Εδώ στέλνουμε το DNI
     }]
   };
 
   return sendToPrestaShop(payload, request.countryIso || "GR");
 };
 
-/**
- * Ενημέρωση Προφίλ Χρήστη
- */
 export const updateProfile = async (request: RegisterRequest): Promise<any> => {
   const payload = {
     action: "sync",
@@ -97,17 +98,21 @@ async function sendToPrestaShop(payload: any, countryIso: string) {
   const { timestamp, signature } = createSignature(body, secret);
   const syncUrl = resolveSyncUrl(countryIso);
 
-  const response = await axios.post(syncUrl, body, {
-    timeout: 15000,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Grifon-Timestamp": timestamp,
-      "X-Grifon-Signature": signature
-    },
-    transformRequest: [(data) => data],
-    validateStatus: () => true
-  });
+  try {
+    const response = await axios.post(syncUrl, body, {
+      timeout: 15000,
+      headers: {
+        "Content-Type": "application/json",
+        "X-Grifon-Timestamp": timestamp,
+        "X-Grifon-Signature": signature
+      },
+      transformRequest: [(data) => data],
+      validateStatus: () => true
+    });
 
-  if (response.status === 200 && response.data?.ok === true) return response.data;
-  throw new Error(response.data?.message || response.data?.error || "Communication error");
+    if (response.status === 200 && response.data?.ok === true) return response.data;
+    throw new Error(response.data?.message || response.data?.error || `PrestaShop Error: ${response.status}`);
+  } catch (err: any) {
+    throw new Error(err.message || "Communication error with PrestaShop");
+  }
 }
