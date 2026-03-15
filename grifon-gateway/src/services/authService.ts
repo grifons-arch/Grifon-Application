@@ -36,11 +36,11 @@ const createSignature = (payload: string, secret: string): { timestamp: string, 
 export const registerCustomer = async (request: RegisterRequest): Promise<any> => {
   const email = request.email.trim().toLowerCase();
 
-  // Χρήση ΑΦΜ αν υπάρχει, αλλιώς ένα σταθερό 8-ψήφιο (π.χ. 12345678)
-  // Πολύ σημαντικό: Μερικά PrestaShop δεν δέχονται το "000000000"
-  const dniValue = (request.vatNumber && request.vatNumber.trim().length > 5)
+  // Χρήση ΑΦΜ αν υπάρχει, αλλιώς ένα σταθερό 9-ψήφιο (π.χ. 123456789)
+  // Τα 9 ψηφία είναι το στάνταρ για το ελληνικό ΑΦΜ και περνάνε τα περισσότερα φίλτρα.
+  const dniValue = (request.vatNumber && request.vatNumber.trim().length >= 8)
     ? request.vatNumber.trim()
-    : "12345678";
+    : "123456789";
 
   const payload = {
     externalCustomerId: email,
@@ -54,8 +54,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       active: 1,
       is_wholesale: request.wholesaleRequested ? 1 : 0,
       siret: request.vatNumber || "",
-      ape: "",
-      website: ""
+      dni: dniValue // Προσθήκη DNI και στο Customer object
     },
     addresses: [{
       externalAddressId: `addr_${email}`,
@@ -63,17 +62,16 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       firstname: request.firstName, 
       lastname: request.lastName,
       address1: request.street || "Δεν δηλώθηκε οδός",
-      address2: "",
       postcode: (request.postalCode || "00000").replace(/\s/g, ""),
       city: request.city || "Δεν δηλώθηκε πόλη",
       countryIso: (request.countryIso || "GR").toUpperCase(),
       phone: request.phone || "0000000000",
-      phone_mobile: request.phone || "",
       vat_number: request.vatNumber || "",
-      // Στέλνουμε το DNI σε όλα τα πιθανά πεδία που μπορεί να το περιμένει το PrestaShop
+      // Στέλνουμε το DNI σε όλες τις πιθανές εκδοχές για μέγιστη συμβατότητα
       dni: dniValue,
       identification_number: dniValue,
-      dni_number: dniValue
+      dni_number: dniValue,
+      identification: dniValue
     }]
   };
 
