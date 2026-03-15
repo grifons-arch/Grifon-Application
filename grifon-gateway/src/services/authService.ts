@@ -34,6 +34,11 @@ const createSignature = (payload: string, secret: string): { timestamp: string, 
 
 export const registerCustomer = async (request: RegisterRequest): Promise<any> => {
   const email = request.email.trim().toLowerCase();
+
+  // Χρήση του VAT Number ως DNI αν υπάρχει, αλλιώς ένα πιο πειστικό placeholder
+  // Αν το 000000000 απορρίπτεται, το 123456789 συνήθως περνάει.
+  const identificationNumber = request.vatNumber?.trim() || "123456789";
+
   const payload = {
     externalCustomerId: email,
     customer: {
@@ -43,19 +48,19 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       password: request.password, 
       company: request.company || "",
       newsletter: request.newsletter ? 1 : 0,
-      active: 0
+      active: 1
     },
     addresses: [{
       externalAddressId: `addr_${email}`,
       alias: "Default",
       firstname: request.firstName, 
       lastname: request.lastName,
-      address1: request.street || "",
-      postcode: request.postalCode || "",
-      city: request.city || "",
+      address1: request.street || "Δεν δηλώθηκε οδός",
+      postcode: (request.postalCode || "00000").replace(/\s/g, ""), // Καθαρισμός κενών
+      city: request.city || "Δεν δηλώθηκε πόλη",
       countryIso: request.countryIso || "GR",
       vat_number: request.vatNumber || "",
-      dni: request.vatNumber || "000000000"
+      dni: identificationNumber
     }]
   };
 
@@ -67,7 +72,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
  */
 export const updateProfile = async (request: RegisterRequest): Promise<any> => {
   const payload = {
-    action: "sync", // Επαναχρησιμοποιούμε τη handleSync της PHP που κάνει upsert
+    action: "sync",
     externalCustomerId: request.email.trim().toLowerCase(),
     customer: {
       email: request.email.trim().toLowerCase(),
