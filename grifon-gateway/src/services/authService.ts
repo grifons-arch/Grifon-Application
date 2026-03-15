@@ -36,10 +36,11 @@ const createSignature = (payload: string, secret: string): { timestamp: string, 
 export const registerCustomer = async (request: RegisterRequest): Promise<any> => {
   const email = request.email.trim().toLowerCase();
 
-  // Βελτιωμένο DNI: Χρησιμοποιούμε το ΑΦΜ αν υπάρχει, αλλιώς ένα τυποποιημένο 9-ψήφιο
-  const identificationNumber = (request.vatNumber && request.vatNumber.length > 5)
+  // Χρήση ΑΦΜ αν υπάρχει, αλλιώς ένα σταθερό 8-ψήφιο (π.χ. 12345678)
+  // Πολύ σημαντικό: Μερικά PrestaShop δεν δέχονται το "000000000"
+  const dniValue = (request.vatNumber && request.vatNumber.trim().length > 5)
     ? request.vatNumber.trim()
-    : "123456789";
+    : "12345678";
 
   const payload = {
     externalCustomerId: email,
@@ -52,7 +53,9 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       newsletter: request.newsletter ? 1 : 0,
       active: 1,
       is_wholesale: request.wholesaleRequested ? 1 : 0,
-      siret: request.vatNumber || "", // Προσθήκη siret για εταιρικούς λογαριασμούς
+      siret: request.vatNumber || "",
+      ape: "",
+      website: ""
     },
     addresses: [{
       externalAddressId: `addr_${email}`,
@@ -60,11 +63,17 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       firstname: request.firstName, 
       lastname: request.lastName,
       address1: request.street || "Δεν δηλώθηκε οδός",
+      address2: "",
       postcode: (request.postalCode || "00000").replace(/\s/g, ""),
       city: request.city || "Δεν δηλώθηκε πόλη",
       countryIso: (request.countryIso || "GR").toUpperCase(),
+      phone: request.phone || "0000000000",
+      phone_mobile: request.phone || "",
       vat_number: request.vatNumber || "",
-      dni: identificationNumber // Εδώ στέλνουμε το DNI
+      // Στέλνουμε το DNI σε όλα τα πιθανά πεδία που μπορεί να το περιμένει το PrestaShop
+      dni: dniValue,
+      identification_number: dniValue,
+      dni_number: dniValue
     }]
   };
 
@@ -98,21 +107,17 @@ async function sendToPrestaShop(payload: any, countryIso: string) {
   const { timestamp, signature } = createSignature(body, secret);
   const syncUrl = resolveSyncUrl(countryIso);
 
-  try {
-    const response = await axios.post(syncUrl, body, {
-      timeout: 15000,
-      headers: {
-        "Content-Type": "application/json",
-        "X-Grifon-Timestamp": timestamp,
-        "X-Grifon-Signature": signature
-      },
-      transformRequest: [(data) => data],
-      validateStatus: () => true
-    });
+  const response = await axios.post(syncUrl, body, {
+    timeout: 15000,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Grifon-Timestamp": timestamp,
+      "X-Grifon-Signature": signature
+    },
+    transformRequest: [(data) => data],
+    validateStatus: () => true
+  });
 
-    if (response.status === 200 && response.data?.ok === true) return response.data;
-    throw new Error(response.data?.message || response.data?.error || `PrestaShop Error: ${response.status}`);
-  } catch (err: any) {
-    throw new Error(err.message || "Communication error with PrestaShop");
-  }
+  if (response.status === 200 && response.data?.ok === true) return response.data;
+  throw new Error(response.data?.message || response.data?.error || `PrestaShop Error: ${response.status}`);
 }
