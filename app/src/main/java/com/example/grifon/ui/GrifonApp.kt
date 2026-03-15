@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -15,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
@@ -36,7 +33,6 @@ fun GrifonApp() {
     val appViewModel: AppViewModel = hiltViewModel()
     val appState by appViewModel.state.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     var forceSearchOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -49,15 +45,13 @@ fun GrifonApp() {
             }
     }
 
-    val searchExpanded = forceSearchOpen || scrollBehavior.state.collapsedFraction < 0.4f
-
     Scaffold(
-        modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier.fillMaxSize(), // Αφαιρέθηκε το nestedScroll που προκαλούσε το κόλλημα
         topBar = {
             AppTopBar(
                 shopLabel = appState.shopName,
                 query = searchQuery,
-                isSearchExpanded = searchExpanded,
+                isSearchExpanded = forceSearchOpen || searchQuery.isNotEmpty(),
                 onQueryChange = { searchQuery = it },
                 onLogoClick = {
                     navController.navigate(Routes.HOME) {

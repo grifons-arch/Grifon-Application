@@ -91,6 +91,10 @@ class RegisterViewModel(
         _uiState.update { it.copy(termsAndPrivacyAccepted = value) }
     }
 
+    fun onWholesaleRequestedChange(value: Boolean) {
+        _uiState.update { it.copy(wholesaleRequested = value) }
+    }
+
     fun onSubmit() {
         val currentState = _uiState.value
         if (!currentState.isSubmitEnabled) return
@@ -122,6 +126,7 @@ class RegisterViewModel(
                 customerDataPrivacyAccepted = currentState.customerDataPrivacyAccepted,
                 newsletter = currentState.newsletterOptIn,
                 termsAndPrivacyAccepted = currentState.termsAndPrivacyAccepted,
+                wholesaleRequested = currentState.wholesaleRequested,
             )
             val result = withContext(Dispatchers.IO) {
                 registerUseCase(params)

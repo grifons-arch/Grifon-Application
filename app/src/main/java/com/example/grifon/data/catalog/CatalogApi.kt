@@ -35,6 +35,13 @@ interface CatalogApi {
         @Query("pageSize") pageSize: Int = 100,
         @Query("sort") sort: String = "[id_DESC]",
     ): ProductsResponseDto
+
+    @GET("v1/products/{productId}")
+    suspend fun getProduct(
+        @Path("productId") productId: Int,
+        @Query("shopId") shopId: Int,
+        @Query("lang") lang: Int = 1,
+    ): ProductDto
 }
 
 @JsonClass(generateAdapter = true)

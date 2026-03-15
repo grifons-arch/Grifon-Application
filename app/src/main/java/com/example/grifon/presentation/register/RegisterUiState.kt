@@ -19,6 +19,7 @@ data class RegisterUiState(
     val customerDataPrivacyAccepted: Boolean = false,
     val newsletterOptIn: Boolean = false,
     val termsAndPrivacyAccepted: Boolean = false,
+    val wholesaleRequested: Boolean = false,
     val googleDisplayName: String? = null,
     val googleAccountEmail: String? = null,
     val googleSignInError: String? = null,

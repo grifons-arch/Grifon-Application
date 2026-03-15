@@ -1,4 +1,5 @@
 import com.android.build.api.variant.BuildConfigField
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -8,14 +9,21 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val defaultGatewayUrl = (project.findProperty("API_BASE_URL") as String?)
-    ?: "http://10.0.2.2:3000/"
-val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
-    ?: defaultGatewayUrl
-val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
-    ?: defaultGatewayUrl
-val debugApiBaseUrl = (project.findProperty("API_BASE_URL_DEBUG") as String?)
-    ?: defaultGatewayUrl
+// Διαβάζουμε το local.properties για να πάρουμε την IP δυναμικά
+val localProps = Properties()
+val localPropsFile = project.rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localProps.load(localPropsFile.inputStream())
+}
+
+val apiBaseUrlFromProps = localProps.getProperty("API_BASE_URL")
+val mapsApiKeyFromProps = localProps.getProperty("MAPS_API_KEY") ?: ""
+
+// ΑΛΛΑΓΗ: Βάζουμε τη δική σας IP ως βασική προεπιλογή αντί για 10.0.2.2
+val defaultGatewayUrl = apiBaseUrlFromProps ?: "http://192.168.2.20:3000/"
+val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?) ?: defaultGatewayUrl
+val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?) ?: defaultGatewayUrl
+val debugApiBaseUrl = (project.findProperty("API_BASE_URL_DEBUG") as String?) ?: defaultGatewayUrl
 
 android {
     namespace = "com.example.grifon"
@@ -27,6 +35,9 @@ android {
         targetSdk = 34
         versionCode = 2
         versionName = "1.1.0"
+        
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKeyFromProps
+        buildConfigField("String", "MAPS_API_KEY", "\"$mapsApiKeyFromProps\"")
     }
 
     flavorDimensions += "shop"
@@ -102,6 +113,7 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.mlkit.barcode.scanning)
     implementation(libs.google.play.services.auth)
+    implementation("com.google.android.libraries.places:places:3.3.0")
     
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.6.0")

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.UiState
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.catalog.HomeProductsWebService
+import com.example.grifon.data.catalog.toDomainProduct
 import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
@@ -14,8 +15,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.example.grifon.R
-
-data class CategoryIconItem(val label: String, val resId: Int, val categoryId: String?)
+import com.example.grifon.BuildConfig
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -27,17 +27,17 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<UiState<HomeState>>(UiState.Loading)
     val uiState: StateFlow<UiState<HomeState>> = _uiState
 
+    private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
     private var currentShopId: String = "4"
 
-    // ΑΝΤΙΣΤΟΙΧΙΣΗ ΜΕ RES ΦΩΤΟΓΡΑΦΙΕΣ ΒΑΣΕΙ JSON IDs
     val staticCategoryIcons = listOf(
         CategoryIconItem("Όλα", R.drawable.logo, null),
-        CategoryIconItem("Κεραμικά", R.drawable.kersmiks_diskodmhtiks, "4000"),
-        CategoryIconItem("Αγαλματίδια", R.drawable.veroza, "4500"),
-        CategoryIconItem("Διακοσμητικά", R.drawable.fvthsthka, "5000"),
-        CategoryIconItem("Για χρήση", R.drawable.sapounia, "7500"),
+        CategoryIconItem("Κερ.", R.drawable.kersmiks_diskodmhtiks, "4000"),
+        CategoryIconItem("Αγάλ.", R.drawable.veroza, "4500"),
+        CategoryIconItem("Διακ.", R.drawable.fvthsthka, "5000"),
+        CategoryIconItem("Χρήση", R.drawable.sapounia, "7500"),
         CategoryIconItem("Χόμπι", R.drawable.skakitabli, "7000"),
-        CategoryIconItem("Αξεσουάρ", R.drawable.yfasmatina, "8000")
+        CategoryIconItem("Αξεσ.", R.drawable.yfasmatina, "8000")
     )
 
     init {
@@ -56,22 +56,30 @@ class HomeViewModel @Inject constructor(
     private fun loadInitialData() {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
-            
-            val products = runCatching { 
-                homeProductsWebService.fetchProductsForShop(currentShopId) 
-            }.getOrDefault(emptyList())
+            try {
+                // Φορτώνουμε τα προτεινόμενα (π.χ. από κατηγορία 2)
+                val featured = runCatching { 
+                    catalogApi.getCategoryProducts(categoryId = 2, shopId = currentShopId.toInt(), pageSize = 10).items.map { 
+                        it.toDomainProduct(gatewayBaseUrl, "Featured") 
+                    }
+                }.getOrDefault(emptyList())
 
-            val apiCategories = runCatching { 
-                getCategoryTreeUseCase(currentShopId).first() 
-            }.getOrDefault(emptyList())
+                // Φορτώνουμε όλα τα προϊόντα
+                val allProducts = homeProductsWebService.fetchProductsForShop(currentShopId)
+                
+                val apiCategories = runCatching { getCategoryTreeUseCase(currentShopId).first() }.getOrDefault(emptyList())
 
-            _uiState.value = UiState.Success(
-                HomeState(
-                    shopId = currentShopId,
-                    categories = apiCategories,
-                    products = products
+                _uiState.value = UiState.Success(
+                    HomeState(
+                        shopId = currentShopId,
+                        categories = apiCategories,
+                        featuredProducts = featured,
+                        allProducts = allProducts
+                    )
                 )
-            )
+            } catch (e: Exception) {
+                _uiState.value = UiState.Error("Αποτυχία σύνδεσης: ${e.message}")
+            }
         }
     }
 
@@ -79,40 +87,28 @@ class HomeViewModel @Inject constructor(
         val currentState = (_uiState.value as? UiState.Success)?.data ?: return
         viewModelScope.launch {
             _uiState.value = UiState.Loading
-            val products = runCatching { 
-                getCategoryProducts(categoryId) 
-            }.getOrDefault(emptyList())
-            
-            _uiState.value = UiState.Success(
-                currentState.copy(
-                    selectedCategoryId = categoryId,
-                    products = products
+            try {
+                val products = getCategoryProducts(categoryId)
+                _uiState.value = UiState.Success(
+                    currentState.copy(
+                        selectedCategoryId = categoryId,
+                        allProducts = products
+                    )
                 )
-            )
+            } catch (e: Exception) {
+                _uiState.value = UiState.Error("Σφάλμα κατηγορίας: ${e.message}")
+            }
         }
     }
 
     private suspend fun getCategoryProducts(categoryId: String?): List<Product> {
-        val response = if (categoryId == null || categoryId == "2") {
-            catalogApi.getProducts(shopId = currentShopId.toInt(), pageSize = 100)
+        val shopId = currentShopId.toInt()
+        val response = if (categoryId.isNullOrBlank()) {
+            catalogApi.getProducts(shopId = shopId, pageSize = 50)
         } else {
-            catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = currentShopId.toInt())
+            catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = shopId, pageSize = 50)
         }
-        
-        return response.items.map { dto ->
-            Product(
-                id = dto.id.toString(),
-                title = dto.name ?: "",
-                price = dto.price ?: 0.0,
-                currency = "EUR",
-                imageUrl = if (dto.defaultImage?.url?.startsWith("/") == true) 
-                    "http://10.0.2.2:3000${dto.defaultImage.url}" else dto.defaultImage?.url ?: "",
-                brand = "Grifon",
-                rating = 0.0,
-                inStock = true,
-                attributesMap = mapOf("reference" to (dto.reference ?: ""))
-            )
-        }
+        return response.items.map { it.toDomainProduct(gatewayBaseUrl, "Grifon") }
     }
 }
 
@@ -120,5 +116,8 @@ data class HomeState(
     val shopId: String,
     val categories: List<Category> = emptyList(),
     val selectedCategoryId: String? = null,
-    val products: List<Product> = emptyList()
+    val featuredProducts: List<Product> = emptyList(),
+    val allProducts: List<Product> = emptyList()
 )
+
+data class CategoryIconItem(val label: String, val resId: Int, val categoryId: String?)

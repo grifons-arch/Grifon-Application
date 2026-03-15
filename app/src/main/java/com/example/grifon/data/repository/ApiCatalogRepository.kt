@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
-import android.util.Log
 import com.example.grifon.BuildConfig
+import com.example.grifon.data.catalog.toDomainProduct
 
 @Singleton
 class ApiCatalogRepository @Inject constructor(
@@ -49,7 +49,12 @@ class ApiCatalogRepository @Inject constructor(
             
             // ΕΦΑΡΜΟΓΗ ΦΙΛΤΡΩΝ ΣΤΗ ΛΙΣΤΑ
             val filteredProducts = response.items
-                .map { it.toDomain(sId) }
+                .map {
+                    it.toDomainProduct(
+                        gatewayBaseUrl = gatewayBaseUrl,
+                        brand = if (sId == 4) "Grifon GR" else "Grifon SE",
+                    )
+                }
                 .filter { product ->
                     val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
                     val matchesStock = if (filters.inStockOnly) product.inStock else true
@@ -95,7 +100,12 @@ class ApiCatalogRepository @Inject constructor(
         try {
             val sId = shopId.toIntOrNull() ?: 4
             val response = catalogApi.getProducts(shopId = sId, pageSize = 100)
-            val allProducts = response.items.map { it.toDomain(sId) }
+            val allProducts = response.items.map {
+                it.toDomainProduct(
+                    gatewayBaseUrl = gatewayBaseUrl,
+                    brand = if (sId == 4) "Grifon GR" else "Grifon SE",
+                )
+            }
             
             val filtered = allProducts.filter { product ->
                 val matchesQuery = product.title.contains(query, ignoreCase = true) || 
@@ -122,23 +132,23 @@ class ApiCatalogRepository @Inject constructor(
     }
 
     override fun getProductById(shopId: String, productId: String): Flow<Product?> = flow {
-        emit(null)
-    }
+        try {
+            val sId = shopId.toIntOrNull() ?: 4
+            val normalizedProductId = productId.substringAfterLast("_").toIntOrNull()
+            if (normalizedProductId == null) {
+                emit(null)
+                return@flow
+            }
 
-    private fun com.example.grifon.data.catalog.ProductDto.toDomain(shopId: Int): Product {
-        val rawUrl = defaultImage?.url ?: ""
-        val fullImageUrl = if (rawUrl.startsWith("/")) "$gatewayBaseUrl$rawUrl" else rawUrl
-
-        return Product(
-            id = "${shopId}_$id",
-            title = name ?: "",
-            price = price ?: 0.0,
-            currency = "EUR",
-            imageUrl = fullImageUrl,
-            brand = if (shopId == 4) "Grifon GR" else "Grifon SE",
-            rating = 0.0,
-            inStock = true,
-            attributesMap = mapOf("reference" to (reference ?: ""))
-        )
+            val response = catalogApi.getProduct(productId = normalizedProductId, shopId = sId)
+            emit(
+                response.toDomainProduct(
+                    gatewayBaseUrl = gatewayBaseUrl,
+                    brand = if (sId == 4) "Grifon GR" else "Grifon SE",
+                )
+            )
+        } catch (e: Exception) {
+            emit(null)
+        }
     }
 }
