@@ -84,10 +84,12 @@ export const registerBodySchema = z
     phone: z.string().trim().min(1).optional(),
     company: z.string().trim().min(1).optional(),
     vatNumber: z.string().trim().min(1).optional(),
+    dni: z.string().trim().min(1).optional(), // ΠΡΟΣΘΗΚΗ DNI
     iban: z.string().trim().min(1).optional(),
     customerDataPrivacyAccepted: z.boolean().optional().default(false),
     newsletter: z.boolean().optional().default(false),
     termsAndPrivacyAccepted: z.boolean().optional().default(false),
+    wholesaleRequested: z.boolean().optional().default(false),
     partnerOffers: z.boolean().optional()
   })
   .superRefine((data, context) => {

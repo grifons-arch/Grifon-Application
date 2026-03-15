@@ -36,9 +36,8 @@ const createSignature = (payload: string, secret: string): { timestamp: string, 
 export const registerCustomer = async (request: RegisterRequest): Promise<any> => {
   const email = request.email.trim().toLowerCase();
 
-  // Χρήση ΑΦΜ αν υπάρχει, αλλιώς ένα σταθερό 9-ψήφιο (π.χ. 123456789)
-  // Τα 9 ψηφία είναι το στάνταρ για το ελληνικό ΑΦΜ και περνάνε τα περισσότερα φίλτρα.
-  const dniValue = (request.vatNumber && request.vatNumber.trim().length >= 8)
+  // Το DNI πρέπει να είναι 9 ψηφία για μέγιστη συμβατότητα
+  const dniValue = (request.vatNumber && request.vatNumber.trim().length >= 9)
     ? request.vatNumber.trim()
     : "123456789";
 
@@ -53,8 +52,8 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       newsletter: request.newsletter ? 1 : 0,
       active: 1,
       is_wholesale: request.wholesaleRequested ? 1 : 0,
-      siret: request.vatNumber || "",
-      dni: dniValue // Προσθήκη DNI και στο Customer object
+      siret: dniValue,
+      dni: dniValue // Προσθήκη και εδώ
     },
     addresses: [{
       externalAddressId: `addr_${email}`,
@@ -66,8 +65,8 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       city: request.city || "Δεν δηλώθηκε πόλη",
       countryIso: (request.countryIso || "GR").toUpperCase(),
       phone: request.phone || "0000000000",
-      vat_number: request.vatNumber || "",
-      // Στέλνουμε το DNI σε όλες τις πιθανές εκδοχές για μέγιστη συμβατότητα
+      vat_number: dniValue,
+      // Στέλνουμε το DNI με όλους τους πιθανούς τρόπους
       dni: dniValue,
       identification_number: dniValue,
       dni_number: dniValue,
