@@ -5,6 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.data.auth.AuthApi
+import com.example.grifon.data.auth.UserRepositoryImpl
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.*
 import com.example.grifon.data.fake.*
@@ -61,6 +63,10 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideAuthApi(retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
+
+    @Provides
+    @Singleton
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         context.dataStore
 
@@ -87,7 +93,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(): UserRepository = FakeUserRepository()
+    fun provideUserRepository(impl: UserRepositoryImpl): UserRepository = impl
 
     @Provides
     @Singleton

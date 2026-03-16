@@ -25,6 +25,9 @@ class AccountViewModel @Inject constructor(
     private val _loginError = MutableStateFlow<String?>(null)
     val loginError: StateFlow<String?> = _loginError
 
+    private val _isLoggingIn = MutableStateFlow(false)
+    val isLoggingIn: StateFlow<Boolean> = _isLoggingIn
+
     init {
         userRepository.isLoggedIn()
             .onEach { loggedIn ->
@@ -42,16 +45,29 @@ class AccountViewModel @Inject constructor(
     }
 
     fun login() {
-        viewModelScope.launch {
-            _loginError.value = null
-            // Εδώ θα καλούσατε το πραγματικό API μέσω του repository
-            // Για τώρα προσομοιώνουμε το login αν τα πεδία δεν είναι κενά
-            if (_email.value.isNotBlank() && _password.value.length >= 6) {
-                // Πραγματική κλήση API θα πήγαινε εδώ
-            } else {
-                _loginError.value = "Παρακαλώ συμπληρώστε σωστά τα στοιχεία σας (Κωδικός τουλάχιστον 6 χαρακτήρες)"
-            }
+        if (_email.value.isBlank() || _password.value.length < 6) {
+            _loginError.value = "Παρακαλώ συμπληρώστε σωστά τα στοιχεία σας (Κωδικός τουλάχιστον 6 χαρακτήρες)"
+            return
         }
+
+        viewModelScope.launch {
+            _isLoggingIn.value = true
+            _loginError.value = null
+            
+            userRepository.login(_email.value, _password.value)
+                .onSuccess {
+                    // Η κατάσταση loggedIn θα ενημερωθεί αυτόματα μέσω του init block
+                    _isLoggingIn.value = false
+                }
+                .onFailure { error ->
+                    _loginError.value = error.message ?: "Αποτυχία σύνδεσης"
+                    _isLoggingIn.value = false
+                }
+        }
+    }
+
+    fun logout() {
+        userRepository.logout()
     }
 }
 
