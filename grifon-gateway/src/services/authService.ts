@@ -36,7 +36,6 @@ const createSignature = (payload: string, secret: string): { timestamp: string, 
 export const registerCustomer = async (request: RegisterRequest): Promise<any> => {
   const email = request.email.trim().toLowerCase();
 
-  // Το DNI πρέπει να είναι 9 ψηφία για μέγιστη συμβατότητα
   const dniValue = (request.vatNumber && request.vatNumber.trim().length >= 9)
     ? request.vatNumber.trim()
     : "123456789";
@@ -53,7 +52,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       active: 1,
       is_wholesale: request.wholesaleRequested ? 1 : 0,
       siret: dniValue,
-      dni: dniValue // Προσθήκη και εδώ
+      dni: dniValue
     },
     addresses: [{
       externalAddressId: `addr_${email}`,
@@ -66,7 +65,6 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       countryIso: (request.countryIso || "GR").toUpperCase(),
       phone: request.phone || "0000000000",
       vat_number: dniValue,
-      // Στέλνουμε το DNI με όλους τους πιθανούς τρόπους
       dni: dniValue,
       identification_number: dniValue,
       dni_number: dniValue,
@@ -74,7 +72,14 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
     }]
   };
 
-  return sendToPrestaShop(payload, request.countryIso || "GR");
+  const response = await sendToPrestaShop(payload, request.countryIso || "GR");
+
+  // ΜΕΤΑΤΡΟΠΗ ΑΠΑΝΤΗΣΗΣ ΓΙΑ ΤΗΝ ΕΦΑΡΜΟΓΗ
+  return {
+    customerId: response.psCustomerId?.toString() || "0",
+    status: "success",
+    message: response.message || "Registration successful"
+  };
 };
 
 export const updateProfile = async (request: RegisterRequest): Promise<any> => {

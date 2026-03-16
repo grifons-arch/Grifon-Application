@@ -31,7 +31,8 @@ app.use(apiRouter);
 
 app.use(errorHandler);
 
-app.listen(config.port, () => {
+// ΔΙΟΡΘΩΣΗ: Προσθήκη του "0.0.0.0" για να είναι ορατός ο server στο Wi-Fi (από κινητά κλπ)
+app.listen(config.port, "0.0.0.0", () => {
   // eslint-disable-next-line no-console
-  console.log(`grifon-gateway running on port ${config.port}`);
+  console.log(`grifon-gateway running on port ${config.port} (Network Accessible)`);
 });

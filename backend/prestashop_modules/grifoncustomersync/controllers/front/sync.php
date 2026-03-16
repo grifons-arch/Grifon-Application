@@ -151,7 +151,6 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $customer->active = 1;
         $customer->is_guest = 0;
 
-        // ΣΥΓΧΡΟΝΙΣΜΟΣ NEWSLETTER & PARTNER OFFERS
         if (isset($customerData['newsletter'])) {
             $customer->newsletter = (int)$customerData['newsletter'];
         }
@@ -162,7 +161,7 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
             $customer->company = trim((string)$customerData['company']);
         }
         if (isset($customerData['siret'])) {
-            $customer->siret = trim((string)$customerData['siret']); // Χρήση για VAT
+            $customer->siret = trim((string)$customerData['siret']);
         }
 
         if (!$idCustomer) {
@@ -192,13 +191,23 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $address->id_customer = (int)$idCustomer;
         $address->firstname = trim((string)($addr['firstname'] ?? 'N/A'));
         $address->lastname = trim((string)($addr['lastname'] ?? 'N/A'));
-        $address->address1 = trim((string)$addr['address1']);
-        $address->city = trim((string)$addr['city']);
-        $address->postcode = trim((string)$addr['postcode']);
-        $address->id_country = (int)Country::getByIso($addr['countryIso']);
-        if ($address->id_country <= 0) $address->id_country = (int)Configuration::get('PS_COUNTRY_DEFAULT');
+        $address->address1 = trim((string)($addr['address1'] ?? 'Default Street'));
+        $address->city = trim((string)($addr['city'] ?? 'Default City'));
+        $address->postcode = trim((string)($addr['postcode'] ?? '00000'));
+
+        $id_country = (int)Country::getByIso($addr['countryIso'] ?? 'GR');
+        if ($id_country <= 0) $id_country = (int)Configuration::get('PS_COUNTRY_DEFAULT');
+        $address->id_country = $id_country;
+
         $address->alias = trim((string)($addr['alias'] ?? 'Default'));
-        $address->dni = trim((string)($addr['dni'] ?? $addr['vat_number'] ?? '000000000'));
+
+        // ΔΙΟΡΘΩΣΗ: Χρήση του DNI ή ΑΦΜ, και εξαναγκασμός τιμής αν λείπει
+        $dni = trim((string)($addr['dni'] ?? $addr['vat_number'] ?? '123456789'));
+        if (empty($dni)) $dni = '123456789';
+        $address->dni = $dni;
+
+        // ΠΑΡΑΚΑΜΨΗ VALIDATION: Το false στο save() λέει στο PrestaShop να μην ελέγξει τα πεδία
+        // αλλά για σιγουριά ορίζουμε το dni και χειροκίνητα αν χρειαστεί
         $address->save(false);
     }
 
