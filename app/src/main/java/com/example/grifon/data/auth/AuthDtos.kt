@@ -4,14 +4,15 @@ import com.squareup.moshi.Json
 
 data class LoginRequestDto(
     val email: String,
-    val password: String
+    val password: String,
+    val countryIso: String = "GR" // Προσθήκη για να ξέρει ο Gateway σε ποιο shop να ψάξει
 )
 
 data class LoginResponseDto(
-    @field:Json(name = "ok")
+    @Json(name = "ok")
     val ok: Boolean = false,
-    @field:Json(name = "id_customer")
-    val idCustomer: Any? = null, // Χρήση Any για να αποφύγουμε σφάλματα τύπου (String vs Int)
+    @Json(name = "id_customer")
+    val idCustomer: Int? = null, // Το PrestaShop στέλνει Integer
     val firstname: String? = null,
     val lastname: String? = null,
     val email: String? = null,
