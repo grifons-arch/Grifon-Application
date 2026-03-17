@@ -31,7 +31,7 @@ class FakeShopRepository(
                 val shopCode = shop.code?.lowercase() ?: shop.id.toString()
                 val displayName = when(shopCode.uppercase()) {
                     "GR" -> "Ελληνικό κατάστημα"
-                    "SE" -> "Σουηδικό κατάστημα"
+                    "SE" -> "Σουηδικό κατάστημα χονδρικής"
                     else -> shop.code ?: "Shop ${shop.id}"
                 }
                 Shop(id = "shop_$shopCode", name = displayName)
@@ -39,7 +39,7 @@ class FakeShopRepository(
         } else {
             listOf(
                 Shop("shop_gr", "Ελληνικό κατάστημα"),
-                Shop("shop_se", "Σουηδικό κατάστημα"),
+                Shop("shop_se", "Σουηδικό κατάστημα χονδρικής"),
             )
         }
 
