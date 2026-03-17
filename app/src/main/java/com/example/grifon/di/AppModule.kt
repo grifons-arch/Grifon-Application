@@ -91,9 +91,13 @@ object AppModule {
     @Singleton
     fun provideCartRepository(): CartRepository = FakeCartRepository()
 
+    // ΕΔΩ ΕΠΙΒΑΛΛΟΥΜΕ ΤΗΝ ΠΡΑΓΜΑΤΙΚΗ ΥΛΟΠΟΙΗΣΗ ΤΟΥ USER
     @Provides
     @Singleton
-    fun provideUserRepository(impl: UserRepositoryImpl): UserRepository = impl
+    fun provideUserRepository(
+        authApi: AuthApi,
+        preferences: ShopPreferences
+    ): UserRepository = UserRepositoryImpl(authApi, preferences)
 
     @Provides
     @Singleton
