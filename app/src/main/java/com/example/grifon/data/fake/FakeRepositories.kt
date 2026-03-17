@@ -29,12 +29,17 @@ class FakeShopRepository(
         val mapped = if (remoteShops.isNotEmpty()) {
             remoteShops.map { shop ->
                 val shopCode = shop.code?.lowercase() ?: shop.id.toString()
-                Shop(id = "shop_$shopCode", name = shop.code ?: "Shop ${shop.id}")
+                val displayName = when(shopCode.uppercase()) {
+                    "GR" -> "Ελληνικό κατάστημα"
+                    "SE" -> "Σουηδικό κατάστημα"
+                    else -> shop.code ?: "Shop ${shop.id}"
+                }
+                Shop(id = "shop_$shopCode", name = displayName)
             }
         } else {
             listOf(
-                Shop("shop_a", "Shop A"),
-                Shop("shop_b", "Shop B"),
+                Shop("shop_gr", "Ελληνικό κατάστημα"),
+                Shop("shop_se", "Σουηδικό κατάστημα"),
             )
         }
 
