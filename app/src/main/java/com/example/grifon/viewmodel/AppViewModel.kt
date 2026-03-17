@@ -4,46 +4,43 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetCartUseCase
+import com.example.grifon.data.repository.ShopRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
     getActiveShopUseCase: GetActiveShopUseCase,
     getCartUseCase: GetCartUseCase,
+    shopRepository: ShopRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(AppState())
     val state: StateFlow<AppState> = _state
 
     init {
-        getActiveShopUseCase()
-            .flatMapLatest { shopId ->
-                getCartUseCase(shopId).combine(getActiveShopUseCase()) { cartItems, activeShop ->
-                    val displayName = when {
-                        activeShop.contains("se", ignoreCase = true) || activeShop == "shop_b" -> "Σουηδικό κατάστημα χονδρικής"
-                        activeShop.contains("gr", ignoreCase = true) || activeShop == "shop_a" -> "Ελληνικό κατάστημα"
-                        else -> "Grifon Shop"
-                    }
-                    AppState(
-                        activeShopId = activeShop,
-                        shopName = displayName,
-                        cartCount = cartItems.sumOf { it.qty },
-                    )
-                }
+        combine(
+            getActiveShopUseCase(),
+            shopRepository.getShops()
+        ) { activeId, shops ->
+            activeId to shops
+        }.flatMapLatest { (activeId, shops) ->
+            getCartUseCase(activeId).map { cartItems ->
+                val shopName = shops.find { it.id == activeId }?.name ?: "Grifon Shop"
+                AppState(
+                    activeShopId = activeId,
+                    shopName = shopName,
+                    cartCount = cartItems.sumOf { it.qty },
+                )
             }
-            .onEach { _state.value = it }
-            .launchIn(viewModelScope)
+        }
+        .onEach { _state.value = it }
+        .launchIn(viewModelScope)
     }
 }
 
 data class AppState(
-    val activeShopId: String = "shop_a",
-    val shopName: String = "Shop A",
+    val activeShopId: String = "",
+    val shopName: String = "Φόρτωση...",
     val cartCount: Int = 0,
 )
