@@ -25,9 +25,14 @@ class AppViewModel @Inject constructor(
         getActiveShopUseCase()
             .flatMapLatest { shopId ->
                 getCartUseCase(shopId).combine(getActiveShopUseCase()) { cartItems, activeShop ->
+                    val displayName = when {
+                        activeShop.contains("se", ignoreCase = true) || activeShop == "shop_b" -> "Σουηδικό κατάστημα χονδρικής"
+                        activeShop.contains("gr", ignoreCase = true) || activeShop == "shop_a" -> "Ελληνικό κατάστημα"
+                        else -> "Grifon Shop"
+                    }
                     AppState(
                         activeShopId = activeShop,
-                        shopName = if (activeShop == "shop_b") "Shop B" else "Shop A",
+                        shopName = displayName,
                         cartCount = cartItems.sumOf { it.qty },
                     )
                 }
