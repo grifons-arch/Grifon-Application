@@ -32,8 +32,9 @@ class SettingsViewModel @Inject constructor(
         combine(
             shopRepository.getShops(), 
             getActiveShopUseCase(),
-            shopPreferences.isDarkModeEnabled
-        ) { shops, activeId, darkMode ->
+            shopPreferences.isDarkModeEnabled,
+            shopPreferences.appLanguage
+        ) { shops, activeId, darkMode, languageCode ->
             val normalizedActiveId = ShopConfig.normalizeShopId(activeId)
             SettingsState(
                 shops = shops,
@@ -41,7 +42,7 @@ class SettingsViewModel @Inject constructor(
                 activeShopName = shops.firstOrNull {
                     ShopConfig.normalizeShopId(it.id) == normalizedActiveId
                 }?.name ?: ShopConfig.displayName(normalizedActiveId),
-                language = ShopConfig.languageLabel(normalizedActiveId),
+                language = languageCode,
                 currency = "EUR",
                 darkMode = darkMode,
                 notificationsEnabled = true,
@@ -60,6 +61,12 @@ class SettingsViewModel @Inject constructor(
     fun setDarkMode(enabled: Boolean) {
         viewModelScope.launch {
             shopPreferences.setDarkModeEnabled(enabled)
+        }
+    }
+
+    fun setLanguage(languageCode: String) {
+        viewModelScope.launch {
+            shopPreferences.setLanguage(languageCode)
         }
     }
 }

@@ -1,25 +1,16 @@
 package com.example.grifon.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.grifon.R
 import com.example.grifon.core.UiState
 import com.example.grifon.viewmodel.SettingsViewModel
 
@@ -39,7 +30,8 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Card(modifier = Modifier.padding(8.dp)) {
+                // 1. Επιλογή Καταστήματος
+                Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "Επιλογή καταστήματος", style = MaterialTheme.typography.titleMedium)
                         settings.shops.forEach { shop ->
@@ -59,21 +51,39 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                         }
                     }
                 }
-                Card(modifier = Modifier.padding(8.dp)) {
+
+                // 2. Επιλογή Γλώσσας
+                Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Γλώσσα", style = MaterialTheme.typography.titleMedium)
-                        Text(text = settings.language)
-                        Text(text = "Νόμισμα", style = MaterialTheme.typography.titleMedium)
-                        Text(text = settings.currency)
+                        Text(text = stringResource(R.string.language), style = MaterialTheme.typography.titleMedium)
+                        
+                        val languages = listOf("el" to "Ελληνικά", "en" to "English", "sv" to "Svenska")
+                        languages.forEach { (code, label) ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { viewModel.setLanguage(code) }
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = settings.language == code,
+                                    onClick = { viewModel.setLanguage(code) }
+                                )
+                                Text(text = label)
+                            }
+                        }
                     }
                 }
-                Card(modifier = Modifier.padding(8.dp)) {
+
+                // 3. Εμφάνιση & Ειδοποιήσεις
+                Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = "Dark mode", modifier = Modifier.weight(1f))
+                            Text(text = stringResource(R.string.dark_mode), modifier = Modifier.weight(1f))
                             Switch(
                                 checked = settings.darkMode, 
                                 onCheckedChange = { viewModel.setDarkMode(it) }
@@ -83,7 +93,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = "Ειδοποιήσεις", modifier = Modifier.weight(1f))
+                            Text(text = stringResource(R.string.notifications), modifier = Modifier.weight(1f))
                             Switch(checked = settings.notificationsEnabled, onCheckedChange = {})
                         }
                     }

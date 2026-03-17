@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 class ShopPreferences(private val dataStore: DataStore<Preferences>) {
     private val shopKey = stringPreferencesKey("active_shop_id")
     private val darkModeKey = booleanPreferencesKey("dark_mode_enabled")
+    private val languageKey = stringPreferencesKey("app_language")
 
     val activeShopId: Flow<String> = dataStore.data.map { preferences ->
         ShopConfig.normalizeShopId(preferences[shopKey] ?: BuildConfig.SHOP_ID)
@@ -20,6 +21,10 @@ class ShopPreferences(private val dataStore: DataStore<Preferences>) {
 
     val isDarkModeEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[darkModeKey] ?: false
+    }
+
+    val appLanguage: Flow<String> = dataStore.data.map { preferences ->
+        preferences[languageKey] ?: "el" // Default στα Ελληνικά
     }
 
     suspend fun setActiveShopId(shopId: String) {
@@ -31,6 +36,12 @@ class ShopPreferences(private val dataStore: DataStore<Preferences>) {
     suspend fun setDarkModeEnabled(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[darkModeKey] = enabled
+        }
+    }
+
+    suspend fun setLanguage(languageCode: String) {
+        dataStore.edit { preferences ->
+            preferences[languageKey] = languageCode
         }
     }
 }

@@ -14,29 +14,32 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.grifon.R
 import com.example.grifon.navigation.Routes
 
-private data class BottomItem(val route: String, val label: String)
+private data class BottomItem(val route: String, val labelRes: Int)
 
 @Composable
 fun AppBottomNav(navController: NavHostController, cartCount: Int) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val items = listOf(
-        BottomItem(Routes.HOME, "Home"),
-        BottomItem(Routes.CATEGORIES, "Categories"),
-        BottomItem(Routes.CART, "Cart"),
-        BottomItem(Routes.ACCOUNT, "Account"),
-        BottomItem(Routes.SETTINGS, "Settings"),
+        BottomItem(Routes.HOME, R.string.home),
+        BottomItem(Routes.CATEGORIES, R.string.categories),
+        BottomItem(Routes.CART, R.string.cart),
+        BottomItem(Routes.ACCOUNT, R.string.account),
+        BottomItem(Routes.SETTINGS, R.string.settings),
     )
 
     NavigationBar {
         items.forEach { item ->
             val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
+            val label = stringResource(item.labelRes)
             NavigationBarItem(
                 selected = selected,
                 onClick = {
@@ -48,17 +51,17 @@ fun AppBottomNav(navController: NavHostController, cartCount: Int) {
                 },
                 icon = {
                     when (item.route) {
-                        Routes.HOME -> Icon(Icons.Outlined.Home, contentDescription = item.label)
-                        Routes.CATEGORIES -> Icon(Icons.Outlined.Category, contentDescription = item.label)
+                        Routes.HOME -> Icon(Icons.Outlined.Home, contentDescription = label)
+                        Routes.CATEGORIES -> Icon(Icons.Outlined.Category, contentDescription = label)
                         Routes.CART -> BadgedBox(
                             badge = { if (cartCount > 0) Badge { Text(cartCount.toString()) } },
-                        ) { Icon(Icons.Outlined.ShoppingCart, contentDescription = item.label) }
-                        Routes.ACCOUNT -> Icon(Icons.Outlined.AccountCircle, contentDescription = item.label)
-                        Routes.SETTINGS -> Icon(Icons.Outlined.Settings, contentDescription = item.label)
-                        else -> Icon(Icons.Outlined.AccountCircle, contentDescription = item.label)
+                        ) { Icon(Icons.Outlined.ShoppingCart, contentDescription = label) }
+                        Routes.ACCOUNT -> Icon(Icons.Outlined.AccountCircle, contentDescription = label)
+                        Routes.SETTINGS -> Icon(Icons.Outlined.Settings, contentDescription = label)
+                        else -> Icon(Icons.Outlined.AccountCircle, contentDescription = label)
                     }
                 },
-                label = { Text(item.label) },
+                label = { Text(label) },
             )
         }
     }
