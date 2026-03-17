@@ -17,7 +17,14 @@ class ApiShopRepository @Inject constructor(
     override fun getShops(): Flow<List<Shop>> = flow {
         try {
             val response = catalogApi.getShops()
-            emit(response.map { Shop(id = it.id.toString(), name = it.code ?: "Shop ${it.id}") })
+            emit(response.map { shop ->
+                val displayName = when(shop.code?.uppercase()) {
+                    "GR" -> "Ελληνικό κατάστημα"
+                    "SE" -> "Σουηδικό κατάστημα χονδρικής"
+                    else -> shop.code ?: "Shop ${shop.id}"
+                }
+                Shop(id = shop.id.toString(), name = displayName)
+            })
         } catch (e: Exception) {
             emit(emptyList())
         }
