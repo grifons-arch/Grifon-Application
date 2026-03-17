@@ -19,11 +19,13 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun login(email: String, pass: String): Result<Unit> {
         return try {
             val response = authApi.login(LoginRequestDto(email, pass))
-            if (response.ok && response.customerId != null) {
+            // ΔΙΟΡΘΩΣΗ: Έλεγχος του ok ΚΑΙ του idCustomer (που πλέον είναι idCustomer στο DTO)
+            if (response.ok && response.idCustomer != null) {
                 _isLoggedIn.value = true
                 Result.success(Unit)
             } else {
-                Result.failure(Exception(response.error ?: response.message ?: "Σφάλμα σύνδεσης"))
+                val errorMsg = response.error ?: response.message ?: "Λάθος στοιχεία σύνδεσης"
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)

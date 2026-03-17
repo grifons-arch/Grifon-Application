@@ -9,13 +9,13 @@ data class LoginRequestDto(
 
 data class LoginResponseDto(
     @field:Json(name = "ok")
-    val ok: Boolean,
+    val ok: Boolean = false,
     @field:Json(name = "id_customer")
-    val customerId: Int?,
-    val firstname: String?,
-    val lastname: String?,
-    val email: String?,
-    val company: String?,
-    val error: String?,
-    val message: String?
+    val idCustomer: Any? = null, // Χρήση Any για να αποφύγουμε σφάλματα τύπου (String vs Int)
+    val firstname: String? = null,
+    val lastname: String? = null,
+    val email: String? = null,
+    val company: String? = null,
+    val error: String? = null,
+    val message: String? = null
 )
