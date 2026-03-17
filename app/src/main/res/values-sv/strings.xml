@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Grifon Menu</string>
+    <string name="home">Hem</string>
+    <string name="categories">Kategorier</string>
+    <string name="cart">Varukorg</string>
+    <string name="account">Konto</string>
+    <string name="settings">Inställningar</string>
+    <string name="search_placeholder">Sök produkter…</string>
+    <string name="login">Logga in</string>
+    <string name="register">Registrera dig</string>
+    <string name="greek_shop">Grekisk butik</string>
+    <string name="swedish_shop">Svensk grossistbutik</string>
+    <string name="dark_mode">Mörkt läge</string>
+    <string name="notifications">Aviseringar</string>
+    <string name="language">Språk</string>
+    <string name="currency">Valuta</string>
+    <string name="accept">ACCEPTERA</string>
+    <string name="newsletter_title">Prenumerera på vårt nyhetsbrev</string>
+    <string name="email">E-post</string>
+    <string name="password">Lösenord</string>
+</resources>

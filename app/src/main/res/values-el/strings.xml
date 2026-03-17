@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Grifon Menu</string>
+    <string name="home">Αρχική</string>
+    <string name="categories">Κατηγορίες</string>
+    <string name="cart">Καλάθι</string>
+    <string name="account">Λογαριασμός</string>
+    <string name="settings">Ρυθμίσεις</string>
+    <string name="search_placeholder">Αναζήτηση προϊόντων…</string>
+    <string name="login">Σύνδεση</string>
+    <string name="register">Εγγραφή</string>
+    <string name="greek_shop">Ελληνικό κατάστημα</string>
+    <string name="swedish_shop">Σουηδικό κατάστημα χονδρικής</string>
+    <string name="dark_mode">Σκούρα εμφάνιση</string>
+    <string name="notifications">Ειδοποιήσεις</string>
+    <string name="language">Γλώσσα</string>
+    <string name="currency">Νόμισμα</string>
+    <string name="accept">ΑΠΟΔΕΧΟΜΑΙ</string>
+    <string name="newsletter_title">Εγγραφείτε στο newsletter μας</string>
+    <string name="email">Email</string>
+    <string name="password">Κωδικός</string>
+</resources>
