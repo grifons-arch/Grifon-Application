@@ -3,17 +3,22 @@ package com.example.grifon.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.UiState
+import com.example.grifon.core.ShopConfig
 import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetCategoryTreeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
     getActiveShopUseCase: GetActiveShopUseCase,
@@ -25,14 +30,15 @@ class CategoriesViewModel @Inject constructor(
 
     init {
         combine(getActiveShopUseCase(), _expanded) { shopId, expanded ->
-            shopId to expanded
-        }.onEach { (shopId, expanded) ->
-            getCategoryTreeUseCase(shopId)
-                .onEach { categories ->
-                    _uiState.value = UiState.Success(CategoriesState(categories, expanded))
-                }
-                .launchIn(viewModelScope)
-        }.launchIn(viewModelScope)
+            ShopConfig.normalizeShopId(shopId) to expanded
+        }.distinctUntilChanged()
+            .flatMapLatest { (shopId, expanded) ->
+                getCategoryTreeUseCase(shopId)
+                    .onEach { categories ->
+                        _uiState.value = UiState.Success(CategoriesState(categories, expanded))
+                    }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun toggle(categoryId: String) {

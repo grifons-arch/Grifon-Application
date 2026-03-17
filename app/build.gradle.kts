@@ -1,5 +1,7 @@
 import com.android.build.api.variant.BuildConfigField
 import java.util.Properties
+import java.net.NetworkInterface
+import java.net.Inet4Address
 
 plugins {
     alias(libs.plugins.android.application)
@@ -7,6 +9,29 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+}
+
+// Λειτουργία που βρίσκει την τοπική IP του υπολογιστή σου αυτόματα
+fun getLocalIp(): String {
+    try {
+        val interfaces = NetworkInterface.getNetworkInterfaces()
+        for (iface in interfaces) {
+            if (iface.isLoopback || !iface.isUp) continue
+            val addresses = iface.inetAddresses
+            for (addr in addresses) {
+                if (addr is Inet4Address) {
+                    val ip = addr.hostAddress
+                    // Επιστρέφει την πρώτη IP που μοιάζει με οικιακή (192.168.x.x ή 10.x.x.x)
+                    if (ip.startsWith("192.168.") || ip.startsWith("10.")) {
+                        return ip
+                    }
+                }
+            }
+        }
+    } catch (e: Exception) {
+        // ignore
+    }
+    return "10.0.2.2" // Fallback για emulator αν αποτύχει η ανίχνευση
 }
 
 // Διαβάζουμε το local.properties για να πάρουμε την IP δυναμικά
@@ -19,8 +44,10 @@ if (localPropsFile.exists()) {
 val apiBaseUrlFromProps = localProps.getProperty("API_BASE_URL")
 val mapsApiKeyFromProps = localProps.getProperty("MAPS_API_KEY") ?: ""
 
-// ΑΛΛΑΓΗ: Βάζουμε τη δική σας IP ως βασική προεπιλογή αντί για 10.0.2.2
-val defaultGatewayUrl = apiBaseUrlFromProps ?: "http://192.168.2.20:3000/"
+// ΑΥΤΟΜΑΤΙΣΜΟΣ: Αν δεν υπάρχει IP στο local.properties, τη βρίσκουμε μόνοι μας
+val computerIp = if (apiBaseUrlFromProps.isNullOrBlank()) getLocalIp() else null
+val defaultGatewayUrl = apiBaseUrlFromProps ?: "http://$computerIp:3000/"
+
 val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?) ?: defaultGatewayUrl
 val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?) ?: defaultGatewayUrl
 val debugApiBaseUrl = (project.findProperty("API_BASE_URL_DEBUG") as String?) ?: defaultGatewayUrl
