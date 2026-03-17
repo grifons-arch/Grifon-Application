@@ -1,9 +1,10 @@
 package com.example.grifon.data.catalog
 
+import android.util.Log
 import com.example.grifon.domain.model.Product
+import com.example.grifon.core.ShopConfig
 import javax.inject.Inject
 import com.example.grifon.BuildConfig
-import android.util.Log
 
 class HomeProductsWebService @Inject constructor(
     private val catalogApi: CatalogApi,
@@ -45,12 +46,11 @@ class HomeProductsWebService @Inject constructor(
     }
 
     private fun resolveShop(shops: List<ShopDto>, shopKey: String): ShopDto? {
-        val normalizedKey = shopKey.trim()
-        val asNumericId = normalizedKey.toIntOrNull()
+        val normalizedKey = ShopConfig.normalizeShopId(shopKey)
+        val asNumericId = normalizedKey.toInt()
 
         return shops.firstOrNull { it.id == asNumericId }
             ?: shops.firstOrNull { it.code.equals(normalizedKey, ignoreCase = true) }
-            ?: shops.firstOrNull { "shop_${it.code}".equals(normalizedKey, ignoreCase = true) }
             ?: shops.firstOrNull { "shop_${it.id}".equals(normalizedKey, ignoreCase = true) }
             ?: shops.firstOrNull()
     }

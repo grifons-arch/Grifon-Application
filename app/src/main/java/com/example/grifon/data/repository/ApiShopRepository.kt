@@ -1,6 +1,7 @@
 package com.example.grifon.data.repository
 
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.core.ShopConfig
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.domain.model.Shop
 import kotlinx.coroutines.flow.Flow
@@ -14,19 +15,23 @@ class ApiShopRepository @Inject constructor(
     private val catalogApi: CatalogApi
 ) : ShopRepository {
 
+    private val fallbackShops = listOf(
+        Shop(id = ShopConfig.GreekShopId, name = ShopConfig.displayName(ShopConfig.GreekShopId)),
+        Shop(id = ShopConfig.SwedishShopId, name = ShopConfig.displayName(ShopConfig.SwedishShopId)),
+    )
+
     override fun getShops(): Flow<List<Shop>> = flow {
         try {
             val response = catalogApi.getShops()
             emit(response.map { shop ->
-                val displayName = when(shop.code?.uppercase()) {
-                    "GR" -> "Ελληνικό κατάστημα"
-                    "SE" -> "Σουηδικό κατάστημα χονδρικής"
-                    else -> shop.code ?: "Shop ${shop.id}"
-                }
-                Shop(id = shop.id.toString(), name = displayName)
+                val normalizedId = ShopConfig.normalizeShopId(shop.id.toString())
+                Shop(
+                    id = normalizedId,
+                    name = shop.code?.let(ShopConfig::displayName) ?: ShopConfig.displayName(normalizedId),
+                )
             })
         } catch (e: Exception) {
-            emit(emptyList())
+            emit(fallbackShops)
         }
     }
 

@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.grifon.BuildConfig
+import com.example.grifon.core.ShopConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -13,7 +15,7 @@ class ShopPreferences(private val dataStore: DataStore<Preferences>) {
     private val darkModeKey = booleanPreferencesKey("dark_mode_enabled")
 
     val activeShopId: Flow<String> = dataStore.data.map { preferences ->
-        preferences[shopKey] ?: "shop_gr"
+        ShopConfig.normalizeShopId(preferences[shopKey] ?: BuildConfig.SHOP_ID)
     }
 
     val isDarkModeEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
@@ -22,7 +24,7 @@ class ShopPreferences(private val dataStore: DataStore<Preferences>) {
 
     suspend fun setActiveShopId(shopId: String) {
         dataStore.edit { preferences ->
-            preferences[shopKey] = shopId
+            preferences[shopKey] = ShopConfig.normalizeShopId(shopId)
         }
     }
 

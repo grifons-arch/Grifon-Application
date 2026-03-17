@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -41,7 +43,13 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "Επιλογή καταστήματος", style = MaterialTheme.typography.titleMedium)
                         settings.shops.forEach { shop ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { viewModel.setActiveShop(shop) }
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
                                 RadioButton(
                                     selected = settings.activeShopId == shop.id,
                                     onClick = { viewModel.setActiveShop(shop) },
@@ -61,14 +69,20 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                 }
                 Card(modifier = Modifier.padding(8.dp)) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(text = "Dark mode", modifier = Modifier.weight(1f))
                             Switch(
                                 checked = settings.darkMode, 
                                 onCheckedChange = { viewModel.setDarkMode(it) }
                             )
                         }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(text = "Ειδοποιήσεις", modifier = Modifier.weight(1f))
                             Switch(checked = settings.notificationsEnabled, onCheckedChange = {})
                         }

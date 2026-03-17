@@ -3,6 +3,7 @@ package com.example.grifon.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.UiState
+import com.example.grifon.core.ShopConfig
 import com.example.grifon.domain.model.Shop
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.SetActiveShopUseCase
@@ -33,10 +34,14 @@ class SettingsViewModel @Inject constructor(
             getActiveShopUseCase(),
             shopPreferences.isDarkModeEnabled
         ) { shops, activeId, darkMode ->
+            val normalizedActiveId = ShopConfig.normalizeShopId(activeId)
             SettingsState(
                 shops = shops,
-                activeShopId = activeId,
-                language = "Ελληνικά",
+                activeShopId = normalizedActiveId,
+                activeShopName = shops.firstOrNull {
+                    ShopConfig.normalizeShopId(it.id) == normalizedActiveId
+                }?.name ?: ShopConfig.displayName(normalizedActiveId),
+                language = ShopConfig.languageLabel(normalizedActiveId),
                 currency = "EUR",
                 darkMode = darkMode,
                 notificationsEnabled = true,
@@ -62,6 +67,7 @@ class SettingsViewModel @Inject constructor(
 data class SettingsState(
     val shops: List<Shop>,
     val activeShopId: String,
+    val activeShopName: String,
     val language: String,
     val currency: String,
     val darkMode: Boolean,

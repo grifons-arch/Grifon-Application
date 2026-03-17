@@ -1,6 +1,7 @@
 package com.example.grifon.data.fake
 
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.core.ShopConfig
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.CatalogRepository
 import com.example.grifon.data.repository.CartRepository
@@ -28,18 +29,16 @@ class FakeShopRepository(
 
         val mapped = if (remoteShops.isNotEmpty()) {
             remoteShops.map { shop ->
-                val shopCode = shop.code?.lowercase() ?: shop.id.toString()
-                val displayName = when(shopCode.uppercase()) {
-                    "GR" -> "Ελληνικό κατάστημα"
-                    "SE" -> "Σουηδικό κατάστημα χονδρικής"
-                    else -> shop.code ?: "Shop ${shop.id}"
-                }
-                Shop(id = "shop_$shopCode", name = displayName)
+                val normalizedId = ShopConfig.normalizeShopId(shop.id.toString())
+                Shop(
+                    id = normalizedId,
+                    name = shop.code?.let(ShopConfig::displayName) ?: ShopConfig.displayName(normalizedId),
+                )
             }
         } else {
             listOf(
-                Shop("shop_gr", "Ελληνικό κατάστημα"),
-                Shop("shop_se", "Σουηδικό κατάστημα χονδρικής"),
+                Shop(ShopConfig.GreekShopId, ShopConfig.displayName(ShopConfig.GreekShopId)),
+                Shop(ShopConfig.SwedishShopId, ShopConfig.displayName(ShopConfig.SwedishShopId)),
             )
         }
 
@@ -63,7 +62,8 @@ class FakeCatalogRepository : CatalogRepository {
         filters: FilterState,
         sortOption: SortOption,
     ): Flow<List<Product>> {
-        val base = FakeCatalogData.shopProducts[shopId].orEmpty()
+        val normalizedShopId = ShopConfig.normalizeShopId(shopId)
+        val base = FakeCatalogData.shopProducts[normalizedShopId].orEmpty()
             .filter { product ->
                 product.title.contains(categoryId, ignoreCase = true) || categoryId.isBlank()
             }
@@ -76,7 +76,8 @@ class FakeCatalogRepository : CatalogRepository {
         filters: FilterState,
         sortOption: SortOption,
     ): Flow<List<Product>> {
-        val base = FakeCatalogData.shopProducts[shopId].orEmpty()
+        val normalizedShopId = ShopConfig.normalizeShopId(shopId)
+        val base = FakeCatalogData.shopProducts[normalizedShopId].orEmpty()
             .filter { product ->
                 product.title.contains(query, ignoreCase = true) || query.isBlank()
             }
@@ -84,7 +85,8 @@ class FakeCatalogRepository : CatalogRepository {
     }
 
     override fun getProductById(shopId: String, productId: String): Flow<Product?> {
-        val product = FakeCatalogData.shopProducts[shopId].orEmpty().find { it.id == productId }
+        val normalizedShopId = ShopConfig.normalizeShopId(shopId)
+        val product = FakeCatalogData.shopProducts[normalizedShopId].orEmpty().find { it.id == productId }
         return flowOf(product)
     }
 
@@ -123,10 +125,10 @@ class FakeCartRepository : CartRepository {
     private val cartState = MutableStateFlow<Map<String, List<CartItem>>>(emptyMap())
 
     override fun observeCart(shopId: String): Flow<List<CartItem>> =
-        cartState.map { it[shopId].orEmpty() }
+        cartState.map { it[ShopConfig.normalizeShopId(shopId)].orEmpty() }
 
     override suspend fun addToCart(shopId: String, item: CartItem) {
-        updateCart(shopId) { items ->
+        updateCart(ShopConfig.normalizeShopId(shopId)) { items ->
             val existing = items.find { it.productId == item.productId }
             if (existing == null) items + item else items.map {
                 if (it.productId == item.productId) it.copy(qty = it.qty + item.qty) else it
@@ -135,11 +137,13 @@ class FakeCartRepository : CartRepository {
     }
 
     override suspend fun removeFromCart(shopId: String, productId: String) {
-        updateCart(shopId) { items -> items.filterNot { it.productId == productId } }
+        updateCart(ShopConfig.normalizeShopId(shopId)) { items ->
+            items.filterNot { it.productId == productId }
+        }
     }
 
     override suspend fun updateQuantity(shopId: String, productId: String, qty: Int) {
-        updateCart(shopId) { items ->
+        updateCart(ShopConfig.normalizeShopId(shopId)) { items ->
             if (qty <= 0) items.filterNot { it.productId == productId } else items.map {
                 if (it.productId == productId) it.copy(qty = qty) else it
             }

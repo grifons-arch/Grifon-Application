@@ -1,6 +1,7 @@
 package com.example.grifon.data.repository
 
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.core.ShopConfig
 import com.example.grifon.domain.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,7 +19,7 @@ class ApiCatalogRepository @Inject constructor(
 
     override fun getCategoryTree(shopId: String): Flow<List<Category>> = flow {
         try {
-            val id = shopId.toIntOrNull() ?: 4
+            val id = ShopConfig.normalizeShopId(shopId).toInt()
             val response = catalogApi.getCategories(shopId = id)
             emit(response.items.map { 
                 Category(
@@ -40,7 +41,7 @@ class ApiCatalogRepository @Inject constructor(
         sortOption: SortOption
     ): Flow<List<Product>> = flow {
         try {
-            val sId = shopId.toIntOrNull() ?: 4
+            val sId = ShopConfig.normalizeShopId(shopId).toInt()
             val response = if (categoryId == "2" || categoryId.isBlank()) {
                 catalogApi.getProducts(shopId = sId, pageSize = 100)
             } else {
@@ -98,7 +99,7 @@ class ApiCatalogRepository @Inject constructor(
         sortOption: SortOption
     ): Flow<List<Product>> = flow {
         try {
-            val sId = shopId.toIntOrNull() ?: 4
+            val sId = ShopConfig.normalizeShopId(shopId).toInt()
             val response = catalogApi.getProducts(shopId = sId, pageSize = 100)
             val allProducts = response.items.map {
                 it.toDomainProduct(
@@ -133,7 +134,7 @@ class ApiCatalogRepository @Inject constructor(
 
     override fun getProductById(shopId: String, productId: String): Flow<Product?> = flow {
         try {
-            val sId = shopId.toIntOrNull() ?: 4
+            val sId = ShopConfig.normalizeShopId(shopId).toInt()
             val normalizedProductId = productId.substringAfterLast("_").toIntOrNull()
             if (normalizedProductId == null) {
                 emit(null)

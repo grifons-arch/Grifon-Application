@@ -50,8 +50,8 @@ object FakeCatalogData {
     )
 
     val shopProducts = mapOf(
-        "shop_a" to products,
-        "shop_b" to products.map {
+        "4" to products,
+        "1" to products.map {
             it.copy(price = it.price * 1.05, title = "${it.title} B")
         },
     )

@@ -3,6 +3,7 @@ package com.example.grifon.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.UiState
+import com.example.grifon.core.ShopConfig
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.catalog.HomeProductsWebService
 import com.example.grifon.data.catalog.toDomainProduct
@@ -47,7 +48,7 @@ class HomeViewModel @Inject constructor(
     private fun observeActiveShop() {
         viewModelScope.launch {
             getActiveShopUseCase().distinctUntilChanged().collect { shopId ->
-                currentShopId = if (shopId == "shop_a" || shopId == "1") "1" else "4"
+                currentShopId = ShopConfig.normalizeShopId(shopId)
                 loadInitialData()
             }
         }

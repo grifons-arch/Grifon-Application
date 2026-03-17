@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -30,6 +31,7 @@ fun AppBottomNav(navController: NavHostController, cartCount: Int) {
         BottomItem(Routes.CATEGORIES, "Categories"),
         BottomItem(Routes.CART, "Cart"),
         BottomItem(Routes.ACCOUNT, "Account"),
+        BottomItem(Routes.SETTINGS, "Settings"),
     )
 
     NavigationBar {
@@ -51,6 +53,8 @@ fun AppBottomNav(navController: NavHostController, cartCount: Int) {
                         Routes.CART -> BadgedBox(
                             badge = { if (cartCount > 0) Badge { Text(cartCount.toString()) } },
                         ) { Icon(Icons.Outlined.ShoppingCart, contentDescription = item.label) }
+                        Routes.ACCOUNT -> Icon(Icons.Outlined.AccountCircle, contentDescription = item.label)
+                        Routes.SETTINGS -> Icon(Icons.Outlined.Settings, contentDescription = item.label)
                         else -> Icon(Icons.Outlined.AccountCircle, contentDescription = item.label)
                     }
                 },
