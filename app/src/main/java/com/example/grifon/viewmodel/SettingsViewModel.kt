@@ -7,6 +7,7 @@ import com.example.grifon.domain.model.Shop
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.SetActiveShopUseCase
 import com.example.grifon.data.repository.ShopRepository
+import com.example.grifon.data.local.ShopPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,18 +22,23 @@ class SettingsViewModel @Inject constructor(
     shopRepository: ShopRepository,
     getActiveShopUseCase: GetActiveShopUseCase,
     private val setActiveShopUseCase: SetActiveShopUseCase,
+    private val shopPreferences: ShopPreferences,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<SettingsState>>(UiState.Loading)
     val uiState: StateFlow<UiState<SettingsState>> = _uiState
 
     init {
-        combine(shopRepository.getShops(), getActiveShopUseCase()) { shops, activeId ->
+        combine(
+            shopRepository.getShops(), 
+            getActiveShopUseCase(),
+            shopPreferences.isDarkModeEnabled
+        ) { shops, activeId, darkMode ->
             SettingsState(
                 shops = shops,
                 activeShopId = activeId,
                 language = "Ελληνικά",
                 currency = "EUR",
-                darkMode = false,
+                darkMode = darkMode,
                 notificationsEnabled = true,
             )
         }.onEach { state ->
@@ -43,6 +49,12 @@ class SettingsViewModel @Inject constructor(
     fun setActiveShop(shop: Shop) {
         viewModelScope.launch {
             setActiveShopUseCase(shop.id)
+        }
+    }
+
+    fun setDarkMode(enabled: Boolean) {
+        viewModelScope.launch {
+            shopPreferences.setDarkModeEnabled(enabled)
         }
     }
 }

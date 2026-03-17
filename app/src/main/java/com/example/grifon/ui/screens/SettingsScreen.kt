@@ -63,7 +63,10 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Dark mode", modifier = Modifier.weight(1f))
-                            Switch(checked = settings.darkMode, onCheckedChange = {})
+                            Switch(
+                                checked = settings.darkMode, 
+                                onCheckedChange = { viewModel.setDarkMode(it) }
+                            )
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Ειδοποιήσεις", modifier = Modifier.weight(1f))
