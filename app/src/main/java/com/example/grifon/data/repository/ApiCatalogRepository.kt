@@ -9,10 +9,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import com.example.grifon.BuildConfig
 import com.example.grifon.data.catalog.toDomainProduct
+import com.example.grifon.data.local.ShopPreferences
+import kotlinx.coroutines.flow.first
 
 @Singleton
 class ApiCatalogRepository @Inject constructor(
-    private val catalogApi: CatalogApi
+    private val catalogApi: CatalogApi,
+    private val shopPreferences: ShopPreferences,
 ) : CatalogRepository {
 
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
@@ -42,10 +45,11 @@ class ApiCatalogRepository @Inject constructor(
     ): Flow<List<Product>> = flow {
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val customerId = shopPreferences.currentCustomerId.first()
             val response = if (categoryId == "2" || categoryId.isBlank()) {
-                catalogApi.getProducts(shopId = sId, pageSize = 100)
+                catalogApi.getProducts(shopId = sId, pageSize = 100, customerId = customerId)
             } else {
-                catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = sId)
+                catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = sId, customerId = customerId)
             }
             
             // ΕΦΑΡΜΟΓΗ ΦΙΛΤΡΩΝ ΣΤΗ ΛΙΣΤΑ
@@ -57,7 +61,9 @@ class ApiCatalogRepository @Inject constructor(
                     )
                 }
                 .filter { product ->
-                    val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
+                    val matchesPrice = product.price?.let {
+                        it >= filters.priceRange.start && it <= filters.priceRange.endInclusive
+                    } ?: true
                     val matchesStock = if (filters.inStockOnly) product.inStock else true
                     val matchesBrand = filters.brands.isEmpty() || filters.brands.contains(product.brand)
                     val matchesRating = product.rating >= filters.ratingMin
@@ -80,8 +86,8 @@ class ApiCatalogRepository @Inject constructor(
                 .let { list ->
                     // ΕΦΑΡΜΟΓΗ ΤΑΞΙΝΟΜΗΣΗΣ
                     when (sortOption) {
-                        SortOption.PRICE_LOW_HIGH -> list.sortedBy { it.price }
-                        SortOption.PRICE_HIGH_LOW -> list.sortedByDescending { it.price }
+                        SortOption.PRICE_LOW_HIGH -> list.sortedBy { it.price ?: Double.MAX_VALUE }
+                        SortOption.PRICE_HIGH_LOW -> list.sortedByDescending { it.price ?: Double.MIN_VALUE }
                         else -> list
                     }
                 }
@@ -100,7 +106,8 @@ class ApiCatalogRepository @Inject constructor(
     ): Flow<List<Product>> = flow {
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
-            val response = catalogApi.getProducts(shopId = sId, pageSize = 100)
+            val customerId = shopPreferences.currentCustomerId.first()
+            val response = catalogApi.getProducts(shopId = sId, pageSize = 100, customerId = customerId)
             val allProducts = response.items.map {
                 it.toDomainProduct(
                     gatewayBaseUrl = gatewayBaseUrl,
@@ -112,7 +119,9 @@ class ApiCatalogRepository @Inject constructor(
                 val matchesQuery = product.title.contains(query, ignoreCase = true) || 
                                  product.attributesMap["reference"]?.contains(query, ignoreCase = true) == true
                 
-                val matchesPrice = product.price >= filters.priceRange.start && product.price <= filters.priceRange.endInclusive
+                val matchesPrice = product.price?.let {
+                    it >= filters.priceRange.start && it <= filters.priceRange.endInclusive
+                } ?: true
                 val matchesStock = if (filters.inStockOnly) product.inStock else true
                 val matchesBrand = filters.brands.isEmpty() || filters.brands.contains(product.brand)
                 val matchesRating = product.rating >= filters.ratingMin
@@ -135,13 +144,13 @@ class ApiCatalogRepository @Inject constructor(
     override fun getProductById(shopId: String, productId: String): Flow<Product?> = flow {
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val customerId = shopPreferences.currentCustomerId.first()
             val normalizedProductId = productId.substringAfterLast("_").toIntOrNull()
             if (normalizedProductId == null) {
                 emit(null)
                 return@flow
             }
-
-            val response = catalogApi.getProduct(productId = normalizedProductId, shopId = sId)
+            val response = catalogApi.getProduct(productId = normalizedProductId, shopId = sId, customerId = customerId)
             emit(
                 response.toDomainProduct(
                     gatewayBaseUrl = gatewayBaseUrl,

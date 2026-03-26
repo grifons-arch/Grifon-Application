@@ -1,6 +1,7 @@
 package com.example.grifon
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -29,6 +31,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.grifon.core.AppLanguage
 import com.example.grifon.core.ServiceLocator
 import com.example.grifon.presentation.register.RegisterStatus
 import com.example.grifon.presentation.register.RegisterViewModel
@@ -40,7 +43,12 @@ import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 
 class RegisterActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrapContext(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppLanguage.apply(AppLanguage.getStoredLanguage(this))
         super.onCreate(savedInstanceState)
         // Αρχικοποίηση στην αρχή της Activity για σιγουριά
         if (BuildConfig.MAPS_API_KEY.isNotEmpty() && !Places.isInitialized()) {
@@ -100,10 +108,10 @@ private fun RegisterScreen(
                 apiErrorMessage = null
             } else if (result.resultCode == 2) { // 2 είναι η τιμή του Autocomplete.RESULT_ERROR
                 val status = Autocomplete.getStatusFromIntent(result.data!!)
-                apiErrorMessage = "Σφάλμα Google: ${status.statusMessage}"
+                apiErrorMessage = context.getString(R.string.google_error, status.statusMessage.orEmpty())
             }
         } catch (e: Exception) {
-            apiErrorMessage = "Σφάλμα κατά την επεξεργασία: ${e.message}"
+            apiErrorMessage = context.getString(R.string.processing_error, e.message.orEmpty())
         }
     }
 
@@ -115,7 +123,7 @@ private fun RegisterScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
-            text = "Εγγραφή",
+            text = stringResource(R.string.register),
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
         )
 
@@ -124,13 +132,13 @@ private fun RegisterScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             SocialTitleOption(
-                label = "Κος",
+                label = stringResource(R.string.social_title_mr),
                 selected = state.socialTitle == "mr",
                 onSelect = { registerViewModel.onSocialTitleChange("mr") },
             )
             Spacer(modifier = Modifier.width(12.dp))
             SocialTitleOption(
-                label = "Κα",
+                label = stringResource(R.string.social_title_mrs),
                 selected = state.socialTitle == "mrs",
                 onSelect = { registerViewModel.onSocialTitleChange("mrs") },
             )
@@ -139,48 +147,48 @@ private fun RegisterScreen(
         RegistrationTextField(
             value = state.firstName,
             onValueChange = registerViewModel::onFirstNameChange,
-            placeholder = "Όνομα *",
+            placeholder = stringResource(R.string.first_name_placeholder),
         )
         RegistrationTextField(
             value = state.lastName,
             onValueChange = registerViewModel::onLastNameChange,
-            placeholder = "Επώνυμο *",
+            placeholder = stringResource(R.string.last_name_placeholder),
         )
         RegistrationTextField(
             value = state.phone,
             onValueChange = registerViewModel::onPhoneChange,
-            placeholder = "Τηλέφωνο",
+            placeholder = stringResource(R.string.phone_placeholder),
         )
         RegistrationTextField(
             value = state.iban,
             onValueChange = registerViewModel::onIbanChange,
-            placeholder = "IBAN",
+            placeholder = stringResource(R.string.iban),
         )
 
-        SectionTitle(title = "Εταιρεία")
+        SectionTitle(title = stringResource(R.string.company_section))
         
         ConsentOption(
             checked = state.wholesaleRequested,
             onCheckedChange = registerViewModel::onWholesaleRequestedChange,
-            title = "Αίτηση για λογαριασμό Χονδρικής",
-            description = "Επιλέξτε αν είστε επαγγελματίας και επιθυμείτε πρόσβαση σε τιμές χονδρικής."
+            title = stringResource(R.string.wholesale_request_title),
+            description = stringResource(R.string.wholesale_request_description)
         )
 
         RegistrationTextField(
             value = state.companyName,
             onValueChange = registerViewModel::onCompanyNameChange,
-            placeholder = "Εταιρεία",
+            placeholder = stringResource(R.string.company_placeholder),
         )
         RegistrationTextField(
             value = state.vatNumber,
             onValueChange = registerViewModel::onVatNumberChange,
-            placeholder = "Α.Φ.Μ",
+            placeholder = stringResource(R.string.vat_placeholder),
         )
 
-        SectionTitle(title = "Διεύθυνση +")
+        SectionTitle(title = stringResource(R.string.address_section))
 
         Text(
-            text = "Αναζήτηση διεύθυνσης στο χάρτη (κλικ εδώ)",
+            text = stringResource(R.string.search_address_on_map),
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
@@ -191,7 +199,7 @@ private fun RegisterScreen(
                 .clickable {
                     try {
                         if (BuildConfig.MAPS_API_KEY.isEmpty()) {
-                            apiErrorMessage = "Λείπει το API Key"
+                            apiErrorMessage = context.getString(R.string.missing_api_key)
                         } else {
                             val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS_COMPONENTS)
                             val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
@@ -200,7 +208,7 @@ private fun RegisterScreen(
                             autocompleteLauncher.launch(intent)
                         }
                     } catch (e: Exception) {
-                        apiErrorMessage = "Αποτυχία ανοίγματος χάρτη: ${e.message}"
+                        apiErrorMessage = context.getString(R.string.open_map_failed, e.message.orEmpty())
                     }
                 }
         )
@@ -208,7 +216,7 @@ private fun RegisterScreen(
         RegistrationTextField(
             value = state.street,
             onValueChange = registerViewModel::onStreetChange,
-            placeholder = "Οδός και Αριθμός *",
+            placeholder = stringResource(R.string.street_placeholder),
         )
 
         apiErrorMessage?.let { message ->
@@ -218,34 +226,34 @@ private fun RegisterScreen(
         RegistrationTextField(
             value = state.city,
             onValueChange = registerViewModel::onCityChange,
-            placeholder = "Πόλη *",
+            placeholder = stringResource(R.string.city_placeholder),
         )
         RegistrationTextField(
             value = state.country,
             onValueChange = registerViewModel::onCountryChange,
-            placeholder = "Χώρα (ISO, π.χ. GR) *",
+            placeholder = stringResource(R.string.country_iso_placeholder),
         )
         RegistrationTextField(
             value = state.postalCode,
             onValueChange = registerViewModel::onPostalCodeChange,
-            placeholder = "Τ.Κ *",
+            placeholder = stringResource(R.string.postal_code_placeholder),
         )
 
-        SectionTitle(title = "Άλλα στοιχεία")
+        SectionTitle(title = stringResource(R.string.other_details_section))
         RegistrationTextField(
             value = state.email,
             onValueChange = registerViewModel::onEmailChange,
-            placeholder = "Email *",
+            placeholder = stringResource(R.string.email_placeholder),
         )
         RegistrationTextField(
             value = state.emailConfirmation,
             onValueChange = registerViewModel::onEmailConfirmationChange,
-            placeholder = "Επιβεβαίωση Email *",
+            placeholder = stringResource(R.string.email_confirmation_placeholder),
         )
         RegistrationTextField(
             value = state.password,
             onValueChange = registerViewModel::onPasswordChange,
-            placeholder = "Κωδικός *",
+            placeholder = stringResource(R.string.password_placeholder_required),
             isPassword = true,
             isPasswordVisible = isPasswordVisible,
             onPasswordVisibilityChange = { isPasswordVisible = !isPasswordVisible },
@@ -253,7 +261,7 @@ private fun RegisterScreen(
         RegistrationTextField(
             value = state.passwordConfirmation,
             onValueChange = registerViewModel::onPasswordConfirmationChange,
-            placeholder = "Επιβεβαίωση Κωδικού *",
+            placeholder = stringResource(R.string.password_confirmation_placeholder),
             isPassword = true,
             isPasswordVisible = isPasswordConfirmationVisible,
             onPasswordVisibilityChange = {
@@ -264,21 +272,19 @@ private fun RegisterScreen(
         ConsentOption(
             checked = state.customerDataPrivacyAccepted,
             onCheckedChange = registerViewModel::onCustomerDataPrivacyAcceptedChange,
-            title = "Προστασία δεδομένων πελάτη",
-            description = "Τα προσωπικά δεδομένα που παρέχετε χρησιμοποιούνται για την απάντηση " +
-                "σε αιτήματα, την επεξεργασία παραγγελιών ή την παροχή πρόσβασης σε συγκεκριμένες " +
-                "πληροφορίες.",
+            title = stringResource(R.string.customer_data_title),
+            description = stringResource(R.string.customer_data_description),
             required = true,
         )
         ConsentOption(
             checked = state.newsletterOptIn,
             onCheckedChange = registerViewModel::onNewsletterOptInChange,
-            title = "Εγγραφείτε στο ενημερωτικό δελτίο μας",
+            title = stringResource(R.string.newsletter_opt_in_title),
         )
         ConsentOption(
             checked = state.termsAndPrivacyAccepted,
             onCheckedChange = registerViewModel::onTermsAndPrivacyAcceptedChange,
-            title = "Αποδέχομαι τους όρους και την πολιτική απορρήτου",
+            title = stringResource(R.string.terms_privacy_title),
             required = true,
         )
 
@@ -294,11 +300,11 @@ private fun RegisterScreen(
             ),
             shape = RoundedCornerShape(12.dp),
         ) {
-            Text(text = "Αποθήκευση")
+            Text(text = stringResource(R.string.save))
         }
         
         when (val status = state.status) {
-            is RegisterStatus.Loading -> Text("Η αίτηση αποστέλλεται...", style = MaterialTheme.typography.bodySmall)
+            is RegisterStatus.Loading -> Text(stringResource(R.string.submitting_request), style = MaterialTheme.typography.bodySmall)
             is RegisterStatus.Success -> Text(status.message, color = MaterialTheme.colorScheme.primary)
             is RegisterStatus.Error -> Text(status.message, color = MaterialTheme.colorScheme.error)
             RegisterStatus.Idle -> Unit

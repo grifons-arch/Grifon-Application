@@ -19,12 +19,22 @@ object ShopConfig {
 
     fun isSwedishShop(rawShopId: String?): Boolean = normalizeShopId(rawShopId) == SwedishShopId
 
-    fun displayName(rawShopId: String?): String =
-        if (isSwedishShop(rawShopId)) {
-            "Σουηδικό κατάστημα χονδρικής"
+    fun displayName(rawShopId: String?): String {
+        val language = AppLanguage.currentLanguage()
+        return if (isSwedishShop(rawShopId)) {
+            when (language) {
+                "sv" -> "Svensk grossistbutik"
+                "el" -> "Σουηδικό κατάστημα χονδρικής"
+                else -> "Swedish Wholesale Store"
+            }
         } else {
-            "Ελληνικό κατάστημα"
+            when (language) {
+                "sv" -> "Grekisk butik"
+                "el" -> "Ελληνικό κατάστημα"
+                else -> "Greek Store"
+            }
         }
+    }
 
     fun languageLabel(rawShopId: String?): String =
         if (isSwedishShop(rawShopId)) "Svenska" else "Ελληνικά"

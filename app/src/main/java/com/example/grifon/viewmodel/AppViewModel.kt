@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.ShopConfig
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetCartUseCase
-import com.example.grifon.data.repository.ShopRepository
+import com.example.grifon.data.local.ShopPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.*
 class AppViewModel @Inject constructor(
     getActiveShopUseCase: GetActiveShopUseCase,
     getCartUseCase: GetCartUseCase,
-    shopRepository: ShopRepository,
+    shopPreferences: ShopPreferences,
 ) : ViewModel() {
     private val _state = MutableStateFlow(AppState())
     val state: StateFlow<AppState> = _state
@@ -24,17 +24,14 @@ class AppViewModel @Inject constructor(
     init {
         combine(
             getActiveShopUseCase(),
-            shopRepository.getShops()
-        ) { activeId, shops ->
-            ShopConfig.normalizeShopId(activeId) to shops
-        }.flatMapLatest { (activeId, shops) ->
+            shopPreferences.appLanguage,
+        ) { activeId, languageCode ->
+            ShopConfig.normalizeShopId(activeId) to languageCode
+        }.flatMapLatest { (activeId, _languageCode) ->
             getCartUseCase(activeId).map { cartItems ->
-                val shopName = shops.find {
-                    ShopConfig.normalizeShopId(it.id) == activeId
-                }?.name ?: ShopConfig.displayName(activeId)
                 AppState(
                     activeShopId = activeId,
-                    shopName = shopName,
+                    shopName = ShopConfig.displayName(activeId),
                     cartCount = cartItems.sumOf { it.qty },
                 )
             }
@@ -46,6 +43,6 @@ class AppViewModel @Inject constructor(
 
 data class AppState(
     val activeShopId: String = "",
-    val shopName: String = "Φόρτωση...",
+    val shopName: String = "",
     val cartCount: Int = 0,
 )

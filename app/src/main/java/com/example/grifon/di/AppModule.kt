@@ -72,8 +72,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideShopPreferences(dataStore: DataStore<Preferences>): ShopPreferences =
-        ShopPreferences(dataStore)
+    fun provideShopPreferences(
+        @ApplicationContext context: Context,
+        dataStore: DataStore<Preferences>
+    ): ShopPreferences = ShopPreferences(context, dataStore)
 
     @Provides
     @Singleton
@@ -96,8 +98,9 @@ object AppModule {
     @Singleton
     fun provideUserRepository(
         authApi: AuthApi,
-        preferences: ShopPreferences
-    ): UserRepository = UserRepositoryImpl(authApi, preferences)
+        preferences: ShopPreferences,
+        @ApplicationContext context: Context,
+    ): UserRepository = UserRepositoryImpl(authApi, preferences, context)
 
     @Provides
     @Singleton

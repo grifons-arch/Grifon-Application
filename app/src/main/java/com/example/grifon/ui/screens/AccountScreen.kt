@@ -27,9 +27,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.grifon.R
 import com.example.grifon.RegisterActivity
+import com.example.grifon.core.AppLanguage
+import com.example.grifon.core.LoginText
 import com.example.grifon.viewmodel.AccountViewModel
 import com.example.grifon.core.UiState
+import com.example.grifon.core.loginText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,6 +73,7 @@ fun AccountScreen(viewModel: AccountViewModel, onSettings: () -> Unit) {
 
 @Composable
 fun LoggedInContent(onSettings: () -> Unit) {
+    val language = AppLanguage.currentLanguage()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -77,13 +82,13 @@ fun LoggedInContent(onSettings: () -> Unit) {
     ) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Καλώς ήρθες!", style = MaterialTheme.typography.headlineSmall)
-                Text("Έχεις συνδεθεί επιτυχώς στο Grifon.")
+                Text(loginText(language, LoginText.WelcomeBack), style = MaterialTheme.typography.headlineSmall)
+                Text(loginText(language, LoginText.LoggedInSuccess))
             }
         }
-        
+
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
-            Text("Ρυθμίσεις Λογαριασμού")
+            Text(loginText(language, LoginText.AccountSettings))
         }
     }
 }
@@ -101,6 +106,7 @@ fun LoginContent(
 ) {
     val scrollState = rememberScrollState()
     var isPasswordVisible by remember { mutableStateOf(false) }
+    val language = AppLanguage.currentLanguage()
     
     Column(
         modifier = Modifier
@@ -111,12 +117,12 @@ fun LoginContent(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Σύνδεση",
+            text = loginText(language, LoginText.Login),
             style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Text(
-            text = "Συνδεθείτε για να συνεχίσετε τις αγορές σας",
+            text = loginText(language, LoginText.LoginSubtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Gray,
             modifier = Modifier.padding(bottom = 32.dp)
@@ -125,7 +131,7 @@ fun LoginContent(
         OutlinedTextField(
             value = email,
             onValueChange = onEmailChange,
-            label = { Text("Email") },
+            label = { Text(loginText(language, LoginText.Email)) },
             placeholder = { Text("example@mail.com") },
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = { Icon(Icons.Default.Mail, contentDescription = null) },
@@ -138,14 +144,18 @@ fun LoginContent(
         OutlinedTextField(
             value = password,
             onValueChange = onPasswordChange,
-            label = { Text("Κωδικός") },
+            label = { Text(loginText(language, LoginText.Password)) },
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
             trailingIcon = {
                 IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                     Icon(
                         imageVector = if (isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                        contentDescription = if (isPasswordVisible) "Απόκρυψη" else "Εμφάνιση"
+                        contentDescription = if (isPasswordVisible) {
+                            loginText(language, LoginText.HidePassword)
+                        } else {
+                            loginText(language, LoginText.ShowPassword)
+                        }
                     )
                 }
             },
@@ -173,15 +183,15 @@ fun LoginContent(
                 .height(50.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("ΣΥΝΔΕΣΗ", fontWeight = FontWeight.Bold)
+            Text(loginText(language, LoginText.Login), fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
         val registerText = buildAnnotatedString {
-            append("Δεν έχετε λογαριασμό; ")
+            append(loginText(language, LoginText.LoginNoAccount))
             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)) {
-                append("Εγγραφείτε εδώ")
+                append(loginText(language, LoginText.RegisterHere))
             }
         }
 

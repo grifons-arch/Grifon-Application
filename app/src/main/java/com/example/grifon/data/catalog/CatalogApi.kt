@@ -16,6 +16,7 @@ interface CatalogApi {
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 50,
         @Query("sort") sort: String = "[id_DESC]",
+        @Query("customerId") customerId: Int? = null,
     ): ProductsResponseDto
 
     @GET("v1/categories")
@@ -34,6 +35,7 @@ interface CatalogApi {
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 100,
         @Query("sort") sort: String = "[id_DESC]",
+        @Query("customerId") customerId: Int? = null,
     ): ProductsResponseDto
 
     @GET("v1/products/{productId}")
@@ -41,6 +43,7 @@ interface CatalogApi {
         @Path("productId") productId: Int,
         @Query("shopId") shopId: Int,
         @Query("lang") lang: Int = 1,
+        @Query("customerId") customerId: Int? = null,
     ): ProductDto
 }
 

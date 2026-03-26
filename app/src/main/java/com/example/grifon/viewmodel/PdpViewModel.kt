@@ -67,8 +67,9 @@ class PdpViewModel @Inject constructor(
     }
 
     fun addToCart(product: Product) {
+        val price = product.price ?: return
         viewModelScope.launch {
-            addToCartUseCase(_shopId.value, CartItem(product.id, 1, product.price))
+            addToCartUseCase(_shopId.value, CartItem(product.id, 1, price))
             events.emit(UiEvent.ShowSnackbar("Προστέθηκε στο καλάθι"))
         }
     }

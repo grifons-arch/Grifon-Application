@@ -1,8 +1,10 @@
 package com.example.grifon.ui.screens
 
+import android.graphics.Paint as AndroidPaint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -22,9 +24,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,9 +38,13 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.grifon.R
+import com.example.grifon.core.AppLanguage
 import com.example.grifon.domain.model.Product
 import com.example.grifon.viewmodel.HomeViewModel
 import com.example.grifon.core.UiState
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
 fun HomeScreen(
@@ -78,7 +88,7 @@ fun HomeScreen(
                             ) {
                                 listItems(viewModel.staticCategoryIcons) { cat ->
                                     CategoryIconComponent(
-                                        label = cat.label,
+                                        label = homeCategoryLabel(cat.categoryId),
                                         resId = cat.resId,
                                         isSelected = data.selectedCategoryId == cat.categoryId,
                                         onClick = { viewModel.selectCategory(cat.categoryId) }
@@ -93,7 +103,7 @@ fun HomeScreen(
                     if (data.featuredProducts.isNotEmpty()) {
                         item(span = { GridItemSpan(2) }) {
                             Text(
-                                text = "Προτεινόμενα για εσάς",
+                                text = stringResource(R.string.featured_for_you),
                                 style = MaterialTheme.typography.titleMedium.copy(color = grifonGold, fontWeight = FontWeight.Bold),
                                 modifier = Modifier.padding(16.dp)
                             )
@@ -116,7 +126,11 @@ fun HomeScreen(
                     // 3. Τίτλος "Όλα τα Προϊόντα"
                     item(span = { GridItemSpan(2) }) {
                         Text(
-                            text = if (data.selectedCategoryId == null) "Όλα τα Προϊόντα" else "Προϊόντα Κατηγορίας",
+                            text = if (data.selectedCategoryId == null) {
+                                stringResource(R.string.all_products)
+                            } else {
+                                stringResource(R.string.category_products)
+                            },
                             style = MaterialTheme.typography.titleMedium.copy(color = grifonGold, fontWeight = FontWeight.Bold),
                             modifier = Modifier.padding(16.dp)
                         )
@@ -126,7 +140,7 @@ fun HomeScreen(
                     if (data.allProducts.isEmpty()) {
                         item(span = { GridItemSpan(2) }) {
                             Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                                Text("Δεν βρέθηκαν προϊόντα", color = Color.Gray)
+                                Text(stringResource(R.string.no_products_found), color = Color.Gray)
                             }
                         }
                     } else {
@@ -156,12 +170,12 @@ fun HomeScreen(
 @Composable
 fun NewsletterSection() {
     Column(modifier = Modifier.fillMaxWidth().background(Color(0xFF001C46)).padding(24.dp)) {
-        Text("Εγγραφείτε στο newsletter", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Text("Λάβετε ενημερώσεις για νέα είδη.", color = Color.White.copy(0.7f), fontSize = 13.sp)
+        Text(stringResource(R.string.newsletter_title), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.newsletter_subtitle), color = Color.White.copy(0.7f), fontSize = 13.sp)
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = "", onValueChange = {}, modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Email", color = Color.Gray) },
+            placeholder = { Text(stringResource(R.string.email), color = Color.Gray) },
             trailingIcon = { Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White) },
             colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.White.copy(0.2f), focusedContainerColor = Color.White.copy(0.05f), unfocusedContainerColor = Color.White.copy(0.05f), focusedTextColor = Color.White, unfocusedTextColor = Color.White),
             singleLine = true
@@ -172,21 +186,141 @@ fun NewsletterSection() {
 @Composable
 fun CookieConsentBanner() {
     Column(modifier = Modifier.fillMaxWidth().background(Color.Black.copy(0.95f)).padding(24.dp)) {
-        Text("Χρησιμοποιούμε cookies για την καλύτερη εμπειρία σας.", color = Color.White, fontSize = 12.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        Text(stringResource(R.string.cookie_message), color = Color.White, fontSize = 12.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {}, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF005A5F)), shape = RoundedCornerShape(4.dp)) {
-            Text("ΑΠΟΔΕΧΟΜΑΙ", color = Color.White, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.accept), color = Color.White, fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable
 fun CategoryIconComponent(label: String, resId: Int, isSelected: Boolean, onClick: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(75.dp).clickable { onClick() }) {
-        Box(modifier = Modifier.size(60.dp).clip(CircleShape).background(if (isSelected) Color(0xFFC5A059) else Color(0xFF1E1E1E)).border(if (isSelected) 2.dp else 0.dp, Color.White, CircleShape), contentAlignment = Alignment.Center) {
-            Image(painter = painterResource(id = resId), contentDescription = label, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+    Box(
+        modifier = Modifier
+            .width(132.dp)
+            .padding(vertical = 6.dp)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier.size(118.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularRainbowText(
+                text = label,
+                modifier = Modifier.fillMaxSize(),
+                isSelected = isSelected
+            )
+            Box(
+                modifier = Modifier
+                    .size(74.dp)
+                    .clip(CircleShape)
+                    .background(if (isSelected) Color(0xFFC5A059) else Color(0xFF1E1E1E))
+                    .border(if (isSelected) 2.dp else 1.dp, Color.White.copy(alpha = if (isSelected) 1f else 0.55f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = resId),
+                    contentDescription = label,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
-        Text(text = label, fontSize = 11.sp, color = if (isSelected) Color(0xFFC5A059) else Color.White, modifier = Modifier.padding(top = 4.dp), maxLines = 1, textAlign = TextAlign.Center)
+    }
+}
+
+@Composable
+private fun CircularRainbowText(
+    text: String,
+    modifier: Modifier = Modifier,
+    isSelected: Boolean,
+) {
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val rainbow = remember {
+        listOf(
+            Color(0xFFFF6B6B),
+            Color(0xFFFFA94D),
+            Color(0xFFFFE066),
+            Color(0xFF69DB7C),
+            Color(0xFF4DABF7),
+            Color(0xFF9775FA),
+            Color(0xFFF06595),
+        )
+    }
+    Canvas(modifier = modifier) {
+        val centerX = size.width / 2f
+        val centerY = size.height / 2f
+        val radius = size.minDimension / 2f - 10.dp.toPx()
+        val displayText = text.uppercase()
+        val visibleChars = displayText.count { !it.isWhitespace() }.coerceAtLeast(1)
+        val sweep = (visibleChars * 14f).coerceIn(150f, 300f)
+        val startAngle = -90f - sweep / 2f
+        val step = if (displayText.length <= 1) 0f else sweep / (displayText.length - 1)
+        val textSizePx = with(density) { if (isSelected) 10.5.sp.toPx() else 10.sp.toPx() }
+        val paint = AndroidPaint().apply {
+            isAntiAlias = true
+            textAlign = android.graphics.Paint.Align.LEFT
+            textSize = textSizePx
+            typeface = android.graphics.Typeface.create(android.graphics.Typeface.SANS_SERIF, android.graphics.Typeface.BOLD)
+            alpha = if (isSelected) 255 else 235
+        }
+
+        drawIntoCanvas { canvas ->
+            val nativeCanvas = canvas.nativeCanvas
+            displayText.forEachIndexed { index, char ->
+                val angle = startAngle + step * index
+                val radians = angle * (PI / 180f).toFloat()
+                val x = centerX + cos(radians) * radius
+                val y = centerY + sin(radians) * radius
+                if (!char.isWhitespace()) {
+                    val glyph = char.toString()
+                    val charWidth = paint.measureText(glyph)
+                    paint.color = rainbow[index % rainbow.size].toArgb()
+                    nativeCanvas.save()
+                    nativeCanvas.rotate(angle + 90f, x, y)
+                    nativeCanvas.drawText(glyph, x - charWidth / 2f, y + textSizePx / 3.2f, paint)
+                    nativeCanvas.restore()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun homeCategoryLabel(categoryId: String?): String {
+    return when (AppLanguage.currentLanguage()) {
+        "sv" -> when (categoryId) {
+            null -> "Alla Produkter"
+            "4000" -> "Keramik"
+            "4500" -> "Figuriner"
+            "5000" -> "Dekor"
+            "7500" -> "Bruksföremål"
+            "7000" -> "Hobby"
+            "8000" -> "Accessoarer"
+            else -> "Kategori"
+        }
+        "en" -> when (categoryId) {
+            null -> "All Products"
+            "4000" -> "Ceramics"
+            "4500" -> "Figurines"
+            "5000" -> "Decor"
+            "7500" -> "Everyday Use"
+            "7000" -> "Hobbies"
+            "8000" -> "Accessories"
+            else -> "Category"
+        }
+        else -> when (categoryId) {
+            null -> "Όλα τα Προϊόντα"
+            "4000" -> "Κεραμικά"
+            "4500" -> "Φιγούρες"
+            "5000" -> "Διακόσμηση"
+            "7500" -> "Είδη Χρήσης"
+            "7000" -> "Χόμπι"
+            "8000" -> "Αξεσουάρ"
+            else -> "Κατηγορία"
+        }
     }
 }
 
@@ -209,7 +343,9 @@ fun ProductCard(product: Product, onClick: () -> Unit) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(product.title, color = Color.White, fontSize = 13.sp, maxLines = 2, minLines = 2, lineHeight = 18.sp)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("${product.price} €", color = Color(0xFFC5A059), fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                if (product.price != null) {
+                    Text("${product.price} €", color = Color(0xFFC5A059), fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }

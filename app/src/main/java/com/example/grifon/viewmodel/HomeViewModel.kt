@@ -7,6 +7,7 @@ import com.example.grifon.core.ShopConfig
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.catalog.HomeProductsWebService
 import com.example.grifon.data.catalog.toDomainProduct
+import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
@@ -24,6 +25,7 @@ class HomeViewModel @Inject constructor(
     private val getCategoryTreeUseCase: GetCategoryTreeUseCase,
     private val homeProductsWebService: HomeProductsWebService,
     private val catalogApi: CatalogApi,
+    private val shopPreferences: ShopPreferences,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<HomeState>>(UiState.Loading)
     val uiState: StateFlow<UiState<HomeState>> = _uiState
@@ -32,13 +34,13 @@ class HomeViewModel @Inject constructor(
     private var currentShopId: String = "4"
 
     val staticCategoryIcons = listOf(
-        CategoryIconItem("Όλα", R.drawable.logo, null),
-        CategoryIconItem("Κερ.", R.drawable.kersmiks_diskodmhtiks, "4000"),
-        CategoryIconItem("Αγάλ.", R.drawable.veroza, "4500"),
-        CategoryIconItem("Διακ.", R.drawable.fvthsthka, "5000"),
-        CategoryIconItem("Χρήση", R.drawable.sapounia, "7500"),
-        CategoryIconItem("Χόμπι", R.drawable.skakitabli, "7000"),
-        CategoryIconItem("Αξεσ.", R.drawable.yfasmatina, "8000")
+        CategoryIconItem(R.drawable.logo, null),
+        CategoryIconItem(R.drawable.kersmiks_diskodmhtiks, "4000"),
+        CategoryIconItem(R.drawable.veroza, "4500"),
+        CategoryIconItem(R.drawable.fvthsthka, "5000"),
+        CategoryIconItem(R.drawable.sapounia, "7500"),
+        CategoryIconItem(R.drawable.skakitabli, "7000"),
+        CategoryIconItem(R.drawable.yfasmatina, "8000")
     )
 
     init {
@@ -59,8 +61,9 @@ class HomeViewModel @Inject constructor(
             _uiState.value = UiState.Loading
             try {
                 // Φορτώνουμε τα προτεινόμενα (π.χ. από κατηγορία 2)
+                val customerId = shopPreferences.currentCustomerId.first()
                 val featured = runCatching { 
-                    catalogApi.getCategoryProducts(categoryId = 2, shopId = currentShopId.toInt(), pageSize = 10).items.map { 
+                    catalogApi.getCategoryProducts(categoryId = 2, shopId = currentShopId.toInt(), pageSize = 10, customerId = customerId).items.map { 
                         it.toDomainProduct(gatewayBaseUrl, "Featured") 
                     }
                 }.getOrDefault(emptyList())
@@ -121,4 +124,4 @@ data class HomeState(
     val allProducts: List<Product> = emptyList()
 )
 
-data class CategoryIconItem(val label: String, val resId: Int, val categoryId: String?)
+data class CategoryIconItem(val resId: Int, val categoryId: String?)

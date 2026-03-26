@@ -2,6 +2,7 @@ package com.example.grifon.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.grifon.core.AppLanguage
 import com.example.grifon.core.UiState
 import com.example.grifon.core.ShopConfig
 import com.example.grifon.domain.model.Shop
@@ -39,9 +40,7 @@ class SettingsViewModel @Inject constructor(
             SettingsState(
                 shops = shops,
                 activeShopId = normalizedActiveId,
-                activeShopName = shops.firstOrNull {
-                    ShopConfig.normalizeShopId(it.id) == normalizedActiveId
-                }?.name ?: ShopConfig.displayName(normalizedActiveId),
+                activeShopName = ShopConfig.displayName(normalizedActiveId),
                 language = languageCode,
                 currency = "EUR",
                 darkMode = darkMode,
@@ -66,7 +65,9 @@ class SettingsViewModel @Inject constructor(
 
     fun setLanguage(languageCode: String) {
         viewModelScope.launch {
-            shopPreferences.setLanguage(languageCode)
+            val normalizedLanguage = AppLanguage.normalize(languageCode)
+            AppLanguage.apply(normalizedLanguage)
+            shopPreferences.setLanguage(normalizedLanguage)
         }
     }
 }

@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.grifon.R
 import com.example.grifon.core.UiState
 import com.example.grifon.viewmodel.CartViewModel
 
@@ -38,18 +40,27 @@ fun CartScreen(viewModel: CartViewModel) {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(text = "${item.productId}")
-                            Text(text = "Qty: ${item.qty}")
-                            Text(text = "${item.priceSnapshot} ευρώ")
+                            Text(text = stringResource(R.string.quantity_value, item.qty))
+                            if (cart.canViewPrices) {
+                                Text(text = stringResource(R.string.price_amount, item.priceSnapshot))
+                            }
                         }
                     }
                 }
                 item {
-                    Text(
-                        text = "Σύνολο: ${cart.total} ευρώ",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Button(onClick = {}) {
-                        Text(text = "Checkout")
+                    if (cart.canViewPrices && cart.total != null) {
+                        Text(
+                            text = stringResource(R.string.total_amount, cart.total),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Button(onClick = {}) {
+                            Text(text = stringResource(R.string.checkout))
+                        }
+                    } else {
+                        Text(
+                            text = stringResource(R.string.wholesale_prices_only),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
                     }
                 }
             }

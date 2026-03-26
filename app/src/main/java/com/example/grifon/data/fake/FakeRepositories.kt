@@ -1,6 +1,7 @@
 package com.example.grifon.data.fake
 
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.data.catalog.ShopDto
 import com.example.grifon.core.ShopConfig
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.CatalogRepository
@@ -15,6 +16,7 @@ import com.example.grifon.domain.model.Shop
 import com.example.grifon.domain.model.SortOption
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -24,25 +26,24 @@ class FakeShopRepository(
     private val catalogApi: CatalogApi,
 ) : ShopRepository {
     override fun getShops(): Flow<List<Shop>> = flow {
-        val remoteShops = runCatching { catalogApi.getShops() }
-            .getOrDefault(listOf())
-
-        val mapped = if (remoteShops.isNotEmpty()) {
-            remoteShops.map { shop ->
-                val normalizedId = ShopConfig.normalizeShopId(shop.id.toString())
-                Shop(
-                    id = normalizedId,
-                    name = shop.code?.let(ShopConfig::displayName) ?: ShopConfig.displayName(normalizedId),
-                )
-            }
-        } else {
+        val remoteShops = runCatching { catalogApi.getShops() }.getOrElse {
             listOf(
-                Shop(ShopConfig.GreekShopId, ShopConfig.displayName(ShopConfig.GreekShopId)),
-                Shop(ShopConfig.SwedishShopId, ShopConfig.displayName(ShopConfig.SwedishShopId)),
+                ShopDto(id = ShopConfig.GreekShopId.toInt()),
+                ShopDto(id = ShopConfig.SwedishShopId.toInt()),
             )
         }
-
-        emit(mapped)
+        emitAll(
+            preferences.appLanguage.map {
+                remoteShops.map { shop ->
+                    val rawId = shop.code ?: shop.id.toString()
+                    val normalizedId = ShopConfig.normalizeShopId(rawId)
+                    Shop(
+                        id = normalizedId,
+                        name = ShopConfig.displayName(rawId),
+                    )
+                }
+            }
+        )
     }
 
     override fun getActiveShopId(): Flow<String> = preferences.activeShopId
@@ -96,7 +97,7 @@ class FakeCatalogRepository : CatalogRepository {
         sortOption: SortOption,
     ): List<Product> {
         var filtered = products.filter { product ->
-            product.price in filters.priceRange &&
+            (product.price?.let { it in filters.priceRange } ?: true) &&
                 (!filters.inStockOnly || product.inStock) &&
                 (filters.ratingMin <= product.rating) &&
                 (filters.brands.isEmpty() || filters.brands.contains(product.brand)) &&
@@ -114,8 +115,8 @@ class FakeCatalogRepository : CatalogRepository {
         }
         return when (sortOption) {
             SortOption.RELEVANCE -> filtered
-            SortOption.PRICE_LOW_HIGH -> filtered.sortedBy { it.price }
-            SortOption.PRICE_HIGH_LOW -> filtered.sortedByDescending { it.price }
+            SortOption.PRICE_LOW_HIGH -> filtered.sortedBy { it.price ?: Double.MAX_VALUE }
+            SortOption.PRICE_HIGH_LOW -> filtered.sortedByDescending { it.price ?: Double.MIN_VALUE }
             SortOption.RATING -> filtered.sortedByDescending { it.rating }
         }
     }

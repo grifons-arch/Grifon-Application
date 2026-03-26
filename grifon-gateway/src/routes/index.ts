@@ -17,8 +17,18 @@ import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { listCategories } from "../services/categoryService";
 import { listProductsByCategory, getProductDetail, listAllProducts } from "../services/productService";
 import { registerCustomer, loginCustomer } from "../services/authService";
+import { getPriceAccess } from "../services/priceAccessService";
 
 export const apiRouter = Router();
+
+const resolveAllowPrice = async (
+  client: PrestaShopClient,
+  customerId?: number
+): Promise<boolean> => {
+  if (!customerId) return false;
+  const access = await getPriceAccess(client, customerId);
+  return access.allowed;
+};
 
 const authRateLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -89,12 +99,13 @@ apiRouter.get("/v1/images/products/:productId/:imageId", async (req, res, next) 
 // ALL PRODUCTS ROUTE
 apiRouter.get(
   "/v1/products",
-  validateQuery(shopQuerySchema.merge(productPaginationSchema)),
+  validateQuery(shopQuerySchema.merge(productPaginationSchema).merge(customerIdSchema.partial())),
   async (req, res, next) => {
     try {
-      const { shopId, lang, page, pageSize, sort } = req.query as any;
+      const { shopId, lang, page, pageSize, sort, customerId } = req.query as any;
       const client = new PrestaShopClient({ shopId, lang });
-      const items = await listAllProducts(client, shopId, page, pageSize, sort, lang);
+      const allowPrice = await resolveAllowPrice(client, customerId ? Number(customerId) : undefined);
+      const items = await listAllProducts(client, shopId, page, pageSize, sort, lang, allowPrice);
       res.json({ page, pageSize, items });
     } catch (error) {
       next(error);
@@ -120,13 +131,14 @@ apiRouter.get(
 apiRouter.get(
   "/v1/categories/:categoryId/products",
   validateParams(categoryIdSchema),
-  validateQuery(shopQuerySchema.merge(productPaginationSchema)),
+  validateQuery(shopQuerySchema.merge(productPaginationSchema).merge(customerIdSchema.partial())),
   async (req, res, next) => {
     try {
-      const { shopId, lang, page, pageSize, sort } = req.query as any;
+      const { shopId, lang, page, pageSize, sort, customerId } = req.query as any;
       const { categoryId } = req.params as any;
       const client = new PrestaShopClient({ shopId, lang });
-      const items = await listProductsByCategory(client, shopId, Number(categoryId), page, pageSize, sort, lang);
+      const allowPrice = await resolveAllowPrice(client, customerId ? Number(customerId) : undefined);
+      const items = await listProductsByCategory(client, shopId, Number(categoryId), page, pageSize, sort, lang, allowPrice);
       res.json({ page, pageSize, items });
     } catch (error) {
       next(error);
@@ -143,7 +155,8 @@ apiRouter.get(
       const { shopId, lang, customerId } = req.query as any;
       const { productId } = req.params as any;
       const client = new PrestaShopClient({ shopId, lang });
-      const item = await getProductDetail(client, shopId, Number(productId), lang, true);
+      const allowPrice = await resolveAllowPrice(client, customerId ? Number(customerId) : undefined);
+      const item = await getProductDetail(client, shopId, Number(productId), lang, allowPrice);
       res.json(item);
     } catch (error) {
       next(error);

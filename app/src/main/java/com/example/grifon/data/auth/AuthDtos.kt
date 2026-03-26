@@ -17,6 +17,8 @@ data class LoginResponseDto(
     val lastname: String? = null,
     val email: String? = null,
     val company: String? = null,
+    @Json(name = "can_view_prices")
+    val canViewPrices: Boolean? = null,
     val error: String? = null,
     val message: String? = null
 )

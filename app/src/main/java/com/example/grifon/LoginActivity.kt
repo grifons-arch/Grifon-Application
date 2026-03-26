@@ -1,5 +1,6 @@
 package com.example.grifon
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,12 +8,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.grifon.core.AppLanguage
+import com.example.grifon.core.LoginText
+import com.example.grifon.core.loginText
 import com.example.grifon.ui.theme.GrifonTheme
 
 class                                   LoginActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrapContext(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppLanguage.apply(AppLanguage.getStoredLanguage(this))
         super.onCreate(savedInstanceState)
 
         setContent {
@@ -21,12 +31,17 @@ class                                   LoginActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        text = "Login",
-                        style = MaterialTheme.typography.headlineMedium,
-                    )
+                    LoginTitle()
                 }
             }
         }
     }
+}
+
+@Composable
+private fun LoginTitle() {
+    Text(
+        text = loginText(AppLanguage.currentLanguage(), LoginText.Login),
+        style = MaterialTheme.typography.headlineMedium,
+    )
 }

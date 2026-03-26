@@ -1,6 +1,13 @@
 package com.example.grifon.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Home
@@ -9,37 +16,47 @@ import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.grifon.R
 import com.example.grifon.navigation.Routes
 
-private data class BottomItem(val route: String, val labelRes: Int)
+private data class BottomItem(val route: String)
 
 @Composable
 fun AppBottomNav(navController: NavHostController, cartCount: Int) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val items = listOf(
-        BottomItem(Routes.HOME, R.string.home),
-        BottomItem(Routes.CATEGORIES, R.string.categories),
-        BottomItem(Routes.CART, R.string.cart),
-        BottomItem(Routes.ACCOUNT, R.string.account),
-        BottomItem(Routes.SETTINGS, R.string.settings),
+        BottomItem(Routes.HOME),
+        BottomItem(Routes.CATEGORIES),
+        BottomItem(Routes.CART),
+        BottomItem(Routes.ACCOUNT),
+        BottomItem(Routes.SETTINGS),
     )
 
-    NavigationBar {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.primary,
+        tonalElevation = 0.dp,
+    ) {
         items.forEach { item ->
             val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
-            val label = stringResource(item.labelRes)
+            val iconScale by animateFloatAsState(
+                targetValue = if (selected) 1.18f else 1f,
+                animationSpec = tween(durationMillis = 180),
+                label = "bottom_nav_icon_scale",
+            )
             NavigationBarItem(
                 selected = selected,
                 onClick = {
@@ -51,17 +68,49 @@ fun AppBottomNav(navController: NavHostController, cartCount: Int) {
                 },
                 icon = {
                     when (item.route) {
-                        Routes.HOME -> Icon(Icons.Outlined.Home, contentDescription = label)
-                        Routes.CATEGORIES -> Icon(Icons.Outlined.Category, contentDescription = label)
+                        Routes.HOME -> Icon(
+                            if (selected) Icons.Filled.Home else Icons.Outlined.Home,
+                            contentDescription = null,
+                            modifier = Modifier.graphicsLayer(scaleX = iconScale, scaleY = iconScale),
+                        )
+                        Routes.CATEGORIES -> Icon(
+                            if (selected) Icons.Filled.Category else Icons.Outlined.Category,
+                            contentDescription = null,
+                            modifier = Modifier.graphicsLayer(scaleX = iconScale, scaleY = iconScale),
+                        )
                         Routes.CART -> BadgedBox(
                             badge = { if (cartCount > 0) Badge { Text(cartCount.toString()) } },
-                        ) { Icon(Icons.Outlined.ShoppingCart, contentDescription = label) }
-                        Routes.ACCOUNT -> Icon(Icons.Outlined.AccountCircle, contentDescription = label)
-                        Routes.SETTINGS -> Icon(Icons.Outlined.Settings, contentDescription = label)
-                        else -> Icon(Icons.Outlined.AccountCircle, contentDescription = label)
+                        ) {
+                            Icon(
+                                if (selected) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
+                                contentDescription = null,
+                                modifier = Modifier.graphicsLayer(scaleX = iconScale, scaleY = iconScale),
+                            )
+                        }
+                        Routes.ACCOUNT -> Icon(
+                            if (selected) Icons.Filled.AccountCircle else Icons.Outlined.AccountCircle,
+                            contentDescription = null,
+                            modifier = Modifier.graphicsLayer(scaleX = iconScale, scaleY = iconScale),
+                        )
+                        Routes.SETTINGS -> Icon(
+                            if (selected) Icons.Filled.Settings else Icons.Outlined.Settings,
+                            contentDescription = null,
+                            modifier = Modifier.graphicsLayer(scaleX = iconScale, scaleY = iconScale),
+                        )
+                        else -> Icon(
+                            Icons.Outlined.AccountCircle,
+                            contentDescription = null,
+                            modifier = Modifier.graphicsLayer(scaleX = iconScale, scaleY = iconScale),
+                        )
                     }
                 },
-                label = { Text(label) },
+                label = null, // Αφαίρεση της λεζάντας
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.onSecondary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.42f),
+                    indicatorColor = MaterialTheme.colorScheme.secondary,
+                ),
             )
         }
     }

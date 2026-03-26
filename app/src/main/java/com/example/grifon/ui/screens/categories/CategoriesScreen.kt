@@ -14,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.grifon.R
 import com.example.grifon.core.UiState
 import com.example.grifon.ui.screens.ErrorScreen
 import com.example.grifon.ui.screens.LoadingScreen
@@ -29,7 +31,7 @@ fun CategoriesScreen(
     val uiState by viewModel.uiState.collectAsState()
     when (uiState) {
         UiState.Loading -> LoadingScreen()
-        is UiState.Error -> ErrorScreen(message = "Αδυναμία φόρτωσης κατηγοριών")
+        is UiState.Error -> ErrorScreen(message = stringResource(R.string.categories_load_error))
         is UiState.Success -> {
             val state = (uiState as UiState.Success<CategoriesState>).data
             LazyColumn(
@@ -37,12 +39,12 @@ fun CategoriesScreen(
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
             ) {
                 item {
-                    Text(text = "Κατηγορίες", style = MaterialTheme.typography.titleLarge)
+                    Text(text = stringResource(R.string.categories), style = MaterialTheme.typography.titleLarge)
                 }
                 if (state.categories.isEmpty()) {
                     item {
                         Text(
-                            text = "Δεν βρέθηκαν κατηγορίες για το ενεργό κατάστημα.",
+                            text = stringResource(R.string.categories_empty),
                             modifier = Modifier.padding(top = 16.dp),
                             style = MaterialTheme.typography.bodyLarge,
                         )

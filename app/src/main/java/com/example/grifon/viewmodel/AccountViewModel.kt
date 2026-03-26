@@ -1,10 +1,14 @@
 package com.example.grifon.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.grifon.core.LoginText
 import com.example.grifon.core.UiState
 import com.example.grifon.data.repository.UserRepository
+import com.example.grifon.core.loginText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -12,6 +16,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<AccountState>>(UiState.Loading)
     val uiState: StateFlow<UiState<AccountState>> = _uiState
@@ -46,7 +51,7 @@ class AccountViewModel @Inject constructor(
 
     fun login() {
         if (_email.value.isBlank() || _password.value.length < 6) {
-            _loginError.value = "Παρακαλώ συμπληρώστε σωστά τα στοιχεία σας (Κωδικός τουλάχιστον 6 χαρακτήρες)"
+            _loginError.value = loginText(context, LoginText.LoginValidationError)
             return
         }
 
@@ -60,7 +65,7 @@ class AccountViewModel @Inject constructor(
                     _isLoggingIn.value = false
                 }
                 .onFailure { error ->
-                    _loginError.value = error.message ?: "Αποτυχία σύνδεσης"
+                    _loginError.value = error.message ?: loginText(context, LoginText.LoginFailed)
                     _isLoggingIn.value = false
                 }
         }

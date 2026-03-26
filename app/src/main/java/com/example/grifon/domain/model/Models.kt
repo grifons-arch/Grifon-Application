@@ -15,7 +15,7 @@ data class Category(
 data class Product(
     val id: String,
     val title: String,
-    val price: Double,
+    val price: Double?,
     val currency: String,
     val imageUrl: String,
     val images: List<String> = emptyList(),

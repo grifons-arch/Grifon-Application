@@ -1,6 +1,8 @@
 import axios from "axios";
 import crypto from "crypto";
 import { config } from "../config/env";
+import { PrestaShopClient } from "../clients/PrestaShopClient";
+import { getPriceAccess } from "./priceAccessService";
 
 export interface RegisterRequest {
   email: string;
@@ -100,7 +102,23 @@ export const updateProfile = async (request: RegisterRequest): Promise<any> => {
 
 export const loginCustomer = async (email: string, pass: string): Promise<any> => {
   const payload = { action: "login", email: email.trim().toLowerCase(), password: pass };
-  return sendToPrestaShop(payload, "GR");
+  const response = await sendToPrestaShop(payload, "GR");
+  const customerId = response?.id_customer ? Number(response.id_customer) : null;
+
+  if (!customerId) {
+    return {
+      ...response,
+      can_view_prices: false,
+    };
+  }
+
+  const client = new PrestaShopClient({ shopId: 4 });
+  const priceAccess = await getPriceAccess(client, customerId);
+
+  return {
+    ...response,
+    can_view_prices: priceAccess.allowed,
+  };
 };
 
 async function sendToPrestaShop(payload: any, countryIso: string) {

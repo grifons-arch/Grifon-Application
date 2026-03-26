@@ -5,9 +5,12 @@ import com.example.grifon.domain.model.Product
 import com.example.grifon.core.ShopConfig
 import javax.inject.Inject
 import com.example.grifon.BuildConfig
+import com.example.grifon.data.local.ShopPreferences
+import kotlinx.coroutines.flow.first
 
 class HomeProductsWebService @Inject constructor(
     private val catalogApi: CatalogApi,
+    private val shopPreferences: ShopPreferences,
 ) {
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
@@ -16,9 +19,10 @@ class HomeProductsWebService @Inject constructor(
         val selectedShop = resolveShop(shops, shopKey) ?: throw Exception("Shop not found: $shopKey")
 
         Log.d("GrifonAPI", "Fetching products for shop: ${selectedShop.id} (${selectedShop.code})")
+        val customerId = shopPreferences.currentCustomerId.first()
         
         // Προσπάθεια για γενικά προϊόντα
-        val productsResponse = catalogApi.getProducts(shopId = selectedShop.id, pageSize = 50)
+        val productsResponse = catalogApi.getProducts(shopId = selectedShop.id, pageSize = 50, customerId = customerId)
         
         if (productsResponse.items.isNotEmpty()) {
             return productsResponse.items.map { dto ->
@@ -35,6 +39,7 @@ class HomeProductsWebService @Inject constructor(
             categoryId = 2,
             shopId = selectedShop.id,
             pageSize = 50,
+            customerId = customerId,
         )
         
         return fallbackResponse.items.map { dto ->

@@ -31,8 +31,8 @@ fun ProductDto.toDomainProduct(
 
     return Product(
         id = id.toString(),
-        title = name ?: "Προϊόν #$id",
-        price = price ?: 0.0,
+        title = name ?: "#$id",
+        price = price,
         currency = "EUR",
         imageUrl = imageUrl,
         images = emptyList(),

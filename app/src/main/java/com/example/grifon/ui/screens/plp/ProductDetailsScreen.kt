@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -131,7 +132,7 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
                     val reference = product.attributesMap["reference"] ?: ""
                     if (reference.isNotEmpty()) {
                         Text(
-                            text = "Κωδικός: $reference",
+                            text = stringResource(R.string.product_code, reference),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray
                         )
@@ -139,20 +140,29 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    Text(
-                        text = "${product.price} €",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    if (product.price != null) {
+                        Text(
+                            text = "${product.price} €",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(R.string.wholesale_prices_only),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Button(
-                        onClick = { viewModel.addToCart(product) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.medium
-                    ) {
-                        Text(text = "Προσθήκη στο καλάθι")
+                    if (product.price != null) {
+                        Button(
+                            onClick = { viewModel.addToCart(product) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.medium
+                        ) {
+                            Text(text = stringResource(R.string.add_to_cart))
+                        }
                     }
                 }
             }
@@ -201,7 +211,7 @@ fun ImageZoomDialog(imageUrl: String, onDismiss: () -> Unit) {
                 onClick = onDismiss,
                 modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close), tint = Color.White)
             }
         }
     }
