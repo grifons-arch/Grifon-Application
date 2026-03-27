@@ -4,6 +4,7 @@ import axios from "axios";
 import { config, shops } from "../config/env";
 import { validateQuery, validateParams, validateBody } from "../middleware/validate";
 import {
+  customerActivityClearBodySchema,
   categoryIdSchema,
   customerActivityQuerySchema,
   customerIdSchema,
@@ -24,7 +25,8 @@ import {
   syncFavoriteProduct,
   recordRecentProduct,
   listFavoriteProducts,
-  listRecentProducts
+  listRecentProducts,
+  clearActivityTables
 } from "../services/authService";
 import { getPriceAccess } from "../services/priceAccessService";
 import { listWholesaleCustomers } from "../services/wholesaleCustomerService";
@@ -140,6 +142,22 @@ apiRouter.get(
         customerId: Number(customerId),
         shopId: Number(shopId),
         limit: limit ? Number(limit) : undefined,
+      });
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.post(
+  "/v1/customer-activity/clear",
+  validateBody(customerActivityClearBodySchema),
+  async (req, res, next) => {
+    try {
+      const { shopId } = req.body as any;
+      const result = await clearActivityTables({
+        shopId: Number(shopId) as 1 | 4,
       });
       res.json(result);
     } catch (error) {

@@ -126,3 +126,7 @@ export const customerActivityQuerySchema = z.object({
   shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
   limit: z.preprocess(toNumber, z.number().int().min(1).max(100).optional())
 });
+
+export const customerActivityClearBodySchema = z.object({
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)]))
+});

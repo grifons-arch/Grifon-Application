@@ -67,3 +67,9 @@ To create the missing activity tables manually from a real PrestaShop install:
 ```bash
 python3 modules/grifoncustomersync/scripts/ensure_activity_tables.py --ps-root=/var/www/html
 ```
+
+To clear all favorites and recent product rows from PrestaShop:
+
+```bash
+python3 modules/grifoncustomersync/scripts/clear_activity_tables.py --ps-root=/var/www/html
+```

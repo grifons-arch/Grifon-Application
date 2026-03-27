@@ -50,6 +50,8 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
                 $this->handleListFavoriteProducts($payload);
             } elseif (isset($payload['action']) && $payload['action'] === 'list_recent_products') {
                 $this->handleListRecentProducts($payload);
+            } elseif (isset($payload['action']) && $payload['action'] === 'clear_activity_tables') {
+                $this->handleClearActivityTables();
             } else {
                 $this->handleSync($payload);
             }
@@ -226,6 +228,14 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         }
 
         $this->respond(200, ['ok' => true, 'items' => $items]);
+    }
+
+    private function handleClearActivityTables()
+    {
+        Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'grifon_favorite_product`');
+        Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'grifon_recent_product`');
+
+        $this->respond(200, ['ok' => true]);
     }
 
     private function requireAuth($secret, $maxSkew, $rawBody)

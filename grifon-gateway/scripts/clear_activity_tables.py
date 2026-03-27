@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-"""Create missing Grifon activity tables in a PrestaShop database.
-
-This script reads DB credentials and table prefix from a real PrestaShop install
-and creates the `grifon_favorite_product` and `grifon_recent_product` tables if
-they are missing.
-"""
 
 from __future__ import annotations
 
@@ -18,7 +12,7 @@ from pathlib import Path
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Create missing Grifon activity tables in PrestaShop DB."
+        description="Delete all rows from Grifon activity tables in a PrestaShop database."
     )
     parser.add_argument(
         "--ps-root",
@@ -47,7 +41,7 @@ def read_text(path: Path) -> str:
 
 def extract_define(text: str, constant_name: str) -> str | None:
     pattern = re.compile(
-        rf"define\(\s*['\"]{re.escape(constant_name)}['\"]\s*,\s*['\"]([^'\"]+)['\"]\s*\)",
+        rf"define\(\s*['\"]{re.escape(constant_name)}['\"]\s*,\s*['\"]([^'\"]*)['\"]\s*\)",
         re.IGNORECASE,
     )
     match = pattern.search(text)
@@ -56,7 +50,7 @@ def extract_define(text: str, constant_name: str) -> str | None:
 
 def extract_php_array_value(text: str, key: str) -> str | None:
     pattern = re.compile(
-        rf"['\"]{re.escape(key)}['\"]\s*=>\s*['\"]([^'\"]+)['\"]",
+        rf"['\"]{re.escape(key)}['\"]\s*=>\s*['\"]([^'\"]*)['\"]",
         re.IGNORECASE,
     )
     match = pattern.search(text)
@@ -98,40 +92,8 @@ def load_prestashop_db_config(ps_root: Path) -> dict[str, str]:
 def build_sql(prefix: str) -> str:
     safe_prefix = prefix.replace("`", "")
     return f"""
-CREATE TABLE IF NOT EXISTS `{safe_prefix}grifon_favorite_product` (
-    `id_grifon_favorite_product` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `id_customer` INT UNSIGNED NOT NULL,
-    `id_product` INT UNSIGNED NOT NULL,
-    `id_shop` INT UNSIGNED NOT NULL,
-    `title` VARCHAR(255) NULL,
-    `price` DECIMAL(20,6) NULL,
-    `currency` VARCHAR(16) NULL,
-    `image_url` TEXT NULL,
-    `brand` VARCHAR(255) NULL,
-    `date_add` DATETIME NOT NULL,
-    `date_upd` DATETIME NOT NULL,
-    PRIMARY KEY (`id_grifon_favorite_product`),
-    UNIQUE KEY `uniq_customer_product_shop` (`id_customer`, `id_product`, `id_shop`),
-    KEY `idx_customer_shop` (`id_customer`, `id_shop`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS `{safe_prefix}grifon_recent_product` (
-    `id_grifon_recent_product` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `id_customer` INT UNSIGNED NOT NULL,
-    `id_product` INT UNSIGNED NOT NULL,
-    `id_shop` INT UNSIGNED NOT NULL,
-    `title` VARCHAR(255) NULL,
-    `price` DECIMAL(20,6) NULL,
-    `currency` VARCHAR(16) NULL,
-    `image_url` TEXT NULL,
-    `brand` VARCHAR(255) NULL,
-    `visited_at` DATETIME NOT NULL,
-    `date_add` DATETIME NOT NULL,
-    `date_upd` DATETIME NOT NULL,
-    PRIMARY KEY (`id_grifon_recent_product`),
-    UNIQUE KEY `uniq_customer_recent_product_shop` (`id_customer`, `id_product`, `id_shop`),
-    KEY `idx_recent_customer_shop` (`id_customer`, `id_shop`, `visited_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+DELETE FROM `{safe_prefix}grifon_favorite_product`;
+DELETE FROM `{safe_prefix}grifon_recent_product`;
 """.strip()
 
 
@@ -180,7 +142,7 @@ def main() -> None:
         return
 
     run_mysql(config, sql)
-    print("\nActivity tables are ready:")
+    print("\nActivity tables were cleared:")
     print(f"- {config['prefix']}grifon_favorite_product")
     print(f"- {config['prefix']}grifon_recent_product")
 

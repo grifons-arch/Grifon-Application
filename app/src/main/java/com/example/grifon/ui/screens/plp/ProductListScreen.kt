@@ -16,8 +16,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -159,8 +162,8 @@ private fun FiltersSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = Color.White,
-        shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+        containerColor = Color(0xFFFCFCFB),
+        shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp),
         dragHandle = {
             Box(
                 modifier = Modifier
@@ -174,19 +177,33 @@ private fun FiltersSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(scrollState)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                IconButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+                        contentDescription = stringResource(R.string.close),
+                        tint = Color(0xFF5E5E5E)
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
                     Text(
                         text = stringResource(R.string.filter_by),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
                         ),
                         color = Color(0xFF1E1E1E)
                     )
@@ -198,16 +215,9 @@ private fun FiltersSheet(
                         )
                     }
                 }
-                TextButton(onClick = onDismiss) {
-                    Text(
-                        text = stringResource(R.string.close),
-                        color = Color(0xFF4B443B),
-                        fontSize = 12.sp
-                    )
-                }
             }
-            HorizontalDivider(color = Color(0xFFE6E6E6))
-            Spacer(Modifier.height(8.dp))
+            HorizontalDivider(color = Color(0xFFE3E3E0), modifier = Modifier.padding(top = 10.dp))
+            Spacer(Modifier.height(10.dp))
 
             if (colorOptions.isNotEmpty()) {
                 ReferenceFilterSection(title = stringResource(R.string.filter_colors)) {
@@ -223,6 +233,7 @@ private fun FiltersSheet(
                             tempFilters = tempFilters.copy(colors = nextColors)
                         }
                     )
+                    Spacer(Modifier.height(2.dp))
                 }
             }
 
@@ -277,9 +288,9 @@ private fun FiltersSheet(
                         valueRange = sliderRange,
                         modifier = Modifier.padding(horizontal = 4.dp),
                         colors = SliderDefaults.colors(
-                            thumbColor = Color(0xFF222222),
-                            activeTrackColor = Color(0xFF222222),
-                            inactiveTrackColor = Color(0xFFD6D6D6)
+                            thumbColor = Color(0xFF0F0F0F),
+                            activeTrackColor = Color(0xFF0F0F0F),
+                            inactiveTrackColor = Color(0xFFD8D8D8)
                         )
                     )
                     Row(
@@ -329,18 +340,18 @@ private fun FiltersSheet(
                 onClick = { onApply(tempFilters) },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .height(34.dp),
+                    .height(32.dp),
                 shape = RoundedCornerShape(2.dp),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD8D8D8)),
                 colors = ButtonDefaults.outlinedButtonColors(
                     containerColor = Color.White,
                     contentColor = Color(0xFF222222)
                 ),
-                contentPadding = PaddingValues(horizontal = 22.dp, vertical = 0.dp),
+                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 0.dp),
             ) {
                 Text(
                     text = stringResource(R.string.apply_filters).uppercase(locale),
-                    fontSize = 10.sp,
+                    fontSize = 9.sp,
                     letterSpacing = 0.8.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -542,31 +553,34 @@ private fun ReferenceFilterSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 2.dp)
+            .padding(top = 1.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expanded = !expanded }
-                .padding(top = 6.dp, bottom = 8.dp),
+                .padding(top = 7.dp, bottom = 7.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 11.sp
+                ),
                 color = Color(0xFF1A1A1A)
             )
-            Text(
-                text = if (expanded) "-" else "+",
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Light),
-                color = Color(0xFF8F8F8F)
+            Icon(
+                imageVector = if (expanded) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                contentDescription = null,
+                tint = Color(0xFF9A9A9A)
             )
         }
         if (expanded) {
             content()
         }
-        HorizontalDivider(color = Color(0xFFE6E6E6), modifier = Modifier.padding(top = 6.dp))
+        HorizontalDivider(color = Color(0xFFE1E1DE), modifier = Modifier.padding(top = 5.dp))
     }
 }
 
@@ -588,7 +602,7 @@ private fun ReferenceFilterItemRow(label: String, count: Int, selected: Boolean,
             SelectionBox(selected = selected)
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
                 color = Color(0xFF1E1E1E)
             )
         }
@@ -641,13 +655,13 @@ private fun ColorSwatchRow(
             val selected = selectedValues.contains(option.key)
             Box(
                 modifier = Modifier
-                    .size(14.dp)
-                    .clip(RoundedCornerShape(7.dp))
+                    .size(15.dp)
+                    .clip(RoundedCornerShape(8.dp))
                     .background(swatchColor)
                     .border(
                         width = if (selected) 2.dp else 1.dp,
                         color = if (selected) Color(0xFF111111) else Color(0xFFD0D0D0),
-                        shape = RoundedCornerShape(7.dp)
+                        shape = RoundedCornerShape(8.dp)
                     )
                     .clickable { onToggle(option.key) }
             )
@@ -662,7 +676,7 @@ private fun ReferenceFilterOptionList(
     onToggle: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val visibleOptions = if (expanded || options.size <= 6) options else options.take(6)
+    val visibleOptions = if (expanded || options.size <= 8) options else options.take(8)
 
     Column {
         visibleOptions.forEach { option ->
@@ -702,23 +716,28 @@ private data class AttributeFilterSection(
 )
 
 private fun buildColorOptions(products: List<Product>, locale: Locale): List<FilterOption> {
-    val palette = listOf(
-        "blue" to localizedColorName("blue", locale),
-        "red" to localizedColorName("red", locale),
-        "yellow" to localizedColorName("yellow", locale),
-        "green" to localizedColorName("green", locale),
-        "black" to localizedColorName("black", locale),
-        "white" to localizedColorName("white", locale),
-        "gray" to localizedColorName("gray", locale)
-    )
-
-    return palette.mapNotNull { (key, label) ->
+    return colorCatalog(locale).mapNotNull { descriptor ->
         val count = products.count { product ->
-            product.title.contains(key, ignoreCase = true) ||
-                product.attributesMap.values.any { it.contains(key, ignoreCase = true) }
+            val haystacks = buildList {
+                add(product.title)
+                add(product.brand)
+                addAll(product.attributesMap.values)
+                addAll(product.attributesMap.keys)
+            }
+            haystacks.any { value ->
+                descriptor.aliases.any { alias -> value.contains(alias, ignoreCase = true) }
+            }
         }
 
-        if (count > 0) FilterOption(key = key, label = label, count = count) else null
+        if (count > 0) {
+            FilterOption(
+                key = descriptor.key,
+                label = descriptor.label,
+                count = count
+            )
+        } else {
+            null
+        }
     }
 }
 
@@ -778,6 +797,15 @@ private fun localizedColorName(key: String, locale: Locale): String {
         "black" -> if (isGreek) "Μαύρο" else if (isSwedish) "Svart" else "Black"
         "white" -> if (isGreek) "Λευκό" else if (isSwedish) "Vit" else "White"
         "gray" -> if (isGreek) "Γκρι" else if (isSwedish) "Grå" else "Gray"
+        "pink" -> if (isGreek) "Ροζ" else if (isSwedish) "Rosa" else "Pink"
+        "purple" -> if (isGreek) "Μωβ" else if (isSwedish) "Lila" else "Purple"
+        "orange" -> if (isGreek) "Πορτοκαλί" else if (isSwedish) "Orange" else "Orange"
+        "brown" -> if (isGreek) "Καφέ" else if (isSwedish) "Brun" else "Brown"
+        "beige" -> if (isGreek) "Μπεζ" else if (isSwedish) "Beige" else "Beige"
+        "gold" -> if (isGreek) "Χρυσό" else if (isSwedish) "Guld" else "Gold"
+        "silver" -> if (isGreek) "Ασημί" else if (isSwedish) "Silver" else "Silver"
+        "turquoise" -> if (isGreek) "Τυρκουάζ" else if (isSwedish) "Turkos" else "Turquoise"
+        "multicolor" -> if (isGreek) "Πολύχρωμο" else if (isSwedish) "Flerfärgad" else "Multicolor"
         else -> key.replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
     }
 }
@@ -790,8 +818,49 @@ private fun swatchColorFor(key: String): Color = when (key.lowercase(Locale.ROOT
     "black" -> Color(0xFF3C3C3C)
     "white" -> Color(0xFFF3F1EB)
     "gray" -> Color(0xFF9A9A9A)
+    "pink" -> Color(0xFFD37C9A)
+    "purple" -> Color(0xFF8F6BAF)
+    "orange" -> Color(0xFFCF8A4A)
+    "brown" -> Color(0xFF8B6A55)
+    "beige" -> Color(0xFFD9C6AE)
+    "gold" -> Color(0xFFC5A059)
+    "silver" -> Color(0xFFB8BDC4)
+    "turquoise" -> Color(0xFF3B9C98)
+    "multicolor" -> Color(0xFFCC6B84)
     else -> Color(0xFFC7B5B5)
 }
+
+private data class ColorDescriptor(
+    val key: String,
+    val label: String,
+    val aliases: Set<String>,
+)
+
+private fun colorCatalog(locale: Locale): List<ColorDescriptor> = listOf(
+    colorDescriptor("white", locale, "white", "λευκ", "ασπρ", "vit"),
+    colorDescriptor("gray", locale, "gray", "grey", "γκρι", "grå", "grafit"),
+    colorDescriptor("black", locale, "black", "μαυρ", "svart"),
+    colorDescriptor("red", locale, "red", "κόκ", "κοκκ", "röd", "bordo", "burgundy", "bordeaux"),
+    colorDescriptor("pink", locale, "pink", "ροζ", "fuchsia", "φουξ", "rosa"),
+    colorDescriptor("purple", locale, "purple", "μωβ", "λιλά", "lila", "violet"),
+    colorDescriptor("beige", locale, "beige", "μπεζ", "sand", "εκρού", "ecru"),
+    colorDescriptor("brown", locale, "brown", "καφέ", "brun", "camel", "tabac"),
+    colorDescriptor("yellow", locale, "yellow", "κίτρ", "κιτρ", "gul", "mustard", "μουσταρδ"),
+    colorDescriptor("orange", locale, "orange", "πορτοκαλ", "orange"),
+    colorDescriptor("green", locale, "green", "πράσ", "πρασ", "grön", "khaki", "χακί", "olive"),
+    colorDescriptor("blue", locale, "blue", "μπλε", "blå", "navy", "γαλάζ", "σιελ"),
+    colorDescriptor("turquoise", locale, "turquoise", "τυρκ", "turkos", "petrol", "aqua"),
+    colorDescriptor("silver", locale, "silver", "ασημ", "silver"),
+    colorDescriptor("gold", locale, "gold", "χρυσ", "guld", "ochre", "ώχρα"),
+    colorDescriptor("multicolor", locale, "multi", "multicolor", "πολύχρ", "flerfär")
+)
+
+private fun colorDescriptor(key: String, locale: Locale, vararg aliases: String): ColorDescriptor =
+    ColorDescriptor(
+        key = key,
+        label = localizedColorName(key, locale),
+        aliases = aliases.map { it.lowercase(locale) }.toSet()
+    )
 
 private fun FilterState.activeCount(): Int {
     var count = 0

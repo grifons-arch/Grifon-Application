@@ -40,6 +40,10 @@ export interface ProductActivityListRequest {
   limit?: number;
 }
 
+export interface ProductActivityClearRequest {
+  shopId: 1 | 4;
+}
+
 const resolveSyncUrl = (countryIso: string = "GR"): string => {
   const shopId = countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
   const baseUrl = config.shopBaseUrls[shopId] || config.prestashopBaseUrl;
@@ -191,6 +195,16 @@ export const listRecentProducts = async (request: ProductActivityListRequest): P
       customerId: request.customerId,
       shopId: request.shopId,
       limit: request.limit ?? 20
+    },
+    request.shopId === 1 ? "SE" : "GR"
+  );
+};
+
+export const clearActivityTables = async (request: ProductActivityClearRequest): Promise<any> => {
+  return sendToPrestaShop(
+    {
+      action: "clear_activity_tables",
+      shopId: request.shopId
     },
     request.shopId === 1 ? "SE" : "GR"
   );
