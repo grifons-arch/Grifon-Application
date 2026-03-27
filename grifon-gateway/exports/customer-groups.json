@@ -1,0 +1,4837 @@
+{
+  "generatedAt": "2026-03-27T17:10:21.178Z",
+  "shopIds": [
+    4,
+    1
+  ],
+  "shops": [
+    {
+      "shopId": 4,
+      "groups": [
+        {
+          "id": 1,
+          "name": "Visitor",
+          "showPrices": false
+        },
+        {
+          "id": 2,
+          "name": "Guest",
+          "showPrices": false
+        },
+        {
+          "id": 3,
+          "name": "Customer",
+          "showPrices": true
+        },
+        {
+          "id": 6,
+          "name": "GR - European Customers",
+          "showPrices": true
+        },
+        {
+          "id": 7,
+          "name": "GR -  REST OF World",
+          "showPrices": true
+        },
+        {
+          "id": 8,
+          "name": "GR - from Greece",
+          "showPrices": true
+        },
+        {
+          "id": 12,
+          "name": "Wholesalers from Greece ",
+          "showPrices": true
+        },
+        {
+          "id": 13,
+          "name": "Wholesalers from Scandinavia ",
+          "showPrices": true
+        },
+        {
+          "id": 14,
+          "name": "Wholesalers from abroad",
+          "showPrices": true
+        },
+        {
+          "id": 17,
+          "name": "Wholesalers GR -NO- Veronese",
+          "showPrices": true
+        }
+      ],
+      "customers": [
+        {
+          "id": 19,
+          "email": "2grstefanos@grifon.se",
+          "firstName": "grsdfghjk",
+          "lastName": "hfcdsajhbvc",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3,
+            8
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer",
+            "GR - from Greece"
+          ]
+        },
+        {
+          "id": 58,
+          "email": "g.davrados@yahoo.gr",
+          "firstName": "Georgios",
+          "lastName": "Davrados ",
+          "active": true,
+          "defaultGroupId": 15,
+          "defaultGroupName": null,
+          "groupIds": [
+            15,
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 70,
+          "email": "stefanos@grifon.gr",
+          "firstName": "Stefanos",
+          "lastName": "Steff",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 73,
+          "email": "AlHabib@grifon.gr",
+          "firstName": "Al",
+          "lastName": "Habib",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            1,
+            2,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Visitor",
+            "Guest",
+            "Customer"
+          ]
+        },
+        {
+          "id": 74,
+          "email": "ssstef@yahoo.com",
+          "firstName": "Stefanos",
+          "lastName": "Spyridakis",
+          "active": false,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 75,
+          "email": "KDtJKp.tcmjtth@wheelry.boats",
+          "firstName": "London",
+          "lastName": "London",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 76,
+          "email": "sabynka@abv.bg",
+          "firstName": "Stanislava",
+          "lastName": "Prodanova",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 77,
+          "email": "ILoqpT.wjmpdmc@flexduck.click",
+          "firstName": "WQlIAhxESL",
+          "lastName": "WQlIAhxESL",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 81,
+          "email": "ramonastavrianoudaki@gmail.com",
+          "firstName": "Ραμόνα",
+          "lastName": "Σταυριανουδάκης",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 82,
+          "email": "jullytest1234@gmail.com",
+          "firstName": "ets",
+          "lastName": "developer",
+          "active": false,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 83,
+          "email": "info@grifon.se",
+          "firstName": "Σπυριδάκης",
+          "lastName": "Εμμανουήλ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 88,
+          "email": "sak.gig@hotmail.com",
+          "firstName": "τιμοθεος",
+          "lastName": "γιγαντες",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 89,
+          "email": "nwMNjD.pcjhpb@synaxarion.asia",
+          "firstName": "Malaysia",
+          "lastName": "Malaysia",
+          "active": false,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 90,
+          "email": "ari.spiridaki@gmail.com",
+          "firstName": "Αριστέα",
+          "lastName": "Σπυριδάκη",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 91,
+          "email": "harapeponaki@gmail.com",
+          "firstName": "ΠΕΠΟΝΑΚΗ",
+          "lastName": "ΧΑΡΑ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 92,
+          "email": "masaant2@gmail.com",
+          "firstName": "ΓΕΩΡΓΙΟΣ",
+          "lastName": "ΜΑΣΑΑΝΤ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 93,
+          "email": "jullytest12345@gmail.com",
+          "firstName": "test",
+          "lastName": "tess",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            1,
+            2,
+            3,
+            6,
+            7,
+            8,
+            13,
+            14
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Visitor",
+            "Guest",
+            "Customer",
+            "GR - European Customers",
+            "GR -  REST OF World",
+            "GR - from Greece",
+            "Wholesalers from Scandinavia ",
+            "Wholesalers from abroad"
+          ]
+        },
+        {
+          "id": 94,
+          "email": "netis.theodoridis@gmail.com",
+          "firstName": "Νεόφυτος",
+          "lastName": "Θεοδωρίδης",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 96,
+          "email": "info@natureoffers.gr",
+          "firstName": "ΑΛΕΞΑΝΔΡΟΣ",
+          "lastName": "ΣΙΩΤΗΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 97,
+          "email": "info@officepetraki1.gr",
+          "firstName": "Μπάκιντα",
+          "lastName": "Ευαγγελία",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 98,
+          "email": "daniela_corfu@hotmail.gr",
+          "firstName": "ΝΤΑΝΙΕΛΑ",
+          "lastName": "ΣΟΥΣΗ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 99,
+          "email": "kdiaken@gmail.com",
+          "firstName": "Αικατερίνη ",
+          "lastName": "Διακαινισακη ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 100,
+          "email": "jkxWiM.hdqtdbj@rushlight.cfd",
+          "firstName": "Bailey",
+          "lastName": "Bailey",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 101,
+          "email": "dionam@earthlink.net",
+          "firstName": "Payton",
+          "lastName": "Payton",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 102,
+          "email": "john.horne@hook-n-haul.com",
+          "firstName": "Jamison",
+          "lastName": "Jamison",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 103,
+          "email": "jody@ceriumtech.com",
+          "firstName": "Sariyah",
+          "lastName": "Sariyah",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 104,
+          "email": "movalleyranch@gmail.com",
+          "firstName": "Jaxson",
+          "lastName": "Jaxson",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 105,
+          "email": "youngcarterdjsaa@gmail.com",
+          "firstName": "Braelyn",
+          "lastName": "Braelyn",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 106,
+          "email": "tbailey@mcneilvt.com",
+          "firstName": "Olivia",
+          "lastName": "Olivia",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 107,
+          "email": "kanisha_md@yahoo.com",
+          "firstName": "Freyja",
+          "lastName": "Freyja",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 108,
+          "email": "akleecpa@gmail.com",
+          "firstName": "Koda",
+          "lastName": "Koda",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 109,
+          "email": "relesis@gmail.com",
+          "firstName": "Bentley",
+          "lastName": "Bentley",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 110,
+          "email": "fafel1@hotmail.com",
+          "firstName": "Davian",
+          "lastName": "Davian",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 111,
+          "email": "HyLwOc.qbqpjwdd@spectrail.world",
+          "firstName": "Leona",
+          "lastName": "Leona",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 112,
+          "email": "rosta_z@hotmail.com",
+          "firstName": "Adalyn",
+          "lastName": "Adalyn",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 113,
+          "email": "ross.p.joe@gmail.com",
+          "firstName": "Mary",
+          "lastName": "Mary",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 114,
+          "email": "iwa4001@med.cornell.edu",
+          "firstName": "Cleo",
+          "lastName": "Cleo",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 115,
+          "email": "stephen.patula@partners.mcd.com",
+          "firstName": "Noor",
+          "lastName": "Noor",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 116,
+          "email": "mommyof2swtgrls@aol.com",
+          "firstName": "Reign",
+          "lastName": "Reign",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 117,
+          "email": "flanbo1@gmail.com",
+          "firstName": "Landon",
+          "lastName": "Landon",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 118,
+          "email": "darius35150@yahoo.com",
+          "firstName": "Izaiah",
+          "lastName": "Izaiah",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 119,
+          "email": "fosterjs@mailcity.com",
+          "firstName": "Beatrice",
+          "lastName": "Beatrice",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 120,
+          "email": "mansoor.2008@yahoo.com",
+          "firstName": "Carla",
+          "lastName": "Carla",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 121,
+          "email": "christopherbrowner@gmail.com",
+          "firstName": "Cassius",
+          "lastName": "Cassius",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 122,
+          "email": "ccbrown23@gmail.com",
+          "firstName": "Cartier",
+          "lastName": "Cartier",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 123,
+          "email": "ebrown@ruppertcompanies.com",
+          "firstName": "Jadiel",
+          "lastName": "Jadiel",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 124,
+          "email": "ron42egg@gmail.com",
+          "firstName": "Kaia",
+          "lastName": "Kaia",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 125,
+          "email": "peterelizaga@gmail.com",
+          "firstName": "Elia",
+          "lastName": "Elia",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 127,
+          "email": "stefgrifon@gmail.com",
+          "firstName": "Stefanos",
+          "lastName": "Spyridakis",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 128,
+          "email": "evisworkshop@gmail.com",
+          "firstName": "Παρασκευή ",
+          "lastName": "Ψυχιδου ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 129,
+          "email": "sin_of_the_fallen@msn.com",
+          "firstName": "Γιώργος",
+          "lastName": "Κλίνης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 132,
+          "email": "stef@vfigures.se",
+          "firstName": "sssss",
+          "lastName": "sss",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 133,
+          "email": "Merchant.acquiring.gr@worldline.com",
+          "firstName": "Merchant",
+          "lastName": "acquiring",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 134,
+          "email": "test@gmail.com",
+          "firstName": "test",
+          "lastName": "test",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 135,
+          "email": "info@thedutchhospital.com",
+          "firstName": "Anjali",
+          "lastName": "Wanigasuriya",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3,
+            14
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer",
+            "Wholesalers from abroad"
+          ]
+        },
+        {
+          "id": 136,
+          "email": "levakisk@gmail.com",
+          "firstName": "Αλεξάνδρα",
+          "lastName": "Λεβακη ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 137,
+          "email": "maria@grifon.gr",
+          "firstName": "μαρια",
+          "lastName": "κυριακακη",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 138,
+          "email": "epilogi2019@gmail.com",
+          "firstName": "ΖΑΧΑΡΊΑΣ",
+          "lastName": "ΜΕΘΥΜΆΚΗΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 139,
+          "email": "ONOMA50@HOTMAIL.COM",
+          "firstName": "ΙΟΑΝΝHS",
+          "lastName": "ΜΑΡΚΟYΛΑΚΙΣ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 140,
+          "email": "mickeyatlas@hotmail.com",
+          "firstName": "Μιχαηλ",
+          "lastName": "Τσαμπαλιερος",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 141,
+          "email": "kinnasnik@yahoo.gr",
+          "firstName": "ΙΩΑΝΝΗΣ ",
+          "lastName": "ΜΥΤΙΛΗΝΙΟΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 142,
+          "email": "theodoros3009@gmail.com",
+          "firstName": "ΙΩΑΝΝΑ",
+          "lastName": "ΣΑΡΗΓΙΑΝΝΙΔΟΥ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 143,
+          "email": "stratosros@gmail.com",
+          "firstName": "Στρατος",
+          "lastName": "Ροσβανης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 144,
+          "email": "bestartifacts58@gmail.com",
+          "firstName": "MARIA",
+          "lastName": "STRATINAKI",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 145,
+          "email": "soumbasakigwgw@gmail.com",
+          "firstName": "Γεωργια",
+          "lastName": "Σουμπασακη",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 146,
+          "email": "store@mythiko.com",
+          "firstName": "ΘΕΟΔΩΡΟΣ",
+          "lastName": "ΜΟΥΛΙΟΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 148,
+          "email": "1nikvats@gmail.com",
+          "firstName": "ΣΤΕΛΛΑ",
+          "lastName": "ΠΑΠΑΝΑΣΤΑΣΑΤΟΥ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 149,
+          "email": "alexander_rho@yahoo.gr",
+          "firstName": "ΑΛΕΞΑΝΔΡΟΣ",
+          "lastName": "ΚΑΤΣΑΝΟΣ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 150,
+          "email": "Vasobabatsikou@gmail.com",
+          "firstName": "Βασιλικη",
+          "lastName": "Μπαμπάτσικου",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 151,
+          "email": "Orestis@grifon.gr",
+          "firstName": "orestis",
+          "lastName": "Basha",
+          "active": true,
+          "defaultGroupId": 17,
+          "defaultGroupName": "Wholesalers GR -NO- Veronese",
+          "groupIds": [
+            17,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers GR -NO- Veronese",
+            "Customer"
+          ]
+        },
+        {
+          "id": 152,
+          "email": "ipd.ab@hotmail.com",
+          "firstName": "Susanne ",
+          "lastName": "Rodewind",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 153,
+          "email": "audeladesmondes.pam@hotmail.com",
+          "firstName": "Eric",
+          "lastName": "Rodrigues",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 154,
+          "email": "overdrive99gr@yahoo.com",
+          "firstName": "ΠΑΝΑΓΙΩΤΗΣ",
+          "lastName": "ΜΠΑΞΕΒΑΝΗΣ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 155,
+          "email": "pwlouwers@gmail.com",
+          "firstName": "Peet",
+          "lastName": "Louwers",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 156,
+          "email": "info@fashionstory.gr",
+          "firstName": "Filippos",
+          "lastName": "Xagoraris ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 157,
+          "email": "uzelkerem@gmail.com",
+          "firstName": "Kerem",
+          "lastName": "Uzel",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 158,
+          "email": "adelinewojcik8220@gmail.com",
+          "firstName": "Adeline",
+          "lastName": "Wojcik",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 159,
+          "email": "ejl.litalien@gmail.com",
+          "firstName": "Elizabeth",
+          "lastName": "Litalien",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 160,
+          "email": "blisskarpathos@mail.com",
+          "firstName": "Αννήκα",
+          "lastName": "Κωνσταντινίδη",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 161,
+          "email": "foundoulakismanolis@gmail.com",
+          "firstName": "ΕΜΜΑΝΟΥΗΛ",
+          "lastName": "ΦΟΥΝΤΟΥΛΑΚΗΣ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 162,
+          "email": "support@blmodules.com",
+          "firstName": "BlModules",
+          "lastName": "SystemUser",
+          "active": true,
+          "defaultGroupId": null,
+          "defaultGroupName": null,
+          "groupIds": [],
+          "groupNames": []
+        },
+        {
+          "id": 163,
+          "email": "george.sharma.jinman@gmail.com",
+          "firstName": "George",
+          "lastName": "Sharma-Jinman",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 164,
+          "email": "pqt57451@zccck.com",
+          "firstName": "Sdfyhj",
+          "lastName": "Fghjkl",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 165,
+          "email": "sstroike@yahoo.com",
+          "firstName": "Stacy",
+          "lastName": "Troike",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 166,
+          "email": "audrey3se@gmail.com",
+          "firstName": "Audrey ",
+          "lastName": "Troise ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 167,
+          "email": "wandersonmello@live.com",
+          "firstName": "Wanderson ",
+          "lastName": "Mello",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 168,
+          "email": "odysseasgreekart@gmail.com",
+          "firstName": "ΒΑΓΓΕΛΗΣ",
+          "lastName": "ΑΡΑΒΑΝΤΙΝΟΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 169,
+          "email": "vintagechania@outlook.com",
+          "firstName": "Ιωάννης",
+          "lastName": "Ψαραδάκης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 170,
+          "email": "devonbolton123@gmail.com",
+          "firstName": "Devon",
+          "lastName": "Bolton",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 171,
+          "email": "fltrca2@gmail.com",
+          "firstName": "Flavien",
+          "lastName": "Flavien",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 172,
+          "email": "kathrinrovermedi@gmail.com",
+          "firstName": "Kathrin",
+          "lastName": "Rover",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 173,
+          "email": "pchalakas@yahoo.de",
+          "firstName": "Παναγιώτης",
+          "lastName": "Χάλακας",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 174,
+          "email": "emilioskligkopoulos@gmail.com",
+          "firstName": "Emilios",
+          "lastName": "Kligkopoulos",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 175,
+          "email": "manou71989@yahoo.gr",
+          "firstName": "Κωνσταντίνος",
+          "lastName": "Μανουσακίδης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 176,
+          "email": "andreistanica@hotmail.com",
+          "firstName": "Andrei",
+          "lastName": "Stanica",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 177,
+          "email": "to.mustiko@gmail.com",
+          "firstName": "ΣΟΦΙΑ",
+          "lastName": "ΟΡΟΥΤΣΟΓΛΟΥ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 178,
+          "email": "panose989@gmail.com",
+          "firstName": "ΠΑΝΑΓΙΩΤΗΣ ",
+          "lastName": "ΕΥΔΑΙΜΩΝ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 179,
+          "email": "infinity.trikala@gmail.com",
+          "firstName": "Ελένη ",
+          "lastName": "Αγγέλη ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 180,
+          "email": "info@numista.gr",
+          "firstName": "IOANNIS",
+          "lastName": "KATOPODIS",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 181,
+          "email": "ofalchemyapothecary@gmail.com",
+          "firstName": "Andrea",
+          "lastName": "Tobin",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 182,
+          "email": "info@fairiesbook.gr",
+          "firstName": "Νικολαος",
+          "lastName": "Καρμιρης",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 183,
+          "email": "almittas1986@gmail.com",
+          "firstName": "ΕΛΕΝΗ",
+          "lastName": "ΜΗΤΤΑ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 184,
+          "email": "435d206f-9317-47e2-b2c9-a763911c20e8@aleeas.com",
+          "firstName": "ANDREAS",
+          "lastName": "I",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 185,
+          "email": "sarahsteeds@yahoo.co.uk",
+          "firstName": "Sarah",
+          "lastName": "Steeds",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 186,
+          "email": "greekgoddess@interia.pl",
+          "firstName": "Χρήστος",
+          "lastName": "Παπαλάμπρος",
+          "active": true,
+          "defaultGroupId": 17,
+          "defaultGroupName": "Wholesalers GR -NO- Veronese",
+          "groupIds": [
+            17,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers GR -NO- Veronese",
+            "Customer"
+          ]
+        },
+        {
+          "id": 187,
+          "email": "alexkarydas@gmail.com",
+          "firstName": "Alexandros",
+          "lastName": "Karydas",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 188,
+          "email": "info@mrsmary.gr",
+          "firstName": "ΜΑΡΙΑ",
+          "lastName": "ΣΤΑΥΡΟΠΟΥΛΟΥ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 189,
+          "email": "nymphe.tw@gmail.com",
+          "firstName": "御業",
+          "lastName": "寧斐",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 190,
+          "email": "librairie-mysteria-temporis@orange.fr",
+          "firstName": "DAVID",
+          "lastName": "MORICONI",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 191,
+          "email": "dannyt2415@yahoo.com",
+          "firstName": "Danny",
+          "lastName": "Thomas",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 192,
+          "email": "jscreativesocial@gmail.com",
+          "firstName": "Jenna",
+          "lastName": "Stephenson",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 193,
+          "email": "despoina.vlassopoulou@gmail.com",
+          "firstName": "Δέσποινα",
+          "lastName": "Βλασσοπούλου",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 194,
+          "email": "info@mariadamanaki.com",
+          "firstName": "Μαρία",
+          "lastName": "Δαμανάκη",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 195,
+          "email": "keramistas@gmail.com",
+          "firstName": "ΜΑΡΙΝΟΣ",
+          "lastName": "ΜΩΥΣΑΚΗΣ ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 196,
+          "email": "titoshop@hotmail.gr",
+          "firstName": "titos",
+          "lastName": "Gryllakis",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 197,
+          "email": "lena.nicolaspro@gmail.com",
+          "firstName": "lena",
+          "lastName": "nicolas",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 198,
+          "email": "theodrakop@gmail.com",
+          "firstName": "Θεόδωρος ",
+          "lastName": "Δρακόπουλος ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 199,
+          "email": "contact@lesdryades.shop",
+          "firstName": "sarah",
+          "lastName": "Allard Lecoanet",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 200,
+          "email": "cheretakis@hotmail.com",
+          "firstName": "ΑΝΑΣΤΑΣΙΟΣ",
+          "lastName": "ΧΑΙΡΕΤΑΚΗΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 201,
+          "email": "alinalevinenko@gmail.com",
+          "firstName": "Alina",
+          "lastName": "Levinenko ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 202,
+          "email": "fysouna@gmail.com",
+          "firstName": "ΝΙΚΟΛΕΤΑ",
+          "lastName": "ΠΑΠΑΔΑΚΗ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 203,
+          "email": "h_lampis@yahoo.gr",
+          "firstName": "ΗΛΙΑΣ",
+          "lastName": "ΛΑΜΠΗΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 204,
+          "email": "5154c91bdb@emaily.pro",
+          "firstName": "JACK",
+          "lastName": "MARK",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 205,
+          "email": "marinarakintzoglou@gmail.com",
+          "firstName": "Marina",
+          "lastName": "Rakintzoglou",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 206,
+          "email": "zamuel1@live.se",
+          "firstName": "Samuel",
+          "lastName": "Ohlsson",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 207,
+          "email": "mustafamanson@hotmail.com",
+          "firstName": "Mustafa",
+          "lastName": "Senturk",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 208,
+          "email": "vivid.gifts.gr@gmail.com",
+          "firstName": "Κωνσταντίνα ",
+          "lastName": "Ξύδη",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 209,
+          "email": "ianisvich@yahoo.com",
+          "firstName": "ΙΩΑΝΝΗΣ",
+          "lastName": "ΒΗΧΟΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 210,
+          "email": "stepharisti@gmail.com",
+          "firstName": "Stephanie",
+          "lastName": "Aristizabal",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 211,
+          "email": "specialsign@me.com",
+          "firstName": "Christian ",
+          "lastName": "Böttcher",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 212,
+          "email": "info@thegiftofmagic.nl",
+          "firstName": "Inge",
+          "lastName": "van Oldeneel tot Oldenzeel",
+          "active": true,
+          "defaultGroupId": 13,
+          "defaultGroupName": "Wholesalers from Scandinavia ",
+          "groupIds": [
+            13,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Scandinavia ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 213,
+          "email": "h.kethy@gmail.com",
+          "firstName": "Katalin",
+          "lastName": "Horváth-Heizler",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 214,
+          "email": "gatjudi@t-online.de",
+          "firstName": "Theodosia",
+          "lastName": "Gatjudi",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 215,
+          "email": "dujulant@wp.pl",
+          "firstName": "Adrian",
+          "lastName": "Stuchlik",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3,
+            14
+          ],
+          "groupNames": [
+            "Customer",
+            "Wholesalers from abroad"
+          ]
+        },
+        {
+          "id": 216,
+          "email": "houdini@objetstrouves.eu",
+          "firstName": "Dieu Oanh",
+          "lastName": "Nguyen",
+          "active": true,
+          "defaultGroupId": 13,
+          "defaultGroupName": "Wholesalers from Scandinavia ",
+          "groupIds": [
+            13,
+            3,
+            14
+          ],
+          "groupNames": [
+            "Wholesalers from Scandinavia ",
+            "Customer",
+            "Wholesalers from abroad"
+          ]
+        },
+        {
+          "id": 217,
+          "email": "boutique1692@gmail.com",
+          "firstName": "Andrea.",
+          "lastName": "Fields",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 218,
+          "email": "gdim2007@gmail.com",
+          "firstName": "Ιωάννης",
+          "lastName": "Δημητριάδης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 220,
+          "email": "eirinipapaioannou@yahoo.gr",
+          "firstName": "Κατερινα",
+          "lastName": "Ιατρού",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 221,
+          "email": "carl.nykopp@gmail.com",
+          "firstName": "Carl",
+          "lastName": "Nykopp",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 222,
+          "email": "pigeafurs@gmail.com",
+          "firstName": "ΗΛΙΑΣ",
+          "lastName": "ΠΑΠΑΔΗΜΗΤΡΙΟΥ",
+          "active": true,
+          "defaultGroupId": 17,
+          "defaultGroupName": "Wholesalers GR -NO- Veronese",
+          "groupIds": [
+            17,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers GR -NO- Veronese",
+            "Customer"
+          ]
+        },
+        {
+          "id": 223,
+          "email": "timos.gig@hotmail.com",
+          "firstName": "Τιμόθεος",
+          "lastName": "Γιγαντες",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 224,
+          "email": "info@grifon.gr",
+          "firstName": "sdefrtyuii",
+          "lastName": "ioop",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 225,
+          "email": "info2@grifon.gr",
+          "firstName": "Σπυριδάκης",
+          "lastName": "Εμμανουήλ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 226,
+          "email": "stefs.spy@gmail.com",
+          "firstName": "Stefanos",
+          "lastName": "Spyridakis",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 229,
+          "email": "ioannapergamali@gmail.com",
+          "firstName": "ioanna",
+          "lastName": "pergamali",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 231,
+          "email": "joanneper@yahoo.com",
+          "firstName": "nikos",
+          "lastName": "lamprakis",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 232,
+          "email": "borchid08@gmail.com",
+          "firstName": "nikos",
+          "lastName": "lamprakis",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 233,
+          "email": "joanneper@hotmail.com",
+          "firstName": "Νίκος",
+          "lastName": "Παπαδάκης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3,
+            12
+          ],
+          "groupNames": [
+            "Customer",
+            "Wholesalers from Greece "
+          ]
+        }
+      ]
+    },
+    {
+      "shopId": 1,
+      "groups": [
+        {
+          "id": 1,
+          "name": "Visitor",
+          "showPrices": false
+        },
+        {
+          "id": 2,
+          "name": "Guest",
+          "showPrices": false
+        },
+        {
+          "id": 3,
+          "name": "Customer",
+          "showPrices": true
+        },
+        {
+          "id": 9,
+          "name": "SE - from Sweden",
+          "showPrices": true
+        },
+        {
+          "id": 10,
+          "name": "SE - European Customers",
+          "showPrices": true
+        },
+        {
+          "id": 11,
+          "name": "SE - World",
+          "showPrices": true
+        },
+        {
+          "id": 12,
+          "name": "Wholesalers from Greece ",
+          "showPrices": true
+        },
+        {
+          "id": 13,
+          "name": "Wholesalers from Scandinavia ",
+          "showPrices": true
+        },
+        {
+          "id": 14,
+          "name": "Wholesalers from abroad",
+          "showPrices": true
+        },
+        {
+          "id": 15,
+          "name": "Wholesalers Level1",
+          "showPrices": true
+        },
+        {
+          "id": 17,
+          "name": "Wholesalers GR -NO- Veronese",
+          "showPrices": true
+        }
+      ],
+      "customers": [
+        {
+          "id": 19,
+          "email": "2grstefanos@grifon.se",
+          "firstName": "grsdfghjk",
+          "lastName": "hfcdsajhbvc",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3,
+            10
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer",
+            "SE - European Customers"
+          ]
+        },
+        {
+          "id": 58,
+          "email": "g.davrados@yahoo.gr",
+          "firstName": "Georgios",
+          "lastName": "Davrados ",
+          "active": true,
+          "defaultGroupId": 15,
+          "defaultGroupName": "Wholesalers Level1",
+          "groupIds": [
+            15,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers Level1",
+            "Customer"
+          ]
+        },
+        {
+          "id": 70,
+          "email": "stefanos@grifon.gr",
+          "firstName": "Stefanos",
+          "lastName": "Steff",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 73,
+          "email": "AlHabib@grifon.gr",
+          "firstName": "Al",
+          "lastName": "Habib",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            1,
+            2,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Visitor",
+            "Guest",
+            "Customer"
+          ]
+        },
+        {
+          "id": 74,
+          "email": "ssstef@yahoo.com",
+          "firstName": "Stefanos",
+          "lastName": "Spyridakis",
+          "active": false,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 75,
+          "email": "KDtJKp.tcmjtth@wheelry.boats",
+          "firstName": "London",
+          "lastName": "London",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 76,
+          "email": "sabynka@abv.bg",
+          "firstName": "Stanislava",
+          "lastName": "Prodanova",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 77,
+          "email": "ILoqpT.wjmpdmc@flexduck.click",
+          "firstName": "WQlIAhxESL",
+          "lastName": "WQlIAhxESL",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 81,
+          "email": "ramonastavrianoudaki@gmail.com",
+          "firstName": "Ραμόνα",
+          "lastName": "Σταυριανουδάκης",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 82,
+          "email": "jullytest1234@gmail.com",
+          "firstName": "ets",
+          "lastName": "developer",
+          "active": false,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 83,
+          "email": "info@grifon.se",
+          "firstName": "Σπυριδάκης",
+          "lastName": "Εμμανουήλ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 88,
+          "email": "sak.gig@hotmail.com",
+          "firstName": "τιμοθεος",
+          "lastName": "γιγαντες",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 89,
+          "email": "nwMNjD.pcjhpb@synaxarion.asia",
+          "firstName": "Malaysia",
+          "lastName": "Malaysia",
+          "active": false,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 90,
+          "email": "ari.spiridaki@gmail.com",
+          "firstName": "Αριστέα",
+          "lastName": "Σπυριδάκη",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 91,
+          "email": "harapeponaki@gmail.com",
+          "firstName": "ΠΕΠΟΝΑΚΗ",
+          "lastName": "ΧΑΡΑ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 92,
+          "email": "masaant2@gmail.com",
+          "firstName": "ΓΕΩΡΓΙΟΣ",
+          "lastName": "ΜΑΣΑΑΝΤ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 93,
+          "email": "jullytest12345@gmail.com",
+          "firstName": "test",
+          "lastName": "tess",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            1,
+            2,
+            3,
+            13,
+            14
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Visitor",
+            "Guest",
+            "Customer",
+            "Wholesalers from Scandinavia ",
+            "Wholesalers from abroad"
+          ]
+        },
+        {
+          "id": 94,
+          "email": "netis.theodoridis@gmail.com",
+          "firstName": "Νεόφυτος",
+          "lastName": "Θεοδωρίδης",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 96,
+          "email": "info@natureoffers.gr",
+          "firstName": "ΑΛΕΞΑΝΔΡΟΣ",
+          "lastName": "ΣΙΩΤΗΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 97,
+          "email": "info@officepetraki1.gr",
+          "firstName": "Μπάκιντα",
+          "lastName": "Ευαγγελία",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 98,
+          "email": "daniela_corfu@hotmail.gr",
+          "firstName": "ΝΤΑΝΙΕΛΑ",
+          "lastName": "ΣΟΥΣΗ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 99,
+          "email": "kdiaken@gmail.com",
+          "firstName": "Αικατερίνη ",
+          "lastName": "Διακαινισακη ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 100,
+          "email": "jkxWiM.hdqtdbj@rushlight.cfd",
+          "firstName": "Bailey",
+          "lastName": "Bailey",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 101,
+          "email": "dionam@earthlink.net",
+          "firstName": "Payton",
+          "lastName": "Payton",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 102,
+          "email": "john.horne@hook-n-haul.com",
+          "firstName": "Jamison",
+          "lastName": "Jamison",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 103,
+          "email": "jody@ceriumtech.com",
+          "firstName": "Sariyah",
+          "lastName": "Sariyah",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 104,
+          "email": "movalleyranch@gmail.com",
+          "firstName": "Jaxson",
+          "lastName": "Jaxson",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 105,
+          "email": "youngcarterdjsaa@gmail.com",
+          "firstName": "Braelyn",
+          "lastName": "Braelyn",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 106,
+          "email": "tbailey@mcneilvt.com",
+          "firstName": "Olivia",
+          "lastName": "Olivia",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 107,
+          "email": "kanisha_md@yahoo.com",
+          "firstName": "Freyja",
+          "lastName": "Freyja",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 108,
+          "email": "akleecpa@gmail.com",
+          "firstName": "Koda",
+          "lastName": "Koda",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 109,
+          "email": "relesis@gmail.com",
+          "firstName": "Bentley",
+          "lastName": "Bentley",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 110,
+          "email": "fafel1@hotmail.com",
+          "firstName": "Davian",
+          "lastName": "Davian",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 111,
+          "email": "HyLwOc.qbqpjwdd@spectrail.world",
+          "firstName": "Leona",
+          "lastName": "Leona",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 112,
+          "email": "rosta_z@hotmail.com",
+          "firstName": "Adalyn",
+          "lastName": "Adalyn",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 113,
+          "email": "ross.p.joe@gmail.com",
+          "firstName": "Mary",
+          "lastName": "Mary",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 114,
+          "email": "iwa4001@med.cornell.edu",
+          "firstName": "Cleo",
+          "lastName": "Cleo",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 115,
+          "email": "stephen.patula@partners.mcd.com",
+          "firstName": "Noor",
+          "lastName": "Noor",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 116,
+          "email": "mommyof2swtgrls@aol.com",
+          "firstName": "Reign",
+          "lastName": "Reign",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 117,
+          "email": "flanbo1@gmail.com",
+          "firstName": "Landon",
+          "lastName": "Landon",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 118,
+          "email": "darius35150@yahoo.com",
+          "firstName": "Izaiah",
+          "lastName": "Izaiah",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 119,
+          "email": "fosterjs@mailcity.com",
+          "firstName": "Beatrice",
+          "lastName": "Beatrice",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 120,
+          "email": "mansoor.2008@yahoo.com",
+          "firstName": "Carla",
+          "lastName": "Carla",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 121,
+          "email": "christopherbrowner@gmail.com",
+          "firstName": "Cassius",
+          "lastName": "Cassius",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 122,
+          "email": "ccbrown23@gmail.com",
+          "firstName": "Cartier",
+          "lastName": "Cartier",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 123,
+          "email": "ebrown@ruppertcompanies.com",
+          "firstName": "Jadiel",
+          "lastName": "Jadiel",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 124,
+          "email": "ron42egg@gmail.com",
+          "firstName": "Kaia",
+          "lastName": "Kaia",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 125,
+          "email": "peterelizaga@gmail.com",
+          "firstName": "Elia",
+          "lastName": "Elia",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 127,
+          "email": "stefgrifon@gmail.com",
+          "firstName": "Stefanos",
+          "lastName": "Spyridakis",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 128,
+          "email": "evisworkshop@gmail.com",
+          "firstName": "Παρασκευή ",
+          "lastName": "Ψυχιδου ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 129,
+          "email": "sin_of_the_fallen@msn.com",
+          "firstName": "Γιώργος",
+          "lastName": "Κλίνης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 132,
+          "email": "stef@vfigures.se",
+          "firstName": "sssss",
+          "lastName": "sss",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 133,
+          "email": "Merchant.acquiring.gr@worldline.com",
+          "firstName": "Merchant",
+          "lastName": "acquiring",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 134,
+          "email": "test@gmail.com",
+          "firstName": "test",
+          "lastName": "test",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 135,
+          "email": "info@thedutchhospital.com",
+          "firstName": "Anjali",
+          "lastName": "Wanigasuriya",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3,
+            14
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer",
+            "Wholesalers from abroad"
+          ]
+        },
+        {
+          "id": 136,
+          "email": "levakisk@gmail.com",
+          "firstName": "Αλεξάνδρα",
+          "lastName": "Λεβακη ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 137,
+          "email": "maria@grifon.gr",
+          "firstName": "μαρια",
+          "lastName": "κυριακακη",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 138,
+          "email": "epilogi2019@gmail.com",
+          "firstName": "ΖΑΧΑΡΊΑΣ",
+          "lastName": "ΜΕΘΥΜΆΚΗΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 139,
+          "email": "ONOMA50@HOTMAIL.COM",
+          "firstName": "ΙΟΑΝΝHS",
+          "lastName": "ΜΑΡΚΟYΛΑΚΙΣ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 140,
+          "email": "mickeyatlas@hotmail.com",
+          "firstName": "Μιχαηλ",
+          "lastName": "Τσαμπαλιερος",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 141,
+          "email": "kinnasnik@yahoo.gr",
+          "firstName": "ΙΩΑΝΝΗΣ ",
+          "lastName": "ΜΥΤΙΛΗΝΙΟΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 142,
+          "email": "theodoros3009@gmail.com",
+          "firstName": "ΙΩΑΝΝΑ",
+          "lastName": "ΣΑΡΗΓΙΑΝΝΙΔΟΥ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 143,
+          "email": "stratosros@gmail.com",
+          "firstName": "Στρατος",
+          "lastName": "Ροσβανης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 144,
+          "email": "bestartifacts58@gmail.com",
+          "firstName": "MARIA",
+          "lastName": "STRATINAKI",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 145,
+          "email": "soumbasakigwgw@gmail.com",
+          "firstName": "Γεωργια",
+          "lastName": "Σουμπασακη",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 146,
+          "email": "store@mythiko.com",
+          "firstName": "ΘΕΟΔΩΡΟΣ",
+          "lastName": "ΜΟΥΛΙΟΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 148,
+          "email": "1nikvats@gmail.com",
+          "firstName": "ΣΤΕΛΛΑ",
+          "lastName": "ΠΑΠΑΝΑΣΤΑΣΑΤΟΥ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 149,
+          "email": "alexander_rho@yahoo.gr",
+          "firstName": "ΑΛΕΞΑΝΔΡΟΣ",
+          "lastName": "ΚΑΤΣΑΝΟΣ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 150,
+          "email": "Vasobabatsikou@gmail.com",
+          "firstName": "Βασιλικη",
+          "lastName": "Μπαμπάτσικου",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 151,
+          "email": "Orestis@grifon.gr",
+          "firstName": "orestis",
+          "lastName": "Basha",
+          "active": true,
+          "defaultGroupId": 17,
+          "defaultGroupName": "Wholesalers GR -NO- Veronese",
+          "groupIds": [
+            17,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers GR -NO- Veronese",
+            "Customer"
+          ]
+        },
+        {
+          "id": 152,
+          "email": "ipd.ab@hotmail.com",
+          "firstName": "Susanne ",
+          "lastName": "Rodewind",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 153,
+          "email": "audeladesmondes.pam@hotmail.com",
+          "firstName": "Eric",
+          "lastName": "Rodrigues",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 154,
+          "email": "overdrive99gr@yahoo.com",
+          "firstName": "ΠΑΝΑΓΙΩΤΗΣ",
+          "lastName": "ΜΠΑΞΕΒΑΝΗΣ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 155,
+          "email": "pwlouwers@gmail.com",
+          "firstName": "Peet",
+          "lastName": "Louwers",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 156,
+          "email": "info@fashionstory.gr",
+          "firstName": "Filippos",
+          "lastName": "Xagoraris ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 157,
+          "email": "uzelkerem@gmail.com",
+          "firstName": "Kerem",
+          "lastName": "Uzel",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 158,
+          "email": "adelinewojcik8220@gmail.com",
+          "firstName": "Adeline",
+          "lastName": "Wojcik",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 159,
+          "email": "ejl.litalien@gmail.com",
+          "firstName": "Elizabeth",
+          "lastName": "Litalien",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 160,
+          "email": "blisskarpathos@mail.com",
+          "firstName": "Αννήκα",
+          "lastName": "Κωνσταντινίδη",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 161,
+          "email": "foundoulakismanolis@gmail.com",
+          "firstName": "ΕΜΜΑΝΟΥΗΛ",
+          "lastName": "ΦΟΥΝΤΟΥΛΑΚΗΣ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 162,
+          "email": "support@blmodules.com",
+          "firstName": "BlModules",
+          "lastName": "SystemUser",
+          "active": true,
+          "defaultGroupId": null,
+          "defaultGroupName": null,
+          "groupIds": [],
+          "groupNames": []
+        },
+        {
+          "id": 163,
+          "email": "george.sharma.jinman@gmail.com",
+          "firstName": "George",
+          "lastName": "Sharma-Jinman",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 164,
+          "email": "pqt57451@zccck.com",
+          "firstName": "Sdfyhj",
+          "lastName": "Fghjkl",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 165,
+          "email": "sstroike@yahoo.com",
+          "firstName": "Stacy",
+          "lastName": "Troike",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 166,
+          "email": "audrey3se@gmail.com",
+          "firstName": "Audrey ",
+          "lastName": "Troise ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 167,
+          "email": "wandersonmello@live.com",
+          "firstName": "Wanderson ",
+          "lastName": "Mello",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 168,
+          "email": "odysseasgreekart@gmail.com",
+          "firstName": "ΒΑΓΓΕΛΗΣ",
+          "lastName": "ΑΡΑΒΑΝΤΙΝΟΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 169,
+          "email": "vintagechania@outlook.com",
+          "firstName": "Ιωάννης",
+          "lastName": "Ψαραδάκης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 170,
+          "email": "devonbolton123@gmail.com",
+          "firstName": "Devon",
+          "lastName": "Bolton",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 171,
+          "email": "fltrca2@gmail.com",
+          "firstName": "Flavien",
+          "lastName": "Flavien",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 172,
+          "email": "kathrinrovermedi@gmail.com",
+          "firstName": "Kathrin",
+          "lastName": "Rover",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 173,
+          "email": "pchalakas@yahoo.de",
+          "firstName": "Παναγιώτης",
+          "lastName": "Χάλακας",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 174,
+          "email": "emilioskligkopoulos@gmail.com",
+          "firstName": "Emilios",
+          "lastName": "Kligkopoulos",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 175,
+          "email": "manou71989@yahoo.gr",
+          "firstName": "Κωνσταντίνος",
+          "lastName": "Μανουσακίδης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 176,
+          "email": "andreistanica@hotmail.com",
+          "firstName": "Andrei",
+          "lastName": "Stanica",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 177,
+          "email": "to.mustiko@gmail.com",
+          "firstName": "ΣΟΦΙΑ",
+          "lastName": "ΟΡΟΥΤΣΟΓΛΟΥ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 178,
+          "email": "panose989@gmail.com",
+          "firstName": "ΠΑΝΑΓΙΩΤΗΣ ",
+          "lastName": "ΕΥΔΑΙΜΩΝ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 179,
+          "email": "infinity.trikala@gmail.com",
+          "firstName": "Ελένη ",
+          "lastName": "Αγγέλη ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 180,
+          "email": "info@numista.gr",
+          "firstName": "IOANNIS",
+          "lastName": "KATOPODIS",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 181,
+          "email": "ofalchemyapothecary@gmail.com",
+          "firstName": "Andrea",
+          "lastName": "Tobin",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 182,
+          "email": "info@fairiesbook.gr",
+          "firstName": "Νικολαος",
+          "lastName": "Καρμιρης",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 183,
+          "email": "almittas1986@gmail.com",
+          "firstName": "ΕΛΕΝΗ",
+          "lastName": "ΜΗΤΤΑ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 184,
+          "email": "435d206f-9317-47e2-b2c9-a763911c20e8@aleeas.com",
+          "firstName": "ANDREAS",
+          "lastName": "I",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 185,
+          "email": "sarahsteeds@yahoo.co.uk",
+          "firstName": "Sarah",
+          "lastName": "Steeds",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 186,
+          "email": "greekgoddess@interia.pl",
+          "firstName": "Χρήστος",
+          "lastName": "Παπαλάμπρος",
+          "active": true,
+          "defaultGroupId": 17,
+          "defaultGroupName": "Wholesalers GR -NO- Veronese",
+          "groupIds": [
+            17,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers GR -NO- Veronese",
+            "Customer"
+          ]
+        },
+        {
+          "id": 187,
+          "email": "alexkarydas@gmail.com",
+          "firstName": "Alexandros",
+          "lastName": "Karydas",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 188,
+          "email": "info@mrsmary.gr",
+          "firstName": "ΜΑΡΙΑ",
+          "lastName": "ΣΤΑΥΡΟΠΟΥΛΟΥ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 189,
+          "email": "nymphe.tw@gmail.com",
+          "firstName": "御業",
+          "lastName": "寧斐",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 190,
+          "email": "librairie-mysteria-temporis@orange.fr",
+          "firstName": "DAVID",
+          "lastName": "MORICONI",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 191,
+          "email": "dannyt2415@yahoo.com",
+          "firstName": "Danny",
+          "lastName": "Thomas",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 192,
+          "email": "jscreativesocial@gmail.com",
+          "firstName": "Jenna",
+          "lastName": "Stephenson",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 193,
+          "email": "despoina.vlassopoulou@gmail.com",
+          "firstName": "Δέσποινα",
+          "lastName": "Βλασσοπούλου",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 194,
+          "email": "info@mariadamanaki.com",
+          "firstName": "Μαρία",
+          "lastName": "Δαμανάκη",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 195,
+          "email": "keramistas@gmail.com",
+          "firstName": "ΜΑΡΙΝΟΣ",
+          "lastName": "ΜΩΥΣΑΚΗΣ ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 196,
+          "email": "titoshop@hotmail.gr",
+          "firstName": "titos",
+          "lastName": "Gryllakis",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 197,
+          "email": "lena.nicolaspro@gmail.com",
+          "firstName": "lena",
+          "lastName": "nicolas",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 198,
+          "email": "theodrakop@gmail.com",
+          "firstName": "Θεόδωρος ",
+          "lastName": "Δρακόπουλος ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 199,
+          "email": "contact@lesdryades.shop",
+          "firstName": "sarah",
+          "lastName": "Allard Lecoanet",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 200,
+          "email": "cheretakis@hotmail.com",
+          "firstName": "ΑΝΑΣΤΑΣΙΟΣ",
+          "lastName": "ΧΑΙΡΕΤΑΚΗΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 201,
+          "email": "alinalevinenko@gmail.com",
+          "firstName": "Alina",
+          "lastName": "Levinenko ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 202,
+          "email": "fysouna@gmail.com",
+          "firstName": "ΝΙΚΟΛΕΤΑ",
+          "lastName": "ΠΑΠΑΔΑΚΗ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 203,
+          "email": "h_lampis@yahoo.gr",
+          "firstName": "ΗΛΙΑΣ",
+          "lastName": "ΛΑΜΠΗΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 204,
+          "email": "5154c91bdb@emaily.pro",
+          "firstName": "JACK",
+          "lastName": "MARK",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 205,
+          "email": "marinarakintzoglou@gmail.com",
+          "firstName": "Marina",
+          "lastName": "Rakintzoglou",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 206,
+          "email": "zamuel1@live.se",
+          "firstName": "Samuel",
+          "lastName": "Ohlsson",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 207,
+          "email": "mustafamanson@hotmail.com",
+          "firstName": "Mustafa",
+          "lastName": "Senturk",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 208,
+          "email": "vivid.gifts.gr@gmail.com",
+          "firstName": "Κωνσταντίνα ",
+          "lastName": "Ξύδη",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 209,
+          "email": "ianisvich@yahoo.com",
+          "firstName": "ΙΩΑΝΝΗΣ",
+          "lastName": "ΒΗΧΟΣ",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 210,
+          "email": "stepharisti@gmail.com",
+          "firstName": "Stephanie",
+          "lastName": "Aristizabal",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 211,
+          "email": "specialsign@me.com",
+          "firstName": "Christian ",
+          "lastName": "Böttcher",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 212,
+          "email": "info@thegiftofmagic.nl",
+          "firstName": "Inge",
+          "lastName": "van Oldeneel tot Oldenzeel",
+          "active": true,
+          "defaultGroupId": 13,
+          "defaultGroupName": "Wholesalers from Scandinavia ",
+          "groupIds": [
+            13,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Scandinavia ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 213,
+          "email": "h.kethy@gmail.com",
+          "firstName": "Katalin",
+          "lastName": "Horváth-Heizler",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 214,
+          "email": "gatjudi@t-online.de",
+          "firstName": "Theodosia",
+          "lastName": "Gatjudi",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 215,
+          "email": "dujulant@wp.pl",
+          "firstName": "Adrian",
+          "lastName": "Stuchlik",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3,
+            14
+          ],
+          "groupNames": [
+            "Customer",
+            "Wholesalers from abroad"
+          ]
+        },
+        {
+          "id": 216,
+          "email": "houdini@objetstrouves.eu",
+          "firstName": "Dieu Oanh",
+          "lastName": "Nguyen",
+          "active": true,
+          "defaultGroupId": 13,
+          "defaultGroupName": "Wholesalers from Scandinavia ",
+          "groupIds": [
+            13,
+            3,
+            14
+          ],
+          "groupNames": [
+            "Wholesalers from Scandinavia ",
+            "Customer",
+            "Wholesalers from abroad"
+          ]
+        },
+        {
+          "id": 217,
+          "email": "boutique1692@gmail.com",
+          "firstName": "Andrea.",
+          "lastName": "Fields",
+          "active": true,
+          "defaultGroupId": 14,
+          "defaultGroupName": "Wholesalers from abroad",
+          "groupIds": [
+            14,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from abroad",
+            "Customer"
+          ]
+        },
+        {
+          "id": 218,
+          "email": "gdim2007@gmail.com",
+          "firstName": "Ιωάννης",
+          "lastName": "Δημητριάδης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 220,
+          "email": "eirinipapaioannou@yahoo.gr",
+          "firstName": "Κατερινα",
+          "lastName": "Ιατρού",
+          "active": true,
+          "defaultGroupId": 12,
+          "defaultGroupName": "Wholesalers from Greece ",
+          "groupIds": [
+            12,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers from Greece ",
+            "Customer"
+          ]
+        },
+        {
+          "id": 221,
+          "email": "carl.nykopp@gmail.com",
+          "firstName": "Carl",
+          "lastName": "Nykopp",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 222,
+          "email": "pigeafurs@gmail.com",
+          "firstName": "ΗΛΙΑΣ",
+          "lastName": "ΠΑΠΑΔΗΜΗΤΡΙΟΥ",
+          "active": true,
+          "defaultGroupId": 17,
+          "defaultGroupName": "Wholesalers GR -NO- Veronese",
+          "groupIds": [
+            17,
+            3
+          ],
+          "groupNames": [
+            "Wholesalers GR -NO- Veronese",
+            "Customer"
+          ]
+        },
+        {
+          "id": 223,
+          "email": "timos.gig@hotmail.com",
+          "firstName": "Τιμόθεος",
+          "lastName": "Γιγαντες",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 224,
+          "email": "info@grifon.gr",
+          "firstName": "sdefrtyuii",
+          "lastName": "ioop",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 225,
+          "email": "info2@grifon.gr",
+          "firstName": "Σπυριδάκης",
+          "lastName": "Εμμανουήλ",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 226,
+          "email": "stefs.spy@gmail.com",
+          "firstName": "Stefanos",
+          "lastName": "Spyridakis",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 229,
+          "email": "ioannapergamali@gmail.com",
+          "firstName": "ioanna",
+          "lastName": "pergamali",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 231,
+          "email": "joanneper@yahoo.com",
+          "firstName": "nikos",
+          "lastName": "lamprakis",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 232,
+          "email": "borchid08@gmail.com",
+          "firstName": "nikos",
+          "lastName": "lamprakis",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3
+          ],
+          "groupNames": [
+            "Customer"
+          ]
+        },
+        {
+          "id": 233,
+          "email": "joanneper@hotmail.com",
+          "firstName": "Νίκος",
+          "lastName": "Παπαδάκης",
+          "active": true,
+          "defaultGroupId": 3,
+          "defaultGroupName": "Customer",
+          "groupIds": [
+            3,
+            12
+          ],
+          "groupNames": [
+            "Customer",
+            "Wholesalers from Greece "
+          ]
+        }
+      ]
+    }
+  ]
+}

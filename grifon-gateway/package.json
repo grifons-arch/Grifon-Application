@@ -10,7 +10,8 @@
     "prestart": "npm run build",
     "start": "node dist/server.js",
     "test": "vitest run",
-    "export:categories": "tsx src/scripts/exportCategories.ts"
+    "export:categories": "tsx src/scripts/exportCategories.ts",
+    "export:customer-groups": "tsx src/scripts/exportCustomerGroups.ts"
   },
   "dependencies": {
     "axios": "^1.7.7",
