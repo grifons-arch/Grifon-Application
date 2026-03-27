@@ -3,8 +3,10 @@ package com.example.grifon.domain.usecase
 import com.example.grifon.data.repository.CatalogRepository
 import com.example.grifon.data.repository.CartRepository
 import com.example.grifon.data.repository.FavoriteRepository
+import com.example.grifon.data.repository.ProductRepository
 import com.example.grifon.data.repository.RecentProductRepository
 import com.example.grifon.data.repository.ShopRepository
+import com.example.grifon.data.repository.CustomerRepository
 import com.example.grifon.data.repository.WholesaleCustomerRepository
 import com.example.grifon.domain.model.CartItem
 import com.example.grifon.domain.model.FilterState
@@ -88,4 +90,16 @@ class SyncWholesaleCustomersUseCase(
 ) {
     suspend operator fun invoke(shopId: String) =
         wholesaleCustomerRepository.syncWholesaleCustomers(shopId)
+}
+
+class SyncCustomersUseCase(
+    private val customerRepository: CustomerRepository
+) {
+    suspend operator fun invoke(shopId: String) = customerRepository.syncCustomers(shopId)
+}
+
+class SyncProductsUseCase(
+    private val productRepository: ProductRepository
+) {
+    suspend operator fun invoke(shopId: String) = productRepository.syncProducts(shopId)
 }

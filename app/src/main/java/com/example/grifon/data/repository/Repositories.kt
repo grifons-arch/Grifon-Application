@@ -62,3 +62,11 @@ interface RecentProductRepository {
 interface WholesaleCustomerRepository {
     suspend fun syncWholesaleCustomers(shopId: String): Int
 }
+
+interface CustomerRepository {
+    suspend fun syncCustomers(shopId: String): Int
+}
+
+interface ProductRepository {
+    suspend fun syncProducts(shopId: String): Int
+}

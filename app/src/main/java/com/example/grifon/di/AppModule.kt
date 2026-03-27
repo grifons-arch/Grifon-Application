@@ -9,13 +9,14 @@ import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.auth.AuthApi
 import com.example.grifon.data.auth.UserRepositoryImpl
 import com.example.grifon.data.local.AppDatabase
+import com.example.grifon.data.local.CustomerDao
 import com.example.grifon.data.local.FavoriteDao
+import com.example.grifon.data.local.ProductDao
 import com.example.grifon.data.local.RecentProductDao
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.local.WholesaleCustomerDao
 import com.example.grifon.data.repository.*
 import com.example.grifon.data.fake.*
-import com.example.grifon.data.sync.WholesaleCustomerStartupSyncer
 import com.example.grifon.domain.usecase.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -98,6 +99,14 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideCustomerDao(appDatabase: AppDatabase): CustomerDao = appDatabase.customerDao()
+
+    @Provides
+    @Singleton
+    fun provideProductDao(appDatabase: AppDatabase): ProductDao = appDatabase.productDao()
+
+    @Provides
+    @Singleton
     fun provideShopPreferences(
         @ApplicationContext context: Context,
         dataStore: DataStore<Preferences>
@@ -138,6 +147,20 @@ object AppModule {
         appDatabase: AppDatabase,
         catalogApi: CatalogApi,
     ): WholesaleCustomerRepository = ApiWholesaleCustomerRepository(appDatabase, catalogApi)
+
+    @Provides
+    @Singleton
+    fun provideCustomerRepository(
+        appDatabase: AppDatabase,
+        catalogApi: CatalogApi,
+    ): CustomerRepository = ApiCustomerRepository(appDatabase, catalogApi)
+
+    @Provides
+    @Singleton
+    fun provideProductRepository(
+        appDatabase: AppDatabase,
+        catalogApi: CatalogApi,
+    ): ProductRepository = ApiProductRepository(appDatabase, catalogApi)
 
     @Provides
     @Singleton
@@ -206,4 +229,12 @@ object AppModule {
     @Provides
     fun provideSyncWholesaleCustomersUseCase(repo: WholesaleCustomerRepository) =
         SyncWholesaleCustomersUseCase(repo)
+
+    @Provides
+    fun provideSyncCustomersUseCase(repo: CustomerRepository) =
+        SyncCustomersUseCase(repo)
+
+    @Provides
+    fun provideSyncProductsUseCase(repo: ProductRepository) =
+        SyncProductsUseCase(repo)
 }

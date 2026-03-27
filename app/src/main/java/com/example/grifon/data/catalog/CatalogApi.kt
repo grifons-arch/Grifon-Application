@@ -15,6 +15,12 @@ interface CatalogApi {
         @Query("lang") lang: Int = 1,
     ): WholesaleCustomersResponseDto
 
+    @GET("v1/customers")
+    suspend fun getCustomers(
+        @Query("shopId") shopId: Int,
+        @Query("lang") lang: Int = 1,
+    ): CustomersResponseDto
+
     @GET("v1/products")
     suspend fun getProducts(
         @Query("shopId") shopId: Int,
@@ -93,6 +99,29 @@ data class WholesaleCustomerDto(
     val defaultGroupName: String? = null,
     val wholesaleGroupIds: List<Int> = emptyList(),
     val wholesaleGroupNames: List<String> = emptyList(),
+)
+
+@JsonClass(generateAdapter = true)
+data class CustomersResponseDto(
+    val items: List<CustomerDto> = emptyList(),
+)
+
+@JsonClass(generateAdapter = true)
+data class CustomerDto(
+    val customerId: Int,
+    val shopId: Int,
+    val email: String? = null,
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val company: String? = null,
+    val active: Boolean = false,
+    val defaultGroupId: Int? = null,
+    val defaultGroupName: String? = null,
+    val groupIds: List<Int> = emptyList(),
+    val groupNames: List<String> = emptyList(),
+    val wholesaleGroupIds: List<Int> = emptyList(),
+    val wholesaleGroupNames: List<String> = emptyList(),
+    val isWholesale: Boolean = false,
 )
 
 @JsonClass(generateAdapter = true)
