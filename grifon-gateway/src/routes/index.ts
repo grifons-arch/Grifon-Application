@@ -5,6 +5,7 @@ import { config, shops } from "../config/env";
 import { validateQuery, validateParams, validateBody } from "../middleware/validate";
 import {
   categoryIdSchema,
+  customerActivityQuerySchema,
   customerIdSchema,
   loginBodySchema,
   paginationSchema,
@@ -17,7 +18,14 @@ import {
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { listCategories } from "../services/categoryService";
 import { listProductsByCategory, getProductDetail, listAllProducts } from "../services/productService";
-import { registerCustomer, loginCustomer, syncFavoriteProduct, recordRecentProduct } from "../services/authService";
+import {
+  registerCustomer,
+  loginCustomer,
+  syncFavoriteProduct,
+  recordRecentProduct,
+  listFavoriteProducts,
+  listRecentProducts
+} from "../services/authService";
 import { getPriceAccess } from "../services/priceAccessService";
 import { listWholesaleCustomers } from "../services/wholesaleCustomerService";
 import { listCustomers } from "../services/customerService";
@@ -98,6 +106,41 @@ apiRouter.post(
   async (req, res, next) => {
     try {
       const result = await recordRecentProduct(req.body as any);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
+  "/v1/customer-activity/favorites",
+  validateQuery(customerActivityQuerySchema),
+  async (req, res, next) => {
+    try {
+      const { customerId, shopId } = req.query as any;
+      const result = await listFavoriteProducts({
+        customerId: Number(customerId),
+        shopId: Number(shopId),
+      });
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
+  "/v1/customer-activity/recent-products",
+  validateQuery(customerActivityQuerySchema),
+  async (req, res, next) => {
+    try {
+      const { customerId, shopId, limit } = req.query as any;
+      const result = await listRecentProducts({
+        customerId: Number(customerId),
+        shopId: Number(shopId),
+        limit: limit ? Number(limit) : undefined,
+      });
       res.json(result);
     } catch (error) {
       next(error);

@@ -69,6 +69,19 @@ interface CatalogApi {
     suspend fun syncRecentProduct(
         @Body request: ProductActivityRequestDto,
     ): ActivityResponseDto
+
+    @GET("v1/customer-activity/favorites")
+    suspend fun getFavoriteProducts(
+        @Query("customerId") customerId: Int,
+        @Query("shopId") shopId: Int,
+    ): ProductActivityItemsResponseDto
+
+    @GET("v1/customer-activity/recent-products")
+    suspend fun getRecentProducts(
+        @Query("customerId") customerId: Int,
+        @Query("shopId") shopId: Int,
+        @Query("limit") limit: Int = 20,
+    ): ProductActivityItemsResponseDto
 }
 
 @JsonClass(generateAdapter = true)
@@ -172,4 +185,23 @@ data class ProductSnapshotDto(
 @JsonClass(generateAdapter = true)
 data class ActivityResponseDto(
     val ok: Boolean = false,
+)
+
+@JsonClass(generateAdapter = true)
+data class ProductActivityItemsResponseDto(
+    val ok: Boolean = false,
+    val items: List<ProductActivityItemDto> = emptyList(),
+)
+
+@JsonClass(generateAdapter = true)
+data class ProductActivityItemDto(
+    val productId: Int,
+    val shopId: Int,
+    val title: String? = null,
+    val price: Double? = null,
+    val currency: String? = null,
+    val imageUrl: String? = null,
+    val brand: String? = null,
+    val updatedAt: Long? = null,
+    val visitedAt: Long? = null,
 )

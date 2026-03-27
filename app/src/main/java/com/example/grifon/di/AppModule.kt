@@ -17,6 +17,7 @@ import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.local.WholesaleCustomerDao
 import com.example.grifon.data.repository.*
 import com.example.grifon.data.fake.*
+import com.example.grifon.data.sync.LoginCustomerActivitySyncService
 import com.example.grifon.domain.usecase.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -175,8 +176,14 @@ object AppModule {
     fun provideUserRepository(
         authApi: AuthApi,
         preferences: ShopPreferences,
+        loginCustomerActivitySyncService: LoginCustomerActivitySyncService,
         @ApplicationContext context: Context,
-    ): UserRepository = UserRepositoryImpl(authApi, preferences, context)
+    ): UserRepository = UserRepositoryImpl(
+        authApi,
+        preferences,
+        loginCustomerActivitySyncService,
+        context,
+    )
 
     @Provides
     @Singleton

@@ -3,11 +3,13 @@ package com.example.grifon.data.auth
 import android.content.Context
 import com.example.grifon.core.LoginText
 import com.example.grifon.data.local.ShopPreferences
+import com.example.grifon.data.sync.LoginCustomerActivitySyncService
 import com.example.grifon.data.repository.UserRepository
 import com.example.grifon.core.loginText
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,6 +27,7 @@ import kotlinx.coroutines.launch
 class UserRepositoryImpl @Inject constructor(
     private val authApi: AuthApi,
     private val preferences: ShopPreferences,
+    private val loginCustomerActivitySyncService: LoginCustomerActivitySyncService,
     @ApplicationContext private val context: Context,
 ) : UserRepository {
     private val _isLoggedIn = MutableStateFlow(false)
@@ -44,10 +47,17 @@ class UserRepositoryImpl @Inject constructor(
             val response = authApi.login(LoginRequestDto(email, pass))
             // ΔΙΟΡΘΩΣΗ: Έλεγχος του ok ΚΑΙ του idCustomer (που πλέον είναι idCustomer στο DTO)
             if (response.ok && response.idCustomer != null) {
+                val activeShopId = preferences.activeShopId.first()
                 preferences.setCustomerSession(
                     customerId = response.idCustomer,
                     canViewPrices = response.canViewPrices == true,
                 )
+                runCatching {
+                    loginCustomerActivitySyncService.syncAfterLogin(
+                        customerId = response.idCustomer,
+                        shopId = activeShopId,
+                    )
+                }
                 _isLoggedIn.value = true
                 Result.success(Unit)
             } else {

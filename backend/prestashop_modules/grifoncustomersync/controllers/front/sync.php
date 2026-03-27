@@ -46,6 +46,10 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
                 $this->handleFavoriteToggle($payload);
             } elseif (isset($payload['action']) && $payload['action'] === 'record_recent_product') {
                 $this->handleRecentProduct($payload);
+            } elseif (isset($payload['action']) && $payload['action'] === 'list_favorite_products') {
+                $this->handleListFavoriteProducts($payload);
+            } elseif (isset($payload['action']) && $payload['action'] === 'list_recent_products') {
+                $this->handleListRecentProducts($payload);
             } else {
                 $this->handleSync($payload);
             }
@@ -150,6 +154,78 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $this->trimRecentProducts($idCustomer, $idShop, 20);
 
         $this->respond(200, ['ok' => true]);
+    }
+
+    private function handleListFavoriteProducts($payload)
+    {
+        $idCustomer = isset($payload['customerId']) ? (int)$payload['customerId'] : 0;
+        $idShop = isset($payload['shopId']) ? (int)$payload['shopId'] : (int)Context::getContext()->shop->id;
+
+        if ($idCustomer <= 0 || $idShop <= 0) {
+            $this->respond(400, ['ok' => false, 'error' => 'INVALID_FAVORITE_QUERY']);
+        }
+
+        $sql = 'SELECT `id_product`, `id_shop`, `title`, `price`, `currency`, `image_url`, `brand`, `date_add`, `date_upd`
+                FROM `'._DB_PREFIX_.'grifon_favorite_product`
+                WHERE `id_customer`='.(int)$idCustomer.'
+                  AND `id_shop`='.(int)$idShop.'
+                ORDER BY `date_upd` DESC, `date_add` DESC';
+        $rows = Db::getInstance()->executeS($sql);
+
+        $items = [];
+        if (is_array($rows)) {
+            foreach ($rows as $row) {
+                $items[] = [
+                    'productId' => (int)$row['id_product'],
+                    'shopId' => (int)$row['id_shop'],
+                    'title' => isset($row['title']) ? (string)$row['title'] : '',
+                    'price' => $row['price'] !== null ? (float)$row['price'] : null,
+                    'currency' => isset($row['currency']) ? (string)$row['currency'] : '',
+                    'imageUrl' => isset($row['image_url']) ? (string)$row['image_url'] : '',
+                    'brand' => isset($row['brand']) ? (string)$row['brand'] : '',
+                    'updatedAt' => isset($row['date_upd']) ? strtotime((string)$row['date_upd']) : time(),
+                ];
+            }
+        }
+
+        $this->respond(200, ['ok' => true, 'items' => $items]);
+    }
+
+    private function handleListRecentProducts($payload)
+    {
+        $idCustomer = isset($payload['customerId']) ? (int)$payload['customerId'] : 0;
+        $idShop = isset($payload['shopId']) ? (int)$payload['shopId'] : (int)Context::getContext()->shop->id;
+        $limit = isset($payload['limit']) ? max(1, (int)$payload['limit']) : 20;
+
+        if ($idCustomer <= 0 || $idShop <= 0) {
+            $this->respond(400, ['ok' => false, 'error' => 'INVALID_RECENT_QUERY']);
+        }
+
+        $sql = 'SELECT `id_product`, `id_shop`, `title`, `price`, `currency`, `image_url`, `brand`, `visited_at`
+                FROM `'._DB_PREFIX_.'grifon_recent_product`
+                WHERE `id_customer`='.(int)$idCustomer.'
+                  AND `id_shop`='.(int)$idShop.'
+                ORDER BY `visited_at` DESC, `date_upd` DESC
+                LIMIT '.(int)$limit;
+        $rows = Db::getInstance()->executeS($sql);
+
+        $items = [];
+        if (is_array($rows)) {
+            foreach ($rows as $row) {
+                $items[] = [
+                    'productId' => (int)$row['id_product'],
+                    'shopId' => (int)$row['id_shop'],
+                    'title' => isset($row['title']) ? (string)$row['title'] : '',
+                    'price' => $row['price'] !== null ? (float)$row['price'] : null,
+                    'currency' => isset($row['currency']) ? (string)$row['currency'] : '',
+                    'imageUrl' => isset($row['image_url']) ? (string)$row['image_url'] : '',
+                    'brand' => isset($row['brand']) ? (string)$row['brand'] : '',
+                    'visitedAt' => isset($row['visited_at']) ? strtotime((string)$row['visited_at']) : time(),
+                ];
+            }
+        }
+
+        $this->respond(200, ['ok' => true, 'items' => $items]);
     }
 
     private function requireAuth($secret, $maxSkew, $rawBody)

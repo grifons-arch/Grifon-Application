@@ -119,3 +119,9 @@ export const productActivityBodySchema = z.object({
     brand: z.preprocess(toOptionalString, z.string().optional())
   }).optional()
 });
+
+export const customerActivityQuerySchema = z.object({
+  customerId: z.preprocess(toNumber, z.number().int().positive()),
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  limit: z.preprocess(toNumber, z.number().int().min(1).max(100).optional())
+});

@@ -34,6 +34,12 @@ export interface ProductActivityRequest {
   };
 }
 
+export interface ProductActivityListRequest {
+  customerId: number;
+  shopId: 1 | 4;
+  limit?: number;
+}
+
 const resolveSyncUrl = (countryIso: string = "GR"): string => {
   const shopId = countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
   const baseUrl = config.shopBaseUrls[shopId] || config.prestashopBaseUrl;
@@ -157,6 +163,29 @@ export const recordRecentProduct = async (request: ProductActivityRequest): Prom
       productId: request.productId,
       shopId: request.shopId,
       product: request.product ?? {}
+    },
+    request.shopId === 1 ? "SE" : "GR"
+  );
+};
+
+export const listFavoriteProducts = async (request: ProductActivityListRequest): Promise<any> => {
+  return sendToPrestaShop(
+    {
+      action: "list_favorite_products",
+      customerId: request.customerId,
+      shopId: request.shopId
+    },
+    request.shopId === 1 ? "SE" : "GR"
+  );
+};
+
+export const listRecentProducts = async (request: ProductActivityListRequest): Promise<any> => {
+  return sendToPrestaShop(
+    {
+      action: "list_recent_products",
+      customerId: request.customerId,
+      shopId: request.shopId,
+      limit: request.limit ?? 20
     },
     request.shopId === 1 ? "SE" : "GR"
   );
