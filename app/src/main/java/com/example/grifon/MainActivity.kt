@@ -32,6 +32,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
+            // Require an explicit in-app login on each fresh launch before showing wholesale prices.
+            shopPreferences.clearCustomerSession()
+        }
+
+        lifecycleScope.launch {
             shopPreferences.appLanguage
                 .distinctUntilChanged()
                 .collect { langCode ->

@@ -52,6 +52,7 @@ fun HomeScreen(
     onProductClick: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val canDisplayPrices = LocalCanDisplayPrices.current
     val grifonDark = Color(0xFF121212)
     val grifonGold = Color(0xFFC5A059)
 
@@ -136,6 +137,14 @@ fun HomeScreen(
                         )
                     }
 
+                    if (!canDisplayPrices) {
+                        item(span = { GridItemSpan(2) }) {
+                            WholesaleLoginBanner(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
                     // 4. Πλέγμα με Όλα τα Προϊόντα
                     if (data.allProducts.isEmpty()) {
                         item(span = { GridItemSpan(2) }) {
@@ -163,6 +172,28 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun WholesaleLoginBanner(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF2A2116)),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                text = stringResource(R.string.wholesale_prices_only),
+                color = Color(0xFFC5A059),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+            )
+            Text(
+                text = stringResource(R.string.wholesale_login_hint),
+                color = Color.White.copy(alpha = 0.85f),
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }

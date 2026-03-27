@@ -41,6 +41,7 @@ import com.example.grifon.domain.model.SortOption
 import com.example.grifon.ui.screens.ErrorScreen
 import com.example.grifon.ui.screens.LocalCanDisplayPrices
 import com.example.grifon.ui.screens.LoadingScreen
+import com.example.grifon.ui.screens.WholesaleLoginBanner
 import com.example.grifon.ui.theme.GrifonBlue
 import com.example.grifon.viewmodel.PlpViewModel
 import java.util.Locale
@@ -60,6 +61,7 @@ fun ProductListScreen(
             is UiState.Error -> ErrorScreen(message = state.message)
             is UiState.Success -> {
                 val data = state.data
+                val canDisplayPrices = LocalCanDisplayPrices.current
                 val activeFilters = remember(data.filters) { data.filters.activeCount() }
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
@@ -74,6 +76,11 @@ fun ProductListScreen(
                             onFiltersClick = { filtersOpen = true },
                             onSortClick = { sortOpen = true }
                         )
+                    }
+                    if (!canDisplayPrices) {
+                        item(span = { GridItemSpan(2) }) {
+                            WholesaleLoginBanner()
+                        }
                     }
                     items(data.products) { product ->
                         ProductGridItem(product, onClick = { onProductClick(product.id) })
