@@ -1,4 +1,5 @@
 import { PrestaShopClient } from "../clients/PrestaShopClient";
+import { config } from "../config/env";
 import { extractResourceItem, extractResourceList } from "./prestashopParser";
 import { toBooleanFlag } from "../utils/prestashopFields";
 
@@ -7,8 +8,19 @@ export interface PriceAccessResult {
   active: boolean;
   defaultGroupId: number | null;
   groupShowPrices: boolean;
+  matchesWholesaleGroupConfig: boolean;
   allowed: boolean;
 }
+
+const getConfiguredWholesaleGroupIds = (): number[] => {
+  return Array.from(
+    new Set(
+      Object.values(config.countryGroupMap).filter(
+        (groupId) => Number.isInteger(groupId) && groupId > 0
+      )
+    )
+  );
+};
 
 export const getPriceAccess = async (
   client: PrestaShopClient,
@@ -22,6 +34,7 @@ export const getPriceAccess = async (
       active: false,
       defaultGroupId: null,
       groupShowPrices: false,
+      matchesWholesaleGroupConfig: false,
       allowed: false
     };
   }
@@ -38,13 +51,19 @@ export const getPriceAccess = async (
     }
   }
 
-  const allowed = active && groupShowPrices;
+  const configuredWholesaleGroupIds = getConfiguredWholesaleGroupIds();
+  const matchesWholesaleGroupConfig =
+    configuredWholesaleGroupIds.length === 0
+      ? groupShowPrices
+      : defaultGroupId !== null && configuredWholesaleGroupIds.includes(defaultGroupId);
+  const allowed = active && groupShowPrices && matchesWholesaleGroupConfig;
 
   return {
     customerId,
     active,
     defaultGroupId,
     groupShowPrices,
+    matchesWholesaleGroupConfig,
     allowed
   };
 };

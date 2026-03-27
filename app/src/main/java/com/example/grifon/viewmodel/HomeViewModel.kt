@@ -62,9 +62,10 @@ class HomeViewModel @Inject constructor(
             try {
                 // Φορτώνουμε τα προτεινόμενα (π.χ. από κατηγορία 2)
                 val customerId = shopPreferences.currentCustomerId.first()
+                val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
                 val featured = runCatching { 
                     catalogApi.getCategoryProducts(categoryId = 2, shopId = currentShopId.toInt(), pageSize = 10, customerId = customerId).items.map { 
-                        it.toDomainProduct(gatewayBaseUrl, "Featured") 
+                        it.toDomainProduct(gatewayBaseUrl, "Featured", showPrice = canViewPrices) 
                     }
                 }.getOrDefault(emptyList())
 
@@ -107,12 +108,19 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun getCategoryProducts(categoryId: String?): List<Product> {
         val shopId = currentShopId.toInt()
+        val customerId = shopPreferences.currentCustomerId.first()
+        val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
         val response = if (categoryId.isNullOrBlank()) {
-            catalogApi.getProducts(shopId = shopId, pageSize = 50)
+            catalogApi.getProducts(shopId = shopId, pageSize = 50, customerId = customerId)
         } else {
-            catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = shopId, pageSize = 50)
+            catalogApi.getCategoryProducts(
+                categoryId = categoryId.toInt(),
+                shopId = shopId,
+                pageSize = 50,
+                customerId = customerId,
+            )
         }
-        return response.items.map { it.toDomainProduct(gatewayBaseUrl, "Grifon") }
+        return response.items.map { it.toDomainProduct(gatewayBaseUrl, "Grifon", showPrice = canViewPrices) }
     }
 }
 

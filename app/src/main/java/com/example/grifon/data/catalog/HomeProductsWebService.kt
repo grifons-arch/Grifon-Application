@@ -20,6 +20,7 @@ class HomeProductsWebService @Inject constructor(
 
         Log.d("GrifonAPI", "Fetching products for shop: ${selectedShop.id} (${selectedShop.code})")
         val customerId = shopPreferences.currentCustomerId.first()
+        val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
         
         // Προσπάθεια για γενικά προϊόντα
         val productsResponse = catalogApi.getProducts(shopId = selectedShop.id, pageSize = 50, customerId = customerId)
@@ -29,6 +30,7 @@ class HomeProductsWebService @Inject constructor(
                 dto.toDomainProduct(
                     gatewayBaseUrl = gatewayBaseUrl,
                     brand = selectedShop.code ?: "Grifon",
+                    showPrice = canViewPrices,
                 )
             }
         }
@@ -46,6 +48,7 @@ class HomeProductsWebService @Inject constructor(
             dto.toDomainProduct(
                 gatewayBaseUrl = gatewayBaseUrl,
                 brand = selectedShop.code ?: "Grifon",
+                showPrice = canViewPrices,
             )
         }
     }

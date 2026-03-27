@@ -78,10 +78,12 @@ exports.registerBodySchema = zod_1.z
     phone: zod_1.z.string().trim().min(1).optional(),
     company: zod_1.z.string().trim().min(1).optional(),
     vatNumber: zod_1.z.string().trim().min(1).optional(),
+    dni: zod_1.z.string().trim().min(1).optional(), // ΠΡΟΣΘΗΚΗ DNI
     iban: zod_1.z.string().trim().min(1).optional(),
     customerDataPrivacyAccepted: zod_1.z.boolean().optional().default(false),
     newsletter: zod_1.z.boolean().optional().default(false),
     termsAndPrivacyAccepted: zod_1.z.boolean().optional().default(false),
+    wholesaleRequested: zod_1.z.boolean().optional().default(false),
     partnerOffers: zod_1.z.boolean().optional()
 })
     .superRefine((data, context) => {

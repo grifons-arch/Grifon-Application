@@ -46,6 +46,7 @@ class ApiCatalogRepository @Inject constructor(
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
             val customerId = shopPreferences.currentCustomerId.first()
+            val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
             val response = if (categoryId == "2" || categoryId.isBlank()) {
                 catalogApi.getProducts(shopId = sId, pageSize = 100, customerId = customerId)
             } else {
@@ -58,6 +59,7 @@ class ApiCatalogRepository @Inject constructor(
                     it.toDomainProduct(
                         gatewayBaseUrl = gatewayBaseUrl,
                         brand = if (sId == 4) "Grifon GR" else "Grifon SE",
+                        showPrice = canViewPrices,
                     )
                 }
                 .filter { product ->
@@ -107,11 +109,13 @@ class ApiCatalogRepository @Inject constructor(
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
             val customerId = shopPreferences.currentCustomerId.first()
+            val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
             val response = catalogApi.getProducts(shopId = sId, pageSize = 100, customerId = customerId)
             val allProducts = response.items.map {
                 it.toDomainProduct(
                     gatewayBaseUrl = gatewayBaseUrl,
                     brand = if (sId == 4) "Grifon GR" else "Grifon SE",
+                    showPrice = canViewPrices,
                 )
             }
             
@@ -145,6 +149,7 @@ class ApiCatalogRepository @Inject constructor(
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
             val customerId = shopPreferences.currentCustomerId.first()
+            val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
             val normalizedProductId = productId.substringAfterLast("_").toIntOrNull()
             if (normalizedProductId == null) {
                 emit(null)
@@ -155,6 +160,7 @@ class ApiCatalogRepository @Inject constructor(
                 response.toDomainProduct(
                     gatewayBaseUrl = gatewayBaseUrl,
                     brand = if (sId == 4) "Grifon GR" else "Grifon SE",
+                    showPrice = canViewPrices,
                 )
             )
         } catch (e: Exception) {

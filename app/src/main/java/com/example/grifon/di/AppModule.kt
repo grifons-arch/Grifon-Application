@@ -86,8 +86,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCatalogRepository(catalogApi: CatalogApi): CatalogRepository = 
-        ApiCatalogRepository(catalogApi)
+    fun provideCatalogRepository(
+        catalogApi: CatalogApi,
+        preferences: ShopPreferences,
+    ): CatalogRepository =
+        ApiCatalogRepository(catalogApi, preferences)
 
     @Provides
     @Singleton

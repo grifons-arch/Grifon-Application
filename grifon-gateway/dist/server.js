@@ -27,7 +27,8 @@ app.use((0, express_rate_limit_1.default)({
 }));
 app.use(routes_1.apiRouter);
 app.use(errorHandler_1.errorHandler);
-app.listen(env_1.config.port, () => {
+// ΔΙΟΡΘΩΣΗ: Προσθήκη του "0.0.0.0" για να είναι ορατός ο server στο Wi-Fi (από κινητά κλπ)
+app.listen(env_1.config.port, "0.0.0.0", () => {
     // eslint-disable-next-line no-console
-    console.log(`grifon-gateway running on port ${env_1.config.port}`);
+    console.log(`grifon-gateway running on port ${env_1.config.port} (Network Accessible)`);
 });

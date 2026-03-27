@@ -7,6 +7,8 @@ exports.loginCustomer = exports.updateProfile = exports.registerCustomer = void 
 const axios_1 = __importDefault(require("axios"));
 const crypto_1 = __importDefault(require("crypto"));
 const env_1 = require("../config/env");
+const PrestaShopClient_1 = require("../clients/PrestaShopClient");
+const priceAccessService_1 = require("./priceAccessService");
 const resolveSyncUrl = (countryIso = "GR") => {
     const shopId = countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
     const baseUrl = env_1.config.shopBaseUrls[shopId] || env_1.config.prestashopBaseUrl;
@@ -22,6 +24,9 @@ const createSignature = (payload, secret) => {
 };
 const registerCustomer = async (request) => {
     const email = request.email.trim().toLowerCase();
+    const dniValue = (request.vatNumber && request.vatNumber.trim().length >= 9)
+        ? request.vatNumber.trim()
+        : "123456789";
     const payload = {
         externalCustomerId: email,
         customer: {
@@ -31,30 +36,40 @@ const registerCustomer = async (request) => {
             password: request.password,
             company: request.company || "",
             newsletter: request.newsletter ? 1 : 0,
-            active: 0
+            active: 1,
+            is_wholesale: request.wholesaleRequested ? 1 : 0,
+            siret: dniValue,
+            dni: dniValue
         },
         addresses: [{
                 externalAddressId: `addr_${email}`,
                 alias: "Default",
                 firstname: request.firstName,
                 lastname: request.lastName,
-                address1: request.street || "",
-                postcode: request.postalCode || "",
-                city: request.city || "",
-                countryIso: request.countryIso || "GR",
-                vat_number: request.vatNumber || "",
-                dni: request.vatNumber || "000000000"
+                address1: request.street || "Δεν δηλώθηκε οδός",
+                postcode: (request.postalCode || "00000").replace(/\s/g, ""),
+                city: request.city || "Δεν δηλώθηκε πόλη",
+                countryIso: (request.countryIso || "GR").toUpperCase(),
+                phone: request.phone || "0000000000",
+                vat_number: dniValue,
+                dni: dniValue,
+                identification_number: dniValue,
+                dni_number: dniValue,
+                identification: dniValue
             }]
     };
-    return sendToPrestaShop(payload, request.countryIso || "GR");
+    const response = await sendToPrestaShop(payload, request.countryIso || "GR");
+    // ΜΕΤΑΤΡΟΠΗ ΑΠΑΝΤΗΣΗΣ ΓΙΑ ΤΗΝ ΕΦΑΡΜΟΓΗ
+    return {
+        customerId: response.psCustomerId?.toString() || "0",
+        status: "success",
+        message: response.message || "Registration successful"
+    };
 };
 exports.registerCustomer = registerCustomer;
-/**
- * Ενημέρωση Προφίλ Χρήστη
- */
 const updateProfile = async (request) => {
     const payload = {
-        action: "sync", // Επαναχρησιμοποιούμε τη handleSync της PHP που κάνει upsert
+        action: "sync",
         externalCustomerId: request.email.trim().toLowerCase(),
         customer: {
             email: request.email.trim().toLowerCase(),
@@ -70,7 +85,20 @@ const updateProfile = async (request) => {
 exports.updateProfile = updateProfile;
 const loginCustomer = async (email, pass) => {
     const payload = { action: "login", email: email.trim().toLowerCase(), password: pass };
-    return sendToPrestaShop(payload, "GR");
+    const response = await sendToPrestaShop(payload, "GR");
+    const customerId = response?.id_customer ? Number(response.id_customer) : null;
+    if (!customerId) {
+        return {
+            ...response,
+            can_view_prices: false,
+        };
+    }
+    const client = new PrestaShopClient_1.PrestaShopClient({ shopId: 4 });
+    const priceAccess = await (0, priceAccessService_1.getPriceAccess)(client, customerId);
+    return {
+        ...response,
+        can_view_prices: priceAccess.allowed,
+    };
 };
 exports.loginCustomer = loginCustomer;
 async function sendToPrestaShop(payload, countryIso) {
@@ -90,5 +118,5 @@ async function sendToPrestaShop(payload, countryIso) {
     });
     if (response.status === 200 && response.data?.ok === true)
         return response.data;
-    throw new Error(response.data?.message || response.data?.error || "Communication error");
+    throw new Error(response.data?.message || response.data?.error || `PrestaShop Error: ${response.status}`);
 }

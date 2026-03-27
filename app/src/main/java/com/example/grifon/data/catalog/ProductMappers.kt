@@ -5,6 +5,7 @@ import com.example.grifon.domain.model.Product
 fun ProductDto.toDomainProduct(
     gatewayBaseUrl: String,
     brand: String = "Grifon",
+    showPrice: Boolean = true,
 ): Product {
     val normalizedBaseUrl = gatewayBaseUrl.removeSuffix("/")
     val rawUrl = defaultImage?.url.orEmpty()
@@ -32,7 +33,7 @@ fun ProductDto.toDomainProduct(
     return Product(
         id = id.toString(),
         title = name ?: "#$id",
-        price = price,
+        price = price?.takeIf { showPrice },
         currency = "EUR",
         imageUrl = imageUrl,
         images = emptyList(),
