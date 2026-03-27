@@ -72,6 +72,7 @@ fun GrifonApp() {
                 cartCount = appState.cartCount,
                 favoriteCount = appState.favoriteCount,
                 isLoggedIn = appState.isLoggedIn,
+                canDisplayPrices = appState.canDisplayPrices,
             )
         },
     ) { padding ->

@@ -42,6 +42,7 @@ fun AppBottomNav(
     cartCount: Int,
     favoriteCount: Int,
     isLoggedIn: Boolean,
+    canDisplayPrices: Boolean,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -51,7 +52,9 @@ fun AppBottomNav(
         if (isLoggedIn) {
             add(BottomItem(Routes.FAVORITES))
         }
-        add(BottomItem(Routes.CART))
+        if (canDisplayPrices) {
+            add(BottomItem(Routes.CART))
+        }
         add(BottomItem(Routes.ACCOUNT))
         add(BottomItem(Routes.SETTINGS))
     }
