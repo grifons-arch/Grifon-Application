@@ -98,6 +98,41 @@ class Grifoncustomersync extends Module
             KEY `idx_id_address` (`id_address`)
         ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8mb4;';
 
+        $sqls[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'grifon_favorite_product` (
+            `id_grifon_favorite_product` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `id_customer` INT UNSIGNED NOT NULL,
+            `id_product` INT UNSIGNED NOT NULL,
+            `id_shop` INT UNSIGNED NOT NULL,
+            `title` VARCHAR(255) NULL,
+            `price` DECIMAL(20,6) NULL,
+            `currency` VARCHAR(16) NULL,
+            `image_url` TEXT NULL,
+            `brand` VARCHAR(255) NULL,
+            `date_add` DATETIME NOT NULL,
+            `date_upd` DATETIME NOT NULL,
+            PRIMARY KEY (`id_grifon_favorite_product`),
+            UNIQUE KEY `uniq_customer_product_shop` (`id_customer`, `id_product`, `id_shop`),
+            KEY `idx_customer_shop` (`id_customer`, `id_shop`)
+        ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8mb4;';
+
+        $sqls[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'grifon_recent_product` (
+            `id_grifon_recent_product` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `id_customer` INT UNSIGNED NOT NULL,
+            `id_product` INT UNSIGNED NOT NULL,
+            `id_shop` INT UNSIGNED NOT NULL,
+            `title` VARCHAR(255) NULL,
+            `price` DECIMAL(20,6) NULL,
+            `currency` VARCHAR(16) NULL,
+            `image_url` TEXT NULL,
+            `brand` VARCHAR(255) NULL,
+            `visited_at` DATETIME NOT NULL,
+            `date_add` DATETIME NOT NULL,
+            `date_upd` DATETIME NOT NULL,
+            PRIMARY KEY (`id_grifon_recent_product`),
+            UNIQUE KEY `uniq_customer_recent_product_shop` (`id_customer`, `id_product`, `id_shop`),
+            KEY `idx_recent_customer_shop` (`id_customer`, `id_shop`, `visited_at`)
+        ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8mb4;';
+
         foreach ($sqls as $sql) {
             if (!Db::getInstance()->execute($sql)) {
                 return false;
@@ -110,6 +145,8 @@ class Grifoncustomersync extends Module
     {
         // Αν θέλεις να κρατήσεις τα mappings μετά το uninstall, σχολίασε τα DROP.
         $sqls = [
+            'DROP TABLE IF EXISTS `'._DB_PREFIX_.'grifon_recent_product`;',
+            'DROP TABLE IF EXISTS `'._DB_PREFIX_.'grifon_favorite_product`;',
             'DROP TABLE IF EXISTS `'._DB_PREFIX_.'grifon_address_map`;',
             'DROP TABLE IF EXISTS `'._DB_PREFIX_.'grifon_customer_map`;',
         ];

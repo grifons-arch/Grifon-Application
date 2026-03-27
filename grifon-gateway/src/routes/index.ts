@@ -8,6 +8,7 @@ import {
   customerIdSchema,
   loginBodySchema,
   paginationSchema,
+  productActivityBodySchema,
   productIdSchema,
   productPaginationSchema,
   registerBodySchema,
@@ -16,7 +17,7 @@ import {
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { listCategories } from "../services/categoryService";
 import { listProductsByCategory, getProductDetail, listAllProducts } from "../services/productService";
-import { registerCustomer, loginCustomer } from "../services/authService";
+import { registerCustomer, loginCustomer, syncFavoriteProduct, recordRecentProduct } from "../services/authService";
 import { getPriceAccess } from "../services/priceAccessService";
 import { listWholesaleCustomers } from "../services/wholesaleCustomerService";
 import { listCustomers } from "../services/customerService";
@@ -72,6 +73,32 @@ apiRouter.post(
     try {
       const response = await registerCustomer(req.body as any);
       res.status(201).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.post(
+  "/v1/customer-activity/favorites",
+  validateBody(productActivityBodySchema),
+  async (req, res, next) => {
+    try {
+      const result = await syncFavoriteProduct(req.body as any);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.post(
+  "/v1/customer-activity/recent-products",
+  validateBody(productActivityBodySchema.omit({ isFavorite: true })),
+  async (req, res, next) => {
+    try {
+      const result = await recordRecentProduct(req.body as any);
+      res.json(result);
     } catch (error) {
       next(error);
     }

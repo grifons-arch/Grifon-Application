@@ -105,3 +105,17 @@ export const registerBodySchema = z
     ...data,
     password: (data.password ?? data.passwd) as string
   }));
+
+export const productActivityBodySchema = z.object({
+  customerId: z.preprocess(toNumber, z.number().int().positive()),
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  productId: z.preprocess(toNumber, z.number().int().positive()),
+  isFavorite: z.boolean().optional(),
+  product: z.object({
+    title: z.preprocess(toOptionalString, z.string().optional()),
+    price: z.preprocess(toNumber, z.number().nonnegative().optional()),
+    currency: z.preprocess(toOptionalString, z.string().optional()),
+    imageUrl: z.preprocess(toOptionalString, z.string().optional()),
+    brand: z.preprocess(toOptionalString, z.string().optional())
+  }).optional()
+});

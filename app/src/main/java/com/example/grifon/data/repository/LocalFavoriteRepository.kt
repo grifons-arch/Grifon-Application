@@ -1,6 +1,9 @@
 package com.example.grifon.data.repository
 
 import com.example.grifon.core.ShopConfig
+import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.data.catalog.ProductActivityRequestDto
+import com.example.grifon.data.catalog.ProductSnapshotDto
 import com.example.grifon.data.local.FavoriteDao
 import com.example.grifon.data.local.FavoriteEntity
 import com.example.grifon.data.local.ShopPreferences
@@ -20,6 +23,7 @@ import kotlinx.coroutines.flow.map
 class LocalFavoriteRepository @Inject constructor(
     private val favoriteDao: FavoriteDao,
     private val shopPreferences: ShopPreferences,
+    private val catalogApi: CatalogApi,
 ) : FavoriteRepository {
 
     override fun observeFavorites(shopId: String): Flow<List<FavoriteProduct>> {
@@ -53,6 +57,12 @@ class LocalFavoriteRepository @Inject constructor(
 
         if (isFavorite) {
             favoriteDao.deleteFavorite(customerId, normalizedShopId, product.id)
+            syncFavoriteChange(
+                customerId = customerId,
+                shopId = normalizedShopId,
+                product = product,
+                isFavorite = false,
+            )
             return false
         }
 
@@ -69,8 +79,46 @@ class LocalFavoriteRepository @Inject constructor(
                 addedAt = System.currentTimeMillis(),
             )
         )
+        syncFavoriteChange(
+            customerId = customerId,
+            shopId = normalizedShopId,
+            product = product,
+            isFavorite = true,
+        )
         return true
     }
+
+    private suspend fun syncFavoriteChange(
+        customerId: Int,
+        shopId: String,
+        product: Product,
+        isFavorite: Boolean,
+    ) {
+        val productId = product.id.toIntOrNull() ?: return
+        runCatching {
+            catalogApi.syncFavoriteProduct(
+                ProductActivityRequestDto(
+                    customerId = customerId,
+                    shopId = normalizedShopIdToInt(shopId),
+                    productId = productId,
+                    isFavorite = isFavorite,
+                    product = product.toSnapshotDto(),
+                )
+            )
+        }
+    }
+}
+
+private fun normalizedShopIdToInt(shopId: String): Int = ShopConfig.normalizeShopId(shopId).toInt()
+
+private fun Product.toSnapshotDto(): ProductSnapshotDto {
+    return ProductSnapshotDto(
+        title = title,
+        price = price,
+        currency = currency,
+        imageUrl = imageUrl,
+        brand = brand,
+    )
 }
 
 private fun FavoriteEntity.toDomain(): FavoriteProduct {

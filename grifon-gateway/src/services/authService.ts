@@ -20,6 +20,20 @@ export interface RegisterRequest {
   wholesaleRequested?: boolean;
 }
 
+export interface ProductActivityRequest {
+  customerId: number;
+  shopId: 1 | 4;
+  productId: number;
+  isFavorite?: boolean;
+  product?: {
+    title?: string;
+    price?: number | null;
+    currency?: string;
+    imageUrl?: string;
+    brand?: string;
+  };
+}
+
 const resolveSyncUrl = (countryIso: string = "GR"): string => {
   const shopId = countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
   const baseUrl = config.shopBaseUrls[shopId] || config.prestashopBaseUrl;
@@ -119,6 +133,33 @@ export const loginCustomer = async (email: string, pass: string): Promise<any> =
     ...response,
     can_view_prices: priceAccess.allowed,
   };
+};
+
+export const syncFavoriteProduct = async (request: ProductActivityRequest): Promise<any> => {
+  return sendToPrestaShop(
+    {
+      action: "toggle_favorite_product",
+      customerId: request.customerId,
+      productId: request.productId,
+      shopId: request.shopId,
+      isFavorite: request.isFavorite === true,
+      product: request.product ?? {}
+    },
+    request.shopId === 1 ? "SE" : "GR"
+  );
+};
+
+export const recordRecentProduct = async (request: ProductActivityRequest): Promise<any> => {
+  return sendToPrestaShop(
+    {
+      action: "record_recent_product",
+      customerId: request.customerId,
+      productId: request.productId,
+      shopId: request.shopId,
+      product: request.product ?? {}
+    },
+    request.shopId === 1 ? "SE" : "GR"
+  );
 };
 
 async function sendToPrestaShop(payload: any, countryIso: string) {

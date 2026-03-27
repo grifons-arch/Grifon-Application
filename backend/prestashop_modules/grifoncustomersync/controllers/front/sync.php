@@ -42,6 +42,10 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
 
             if (isset($payload['action']) && $payload['action'] === 'login') {
                 $this->handleLogin($payload);
+            } elseif (isset($payload['action']) && $payload['action'] === 'toggle_favorite_product') {
+                $this->handleFavoriteToggle($payload);
+            } elseif (isset($payload['action']) && $payload['action'] === 'record_recent_product') {
+                $this->handleRecentProduct($payload);
             } else {
                 $this->handleSync($payload);
             }
@@ -105,6 +109,47 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         }
 
         $this->respond(200, $result);
+    }
+
+    private function handleFavoriteToggle($payload)
+    {
+        $idCustomer = isset($payload['customerId']) ? (int)$payload['customerId'] : 0;
+        $idProduct = isset($payload['productId']) ? (int)$payload['productId'] : 0;
+        $idShop = isset($payload['shopId']) ? (int)$payload['shopId'] : (int)Context::getContext()->shop->id;
+        $isFavorite = !empty($payload['isFavorite']);
+        $snapshot = (isset($payload['product']) && is_array($payload['product'])) ? $payload['product'] : [];
+
+        if ($idCustomer <= 0 || $idProduct <= 0 || $idShop <= 0) {
+            $this->respond(400, ['ok' => false, 'error' => 'INVALID_FAVORITE_PAYLOAD']);
+        }
+
+        if ($isFavorite) {
+            $this->upsertFavoriteProduct($idCustomer, $idProduct, $idShop, $snapshot);
+        } else {
+            Db::getInstance()->delete(
+                'grifon_favorite_product',
+                'id_customer = '.(int)$idCustomer.' AND id_product = '.(int)$idProduct.' AND id_shop = '.(int)$idShop
+            );
+        }
+
+        $this->respond(200, ['ok' => true]);
+    }
+
+    private function handleRecentProduct($payload)
+    {
+        $idCustomer = isset($payload['customerId']) ? (int)$payload['customerId'] : 0;
+        $idProduct = isset($payload['productId']) ? (int)$payload['productId'] : 0;
+        $idShop = isset($payload['shopId']) ? (int)$payload['shopId'] : (int)Context::getContext()->shop->id;
+        $snapshot = (isset($payload['product']) && is_array($payload['product'])) ? $payload['product'] : [];
+
+        if ($idCustomer <= 0 || $idProduct <= 0 || $idShop <= 0) {
+            $this->respond(400, ['ok' => false, 'error' => 'INVALID_RECENT_PAYLOAD']);
+        }
+
+        $this->upsertRecentProduct($idCustomer, $idProduct, $idShop, $snapshot);
+        $this->trimRecentProducts($idCustomer, $idShop, 20);
+
+        $this->respond(200, ['ok' => true]);
     }
 
     private function requireAuth($secret, $maxSkew, $rawBody)
@@ -354,6 +399,93 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
             $data['date_add'] = date('Y-m-d H:i:s');
             Db::getInstance()->insert('grifon_customer_map', $data);
         }
+    }
+
+    private function upsertFavoriteProduct($idCustomer, $idProduct, $idShop, array $snapshot)
+    {
+        $now = date('Y-m-d H:i:s');
+        $existingId = (int)Db::getInstance()->getValue(
+            'SELECT `id_grifon_favorite_product` FROM `'._DB_PREFIX_.'grifon_favorite_product`
+             WHERE `id_customer`='.(int)$idCustomer.'
+               AND `id_product`='.(int)$idProduct.'
+               AND `id_shop`='.(int)$idShop
+        );
+
+        $data = [
+            'id_customer' => (int)$idCustomer,
+            'id_product' => (int)$idProduct,
+            'id_shop' => (int)$idShop,
+            'title' => isset($snapshot['title']) ? pSQL((string)$snapshot['title']) : null,
+            'price' => isset($snapshot['price']) && $snapshot['price'] !== null ? (float)$snapshot['price'] : null,
+            'currency' => isset($snapshot['currency']) ? pSQL((string)$snapshot['currency']) : null,
+            'image_url' => isset($snapshot['imageUrl']) ? pSQL((string)$snapshot['imageUrl'], true) : null,
+            'brand' => isset($snapshot['brand']) ? pSQL((string)$snapshot['brand']) : null,
+            'date_upd' => $now,
+        ];
+
+        if ($existingId > 0) {
+            Db::getInstance()->update('grifon_favorite_product', $data, 'id_grifon_favorite_product = '.(int)$existingId);
+            return;
+        }
+
+        $data['date_add'] = $now;
+        Db::getInstance()->insert('grifon_favorite_product', $data);
+    }
+
+    private function upsertRecentProduct($idCustomer, $idProduct, $idShop, array $snapshot)
+    {
+        $now = date('Y-m-d H:i:s');
+        $existingId = (int)Db::getInstance()->getValue(
+            'SELECT `id_grifon_recent_product` FROM `'._DB_PREFIX_.'grifon_recent_product`
+             WHERE `id_customer`='.(int)$idCustomer.'
+               AND `id_product`='.(int)$idProduct.'
+               AND `id_shop`='.(int)$idShop
+        );
+
+        $data = [
+            'id_customer' => (int)$idCustomer,
+            'id_product' => (int)$idProduct,
+            'id_shop' => (int)$idShop,
+            'title' => isset($snapshot['title']) ? pSQL((string)$snapshot['title']) : null,
+            'price' => isset($snapshot['price']) && $snapshot['price'] !== null ? (float)$snapshot['price'] : null,
+            'currency' => isset($snapshot['currency']) ? pSQL((string)$snapshot['currency']) : null,
+            'image_url' => isset($snapshot['imageUrl']) ? pSQL((string)$snapshot['imageUrl'], true) : null,
+            'brand' => isset($snapshot['brand']) ? pSQL((string)$snapshot['brand']) : null,
+            'visited_at' => $now,
+            'date_upd' => $now,
+        ];
+
+        if ($existingId > 0) {
+            Db::getInstance()->update('grifon_recent_product', $data, 'id_grifon_recent_product = '.(int)$existingId);
+            return;
+        }
+
+        $data['date_add'] = $now;
+        Db::getInstance()->insert('grifon_recent_product', $data);
+    }
+
+    private function trimRecentProducts($idCustomer, $idShop, $keep)
+    {
+        $idCustomer = (int)$idCustomer;
+        $idShop = (int)$idShop;
+        $keep = max(1, (int)$keep);
+
+        Db::getInstance()->execute(
+            'DELETE FROM `'._DB_PREFIX_.'grifon_recent_product`
+             WHERE `id_customer`='.(int)$idCustomer.'
+               AND `id_shop`='.(int)$idShop.'
+               AND `id_grifon_recent_product` NOT IN (
+                   SELECT `id_grifon_recent_product`
+                   FROM (
+                       SELECT `id_grifon_recent_product`
+                       FROM `'._DB_PREFIX_.'grifon_recent_product`
+                       WHERE `id_customer`='.(int)$idCustomer.'
+                         AND `id_shop`='.(int)$idShop.'
+                       ORDER BY `visited_at` DESC, `date_upd` DESC
+                       LIMIT '.(int)$keep.'
+                   ) recent_keep
+               )'
+        );
     }
 
     private function respond($statusCode, $data)

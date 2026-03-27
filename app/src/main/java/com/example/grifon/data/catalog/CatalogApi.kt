@@ -2,7 +2,9 @@ package com.example.grifon.data.catalog
 
 import com.squareup.moshi.JsonClass
 import retrofit2.http.GET
+import retrofit2.http.Body
 import retrofit2.http.Path
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface CatalogApi {
@@ -57,6 +59,16 @@ interface CatalogApi {
         @Query("lang") lang: Int = 1,
         @Query("customerId") customerId: Int? = null,
     ): ProductDto
+
+    @POST("v1/customer-activity/favorites")
+    suspend fun syncFavoriteProduct(
+        @Body request: ProductActivityRequestDto,
+    ): ActivityResponseDto
+
+    @POST("v1/customer-activity/recent-products")
+    suspend fun syncRecentProduct(
+        @Body request: ProductActivityRequestDto,
+    ): ActivityResponseDto
 }
 
 @JsonClass(generateAdapter = true)
@@ -137,4 +149,27 @@ data class ProductDto(
 data class ImageDto(
     val id: Int,
     val url: String? = null,
+)
+
+@JsonClass(generateAdapter = true)
+data class ProductActivityRequestDto(
+    val customerId: Int,
+    val shopId: Int,
+    val productId: Int,
+    val isFavorite: Boolean? = null,
+    val product: ProductSnapshotDto? = null,
+)
+
+@JsonClass(generateAdapter = true)
+data class ProductSnapshotDto(
+    val title: String? = null,
+    val price: Double? = null,
+    val currency: String? = null,
+    val imageUrl: String? = null,
+    val brand: String? = null,
+)
+
+@JsonClass(generateAdapter = true)
+data class ActivityResponseDto(
+    val ok: Boolean = false,
 )

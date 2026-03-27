@@ -133,14 +133,16 @@ object AppModule {
     fun provideFavoriteRepository(
         favoriteDao: FavoriteDao,
         preferences: ShopPreferences,
-    ): FavoriteRepository = LocalFavoriteRepository(favoriteDao, preferences)
+        catalogApi: CatalogApi,
+    ): FavoriteRepository = LocalFavoriteRepository(favoriteDao, preferences, catalogApi)
 
     @Provides
     @Singleton
     fun provideRecentProductRepository(
         recentProductDao: RecentProductDao,
         preferences: ShopPreferences,
-    ): RecentProductRepository = LocalRecentProductRepository(recentProductDao, preferences)
+        catalogApi: CatalogApi,
+    ): RecentProductRepository = LocalRecentProductRepository(recentProductDao, preferences, catalogApi)
 
     @Provides
     @Singleton
