@@ -5,6 +5,7 @@ import com.example.grifon.data.repository.CartRepository
 import com.example.grifon.data.repository.FavoriteRepository
 import com.example.grifon.data.repository.RecentProductRepository
 import com.example.grifon.data.repository.ShopRepository
+import com.example.grifon.data.repository.WholesaleCustomerRepository
 import com.example.grifon.domain.model.CartItem
 import com.example.grifon.domain.model.FilterState
 import com.example.grifon.domain.model.Product
@@ -80,4 +81,11 @@ class ObserveRecentProductsUseCase(private val recentProductRepository: RecentPr
 class RecordRecentProductVisitUseCase(private val recentProductRepository: RecentProductRepository) {
     suspend operator fun invoke(shopId: String, product: Product) =
         recentProductRepository.recordVisit(shopId, product)
+}
+
+class SyncWholesaleCustomersUseCase(
+    private val wholesaleCustomerRepository: WholesaleCustomerRepository
+) {
+    suspend operator fun invoke(shopId: String) =
+        wholesaleCustomerRepository.syncWholesaleCustomers(shopId)
 }

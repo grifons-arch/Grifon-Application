@@ -58,3 +58,7 @@ interface RecentProductRepository {
     fun observeRecentProducts(shopId: String, limit: Int = 10): Flow<List<RecentProduct>>
     suspend fun recordVisit(shopId: String, product: Product)
 }
+
+interface WholesaleCustomerRepository {
+    suspend fun syncWholesaleCustomers(shopId: String): Int
+}

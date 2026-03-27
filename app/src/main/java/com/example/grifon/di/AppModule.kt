@@ -15,6 +15,7 @@ import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.local.WholesaleCustomerDao
 import com.example.grifon.data.repository.*
 import com.example.grifon.data.fake.*
+import com.example.grifon.data.sync.WholesaleCustomerStartupSyncer
 import com.example.grifon.domain.usecase.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -133,6 +134,13 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideWholesaleCustomerRepository(
+        appDatabase: AppDatabase,
+        catalogApi: CatalogApi,
+    ): WholesaleCustomerRepository = ApiWholesaleCustomerRepository(appDatabase, catalogApi)
+
+    @Provides
+    @Singleton
     fun provideCartRepository(): CartRepository = FakeCartRepository()
 
     // ΕΔΩ ΕΠΙΒΑΛΛΟΥΜΕ ΤΗΝ ΠΡΑΓΜΑΤΙΚΗ ΥΛΟΠΟΙΗΣΗ ΤΟΥ USER
@@ -194,4 +202,8 @@ object AppModule {
     @Provides
     fun provideRecordRecentProductVisitUseCase(repo: RecentProductRepository) =
         RecordRecentProductVisitUseCase(repo)
+
+    @Provides
+    fun provideSyncWholesaleCustomersUseCase(repo: WholesaleCustomerRepository) =
+        SyncWholesaleCustomersUseCase(repo)
 }

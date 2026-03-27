@@ -12,7 +12,7 @@ export interface PriceAccessResult {
   allowed: boolean;
 }
 
-const getConfiguredWholesaleGroupIds = (): number[] => {
+export const getConfiguredWholesaleGroupIds = (): number[] => {
   return Array.from(
     new Set(
       Object.values(config.countryGroupMap).filter(

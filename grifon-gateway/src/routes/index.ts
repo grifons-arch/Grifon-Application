@@ -18,6 +18,7 @@ import { listCategories } from "../services/categoryService";
 import { listProductsByCategory, getProductDetail, listAllProducts } from "../services/productService";
 import { registerCustomer, loginCustomer } from "../services/authService";
 import { getPriceAccess } from "../services/priceAccessService";
+import { listWholesaleCustomers } from "../services/wholesaleCustomerService";
 
 export const apiRouter = Router();
 
@@ -163,5 +164,16 @@ apiRouter.get(
     }
   }
 );
+
+apiRouter.get("/v1/wholesale-customers", validateQuery(shopQuerySchema), async (req, res, next) => {
+  try {
+    const { shopId, lang } = req.query as any;
+    const client = new PrestaShopClient({ shopId, lang });
+    const items = await listWholesaleCustomers(client, Number(shopId), lang);
+    res.json({ items });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default apiRouter;
