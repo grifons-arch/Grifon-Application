@@ -12,23 +12,30 @@ import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetCategoryTreeUseCase
+import com.example.grifon.domain.usecase.ObserveFavoritesUseCase
+import com.example.grifon.domain.usecase.ToggleFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.example.grifon.R
 import com.example.grifon.BuildConfig
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getActiveShopUseCase: GetActiveShopUseCase,
     private val getCategoryTreeUseCase: GetCategoryTreeUseCase,
+    private val observeFavoritesUseCase: ObserveFavoritesUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val homeProductsWebService: HomeProductsWebService,
     private val catalogApi: CatalogApi,
     private val shopPreferences: ShopPreferences,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<HomeState>>(UiState.Loading)
     val uiState: StateFlow<UiState<HomeState>> = _uiState
+    private val _favoriteIds = MutableStateFlow<Set<String>>(emptySet())
 
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
     private var currentShopId: String = "4"
@@ -44,7 +51,25 @@ class HomeViewModel @Inject constructor(
     )
 
     init {
+        observeFavorites()
         observeActiveShop()
+    }
+
+    private fun observeFavorites() {
+        viewModelScope.launch {
+            getActiveShopUseCase()
+                .map { ShopConfig.normalizeShopId(it) }
+                .distinctUntilChanged()
+                .flatMapLatest { shopId ->
+                    observeFavoritesUseCase(shopId)
+                }
+                .map { favorites -> favorites.map { it.productId }.toSet() }
+                .collect { favoriteIds ->
+                    _favoriteIds.value = favoriteIds
+                    val currentState = (_uiState.value as? UiState.Success)?.data ?: return@collect
+                    _uiState.value = UiState.Success(currentState.copy(favoriteIds = favoriteIds))
+                }
+        }
     }
 
     private fun observeActiveShop() {
@@ -87,7 +112,8 @@ class HomeViewModel @Inject constructor(
                         shopId = currentShopId,
                         categories = apiCategories,
                         featuredProducts = featured,
-                        allProducts = allProducts
+                        allProducts = allProducts,
+                        favoriteIds = _favoriteIds.value,
                     )
                 )
             } catch (e: Exception) {
@@ -105,7 +131,8 @@ class HomeViewModel @Inject constructor(
                 _uiState.value = UiState.Success(
                     currentState.copy(
                         selectedCategoryId = categoryId,
-                        allProducts = products
+                        allProducts = products,
+                        favoriteIds = _favoriteIds.value,
                     )
                 )
             } catch (e: Exception) {
@@ -130,6 +157,12 @@ class HomeViewModel @Inject constructor(
         }
         return response.items.map { it.toDomainProduct(gatewayBaseUrl, "Grifon", showPrice = canViewPrices) }
     }
+
+    fun toggleFavorite(product: Product) {
+        viewModelScope.launch {
+            toggleFavoriteUseCase(currentShopId, product)
+        }
+    }
 }
 
 data class HomeState(
@@ -137,7 +170,8 @@ data class HomeState(
     val categories: List<Category> = emptyList(),
     val selectedCategoryId: String? = null,
     val featuredProducts: List<Product> = emptyList(),
-    val allProducts: List<Product> = emptyList()
+    val allProducts: List<Product> = emptyList(),
+    val favoriteIds: Set<String> = emptySet(),
 )
 
 data class CategoryIconItem(val resId: Int, val categoryId: String?)

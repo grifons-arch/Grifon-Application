@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +53,10 @@ fun AccountScreen(viewModel: AccountViewModel, onSettings: () -> Unit) {
             
             if (account.loggedIn) {
                 // ΟΘΟΝΗ ΟΤΑΝ Ο ΧΡΗΣΤΗΣ ΕΙΝΑΙ ΣΥΝΔΕΔΕΜΕΝΟΣ
-                LoggedInContent(onSettings)
+                LoggedInContent(
+                    onSettings = onSettings,
+                    onLogout = viewModel::logout,
+                )
             } else {
                 // ΟΘΟΝΗ LOGIN
                 LoginContent(
@@ -72,7 +76,10 @@ fun AccountScreen(viewModel: AccountViewModel, onSettings: () -> Unit) {
 }
 
 @Composable
-fun LoggedInContent(onSettings: () -> Unit) {
+fun LoggedInContent(
+    onSettings: () -> Unit,
+    onLogout: () -> Unit,
+) {
     val language = AppLanguage.currentLanguage()
     Column(
         modifier = Modifier
@@ -89,6 +96,10 @@ fun LoggedInContent(onSettings: () -> Unit) {
 
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(loginText(language, LoginText.AccountSettings))
+        }
+
+        OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.logout))
         }
     }
 }

@@ -25,6 +25,16 @@ data class Product(
     val attributesMap: Map<String, String>,
 )
 
+data class FavoriteProduct(
+    val productId: String,
+    val title: String,
+    val price: Double?,
+    val currency: String,
+    val imageUrl: String,
+    val brand: String,
+    val shopId: String,
+)
+
 data class CartItem(
     val productId: String,
     val qty: Int,

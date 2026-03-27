@@ -22,6 +22,7 @@ import com.example.grifon.navigation.Routes
 import com.example.grifon.ui.components.AppBottomNav
 import com.example.grifon.ui.components.AppTopBar
 import com.example.grifon.ui.screens.LocalCanDisplayPrices
+import com.example.grifon.ui.screens.LocalIsLoggedIn
 import com.example.grifon.viewmodel.AppViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -65,9 +66,19 @@ fun GrifonApp() {
                 onScanClick = { navController.navigate(Routes.SCAN) },
             )
         },
-        bottomBar = { AppBottomNav(navController = navController, cartCount = appState.cartCount) },
+        bottomBar = {
+            AppBottomNav(
+                navController = navController,
+                cartCount = appState.cartCount,
+                favoriteCount = appState.favoriteCount,
+                isLoggedIn = appState.isLoggedIn,
+            )
+        },
     ) { padding ->
-        CompositionLocalProvider(LocalCanDisplayPrices provides appState.canDisplayPrices) {
+        CompositionLocalProvider(
+            LocalCanDisplayPrices provides appState.canDisplayPrices,
+            LocalIsLoggedIn provides appState.isLoggedIn,
+        ) {
             Surface(modifier = Modifier.fillMaxSize()) {
                 AppNavHost(navController = navController, paddingValues = padding)
             }

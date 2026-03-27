@@ -90,6 +90,8 @@
     <string name="manual_barcode">Manual barcode</string>
     <string name="search">Search</string>
     <string name="favorite_products">Favorite Products</string>
+    <string name="favorites_empty">You have no favorite products yet.</string>
+    <string name="favorites_login_required">Sign in to view and manage your favorite products.</string>
     <string name="preferences">Preferences</string>
     <string name="brand">Brand</string>
     <string name="iban">IBAN</string>

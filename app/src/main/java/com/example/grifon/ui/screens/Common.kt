@@ -12,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.grifon.R
 
 val LocalCanDisplayPrices = staticCompositionLocalOf { false }
+val LocalIsLoggedIn = staticCompositionLocalOf { false }
 
 @Composable
 fun LoadingScreen() {

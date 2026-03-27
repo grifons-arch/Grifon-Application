@@ -5,11 +5,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ShoppingCart
@@ -35,16 +37,24 @@ import com.example.grifon.navigation.Routes
 private data class BottomItem(val route: String)
 
 @Composable
-fun AppBottomNav(navController: NavHostController, cartCount: Int) {
+fun AppBottomNav(
+    navController: NavHostController,
+    cartCount: Int,
+    favoriteCount: Int,
+    isLoggedIn: Boolean,
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val items = listOf(
-        BottomItem(Routes.HOME),
-        BottomItem(Routes.CATEGORIES),
-        BottomItem(Routes.CART),
-        BottomItem(Routes.ACCOUNT),
-        BottomItem(Routes.SETTINGS),
-    )
+    val items = buildList {
+        add(BottomItem(Routes.HOME))
+        add(BottomItem(Routes.CATEGORIES))
+        if (isLoggedIn) {
+            add(BottomItem(Routes.FAVORITES))
+        }
+        add(BottomItem(Routes.CART))
+        add(BottomItem(Routes.ACCOUNT))
+        add(BottomItem(Routes.SETTINGS))
+    }
 
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.primary,
@@ -78,6 +88,15 @@ fun AppBottomNav(navController: NavHostController, cartCount: Int) {
                             contentDescription = null,
                             modifier = Modifier.graphicsLayer(scaleX = iconScale, scaleY = iconScale),
                         )
+                        Routes.FAVORITES -> BadgedBox(
+                            badge = { if (favoriteCount > 0) Badge { Text(favoriteCount.toString()) } },
+                        ) {
+                            Icon(
+                                if (selected) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = null,
+                                modifier = Modifier.graphicsLayer(scaleX = iconScale, scaleY = iconScale),
+                            )
+                        }
                         Routes.CART -> BadgedBox(
                             badge = { if (cartCount > 0) Badge { Text(cartCount.toString()) } },
                         ) {

@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,13 +34,16 @@ import com.example.grifon.R
 import com.example.grifon.core.UiState
 import com.example.grifon.ui.screens.ErrorScreen
 import com.example.grifon.ui.screens.LocalCanDisplayPrices
+import com.example.grifon.ui.screens.LocalIsLoggedIn
 import com.example.grifon.ui.screens.LoadingScreen
 import com.example.grifon.viewmodel.PdpViewModel
 
 @Composable
 fun ProductDetailsScreen(viewModel: PdpViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val isFavorite by viewModel.isFavorite.collectAsState()
     val canDisplayPrices = LocalCanDisplayPrices.current
+    val isLoggedIn = LocalIsLoggedIn.current
     var showZoomDialog by remember { mutableStateOf(false) }
     var selectedImageIndex by remember { mutableIntStateOf(0) }
 
@@ -120,6 +125,19 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
+                    }
+
+                    if (isLoggedIn) {
+                        IconButton(
+                            onClick = { viewModel.toggleFavorite(product) },
+                            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = stringResource(R.string.favorite_products),
+                                tint = if (isFavorite) Color(0xFFE05050) else Color.DarkGray
+                            )
+                        }
                     }
                 }
 

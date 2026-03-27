@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.grifon.ui.screens.AccountScreen
 import com.example.grifon.ui.screens.CartScreen
+import com.example.grifon.ui.screens.FavoritesScreen
 import com.example.grifon.ui.screens.HomeScreen
 import com.example.grifon.ui.screens.SettingsScreen
 import com.example.grifon.ui.screens.categories.CategoriesScreen
@@ -45,6 +46,14 @@ fun AppNavHost(
         }
         composable(Routes.CART) {
             CartScreen(viewModel = hiltViewModel())
+        }
+        composable(Routes.FAVORITES) {
+            FavoritesScreen(
+                viewModel = hiltViewModel(),
+                onProductClick = { productId ->
+                    navController.navigate(Routes.productRoute(productId))
+                }
+            )
         }
         composable(Routes.ACCOUNT) {
             AccountScreen(viewModel = hiltViewModel()) {

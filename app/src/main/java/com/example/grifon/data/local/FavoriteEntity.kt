@@ -1,13 +1,19 @@
 package com.example.grifon.data.local
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
-@Entity(tableName = "favorites")
+@Entity(
+    tableName = "favorites",
+    primaryKeys = ["customerId", "shopId", "productId"],
+)
 data class FavoriteEntity(
-    @PrimaryKey val id: String,
+    val customerId: Int,
+    val productId: String,
+    val shopId: String,
     val title: String,
-    val price: Double,
+    val price: Double?,
+    val currency: String,
     val imageUrl: String,
-    val shopId: String
+    val brand: String,
+    val addedAt: Long,
 )

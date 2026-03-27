@@ -85,6 +85,8 @@
     <string name="manual_barcode">Manuell streckkod</string>
     <string name="search">Sök</string>
     <string name="favorite_products">Favoritprodukter</string>
+    <string name="favorites_empty">Du har inga favoritprodukter ännu.</string>
+    <string name="favorites_login_required">Logga in för att se och hantera dina favoritprodukter.</string>
     <string name="preferences">Inställningar</string>
     <string name="brand">Varumärke</string>
     <string name="iban">IBAN</string>

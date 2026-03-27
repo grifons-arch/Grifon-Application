@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -117,7 +118,12 @@ fun HomeScreen(
                             ) {
                                 listItems(data.featuredProducts) { product ->
                                     Box(modifier = Modifier.width(160.dp)) {
-                                        ProductCard(product = product, onClick = { onProductClick(product.id) })
+                                        ProductCard(
+                                            product = product,
+                                            isFavorite = data.favoriteIds.contains(product.id),
+                                            onToggleFavorite = { viewModel.toggleFavorite(product) },
+                                            onClick = { onProductClick(product.id) }
+                                        )
                                     }
                                 }
                             }
@@ -155,7 +161,12 @@ fun HomeScreen(
                     } else {
                         items(data.allProducts, key = { it.id }) { product ->
                             Box(modifier = Modifier.padding(8.dp)) {
-                                ProductCard(product = product, onClick = { onProductClick(product.id) })
+                                ProductCard(
+                                    product = product,
+                                    isFavorite = data.favoriteIds.contains(product.id),
+                                    onToggleFavorite = { viewModel.toggleFavorite(product) },
+                                    onClick = { onProductClick(product.id) }
+                                )
                             }
                         }
                     }
@@ -356,8 +367,14 @@ private fun homeCategoryLabel(categoryId: String?): String {
 }
 
 @Composable
-fun ProductCard(product: Product, onClick: () -> Unit) {
+fun ProductCard(
+    product: Product,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
+    onClick: () -> Unit,
+) {
     val canDisplayPrices = LocalCanDisplayPrices.current
+    val isLoggedIn = LocalIsLoggedIn.current
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
@@ -371,6 +388,18 @@ fun ProductCard(product: Product, onClick: () -> Unit) {
                     modifier = Modifier.fillMaxSize().padding(12.dp),
                     contentScale = ContentScale.Fit
                 )
+                if (isLoggedIn) {
+                    IconButton(
+                        onClick = onToggleFavorite,
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = stringResource(R.string.favorite_products),
+                            tint = if (isFavorite) Color(0xFFE05050) else Color.White
+                        )
+                    }
+                }
             }
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(product.title, color = Color.White, fontSize = 13.sp, maxLines = 2, minLines = 2, lineHeight = 18.sp)

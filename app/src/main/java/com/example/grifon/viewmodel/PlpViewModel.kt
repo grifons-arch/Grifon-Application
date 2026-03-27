@@ -11,7 +11,9 @@ import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.SortOption
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetProductsByCategoryUseCase
+import com.example.grifon.domain.usecase.ObserveFavoritesUseCase
 import com.example.grifon.domain.usecase.SearchProductsUseCase
+import com.example.grifon.domain.usecase.ToggleFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,6 +25,8 @@ import kotlinx.coroutines.launch
 class PlpViewModel @Inject constructor(
     private val getProductsByCategoryUseCase: GetProductsByCategoryUseCase,
     private val searchProductsUseCase: SearchProductsUseCase,
+    private val observeFavoritesUseCase: ObserveFavoritesUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getActiveShopUseCase: GetActiveShopUseCase,
     private val shopPreferences: ShopPreferences,
 ) : ViewModel() {
@@ -89,10 +93,16 @@ class PlpViewModel @Inject constructor(
                 }
 
                 source
-                    .map< List<Product>, UiState<PlpState> > { products ->
+                    .flatMapLatest { products ->
+                        observeFavoritesUseCase(params.shopId).map { favorites ->
+                            products to favorites.map { it.productId }.toSet()
+                        }
+                    }
+                    .map< Pair<List<Product>, Set<String>>, UiState<PlpState> > { (products, favoriteIds) ->
                         UiState.Success(
                             PlpState(
                                 products = products,
+                                favoriteIds = favoriteIds,
                                 filters = params.filters,
                                 sortOption = params.sortOption,
                                 canLoadMore = false,
@@ -109,6 +119,13 @@ class PlpViewModel @Inject constructor(
     fun updateCategory(categoryId: String) { _category.value = categoryId }
     fun updateFilters(filters: FilterState) { _filters.value = filters }
     fun updateSort(sortOption: SortOption) { _sortOption.value = sortOption }
+
+    fun toggleFavorite(product: Product) {
+        viewModelScope.launch {
+            val shopId = ShopConfig.normalizeShopId(getActiveShopUseCase().first())
+            toggleFavoriteUseCase(shopId, product)
+        }
+    }
 }
 
 private data class ProductQuery(
@@ -137,6 +154,7 @@ private data class SessionState(
 
 data class PlpState(
     val products: List<Product>,
+    val favoriteIds: Set<String>,
     val filters: FilterState,
     val sortOption: SortOption,
     val canLoadMore: Boolean = true

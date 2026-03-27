@@ -4,9 +4,12 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.room.Room
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.auth.AuthApi
 import com.example.grifon.data.auth.UserRepositoryImpl
+import com.example.grifon.data.local.AppDatabase
+import com.example.grifon.data.local.FavoriteDao
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.*
 import com.example.grifon.data.fake.*
@@ -72,6 +75,17 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
+        Room.databaseBuilder(context, AppDatabase::class.java, "grifon.db")
+            .fallbackToDestructiveMigration()
+            .build()
+
+    @Provides
+    @Singleton
+    fun provideFavoriteDao(appDatabase: AppDatabase): FavoriteDao = appDatabase.favoriteDao()
+
+    @Provides
+    @Singleton
     fun provideShopPreferences(
         @ApplicationContext context: Context,
         dataStore: DataStore<Preferences>
@@ -91,6 +105,13 @@ object AppModule {
         preferences: ShopPreferences,
     ): CatalogRepository =
         ApiCatalogRepository(catalogApi, preferences)
+
+    @Provides
+    @Singleton
+    fun provideFavoriteRepository(
+        favoriteDao: FavoriteDao,
+        preferences: ShopPreferences,
+    ): FavoriteRepository = LocalFavoriteRepository(favoriteDao, preferences)
 
     @Provides
     @Singleton
@@ -139,4 +160,13 @@ object AppModule {
 
     @Provides
     fun provideGetCartUseCase(repo: CartRepository) = GetCartUseCase(repo)
+
+    @Provides
+    fun provideObserveFavoritesUseCase(repo: FavoriteRepository) = ObserveFavoritesUseCase(repo)
+
+    @Provides
+    fun provideObserveFavoriteStatusUseCase(repo: FavoriteRepository) = ObserveFavoriteStatusUseCase(repo)
+
+    @Provides
+    fun provideToggleFavoriteUseCase(repo: FavoriteRepository) = ToggleFavoriteUseCase(repo)
 }

@@ -15,6 +15,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,6 +43,7 @@ import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.SortOption
 import com.example.grifon.ui.screens.ErrorScreen
 import com.example.grifon.ui.screens.LocalCanDisplayPrices
+import com.example.grifon.ui.screens.LocalIsLoggedIn
 import com.example.grifon.ui.screens.LoadingScreen
 import com.example.grifon.ui.screens.WholesaleLoginBanner
 import com.example.grifon.ui.theme.GrifonBlue
@@ -83,7 +87,12 @@ fun ProductListScreen(
                         }
                     }
                     items(data.products) { product ->
-                        ProductGridItem(product, onClick = { onProductClick(product.id) })
+                        ProductGridItem(
+                            product = product,
+                            isFavorite = data.favoriteIds.contains(product.id),
+                            onToggleFavorite = { viewModel.toggleFavorite(product) },
+                            onClick = { onProductClick(product.id) }
+                        )
                     }
                 }
                 if (filtersOpen) {
@@ -795,8 +804,14 @@ private fun FilterState.activeCount(): Int {
 }
 
 @Composable
-fun ProductGridItem(product: Product, onClick: () -> Unit) {
+fun ProductGridItem(
+    product: Product,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
+    onClick: () -> Unit,
+) {
     val canDisplayPrices = LocalCanDisplayPrices.current
+    val isLoggedIn = LocalIsLoggedIn.current
     Column(
         modifier = Modifier.fillMaxWidth().background(Color.White)
     ) {
@@ -817,6 +832,18 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize().padding(8.dp)
                 )
+                if (isLoggedIn) {
+                    IconButton(
+                        onClick = onToggleFavorite,
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = stringResource(R.string.favorite_products),
+                            tint = if (isFavorite) Color(0xFFE05050) else Color(0xFF4A4A4A)
+                        )
+                    }
+                }
             }
         }
         Spacer(modifier = Modifier.height(8.dp))

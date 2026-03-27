@@ -11,6 +11,8 @@ import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.usecase.AddToCartUseCase
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetProductByIdUseCase
+import com.example.grifon.domain.usecase.ObserveFavoriteStatusUseCase
+import com.example.grifon.domain.usecase.ToggleFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,15 +34,33 @@ class PdpViewModel @Inject constructor(
     getActiveShopUseCase: GetActiveShopUseCase,
     shopPreferences: ShopPreferences,
     private val getProductByIdUseCase: GetProductByIdUseCase,
+    private val observeFavoriteStatusUseCase: ObserveFavoriteStatusUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val addToCartUseCase: AddToCartUseCase,
 ) : ViewModel() {
     private val _productId = MutableStateFlow("")
     private val _shopId = MutableStateFlow("")
     private val _uiState = MutableStateFlow<UiState<Product>>(UiState.Loading)
     val uiState: StateFlow<UiState<Product>> = _uiState
+    private val _isFavorite = MutableStateFlow(false)
+    val isFavorite: StateFlow<Boolean> = _isFavorite
     val events = MutableSharedFlow<UiEvent>()
 
     init {
+        combine(_shopId, _productId) { shopId, productId ->
+            shopId to productId
+        }
+            .distinctUntilChanged()
+            .flatMapLatest { (shopId, productId) ->
+                if (shopId.isBlank() || productId.isBlank()) {
+                    kotlinx.coroutines.flow.flowOf(false)
+                } else {
+                    observeFavoriteStatusUseCase(shopId, productId)
+                }
+            }
+            .onEach { _isFavorite.value = it }
+            .launchIn(viewModelScope)
+
         combine(
             getActiveShopUseCase(),
             shopPreferences.currentCustomerId,
@@ -85,6 +105,13 @@ class PdpViewModel @Inject constructor(
         viewModelScope.launch {
             addToCartUseCase(_shopId.value, CartItem(product.id, 1, price))
             events.emit(UiEvent.ShowSnackbar("Προστέθηκε στο καλάθι"))
+        }
+    }
+
+    fun toggleFavorite(product: Product) {
+        viewModelScope.launch {
+            val isFavorite = toggleFavoriteUseCase(_shopId.value, product)
+            _isFavorite.value = isFavorite
         }
     }
 }

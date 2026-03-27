@@ -90,6 +90,8 @@
     <string name="manual_barcode">Χειροκίνητο barcode</string>
     <string name="search">Αναζήτηση</string>
     <string name="favorite_products">Αγαπημένα Προϊόντα</string>
+    <string name="favorites_empty">Δεν έχετε προσθέσει ακόμη αγαπημένα προϊόντα.</string>
+    <string name="favorites_login_required">Συνδεθείτε για να δείτε και να διαχειριστείτε τα αγαπημένα σας προϊόντα.</string>
     <string name="preferences">Προτιμήσεις</string>
     <string name="brand">Μάρκα</string>
     <string name="iban">IBAN</string>

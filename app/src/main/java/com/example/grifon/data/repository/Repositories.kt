@@ -2,6 +2,7 @@ package com.example.grifon.data.repository
 
 import com.example.grifon.domain.model.CartItem
 import com.example.grifon.domain.model.Category
+import com.example.grifon.domain.model.FavoriteProduct
 import com.example.grifon.domain.model.FilterState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.Shop
@@ -44,4 +45,10 @@ interface UserRepository {
     fun isLoggedIn(): Flow<Boolean>
     suspend fun login(email: String, pass: String): Result<Unit>
     fun logout()
+}
+
+interface FavoriteRepository {
+    fun observeFavorites(shopId: String): Flow<List<FavoriteProduct>>
+    fun observeIsFavorite(shopId: String, productId: String): Flow<Boolean>
+    suspend fun toggleFavorite(shopId: String, product: Product): Boolean
 }

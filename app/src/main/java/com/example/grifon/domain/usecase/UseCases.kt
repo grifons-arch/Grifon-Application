@@ -2,9 +2,11 @@ package com.example.grifon.domain.usecase
 
 import com.example.grifon.data.repository.CatalogRepository
 import com.example.grifon.data.repository.CartRepository
+import com.example.grifon.data.repository.FavoriteRepository
 import com.example.grifon.data.repository.ShopRepository
 import com.example.grifon.domain.model.CartItem
 import com.example.grifon.domain.model.FilterState
+import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.SortOption
 
 class GetActiveShopUseCase(private val shopRepository: ShopRepository) {
@@ -53,4 +55,18 @@ class RemoveFromCartUseCase(private val cartRepository: CartRepository) {
 
 class GetCartUseCase(private val cartRepository: CartRepository) {
     operator fun invoke(shopId: String) = cartRepository.observeCart(shopId)
+}
+
+class ObserveFavoritesUseCase(private val favoriteRepository: FavoriteRepository) {
+    operator fun invoke(shopId: String) = favoriteRepository.observeFavorites(shopId)
+}
+
+class ObserveFavoriteStatusUseCase(private val favoriteRepository: FavoriteRepository) {
+    operator fun invoke(shopId: String, productId: String) =
+        favoriteRepository.observeIsFavorite(shopId, productId)
+}
+
+class ToggleFavoriteUseCase(private val favoriteRepository: FavoriteRepository) {
+    suspend operator fun invoke(shopId: String, product: Product) =
+        favoriteRepository.toggleFavorite(shopId, product)
 }
