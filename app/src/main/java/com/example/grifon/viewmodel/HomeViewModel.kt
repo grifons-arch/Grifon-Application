@@ -49,10 +49,18 @@ class HomeViewModel @Inject constructor(
 
     private fun observeActiveShop() {
         viewModelScope.launch {
-            getActiveShopUseCase().distinctUntilChanged().collect { shopId ->
-                currentShopId = ShopConfig.normalizeShopId(shopId)
-                loadInitialData()
+            combine(
+                getActiveShopUseCase(),
+                shopPreferences.currentCustomerId,
+                shopPreferences.canViewPrices,
+            ) { shopId, customerId, canViewPrices ->
+                Triple(ShopConfig.normalizeShopId(shopId), customerId, canViewPrices)
             }
+                .distinctUntilChanged()
+                .collect { (shopId, _, _) ->
+                    currentShopId = shopId
+                    loadInitialData()
+                }
         }
     }
 

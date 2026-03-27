@@ -5,6 +5,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,6 +21,7 @@ import com.example.grifon.navigation.AppNavHost
 import com.example.grifon.navigation.Routes
 import com.example.grifon.ui.components.AppBottomNav
 import com.example.grifon.ui.components.AppTopBar
+import com.example.grifon.ui.screens.LocalCanDisplayPrices
 import com.example.grifon.viewmodel.AppViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -65,8 +67,10 @@ fun GrifonApp() {
         },
         bottomBar = { AppBottomNav(navController = navController, cartCount = appState.cartCount) },
     ) { padding ->
-        Surface(modifier = Modifier.fillMaxSize()) {
-            AppNavHost(navController = navController, paddingValues = padding)
+        CompositionLocalProvider(LocalCanDisplayPrices provides appState.canDisplayPrices) {
+            Surface(modifier = Modifier.fillMaxSize()) {
+                AppNavHost(navController = navController, paddingValues = padding)
+            }
         }
     }
 }

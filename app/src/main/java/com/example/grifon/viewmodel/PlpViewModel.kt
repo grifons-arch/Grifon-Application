@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.UiEvent
 import com.example.grifon.core.UiState
 import com.example.grifon.core.ShopConfig
+import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.domain.model.FilterState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.SortOption
@@ -23,6 +24,7 @@ class PlpViewModel @Inject constructor(
     private val getProductsByCategoryUseCase: GetProductsByCategoryUseCase,
     private val searchProductsUseCase: SearchProductsUseCase,
     private val getActiveShopUseCase: GetActiveShopUseCase,
+    private val shopPreferences: ShopPreferences,
 ) : ViewModel() {
     private val _filters = MutableStateFlow(FilterState())
     private val _sortOption = MutableStateFlow(SortOption.RELEVANCE)
@@ -34,18 +36,38 @@ class PlpViewModel @Inject constructor(
     val events = MutableSharedFlow<UiEvent>()
 
     init {
-        combine(
+        val sessionFlow = combine(
+            shopPreferences.currentCustomerId,
+            shopPreferences.canViewPrices,
+        ) { customerId, canViewPrices ->
+            SessionState(customerId = customerId, canViewPrices = canViewPrices)
+        }
+
+        val baseQueryFlow = combine(
             getActiveShopUseCase(),
+            sessionFlow,
             _query,
             _category,
             _filters,
-            _sortOption,
-        ) { shopId, query, category, filters, sortOption ->
-            ProductQuery(
+        ) { shopId, session, query, category, filters ->
+            BaseProductQuery(
                 shopId = ShopConfig.normalizeShopId(shopId),
+                customerId = session.customerId,
+                canViewPrices = session.canViewPrices,
                 query = query,
                 category = category,
                 filters = filters,
+            )
+        }
+
+        combine(baseQueryFlow, _sortOption) { baseQuery, sortOption ->
+            ProductQuery(
+                shopId = baseQuery.shopId,
+                customerId = baseQuery.customerId,
+                canViewPrices = baseQuery.canViewPrices,
+                query = baseQuery.query,
+                category = baseQuery.category,
+                filters = baseQuery.filters,
                 sortOption = sortOption,
             )
         }.distinctUntilChanged()
@@ -91,10 +113,26 @@ class PlpViewModel @Inject constructor(
 
 private data class ProductQuery(
     val shopId: String,
+    val customerId: Int?,
+    val canViewPrices: Boolean,
     val query: String,
     val category: String,
     val filters: FilterState,
     val sortOption: SortOption,
+)
+
+private data class BaseProductQuery(
+    val shopId: String,
+    val customerId: Int?,
+    val canViewPrices: Boolean,
+    val query: String,
+    val category: String,
+    val filters: FilterState,
+)
+
+private data class SessionState(
+    val customerId: Int?,
+    val canViewPrices: Boolean,
 )
 
 data class PlpState(

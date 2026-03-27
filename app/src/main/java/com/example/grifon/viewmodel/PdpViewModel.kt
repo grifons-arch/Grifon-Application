@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.UiEvent
 import com.example.grifon.core.UiState
 import com.example.grifon.core.ShopConfig
+import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.domain.model.CartItem
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.usecase.AddToCartUseCase
@@ -29,6 +30,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class PdpViewModel @Inject constructor(
     getActiveShopUseCase: GetActiveShopUseCase,
+    shopPreferences: ShopPreferences,
     private val getProductByIdUseCase: GetProductByIdUseCase,
     private val addToCartUseCase: AddToCartUseCase,
 ) : ViewModel() {
@@ -39,10 +41,22 @@ class PdpViewModel @Inject constructor(
     val events = MutableSharedFlow<UiEvent>()
 
     init {
-        combine(getActiveShopUseCase(), _productId) { shopId, productId ->
-            ShopConfig.normalizeShopId(shopId) to productId
+        combine(
+            getActiveShopUseCase(),
+            shopPreferences.currentCustomerId,
+            shopPreferences.canViewPrices,
+            _productId,
+        ) { shopId, customerId, canViewPrices, productId ->
+            ProductRequest(
+                shopId = ShopConfig.normalizeShopId(shopId),
+                customerId = customerId,
+                canViewPrices = canViewPrices,
+                productId = productId,
+            )
         }.distinctUntilChanged()
-            .flatMapLatest { (shopId, productId) ->
+            .flatMapLatest { request ->
+                val shopId = request.shopId
+                val productId = request.productId
                 _shopId.value = shopId
                 if (productId.isBlank()) {
                     kotlinx.coroutines.flow.flowOf(UiState.Loading)
@@ -74,3 +88,10 @@ class PdpViewModel @Inject constructor(
         }
     }
 }
+
+private data class ProductRequest(
+    val shopId: String,
+    val customerId: Int?,
+    val canViewPrices: Boolean,
+    val productId: String,
+)

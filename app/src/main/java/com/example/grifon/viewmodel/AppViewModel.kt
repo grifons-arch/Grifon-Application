@@ -25,14 +25,21 @@ class AppViewModel @Inject constructor(
         combine(
             getActiveShopUseCase(),
             shopPreferences.appLanguage,
-        ) { activeId, languageCode ->
-            ShopConfig.normalizeShopId(activeId) to languageCode
-        }.flatMapLatest { (activeId, _languageCode) ->
-            getCartUseCase(activeId).map { cartItems ->
+            shopPreferences.currentCustomerId,
+            shopPreferences.canViewPrices,
+        ) { activeId, languageCode, customerId, canViewPrices ->
+            SessionAwareAppState(
+                activeShopId = ShopConfig.normalizeShopId(activeId),
+                languageCode = languageCode,
+                canDisplayPrices = customerId != null && canViewPrices,
+            )
+        }.flatMapLatest { sessionState ->
+            getCartUseCase(sessionState.activeShopId).map { cartItems ->
                 AppState(
-                    activeShopId = activeId,
-                    shopName = ShopConfig.displayName(activeId),
+                    activeShopId = sessionState.activeShopId,
+                    shopName = ShopConfig.displayName(sessionState.activeShopId),
                     cartCount = cartItems.sumOf { it.qty },
+                    canDisplayPrices = sessionState.canDisplayPrices,
                 )
             }
         }
@@ -45,4 +52,11 @@ data class AppState(
     val activeShopId: String = "",
     val shopName: String = "",
     val cartCount: Int = 0,
+    val canDisplayPrices: Boolean = false,
+)
+
+private data class SessionAwareAppState(
+    val activeShopId: String,
+    val languageCode: String,
+    val canDisplayPrices: Boolean,
 )

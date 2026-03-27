@@ -39,6 +39,7 @@ import com.example.grifon.domain.model.FilterState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.SortOption
 import com.example.grifon.ui.screens.ErrorScreen
+import com.example.grifon.ui.screens.LocalCanDisplayPrices
 import com.example.grifon.ui.screens.LoadingScreen
 import com.example.grifon.ui.theme.GrifonBlue
 import com.example.grifon.viewmodel.PlpViewModel
@@ -113,6 +114,7 @@ private fun FiltersSheet(
 ) {
     val scrollState = rememberScrollState()
     var tempFilters by remember(currentFilters) { mutableStateOf(currentFilters) }
+    val canDisplayPrices = LocalCanDisplayPrices.current
     val locale = Locale.getDefault()
     val brands = remember(products) { products.map { it.brand }.filter { it.isNotBlank() }.distinct().sorted() }
     val brandOptions = remember(products, brands) {
@@ -124,7 +126,8 @@ private fun FiltersSheet(
             )
         }
     }
-    val priceVisible = remember(products) { products.any { it.price != null } }
+    val hasPricedProducts = remember(products) { products.any { it.price != null } }
+    val priceVisible = canDisplayPrices && hasPricedProducts
     val maxPrice = remember(products) {
         products.mapNotNull { it.price }.maxOrNull()?.coerceAtLeast(10.0) ?: 500.0
     }
@@ -786,6 +789,7 @@ private fun FilterState.activeCount(): Int {
 
 @Composable
 fun ProductGridItem(product: Product, onClick: () -> Unit) {
+    val canDisplayPrices = LocalCanDisplayPrices.current
     Column(
         modifier = Modifier.fillMaxWidth().background(Color.White)
     ) {
@@ -810,7 +814,7 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = product.title.uppercase(), style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, fontWeight = FontWeight.Medium), maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color.Black)
-        if (product.price != null) {
+        if (canDisplayPrices && product.price != null) {
             Text(text = "${product.price} €", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary))
         }
     }

@@ -326,6 +326,7 @@ private fun homeCategoryLabel(categoryId: String?): String {
 
 @Composable
 fun ProductCard(product: Product, onClick: () -> Unit) {
+    val canDisplayPrices = LocalCanDisplayPrices.current
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
@@ -343,7 +344,7 @@ fun ProductCard(product: Product, onClick: () -> Unit) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(product.title, color = Color.White, fontSize = 13.sp, maxLines = 2, minLines = 2, lineHeight = 18.sp)
                 Spacer(modifier = Modifier.height(8.dp))
-                if (product.price != null) {
+                if (canDisplayPrices && product.price != null) {
                     Text("${product.price} €", color = Color(0xFFC5A059), fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 }
             }

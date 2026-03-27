@@ -31,12 +31,14 @@ import coil.request.ImageRequest
 import com.example.grifon.R
 import com.example.grifon.core.UiState
 import com.example.grifon.ui.screens.ErrorScreen
+import com.example.grifon.ui.screens.LocalCanDisplayPrices
 import com.example.grifon.ui.screens.LoadingScreen
 import com.example.grifon.viewmodel.PdpViewModel
 
 @Composable
 fun ProductDetailsScreen(viewModel: PdpViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val canDisplayPrices = LocalCanDisplayPrices.current
     var showZoomDialog by remember { mutableStateOf(false) }
     var selectedImageIndex by remember { mutableIntStateOf(0) }
 
@@ -140,7 +142,7 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    if (product.price != null) {
+                    if (canDisplayPrices && product.price != null) {
                         Text(
                             text = "${product.price} €",
                             style = MaterialTheme.typography.headlineSmall,
@@ -155,7 +157,7 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    if (product.price != null) {
+                    if (canDisplayPrices && product.price != null) {
                         Button(
                             onClick = { viewModel.addToCart(product) },
                             modifier = Modifier.fillMaxWidth(),
