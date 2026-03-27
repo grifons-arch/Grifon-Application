@@ -52,7 +52,7 @@ object FakeCatalogData {
     val shopProducts = mapOf(
         "4" to products,
         "1" to products.map {
-            it.copy(price = it.price * 1.05, title = "${it.title} B")
+            it.copy(price = it.price?.times(1.05), title = "${it.title} B")
         },
     )
 }

@@ -39,3 +39,10 @@ Fallback (optional):
     }
   ]
 }
+
+## Price visibility for wholesale customers
+If you want prices to be visible only to wholesale customers, send the wholesale PrestaShop group in `groups.default` and `groups.list`.
+
+Then in PrestaShop back office:
+- set `Show prices = Yes` on the wholesale group
+- set `Show prices = No` on the retail/guest groups

@@ -143,6 +143,7 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
     {
         $email = trim((string)$customerData['email']);
         $idCustomer = (int)$this->getCustomerIdByEmail($email);
+        $resolvedGroups = $this->resolveCustomerGroups($groups);
         
         $customer = $idCustomer ? new Customer($idCustomer) : new Customer();
         $customer->email = $email;
@@ -150,6 +151,7 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $customer->lastname = trim((string)$customerData['lastname']);
         $customer->active = 1;
         $customer->is_guest = 0;
+        $customer->id_default_group = (int)$resolvedGroups['default'];
 
         if (isset($customerData['newsletter'])) {
             $customer->newsletter = (int)$customerData['newsletter'];
@@ -181,8 +183,119 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
             $result['updated'] = true;
         }
 
+        $this->syncCustomerGroups((int)$customer->id, $resolvedGroups);
         $this->upsertCustomerMap($externalCustomerId, $customer->id, $customer->email);
         return $customer->id;
+    }
+
+    private function resolveCustomerGroups($groups)
+    {
+        $configuredDefaultGroup = (int)Configuration::get('GRIFONCSYNC_DEFAULT_GROUP');
+        $shopDefaultGroup = (int)Configuration::get('PS_CUSTOMER_GROUP');
+
+        $requestedDefaultGroup = 0;
+        $requestedGroupIds = [];
+
+        if (isset($groups['default'])) {
+            $requestedDefaultGroup = (int)$groups['default'];
+        }
+
+        if (isset($groups['list']) && is_array($groups['list'])) {
+            $requestedGroupIds = $groups['list'];
+        } elseif (is_array($groups)) {
+            $requestedGroupIds = $groups;
+        }
+
+        $requestedGroupIds = array_values(array_unique(array_filter(array_map('intval', $requestedGroupIds), function ($idGroup) {
+            return $idGroup > 0;
+        })));
+
+        $validGroupIds = $this->getExistingGroupIds($requestedGroupIds);
+
+        $defaultGroupCandidates = array_filter([
+            $requestedDefaultGroup,
+            $configuredDefaultGroup,
+            $shopDefaultGroup,
+        ]);
+
+        $defaultGroupId = 0;
+        foreach ($defaultGroupCandidates as $candidateGroupId) {
+            $existingCandidate = $this->getExistingGroupIds([(int)$candidateGroupId]);
+            if (!empty($existingCandidate)) {
+                $defaultGroupId = (int)$existingCandidate[0];
+                break;
+            }
+        }
+
+        if ($defaultGroupId <= 0 && !empty($validGroupIds)) {
+            $defaultGroupId = (int)$validGroupIds[0];
+        }
+
+        if ($defaultGroupId <= 0) {
+            throw new Exception('NO_VALID_CUSTOMER_GROUP');
+        }
+
+        if (!in_array($defaultGroupId, $validGroupIds, true)) {
+            $validGroupIds[] = $defaultGroupId;
+        }
+
+        sort($validGroupIds);
+
+        return [
+            'default' => $defaultGroupId,
+            'list' => $validGroupIds,
+        ];
+    }
+
+    private function getExistingGroupIds(array $groupIds)
+    {
+        if (empty($groupIds)) {
+            return [];
+        }
+
+        $groupIds = array_values(array_unique(array_map('intval', $groupIds)));
+        $groupIds = array_values(array_filter($groupIds, function ($idGroup) {
+            return $idGroup > 0;
+        }));
+
+        if (empty($groupIds)) {
+            return [];
+        }
+
+        $sql = 'SELECT `id_group` FROM `'._DB_PREFIX_.'group` WHERE `id_group` IN ('.implode(',', $groupIds).')';
+        $rows = Db::getInstance()->executeS($sql);
+
+        if (!is_array($rows)) {
+            return [];
+        }
+
+        $existingGroupIds = [];
+        foreach ($rows as $row) {
+            $existingGroupIds[] = (int)$row['id_group'];
+        }
+
+        sort($existingGroupIds);
+
+        return array_values(array_unique($existingGroupIds));
+    }
+
+    private function syncCustomerGroups($idCustomer, array $resolvedGroups)
+    {
+        $idCustomer = (int)$idCustomer;
+        $groupIds = isset($resolvedGroups['list']) && is_array($resolvedGroups['list']) ? $resolvedGroups['list'] : [];
+
+        if ($idCustomer <= 0 || empty($groupIds)) {
+            throw new Exception('INVALID_CUSTOMER_GROUP_ASSIGNMENT');
+        }
+
+        Db::getInstance()->delete('customer_group', 'id_customer = '.$idCustomer);
+
+        foreach ($groupIds as $idGroup) {
+            Db::getInstance()->insert('customer_group', [
+                'id_customer' => $idCustomer,
+                'id_group' => (int)$idGroup,
+            ]);
+        }
     }
 
     private function upsertAddress($idCustomer, $addr, &$result)
