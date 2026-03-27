@@ -63,8 +63,8 @@ apiRouter.post(
   validateBody(loginBodySchema),
   async (req, res, next) => {
     try {
-      const { email, password } = req.body;
-      const result = await loginCustomer(email, password);
+      const { email, password, countryIso } = req.body;
+      const result = await loginCustomer(email, password, countryIso);
       res.json(result);
     } catch (error) {
       next(error);

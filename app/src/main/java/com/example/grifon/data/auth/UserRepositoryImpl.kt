@@ -2,6 +2,7 @@ package com.example.grifon.data.auth
 
 import android.content.Context
 import com.example.grifon.core.LoginText
+import com.example.grifon.core.ShopConfig
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.sync.LoginCustomerActivitySyncService
 import com.example.grifon.data.repository.UserRepository
@@ -44,10 +45,16 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun login(email: String, pass: String): Result<Unit> {
         return try {
-            val response = authApi.login(LoginRequestDto(email, pass))
+            val activeShopId = preferences.activeShopId.first()
+            val response = authApi.login(
+                LoginRequestDto(
+                    email = email,
+                    password = pass,
+                    countryIso = if (ShopConfig.normalizeShopId(activeShopId) == ShopConfig.SwedishShopId) "SE" else "GR",
+                )
+            )
             // ΔΙΟΡΘΩΣΗ: Έλεγχος του ok ΚΑΙ του idCustomer (που πλέον είναι idCustomer στο DTO)
             if (response.ok && response.idCustomer != null) {
-                val activeShopId = preferences.activeShopId.first()
                 preferences.setCustomerSession(
                     customerId = response.idCustomer,
                     canViewPrices = response.canViewPrices == true,

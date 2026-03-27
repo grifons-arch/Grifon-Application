@@ -120,9 +120,14 @@ export const updateProfile = async (request: RegisterRequest): Promise<any> => {
   return sendToPrestaShop(payload, "GR");
 };
 
-export const loginCustomer = async (email: string, pass: string): Promise<any> => {
+export const loginCustomer = async (
+  email: string,
+  pass: string,
+  countryIso: string = "GR"
+): Promise<any> => {
   const payload = { action: "login", email: email.trim().toLowerCase(), password: pass };
-  const response = await sendToPrestaShop(payload, "GR");
+  const normalizedCountryIso = countryIso.trim().toUpperCase() === "SE" ? "SE" : "GR";
+  const response = await sendToPrestaShop(payload, normalizedCountryIso);
   const customerId = response?.id_customer ? Number(response.id_customer) : null;
 
   if (!customerId) {
@@ -132,7 +137,7 @@ export const loginCustomer = async (email: string, pass: string): Promise<any> =
     };
   }
 
-  const client = new PrestaShopClient({ shopId: 4 });
+  const client = new PrestaShopClient({ shopId: normalizedCountryIso === "SE" ? 1 : 4 });
   const priceAccess = await getPriceAccess(client, customerId);
 
   return {

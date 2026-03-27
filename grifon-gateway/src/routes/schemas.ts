@@ -66,7 +66,8 @@ export const productIdSchema = z.object({
 
 export const loginBodySchema = z.object({
   email: z.string().trim().email(),
-  password: z.string().min(1)
+  password: z.string().min(1),
+  countryIso: z.string().trim().length(2).optional()
 });
 
 export const registerBodySchema = z
