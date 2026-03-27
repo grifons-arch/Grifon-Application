@@ -22,7 +22,7 @@ class Grifoncustomersync extends Module
     {
         $this->name = 'grifoncustomersync';
         $this->tab = 'administration';
-        $this->version = '1.1.0';
+        $this->version = '1.1.1';
         $this->author = 'Grifon';
         $this->need_instance = 0;
         $this->bootstrap = true;
@@ -69,6 +69,11 @@ class Grifoncustomersync extends Module
     }
 
     private function installDb()
+    {
+        return $this->upgradeSchema();
+    }
+
+    public function upgradeSchema()
     {
         $sqls = [];
 

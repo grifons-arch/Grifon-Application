@@ -47,6 +47,7 @@ import com.example.grifon.ui.screens.LocalIsLoggedIn
 import com.example.grifon.ui.screens.LoadingScreen
 import com.example.grifon.ui.screens.WholesaleLoginBanner
 import com.example.grifon.ui.theme.GrifonBlue
+import com.example.grifon.ui.theme.GrifonGold
 import com.example.grifon.viewmodel.PlpViewModel
 import java.util.Locale
 
@@ -835,7 +836,12 @@ fun ProductGridItem(
                 if (isLoggedIn) {
                     IconButton(
                         onClick = onToggleFavorite,
-                        modifier = Modifier.align(Alignment.TopEnd)
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                            .clip(RoundedCornerShape(100))
+                            .background(Color.White.copy(alpha = 0.96f))
+                            .border(1.5.dp, GrifonGold, RoundedCornerShape(100))
                     ) {
                         Icon(
                             imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,

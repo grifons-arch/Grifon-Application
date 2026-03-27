@@ -1,6 +1,7 @@
 package com.example.grifon.ui.screens.plp
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -36,6 +37,7 @@ import com.example.grifon.ui.screens.ErrorScreen
 import com.example.grifon.ui.screens.LocalCanDisplayPrices
 import com.example.grifon.ui.screens.LocalIsLoggedIn
 import com.example.grifon.ui.screens.LoadingScreen
+import com.example.grifon.ui.theme.GrifonGold
 import com.example.grifon.viewmodel.PdpViewModel
 
 @Composable
@@ -130,7 +132,12 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
                     if (isLoggedIn) {
                         IconButton(
                             onClick = { viewModel.toggleFavorite(product) },
-                            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(16.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.94f))
+                                .border(1.5.dp, GrifonGold, CircleShape)
                         ) {
                             Icon(
                                 imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,

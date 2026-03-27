@@ -46,3 +46,24 @@ If you want prices to be visible only to wholesale customers, send the wholesale
 Then in PrestaShop back office:
 - set `Show prices = Yes` on the wholesale group
 - set `Show prices = No` on the retail/guest groups
+
+## Module upgrades
+The module now includes a proper upgrade script for `1.1.1`.
+
+If the module is already installed and you deploy a newer version, PrestaShop should run:
+
+- `upgrade/upgrade-1.1.1.php`
+
+This upgrade creates the missing activity tables:
+
+- `ps_grifon_favorite_product`
+- `ps_grifon_recent_product`
+
+If PrestaShop does not pick up the upgrade automatically, refresh the modules list in back office and upgrade the module from the Modules page.
+
+## Activity table helper
+To create the missing activity tables manually from a real PrestaShop install:
+
+```bash
+python3 modules/grifoncustomersync/scripts/ensure_activity_tables.py --ps-root=/var/www/html
+```

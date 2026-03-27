@@ -130,6 +130,20 @@ curl "http://localhost:3000/v1/customer-groups?shopId=4&lang=1"
 curl "http://localhost:3000/v1/customers/123/price-access?shopId=4"
 ```
 
+### Check Customer Activity Sync Through Gateway
+
+Inspect favorites/recent for a customer through the gateway:
+
+```bash
+python3 scripts/check_customer_activity_via_gateway.py --email=user@example.com --password=secret123 --shop-id=4
+```
+
+Seed one favorite + one recent-product event and verify they come back:
+
+```bash
+python3 scripts/check_customer_activity_via_gateway.py --email=user@example.com --password=secret123 --shop-id=4 --product-id=100 --seed
+```
+
 ## Notes
 
 - Prices are only returned when a customer is active and their default group has `show_prices=1`.

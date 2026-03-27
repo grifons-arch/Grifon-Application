@@ -41,6 +41,7 @@ import coil.request.ImageRequest
 import com.example.grifon.R
 import com.example.grifon.core.AppLanguage
 import com.example.grifon.domain.model.Product
+import com.example.grifon.ui.theme.GrifonGold
 import com.example.grifon.viewmodel.HomeViewModel
 import com.example.grifon.core.UiState
 import kotlin.math.PI
@@ -391,12 +392,17 @@ fun ProductCard(
                 if (isLoggedIn) {
                     IconButton(
                         onClick = onToggleFavorite,
-                        modifier = Modifier.align(Alignment.TopEnd)
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.94f))
+                            .border(1.5.dp, GrifonGold, CircleShape)
                     ) {
                         Icon(
                             imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                             contentDescription = stringResource(R.string.favorite_products),
-                            tint = if (isFavorite) Color(0xFFE05050) else Color.White
+                            tint = if (isFavorite) Color(0xFFE05050) else Color(0xFF3B3120)
                         )
                     }
                 }
