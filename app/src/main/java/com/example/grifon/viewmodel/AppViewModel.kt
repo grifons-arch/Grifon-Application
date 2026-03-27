@@ -3,6 +3,7 @@ package com.example.grifon.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.ShopConfig
+import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetCartUseCase
 import com.example.grifon.domain.usecase.ObserveFavoritesUseCase
@@ -19,6 +20,7 @@ class AppViewModel @Inject constructor(
     getCartUseCase: GetCartUseCase,
     observeFavoritesUseCase: ObserveFavoritesUseCase,
     shopPreferences: ShopPreferences,
+    localPriceAccessService: LocalPriceAccessService,
 ) : ViewModel() {
     private val _state = MutableStateFlow(AppState())
     val state: StateFlow<AppState> = _state
@@ -30,12 +32,25 @@ class AppViewModel @Inject constructor(
             shopPreferences.currentCustomerId,
             shopPreferences.canViewPrices,
         ) { activeId, languageCode, customerId, canViewPrices ->
-            SessionAwareAppState(
+            AppSessionState(
                 activeShopId = ShopConfig.normalizeShopId(activeId),
                 languageCode = languageCode,
-                canDisplayPrices = customerId != null && canViewPrices,
-                isLoggedIn = customerId != null,
+                customerId = customerId,
+                canViewPrices = canViewPrices,
             )
+        }.flatMapLatest { sessionState ->
+            localPriceAccessService.observeCanDisplayPrices(
+                shopId = sessionState.activeShopId,
+                customerId = sessionState.customerId,
+                canViewPrices = sessionState.canViewPrices,
+            ).map { canDisplayPrices ->
+                SessionAwareAppState(
+                    activeShopId = sessionState.activeShopId,
+                    languageCode = sessionState.languageCode,
+                    canDisplayPrices = canDisplayPrices,
+                    isLoggedIn = sessionState.customerId != null,
+                )
+            }
         }.flatMapLatest { sessionState ->
             combine(
                 getCartUseCase(sessionState.activeShopId),
@@ -70,4 +85,11 @@ private data class SessionAwareAppState(
     val languageCode: String,
     val canDisplayPrices: Boolean,
     val isLoggedIn: Boolean,
+)
+
+private data class AppSessionState(
+    val activeShopId: String,
+    val languageCode: String,
+    val customerId: Int?,
+    val canViewPrices: Boolean,
 )

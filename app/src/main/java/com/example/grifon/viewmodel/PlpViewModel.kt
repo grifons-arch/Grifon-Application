@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.UiEvent
 import com.example.grifon.core.UiState
 import com.example.grifon.core.ShopConfig
+import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.domain.model.FilterState
 import com.example.grifon.domain.model.Product
@@ -29,6 +30,7 @@ class PlpViewModel @Inject constructor(
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getActiveShopUseCase: GetActiveShopUseCase,
     private val shopPreferences: ShopPreferences,
+    private val localPriceAccessService: LocalPriceAccessService,
 ) : ViewModel() {
     private val _filters = MutableStateFlow(FilterState())
     private val _sortOption = MutableStateFlow(SortOption.RELEVANCE)
@@ -41,27 +43,46 @@ class PlpViewModel @Inject constructor(
 
     init {
         val sessionFlow = combine(
+            getActiveShopUseCase(),
             shopPreferences.currentCustomerId,
             shopPreferences.canViewPrices,
-        ) { customerId, canViewPrices ->
-            SessionState(customerId = customerId, canViewPrices = canViewPrices)
+        ) { shopId, customerId, canViewPrices ->
+            PlpSessionState(
+                shopId = ShopConfig.normalizeShopId(shopId),
+                customerId = customerId,
+                canViewPrices = canViewPrices,
+            )
         }
 
         val baseQueryFlow = combine(
-            getActiveShopUseCase(),
             sessionFlow,
             _query,
             _category,
             _filters,
-        ) { shopId, session, query, category, filters ->
-            BaseProductQuery(
-                shopId = ShopConfig.normalizeShopId(shopId),
+        ) { session, query, category, filters ->
+            SessionProductQuery(
+                shopId = session.shopId,
                 customerId = session.customerId,
                 canViewPrices = session.canViewPrices,
                 query = query,
                 category = category,
                 filters = filters,
             )
+        }.flatMapLatest { session ->
+            localPriceAccessService.observeCanDisplayPrices(
+                shopId = session.shopId,
+                customerId = session.customerId,
+                canViewPrices = session.canViewPrices,
+            ).map { canDisplayPrices ->
+                BaseProductQuery(
+                    shopId = session.shopId,
+                    customerId = session.customerId,
+                    canViewPrices = canDisplayPrices,
+                    query = session.query,
+                    category = session.category,
+                    filters = session.filters,
+                )
+            }
         }
 
         combine(baseQueryFlow, _sortOption) { baseQuery, sortOption ->
@@ -147,7 +168,17 @@ private data class BaseProductQuery(
     val filters: FilterState,
 )
 
-private data class SessionState(
+private data class SessionProductQuery(
+    val shopId: String,
+    val customerId: Int?,
+    val canViewPrices: Boolean,
+    val query: String,
+    val category: String,
+    val filters: FilterState,
+)
+
+private data class PlpSessionState(
+    val shopId: String,
     val customerId: Int?,
     val canViewPrices: Boolean,
 )

@@ -124,8 +124,9 @@ object AppModule {
     fun provideCatalogRepository(
         catalogApi: CatalogApi,
         preferences: ShopPreferences,
+        localPriceAccessService: com.example.grifon.data.local.LocalPriceAccessService,
     ): CatalogRepository =
-        ApiCatalogRepository(catalogApi, preferences)
+        ApiCatalogRepository(catalogApi, preferences, localPriceAccessService)
 
     @Provides
     @Singleton

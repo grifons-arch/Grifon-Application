@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.UiEvent
 import com.example.grifon.core.UiState
 import com.example.grifon.core.ShopConfig
+import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.domain.model.CartItem
 import com.example.grifon.domain.model.Product
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 class PdpViewModel @Inject constructor(
     getActiveShopUseCase: GetActiveShopUseCase,
     shopPreferences: ShopPreferences,
+    localPriceAccessService: LocalPriceAccessService,
     private val getProductByIdUseCase: GetProductByIdUseCase,
     private val observeFavoriteStatusUseCase: ObserveFavoriteStatusUseCase,
     private val recordRecentProductVisitUseCase: RecordRecentProductVisitUseCase,
@@ -69,12 +71,25 @@ class PdpViewModel @Inject constructor(
             shopPreferences.canViewPrices,
             _productId,
         ) { shopId, customerId, canViewPrices, productId ->
-            ProductRequest(
+            SessionProductRequest(
                 shopId = ShopConfig.normalizeShopId(shopId),
                 customerId = customerId,
                 canViewPrices = canViewPrices,
                 productId = productId,
             )
+        }.flatMapLatest { request ->
+            localPriceAccessService.observeCanDisplayPrices(
+                shopId = request.shopId,
+                customerId = request.customerId,
+                canViewPrices = request.canViewPrices,
+            ).map { canDisplayPrices ->
+                ProductRequest(
+                    shopId = request.shopId,
+                    customerId = request.customerId,
+                    canViewPrices = canDisplayPrices,
+                    productId = request.productId,
+                )
+            }
         }.distinctUntilChanged()
             .flatMapLatest { request ->
                 val shopId = request.shopId
@@ -120,6 +135,13 @@ class PdpViewModel @Inject constructor(
 }
 
 private data class ProductRequest(
+    val shopId: String,
+    val customerId: Int?,
+    val canViewPrices: Boolean,
+    val productId: String,
+)
+
+private data class SessionProductRequest(
     val shopId: String,
     val customerId: Int?,
     val canViewPrices: Boolean,

@@ -8,6 +8,8 @@ import com.example.grifon.data.local.AppDatabase
 import com.example.grifon.data.local.WholesaleCustomerEntity
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.json.JSONArray
 
 @Singleton
@@ -30,6 +32,23 @@ class ApiWholesaleCustomerRepository @Inject constructor(
         }
 
         return entities.size
+    }
+
+    override fun observeIsWholesaleCustomer(shopId: String, customerId: Int?): Flow<Boolean> {
+        val normalizedShopId = ShopConfig.normalizeShopId(shopId)
+        if (customerId == null) {
+            return flowOf(false)
+        }
+        return appDatabase.wholesaleCustomerDao().observeIsWholesaleCustomer(normalizedShopId, customerId)
+    }
+
+    override suspend fun isWholesaleCustomer(shopId: String, customerId: Int?): Boolean {
+        val normalizedShopId = ShopConfig.normalizeShopId(shopId)
+        if (customerId == null) {
+            return false
+        }
+        return appDatabase.wholesaleCustomerDao()
+            .getWholesaleCustomer(normalizedShopId, customerId) != null
     }
 }
 

@@ -5,12 +5,14 @@ import com.example.grifon.domain.model.Product
 import com.example.grifon.core.ShopConfig
 import javax.inject.Inject
 import com.example.grifon.BuildConfig
+import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.data.local.ShopPreferences
 import kotlinx.coroutines.flow.first
 
 class HomeProductsWebService @Inject constructor(
     private val catalogApi: CatalogApi,
     private val shopPreferences: ShopPreferences,
+    private val localPriceAccessService: LocalPriceAccessService,
 ) {
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
@@ -20,17 +22,26 @@ class HomeProductsWebService @Inject constructor(
 
         Log.d("GrifonAPI", "Fetching products for shop: ${selectedShop.id} (${selectedShop.code})")
         val customerId = shopPreferences.currentCustomerId.first()
-        val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
+        val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+            shopId = selectedShop.id.toString(),
+            customerId = customerId,
+            canViewPrices = shopPreferences.canViewPrices.first(),
+        )
+        val requestCustomerId = customerId?.takeIf { canDisplayPrices }
         
         // Προσπάθεια για γενικά προϊόντα
-        val productsResponse = catalogApi.getProducts(shopId = selectedShop.id, pageSize = 50, customerId = customerId)
+        val productsResponse = catalogApi.getProducts(
+            shopId = selectedShop.id,
+            pageSize = 50,
+            customerId = requestCustomerId,
+        )
         
         if (productsResponse.items.isNotEmpty()) {
             return productsResponse.items.map { dto ->
                 dto.toDomainProduct(
                     gatewayBaseUrl = gatewayBaseUrl,
                     brand = selectedShop.code ?: "Grifon",
-                    showPrice = canViewPrices,
+                    showPrice = canDisplayPrices,
                 )
             }
         }
@@ -41,14 +52,14 @@ class HomeProductsWebService @Inject constructor(
             categoryId = 2,
             shopId = selectedShop.id,
             pageSize = 50,
-            customerId = customerId,
+            customerId = requestCustomerId,
         )
         
         return fallbackResponse.items.map { dto ->
             dto.toDomainProduct(
                 gatewayBaseUrl = gatewayBaseUrl,
                 brand = selectedShop.code ?: "Grifon",
-                showPrice = canViewPrices,
+                showPrice = canDisplayPrices,
             )
         }
     }

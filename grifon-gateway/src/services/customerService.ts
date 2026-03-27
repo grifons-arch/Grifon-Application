@@ -10,6 +10,20 @@ interface CustomerGroupItem {
   showPrices: boolean;
 }
 
+const hasWholesaleKeyword = (name: string | null): boolean => {
+  const normalized = name?.trim().toLowerCase() ?? "";
+  if (!normalized) {
+    return false;
+  }
+
+  return (
+    normalized.includes("wholesale") ||
+    normalized.includes("wholesales") ||
+    normalized.includes("whalesale") ||
+    normalized.includes("whalesales")
+  );
+};
+
 export interface CustomerItem {
   customerId: number;
   shopId: number;
@@ -56,6 +70,7 @@ const resolveWholesaleGroupIds = (groupsById: Map<number, CustomerGroupItem>): S
   const ids = Array.from(groupsById.values())
     .filter(
       (group) =>
+        hasWholesaleKeyword(group.name) &&
         group.showPrices &&
         (configuredWholesaleGroupIds.length === 0 ||
           configuredWholesaleGroupIds.includes(group.id))

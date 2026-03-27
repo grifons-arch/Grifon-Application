@@ -9,6 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import com.example.grifon.BuildConfig
 import com.example.grifon.data.catalog.toDomainProduct
+import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.data.local.ShopPreferences
 import kotlinx.coroutines.flow.first
 
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.first
 class ApiCatalogRepository @Inject constructor(
     private val catalogApi: CatalogApi,
     private val shopPreferences: ShopPreferences,
+    private val localPriceAccessService: LocalPriceAccessService,
 ) : CatalogRepository {
 
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
@@ -46,20 +48,29 @@ class ApiCatalogRepository @Inject constructor(
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
             val customerId = shopPreferences.currentCustomerId.first()
-            val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
+            val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+                shopId = shopId,
+                customerId = customerId,
+                canViewPrices = shopPreferences.canViewPrices.first(),
+            )
+            val requestCustomerId = customerId?.takeIf { canDisplayPrices }
             val response = if (categoryId == "2" || categoryId.isBlank()) {
-                catalogApi.getProducts(shopId = sId, pageSize = 100, customerId = customerId)
+                catalogApi.getProducts(shopId = sId, pageSize = 100, customerId = requestCustomerId)
             } else {
-                catalogApi.getCategoryProducts(categoryId = categoryId.toInt(), shopId = sId, customerId = customerId)
+                catalogApi.getCategoryProducts(
+                    categoryId = categoryId.toInt(),
+                    shopId = sId,
+                    customerId = requestCustomerId,
+                )
             }
             
             // ΕΦΑΡΜΟΓΗ ΦΙΛΤΡΩΝ ΣΤΗ ΛΙΣΤΑ
             val filteredProducts = response.items
                 .map {
-                    it.toDomainProduct(
+                        it.toDomainProduct(
                         gatewayBaseUrl = gatewayBaseUrl,
                         brand = if (sId == 4) "Grifon GR" else "Grifon SE",
-                        showPrice = canViewPrices,
+                        showPrice = canDisplayPrices,
                     )
                 }
                 .filter { product ->
@@ -109,13 +120,21 @@ class ApiCatalogRepository @Inject constructor(
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
             val customerId = shopPreferences.currentCustomerId.first()
-            val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
-            val response = catalogApi.getProducts(shopId = sId, pageSize = 100, customerId = customerId)
+            val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+                shopId = shopId,
+                customerId = customerId,
+                canViewPrices = shopPreferences.canViewPrices.first(),
+            )
+            val response = catalogApi.getProducts(
+                shopId = sId,
+                pageSize = 100,
+                customerId = customerId?.takeIf { canDisplayPrices },
+            )
             val allProducts = response.items.map {
                 it.toDomainProduct(
                     gatewayBaseUrl = gatewayBaseUrl,
                     brand = if (sId == 4) "Grifon GR" else "Grifon SE",
-                    showPrice = canViewPrices,
+                    showPrice = canDisplayPrices,
                 )
             }
             
@@ -149,18 +168,26 @@ class ApiCatalogRepository @Inject constructor(
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
             val customerId = shopPreferences.currentCustomerId.first()
-            val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
+            val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+                shopId = shopId,
+                customerId = customerId,
+                canViewPrices = shopPreferences.canViewPrices.first(),
+            )
             val normalizedProductId = productId.substringAfterLast("_").toIntOrNull()
             if (normalizedProductId == null) {
                 emit(null)
                 return@flow
             }
-            val response = catalogApi.getProduct(productId = normalizedProductId, shopId = sId, customerId = customerId)
+            val response = catalogApi.getProduct(
+                productId = normalizedProductId,
+                shopId = sId,
+                customerId = customerId?.takeIf { canDisplayPrices },
+            )
             emit(
                 response.toDomainProduct(
                     gatewayBaseUrl = gatewayBaseUrl,
                     brand = if (sId == 4) "Grifon GR" else "Grifon SE",
-                    showPrice = canViewPrices,
+                    showPrice = canDisplayPrices,
                 )
             )
         } catch (e: Exception) {

@@ -26,6 +26,16 @@ interface WholesaleCustomerDao {
     )
     suspend fun getWholesaleCustomer(shopId: String, customerId: Int): WholesaleCustomerEntity?
 
+    @Query(
+        """
+        SELECT EXISTS(
+            SELECT 1 FROM wholesale_customers
+            WHERE shopId = :shopId AND customerId = :customerId
+        )
+        """
+    )
+    fun observeIsWholesaleCustomer(shopId: String, customerId: Int): Flow<Boolean>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(customers: List<WholesaleCustomerEntity>)
 

@@ -7,6 +7,7 @@ import com.example.grifon.core.ShopConfig
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.catalog.HomeProductsWebService
 import com.example.grifon.data.catalog.toDomainProduct
+import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.model.FavoriteProduct
@@ -36,6 +37,7 @@ class HomeViewModel @Inject constructor(
     private val homeProductsWebService: HomeProductsWebService,
     private val catalogApi: CatalogApi,
     private val shopPreferences: ShopPreferences,
+    private val localPriceAccessService: LocalPriceAccessService,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<HomeState>>(UiState.Loading)
     val uiState: StateFlow<UiState<HomeState>> = _uiState
@@ -83,10 +85,16 @@ class HomeViewModel @Inject constructor(
                 shopPreferences.currentCustomerId,
                 shopPreferences.canViewPrices,
             ) { shopId, customerId, canViewPrices ->
-                Triple(ShopConfig.normalizeShopId(shopId), customerId, canViewPrices)
+                HomeSessionState(ShopConfig.normalizeShopId(shopId), customerId, canViewPrices)
+            }.flatMapLatest { session ->
+                localPriceAccessService.observeCanDisplayPrices(
+                    shopId = session.shopId,
+                    customerId = session.customerId,
+                    canViewPrices = session.canViewPrices,
+                ).map { canDisplayPrices -> session.shopId to canDisplayPrices }
             }
                 .distinctUntilChanged()
-                .collect { (shopId, _, _) ->
+                .collect { (shopId, _) ->
                     currentShopId = shopId
                     loadInitialData()
                 }
@@ -99,13 +107,17 @@ class HomeViewModel @Inject constructor(
             try {
                 // Φορτώνουμε τα προτεινόμενα (π.χ. από κατηγορία 2)
                 val customerId = shopPreferences.currentCustomerId.first()
-                val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
+                val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+                    shopId = currentShopId,
+                    customerId = customerId,
+                    canViewPrices = shopPreferences.canViewPrices.first(),
+                )
                 // Φορτώνουμε όλα τα προϊόντα
                 val allProducts = homeProductsWebService.fetchProductsForShop(currentShopId)
                 val featured = buildFeaturedProducts(
                     shopId = currentShopId,
                     allProducts = allProducts,
-                    canViewPrices = canViewPrices,
+                    canViewPrices = canDisplayPrices,
                 )
                 
                 val apiCategories = runCatching { getCategoryTreeUseCase(currentShopId).first() }.getOrDefault(emptyList())
@@ -147,18 +159,23 @@ class HomeViewModel @Inject constructor(
     private suspend fun getCategoryProducts(categoryId: String?): List<Product> {
         val shopId = currentShopId.toInt()
         val customerId = shopPreferences.currentCustomerId.first()
-        val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
+        val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+            shopId = currentShopId,
+            customerId = customerId,
+            canViewPrices = shopPreferences.canViewPrices.first(),
+        )
+        val requestCustomerId = customerId?.takeIf { canDisplayPrices }
         val response = if (categoryId.isNullOrBlank()) {
-            catalogApi.getProducts(shopId = shopId, pageSize = 50, customerId = customerId)
+            catalogApi.getProducts(shopId = shopId, pageSize = 50, customerId = requestCustomerId)
         } else {
             catalogApi.getCategoryProducts(
                 categoryId = categoryId.toInt(),
                 shopId = shopId,
                 pageSize = 50,
-                customerId = customerId,
+                customerId = requestCustomerId,
             )
         }
-        return response.items.map { it.toDomainProduct(gatewayBaseUrl, "Grifon", showPrice = canViewPrices) }
+        return response.items.map { it.toDomainProduct(gatewayBaseUrl, "Grifon", showPrice = canDisplayPrices) }
     }
 
     fun toggleFavorite(product: Product) {
@@ -226,3 +243,9 @@ data class HomeState(
 )
 
 data class CategoryIconItem(val resId: Int, val categoryId: String?)
+
+private data class HomeSessionState(
+    val shopId: String,
+    val customerId: Int?,
+    val canViewPrices: Boolean,
+)

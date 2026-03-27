@@ -61,6 +61,8 @@ interface RecentProductRepository {
 
 interface WholesaleCustomerRepository {
     suspend fun syncWholesaleCustomers(shopId: String): Int
+    fun observeIsWholesaleCustomer(shopId: String, customerId: Int?): Flow<Boolean>
+    suspend fun isWholesaleCustomer(shopId: String, customerId: Int?): Boolean
 }
 
 interface CustomerRepository {
