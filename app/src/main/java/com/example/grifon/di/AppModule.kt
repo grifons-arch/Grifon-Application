@@ -12,6 +12,7 @@ import com.example.grifon.data.local.AppDatabase
 import com.example.grifon.data.local.FavoriteDao
 import com.example.grifon.data.local.RecentProductDao
 import com.example.grifon.data.local.ShopPreferences
+import com.example.grifon.data.local.WholesaleCustomerDao
 import com.example.grifon.data.repository.*
 import com.example.grifon.data.fake.*
 import com.example.grifon.domain.usecase.*
@@ -88,6 +89,11 @@ object AppModule {
     @Provides
     @Singleton
     fun provideRecentProductDao(appDatabase: AppDatabase): RecentProductDao = appDatabase.recentProductDao()
+
+    @Provides
+    @Singleton
+    fun provideWholesaleCustomerDao(appDatabase: AppDatabase): WholesaleCustomerDao =
+        appDatabase.wholesaleCustomerDao()
 
     @Provides
     @Singleton
