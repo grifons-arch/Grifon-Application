@@ -12,6 +12,7 @@ import com.example.grifon.domain.usecase.AddToCartUseCase
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetProductByIdUseCase
 import com.example.grifon.domain.usecase.ObserveFavoriteStatusUseCase
+import com.example.grifon.domain.usecase.RecordRecentProductVisitUseCase
 import com.example.grifon.domain.usecase.ToggleFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -35,6 +36,7 @@ class PdpViewModel @Inject constructor(
     shopPreferences: ShopPreferences,
     private val getProductByIdUseCase: GetProductByIdUseCase,
     private val observeFavoriteStatusUseCase: ObserveFavoriteStatusUseCase,
+    private val recordRecentProductVisitUseCase: RecordRecentProductVisitUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val addToCartUseCase: AddToCartUseCase,
 ) : ViewModel() {
@@ -84,6 +86,7 @@ class PdpViewModel @Inject constructor(
                     getProductByIdUseCase(shopId, productId)
                         .map { product ->
                             if (product != null) {
+                                recordRecentProductVisitUseCase(shopId, product)
                                 UiState.Success(product)
                             } else {
                                 UiState.Error("Product not found")

@@ -5,6 +5,7 @@ import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.model.FavoriteProduct
 import com.example.grifon.domain.model.FilterState
 import com.example.grifon.domain.model.Product
+import com.example.grifon.domain.model.RecentProduct
 import com.example.grifon.domain.model.Shop
 import com.example.grifon.domain.model.SortOption
 import kotlinx.coroutines.flow.Flow
@@ -51,4 +52,9 @@ interface FavoriteRepository {
     fun observeFavorites(shopId: String): Flow<List<FavoriteProduct>>
     fun observeIsFavorite(shopId: String, productId: String): Flow<Boolean>
     suspend fun toggleFavorite(shopId: String, product: Product): Boolean
+}
+
+interface RecentProductRepository {
+    fun observeRecentProducts(shopId: String, limit: Int = 10): Flow<List<RecentProduct>>
+    suspend fun recordVisit(shopId: String, product: Product)
 }

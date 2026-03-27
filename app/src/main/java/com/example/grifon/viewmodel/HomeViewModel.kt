@@ -9,10 +9,13 @@ import com.example.grifon.data.catalog.HomeProductsWebService
 import com.example.grifon.data.catalog.toDomainProduct
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.domain.model.Category
+import com.example.grifon.domain.model.FavoriteProduct
 import com.example.grifon.domain.model.Product
+import com.example.grifon.domain.model.RecentProduct
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetCategoryTreeUseCase
 import com.example.grifon.domain.usecase.ObserveFavoritesUseCase
+import com.example.grifon.domain.usecase.ObserveRecentProductsUseCase
 import com.example.grifon.domain.usecase.ToggleFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -28,6 +31,7 @@ class HomeViewModel @Inject constructor(
     private val getActiveShopUseCase: GetActiveShopUseCase,
     private val getCategoryTreeUseCase: GetCategoryTreeUseCase,
     private val observeFavoritesUseCase: ObserveFavoritesUseCase,
+    private val observeRecentProductsUseCase: ObserveRecentProductsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val homeProductsWebService: HomeProductsWebService,
     private val catalogApi: CatalogApi,
@@ -96,14 +100,13 @@ class HomeViewModel @Inject constructor(
                 // Φορτώνουμε τα προτεινόμενα (π.χ. από κατηγορία 2)
                 val customerId = shopPreferences.currentCustomerId.first()
                 val canViewPrices = customerId != null && shopPreferences.canViewPrices.first()
-                val featured = runCatching { 
-                    catalogApi.getCategoryProducts(categoryId = 2, shopId = currentShopId.toInt(), pageSize = 10, customerId = customerId).items.map { 
-                        it.toDomainProduct(gatewayBaseUrl, "Featured", showPrice = canViewPrices) 
-                    }
-                }.getOrDefault(emptyList())
-
                 // Φορτώνουμε όλα τα προϊόντα
                 val allProducts = homeProductsWebService.fetchProductsForShop(currentShopId)
+                val featured = buildFeaturedProducts(
+                    shopId = currentShopId,
+                    allProducts = allProducts,
+                    canViewPrices = canViewPrices,
+                )
                 
                 val apiCategories = runCatching { getCategoryTreeUseCase(currentShopId).first() }.getOrDefault(emptyList())
 
@@ -163,6 +166,54 @@ class HomeViewModel @Inject constructor(
             toggleFavoriteUseCase(currentShopId, product)
         }
     }
+
+    private suspend fun buildFeaturedProducts(
+        shopId: String,
+        allProducts: List<Product>,
+        canViewPrices: Boolean,
+    ): List<Product> {
+        val favorites = observeFavoritesUseCase(shopId).first()
+        if (favorites.isNotEmpty()) {
+            return favorites.take(10).map { it.toProduct(canViewPrices) }
+        }
+
+        val recentProducts = observeRecentProductsUseCase(shopId, limit = 10).first()
+        if (recentProducts.isNotEmpty()) {
+            return recentProducts.map { it.toProduct(canViewPrices) }
+        }
+
+        return allProducts.shuffled().take(10)
+    }
+}
+
+private fun FavoriteProduct.toProduct(canViewPrices: Boolean): Product {
+    return Product(
+        id = productId,
+        title = title,
+        price = price?.takeIf { canViewPrices },
+        currency = currency,
+        imageUrl = imageUrl,
+        images = emptyList(),
+        brand = brand,
+        rating = 0.0,
+        inStock = true,
+        attributesMap = emptyMap(),
+    )
+}
+
+private fun RecentProduct.toProduct(canViewPrices: Boolean): Product {
+    return Product(
+        id = productId,
+        title = title,
+        price = price?.takeIf { canViewPrices },
+        currency = currency,
+        imageUrl = imageUrl,
+        images = emptyList(),
+        brand = brand,
+        rating = 0.0,
+        inStock = true,
+        attributesMap = emptyMap(),
+    )
 }
 
 data class HomeState(

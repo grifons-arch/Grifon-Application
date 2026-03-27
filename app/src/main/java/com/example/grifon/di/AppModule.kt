@@ -10,6 +10,7 @@ import com.example.grifon.data.auth.AuthApi
 import com.example.grifon.data.auth.UserRepositoryImpl
 import com.example.grifon.data.local.AppDatabase
 import com.example.grifon.data.local.FavoriteDao
+import com.example.grifon.data.local.RecentProductDao
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.*
 import com.example.grifon.data.fake.*
@@ -86,6 +87,10 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideRecentProductDao(appDatabase: AppDatabase): RecentProductDao = appDatabase.recentProductDao()
+
+    @Provides
+    @Singleton
     fun provideShopPreferences(
         @ApplicationContext context: Context,
         dataStore: DataStore<Preferences>
@@ -112,6 +117,13 @@ object AppModule {
         favoriteDao: FavoriteDao,
         preferences: ShopPreferences,
     ): FavoriteRepository = LocalFavoriteRepository(favoriteDao, preferences)
+
+    @Provides
+    @Singleton
+    fun provideRecentProductRepository(
+        recentProductDao: RecentProductDao,
+        preferences: ShopPreferences,
+    ): RecentProductRepository = LocalRecentProductRepository(recentProductDao, preferences)
 
     @Provides
     @Singleton
@@ -169,4 +181,11 @@ object AppModule {
 
     @Provides
     fun provideToggleFavoriteUseCase(repo: FavoriteRepository) = ToggleFavoriteUseCase(repo)
+
+    @Provides
+    fun provideObserveRecentProductsUseCase(repo: RecentProductRepository) = ObserveRecentProductsUseCase(repo)
+
+    @Provides
+    fun provideRecordRecentProductVisitUseCase(repo: RecentProductRepository) =
+        RecordRecentProductVisitUseCase(repo)
 }
