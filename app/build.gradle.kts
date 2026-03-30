@@ -1,4 +1,7 @@
 import com.android.build.api.variant.BuildConfigField
+import java.util.Properties
+import java.net.NetworkInterface
+import java.net.Inet4Address
 
 plugins {
     alias(libs.plugins.android.application)
@@ -8,14 +11,46 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val defaultGatewayUrl = (project.findProperty("API_BASE_URL") as String?)
-    ?: "http://10.0.2.2:3000/"
-val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?)
-    ?: defaultGatewayUrl
-val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?)
-    ?: defaultGatewayUrl
-val debugApiBaseUrl = (project.findProperty("API_BASE_URL_DEBUG") as String?)
-    ?: defaultGatewayUrl
+// Λειτουργία που βρίσκει την τοπική IP του υπολογιστή σου αυτόματα
+fun getLocalIp(): String {
+    try {
+        val interfaces = NetworkInterface.getNetworkInterfaces()
+        for (iface in interfaces) {
+            if (iface.isLoopback || !iface.isUp) continue
+            val addresses = iface.inetAddresses
+            for (addr in addresses) {
+                if (addr is Inet4Address) {
+                    val ip = addr.hostAddress
+                    // Επιστρέφει την πρώτη IP που μοιάζει με οικιακή (192.168.x.x ή 10.x.x.x)
+                    if (ip.startsWith("192.168.") || ip.startsWith("10.")) {
+                        return ip
+                    }
+                }
+            }
+        }
+    } catch (e: Exception) {
+        // ignore
+    }
+    return "10.0.2.2" // Fallback για emulator αν αποτύχει η ανίχνευση
+}
+
+// Διαβάζουμε το local.properties για να πάρουμε την IP δυναμικά
+val localProps = Properties()
+val localPropsFile = project.rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localProps.load(localPropsFile.inputStream())
+}
+
+val apiBaseUrlFromProps = localProps.getProperty("API_BASE_URL")
+val mapsApiKeyFromProps = localProps.getProperty("MAPS_API_KEY") ?: ""
+
+// ΑΥΤΟΜΑΤΙΣΜΟΣ: Αν δεν υπάρχει IP στο local.properties, τη βρίσκουμε μόνοι μας
+val computerIp = if (apiBaseUrlFromProps.isNullOrBlank()) getLocalIp() else null
+val defaultGatewayUrl = apiBaseUrlFromProps ?: "http://$computerIp:3000/"
+
+val grApiBaseUrl = (project.findProperty("API_BASE_URL_GR") as String?) ?: defaultGatewayUrl
+val seApiBaseUrl = (project.findProperty("API_BASE_URL_SE") as String?) ?: defaultGatewayUrl
+val debugApiBaseUrl = (project.findProperty("API_BASE_URL_DEBUG") as String?) ?: defaultGatewayUrl
 
 android {
     namespace = "com.example.grifon"
@@ -24,9 +59,12 @@ android {
     defaultConfig {
         applicationId = "com.grifon.eshop"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 3
-        versionName = "1.3.0"
+        targetSdk = 34
+        versionCode = 2
+        versionName = "1.1.0"
+        
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKeyFromProps
+        buildConfigField("String", "MAPS_API_KEY", "\"$mapsApiKeyFromProps\"")
     }
 
     flavorDimensions += "shop"
@@ -102,6 +140,7 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.mlkit.barcode.scanning)
     implementation(libs.google.play.services.auth)
+    implementation("com.google.android.libraries.places:places:3.3.0")
     
     // Google Places API
     implementation("com.google.android.libraries.places:places:3.5.0")

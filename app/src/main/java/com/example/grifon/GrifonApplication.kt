@@ -1,13 +1,24 @@
 package com.example.grifon
 
 import android.app.Application
-import android.util.Log
+import android.content.Context
+import com.example.grifon.core.AppLanguage
+import com.example.grifon.data.sync.AppStartupSyncer
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
 class GrifonApplication : Application() {
+    @Inject
+    lateinit var appStartupSyncer: AppStartupSyncer
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(AppLanguage.wrapContext(base))
+    }
+
     override fun onCreate() {
+        AppLanguage.apply(AppLanguage.getStoredLanguage(this))
         super.onCreate()
-        Log.d("CrashLog", "Application onCreate: Grifon eShop starting...")
+        appStartupSyncer.syncOnAppLaunch()
     }
 }

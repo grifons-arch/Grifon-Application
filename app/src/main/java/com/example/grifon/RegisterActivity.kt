@@ -1,9 +1,13 @@
 package com.example.grifon
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,34 +24,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.grifon.core.AppLanguage
 import com.example.grifon.core.ServiceLocator
+import com.example.grifon.presentation.register.CountryOption
+import com.example.grifon.presentation.register.RegisterAddressCatalog
 import com.example.grifon.presentation.register.RegisterStatus
 import com.example.grifon.presentation.register.RegisterViewModel
 import com.example.grifon.presentation.register.RegisterViewModelFactory
 import com.example.grifon.ui.theme.GrifonTheme
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.net.FetchPlaceRequest
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
-import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import java.util.Locale
 
 class RegisterActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        // Αρχικοποίηση Google Places SDK
-        // ΠΡΟΣΟΧΗ: Αντικαταστήστε το "YOUR_API_KEY" με το πραγματικό σας κλειδί Google Maps API
-        if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, "YOUR_API_KEY")
-        }
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrapContext(newBase))
+    }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        AppLanguage.apply(AppLanguage.getStoredLanguage(this))
+        super.onCreate(savedInstanceState)
+        // Αρχικοποίηση στην αρχή της Activity για σιγουριά
+        if (BuildConfig.MAPS_API_KEY.isNotEmpty() && !Places.isInitialized()) {
+            Places.initialize(applicationContext, BuildConfig.MAPS_API_KEY)
+        }
         setContent {
             GrifonTheme {
                 RegisterScreen()
@@ -58,7 +68,7 @@ class RegisterActivity : ComponentActivity() {
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun RegisterScreen(
+fun RegisterScreen(
     registerViewModel: RegisterViewModel = viewModel(
         factory = RegisterViewModelFactory(ServiceLocator.provideRegisterUseCase()),
     ),
@@ -74,26 +84,85 @@ private fun RegisterScreen(
     var addressSearchQuery by remember { mutableStateOf("") }
     var predictions by remember { mutableStateOf<List<AutocompletePrediction>>(emptyList()) }
     var isPasswordVisible by remember { mutableStateOf(false) }
+    var isPasswordConfirmationVisible by remember { mutableStateOf(false) }
+    
+    val context = LocalContext.current
+    LaunchedEffect(context) {
+        if (BuildConfig.MAPS_API_KEY.isNotEmpty() && !Places.isInitialized()) {
+            Places.initialize(context.applicationContext, BuildConfig.MAPS_API_KEY)
+        }
+    }
+    val locale = remember(context) {
+        val locales = context.resources.configuration.locales
+        if (locales.isEmpty) Locale.getDefault() else locales[0]
+    }
+    val countries = remember(locale) { RegisterAddressCatalog.countriesFor(locale) }
+    val citySuggestions = remember(state.countryIso, state.city) {
+        RegisterAddressCatalog.citySuggestions(state.countryIso, state.city)
+    }
+    val streetSuggestions = remember(state.countryIso, state.city, state.street) {
+        RegisterAddressCatalog.streetSuggestions(state.countryIso, state.city, state.street)
+    }
+    var apiErrorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Λογική αναζήτησης Google Places (φιλτραρισμένη ανά χώρα)
-    LaunchedEffect(addressSearchQuery, state.country) {
-        val countryCode = countries[state.country]
-        if (addressSearchQuery.length > 2) {
-            val requestBuilder = FindAutocompletePredictionsRequest.builder()
-                .setQuery(addressSearchQuery)
-            
-            // Περιορισμός αναζήτησης στη χώρα που επιλέχθηκε
-            if (countryCode != null) {
-                requestBuilder.setCountries(countryCode)
-            }
-
-            placesClient.findAutocompletePredictions(requestBuilder.build())
-                .addOnSuccessListener { response ->
-                    predictions = response.autocompletePredictions
+    // Launcher για το Google Autocomplete Intent
+    val autocompleteLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        try {
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                val place = Autocomplete.getPlaceFromIntent(result.data!!)
+                
+                var streetName = ""
+                var streetNumber = ""
+                var selectedCity = ""
+                var selectedPostalCode = ""
+                var selectedCountryIso = ""
+                var selectedCountryName = ""
+                
+                place.addressComponents?.asList()?.forEach { component ->
+                    val types = component.types
+                    when {
+                        types.contains("route") -> streetName = component.name
+                        types.contains("street_number") -> streetNumber = component.name
+                        types.contains("locality") -> selectedCity = component.name
+                        types.contains("postal_code") -> selectedPostalCode = component.name
+                        types.contains("country") -> {
+                            selectedCountryIso = component.shortName.orEmpty()
+                            selectedCountryName = component.name
+                        }
+                    }
                 }
-                .addOnFailureListener { predictions = emptyList() }
-        } else {
-            predictions = emptyList()
+
+                val resolvedCountry = RegisterAddressCatalog.resolveCountry(
+                    selectedCountryIso.ifBlank { selectedCountryName },
+                    locale,
+                )
+                when {
+                    resolvedCountry != null -> registerViewModel.onCountrySelected(resolvedCountry)
+                    selectedCountryName.isNotBlank() -> registerViewModel.onCountryChange(selectedCountryName)
+                }
+
+                if (selectedCity.isNotBlank()) {
+                    registerViewModel.onCityChange(selectedCity)
+                }
+                if (selectedPostalCode.isNotBlank()) {
+                    registerViewModel.onPostalCodeChange(selectedPostalCode)
+                }
+                
+                val fullStreet = if (streetNumber.isNotEmpty()) "$streetName $streetNumber" else streetName
+                if (fullStreet.isNotEmpty()) {
+                    registerViewModel.onStreetChange(fullStreet)
+                } else {
+                    registerViewModel.onStreetChange(place.name ?: "")
+                }
+                apiErrorMessage = null
+            } else if (result.resultCode == 2) { // 2 είναι η τιμή του Autocomplete.RESULT_ERROR
+                val status = Autocomplete.getStatusFromIntent(result.data!!)
+                apiErrorMessage = context.getString(R.string.google_error, status.statusMessage.orEmpty())
+            }
+        } catch (e: Exception) {
+            apiErrorMessage = context.getString(R.string.processing_error, e.message.orEmpty())
         }
     }
 
@@ -104,7 +173,10 @@ private fun RegisterScreen(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(text = "Εγγραφή", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
+        Text(
+            text = stringResource(R.string.register),
+            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
+        )
 
         RegistrationTextField(value = state.firstName, onValueChange = registerViewModel::onFirstNameChange, placeholder = "Όνομα *")
         RegistrationTextField(value = state.lastName, onValueChange = registerViewModel::onLastNameChange, placeholder = "Επώνυμο *")
@@ -116,14 +188,16 @@ private fun RegisterScreen(
             expanded = countryExpanded,
             onExpandedChange = { countryExpanded = !countryExpanded }
         ) {
-            OutlinedTextField(
-                value = state.country,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Χώρα *") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = countryExpanded) },
-                modifier = Modifier.menuAnchor().fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp)
+            SocialTitleOption(
+                label = stringResource(R.string.social_title_mr),
+                selected = state.socialTitle == "mr",
+                onSelect = { registerViewModel.onSocialTitleChange("mr") },
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            SocialTitleOption(
+                label = stringResource(R.string.social_title_mrs),
+                selected = state.socialTitle == "mrs",
+                onSelect = { registerViewModel.onSocialTitleChange("mrs") },
             )
             ExposedDropdownMenu(
                 expanded = countryExpanded,
@@ -142,85 +216,177 @@ private fun RegisterScreen(
             }
         }
 
-        // 2. Αναζήτηση Οδού/Πόλης μέσω Google (Ενεργό μόνο αν επιλεγεί χώρα)
-        OutlinedTextField(
-            value = addressSearchQuery,
-            onValueChange = { addressSearchQuery = it },
-            label = { Text("Αναζήτηση Οδού & Πόλης (Google Maps) *") },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = state.country.isNotEmpty(),
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            shape = RoundedCornerShape(10.dp),
-            placeholder = { Text(if (state.country.isEmpty()) "Επιλέξτε πρώτα χώρα" else "π.χ. Ερμού 10") }
+        RegistrationTextField(
+            value = state.firstName,
+            onValueChange = registerViewModel::onFirstNameChange,
+            placeholder = stringResource(R.string.first_name_placeholder),
+        )
+        RegistrationTextField(
+            value = state.lastName,
+            onValueChange = registerViewModel::onLastNameChange,
+            placeholder = stringResource(R.string.last_name_placeholder),
+        )
+        RegistrationTextField(
+            value = state.phone,
+            onValueChange = registerViewModel::onPhoneChange,
+            placeholder = stringResource(R.string.phone_placeholder),
+        )
+        RegistrationTextField(
+            value = state.iban,
+            onValueChange = registerViewModel::onIbanChange,
+            placeholder = stringResource(R.string.iban),
         )
 
-        // Λίστα αποτελεσμάτων Google
-        if (predictions.isNotEmpty()) {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column {
-                    predictions.forEach { prediction ->
-                        ListItem(
-                            headlineContent = { Text(prediction.getPrimaryText(null).toString()) },
-                            supportingContent = { Text(prediction.getSecondaryText(null).toString()) },
-                            leadingContent = { Icon(Icons.Default.LocationOn, contentDescription = null) },
-                            modifier = Modifier.clickable {
-                                val request = FetchPlaceRequest.newInstance(prediction.placeId, listOf(Place.Field.ADDRESS_COMPONENTS))
-                                placesClient.fetchPlace(request).addOnSuccessListener { response ->
-                                    val components = response.place.addressComponents?.asList()
-                                    var streetName = ""
-                                    var streetNum = ""
-                                    components?.forEach { comp ->
-                                        when {
-                                            comp.types.contains("locality") -> registerViewModel.onCityChange(comp.name)
-                                            comp.types.contains("route") -> streetName = comp.name
-                                            comp.types.contains("street_number") -> streetNum = comp.name
-                                        }
-                                    }
-                                    registerViewModel.onStreetChange("$streetName $streetNum".trim())
-                                    addressSearchQuery = ""
-                                    predictions = emptyList()
-                                }
+        SectionTitle(title = stringResource(R.string.company_section))
+        
+        ConsentOption(
+            checked = state.wholesaleRequested,
+            onCheckedChange = registerViewModel::onWholesaleRequestedChange,
+            title = stringResource(R.string.wholesale_request_title),
+            description = stringResource(R.string.wholesale_request_description)
+        )
+
+        RegistrationTextField(
+            value = state.companyName,
+            onValueChange = registerViewModel::onCompanyNameChange,
+            placeholder = stringResource(R.string.company_placeholder),
+        )
+        RegistrationTextField(
+            value = state.vatNumber,
+            onValueChange = registerViewModel::onVatNumberChange,
+            placeholder = stringResource(R.string.vat_placeholder),
+        )
+
+        SectionTitle(title = stringResource(R.string.address_section))
+
+        Text(
+            text = stringResource(R.string.search_address_on_map),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                textDecoration = TextDecoration.Underline
+            ),
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+                .clickable {
+                    try {
+                        if (BuildConfig.MAPS_API_KEY.isEmpty()) {
+                            apiErrorMessage = context.getString(R.string.missing_api_key)
+                        } else {
+                            val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS_COMPONENTS)
+                            val builder = Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
+                            if (state.countryIso.isNotBlank()) {
+                                builder.setCountries(listOf(state.countryIso))
                             }
-                        )
-                        HorizontalDivider()
+                            val intent = builder.build(context)
+                            autocompleteLauncher.launch(intent)
+                        }
+                    } catch (e: Exception) {
+                        apiErrorMessage = context.getString(R.string.open_map_failed, e.message.orEmpty())
                     }
                 }
-            }
+        )
+        
+        RegistrationDropdownField(
+            value = state.country,
+            placeholder = stringResource(R.string.country_iso_placeholder),
+            options = countries,
+            onOptionSelected = registerViewModel::onCountrySelected,
+        )
+        RegistrationAutoCompleteField(
+            value = state.city,
+            onValueChange = registerViewModel::onCityChange,
+            placeholder = stringResource(R.string.city_placeholder),
+            suggestions = citySuggestions,
+            enabled = state.countryIso.isNotBlank(),
+        )
+        RegistrationAutoCompleteField(
+            value = state.street,
+            onValueChange = registerViewModel::onStreetChange,
+            placeholder = stringResource(R.string.street_placeholder),
+            suggestions = streetSuggestions,
+            enabled = state.countryIso.isNotBlank() && state.city.isNotBlank(),
+        )
+
+        apiErrorMessage?.let { message ->
+            Text(text = message, color = Color.Red, style = MaterialTheme.typography.bodySmall)
         }
 
-        // Αυτόματα συμπληρωμένα πεδία (από Google)
-        RegistrationTextField(value = state.city, onValueChange = registerViewModel::onCityChange, placeholder = "Πόλη", readOnly = true)
-        RegistrationTextField(value = state.street, onValueChange = registerViewModel::onStreetChange, placeholder = "Οδός και Αριθμός", readOnly = true)
-        
-        // 3. Χειροκίνητος Τ.Κ. (Όπως ζητήθηκε)
-        RegistrationTextField(value = state.postalCode, onValueChange = registerViewModel::onPostalCodeChange, placeholder = "Τ.Κ (Πληκτρολογήστε χειροκίνητα) *")
+        RegistrationTextField(
+            value = state.postalCode,
+            onValueChange = registerViewModel::onPostalCodeChange,
+            placeholder = stringResource(R.string.postal_code_placeholder),
+        )
 
-        SectionTitle(title = "Στοιχεία Σύνδεσης")
-        RegistrationTextField(value = state.email, onValueChange = registerViewModel::onEmailChange, placeholder = "Email *")
+        SectionTitle(title = stringResource(R.string.other_details_section))
+        RegistrationTextField(
+            value = state.email,
+            onValueChange = registerViewModel::onEmailChange,
+            placeholder = stringResource(R.string.email_placeholder),
+        )
+        RegistrationTextField(
+            value = state.emailConfirmation,
+            onValueChange = registerViewModel::onEmailConfirmationChange,
+            placeholder = stringResource(R.string.email_confirmation_placeholder),
+        )
         RegistrationTextField(
             value = state.password,
             onValueChange = registerViewModel::onPasswordChange,
-            placeholder = "Κωδικός *",
+            placeholder = stringResource(R.string.password_placeholder_required),
             isPassword = true,
             isPasswordVisible = isPasswordVisible,
             onPasswordVisibilityChange = { isPasswordVisible = !isPasswordVisible },
         )
+        RegistrationTextField(
+            value = state.passwordConfirmation,
+            onValueChange = registerViewModel::onPasswordConfirmationChange,
+            placeholder = stringResource(R.string.password_confirmation_placeholder),
+            isPassword = true,
+            isPasswordVisible = isPasswordConfirmationVisible,
+            onPasswordVisibilityChange = {
+                isPasswordConfirmationVisible = !isPasswordConfirmationVisible
+            },
+        )
 
-        ConsentOption(checked = state.customerDataPrivacyAccepted, onCheckedChange = registerViewModel::onCustomerDataPrivacyAcceptedChange, title = "Προστασία δεδομένων πελάτη *", required = true)
-        ConsentOption(checked = state.termsAndPrivacyAccepted, onCheckedChange = registerViewModel::onTermsAndPrivacyAcceptedChange, title = "Αποδέχομαι τους όρους χρήσης *", required = true)
+        ConsentOption(
+            checked = state.customerDataPrivacyAccepted,
+            onCheckedChange = registerViewModel::onCustomerDataPrivacyAcceptedChange,
+            title = stringResource(R.string.customer_data_title),
+            description = stringResource(R.string.customer_data_description),
+            required = true,
+        )
+        ConsentOption(
+            checked = state.newsletterOptIn,
+            onCheckedChange = registerViewModel::onNewsletterOptInChange,
+            title = stringResource(R.string.newsletter_opt_in_title),
+        )
+        ConsentOption(
+            checked = state.termsAndPrivacyAccepted,
+            onCheckedChange = registerViewModel::onTermsAndPrivacyAcceptedChange,
+            title = stringResource(R.string.terms_privacy_title),
+            required = true,
+        )
 
         Button(
             onClick = registerViewModel::onSubmit,
             enabled = state.isSubmitEnabled,
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                contentColor = MaterialTheme.colorScheme.primary,
+            ),
             shape = RoundedCornerShape(12.dp),
         ) {
-            if (state.status is RegisterStatus.Loading) CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
-            else Text(text = "Ολοκλήρωση Εγγραφής")
+            Text(text = stringResource(R.string.save))
         }
-
-        if (state.status is RegisterStatus.Error) {
-            Text((state.status as RegisterStatus.Error).message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        
+        when (val status = state.status) {
+            is RegisterStatus.Loading -> Text(stringResource(R.string.submitting_request), style = MaterialTheme.typography.bodySmall)
+            is RegisterStatus.Success -> Text(status.message, color = MaterialTheme.colorScheme.primary)
+            is RegisterStatus.Error -> Text(status.message, color = MaterialTheme.colorScheme.error)
+            RegisterStatus.Idle -> Unit
         }
     }
 }
@@ -235,6 +401,7 @@ private fun RegistrationTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
+    enabled: Boolean = true,
     isPassword: Boolean = false,
     isPasswordVisible: Boolean = false,
     onPasswordVisibilityChange: (() -> Unit)? = null,
@@ -243,10 +410,10 @@ private fun RegistrationTextField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(placeholder) },
+        enabled = enabled,
+        placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(10.dp),
-        readOnly = readOnly,
         visualTransformation = if (isPassword && !isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
         trailingIcon = if (isPassword && onPasswordVisibilityChange != null) {
             {
@@ -255,17 +422,139 @@ private fun RegistrationTextField(
                 }
             }
         } else null,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = if (readOnly) Color.LightGray.copy(alpha = 0.1f) else Color.Transparent,
-            unfocusedContainerColor = if (readOnly) Color.LightGray.copy(alpha = 0.1f) else Color.Transparent
-        )
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        ),
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ConsentOption(checked: Boolean, onCheckedChange: (Boolean) -> Unit, title: String, required: Boolean = false) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+private fun RegistrationDropdownField(
+    value: String,
+    placeholder: String,
+    options: List<CountryOption>,
+    onOptionSelected: (CountryOption) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            shape = RoundedCornerShape(10.dp),
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.heightIn(max = 360.dp),
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(text = option.displayName) },
+                    onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RegistrationAutoCompleteField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    suggestions: List<String>,
+    enabled: Boolean = true,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val visibleSuggestions = remember(suggestions) { suggestions.distinct().take(8) }
+    val showMenu = enabled && expanded && visibleSuggestions.isNotEmpty()
+
+    ExposedDropdownMenuBox(
+        expanded = showMenu,
+        onExpandedChange = {
+            if (enabled && visibleSuggestions.isNotEmpty()) {
+                expanded = !expanded
+            }
+        },
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {
+                onValueChange(it)
+                expanded = true
+            },
+            enabled = enabled,
+            placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryEditable),
+            shape = RoundedCornerShape(10.dp),
+            trailingIcon = {
+                if (visibleSuggestions.isNotEmpty()) {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = showMenu)
+                }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+        )
+
+        ExposedDropdownMenu(
+            expanded = showMenu,
+            onDismissRequest = { expanded = false },
+        ) {
+            visibleSuggestions.forEach { suggestion ->
+                DropdownMenuItem(
+                    text = { Text(text = suggestion) },
+                    onClick = {
+                        onValueChange(suggestion)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SocialTitleOption(label: String, selected: Boolean, onSelect: () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        RadioButton(selected = selected, onClick = onSelect)
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+private fun ConsentOption(checked: Boolean, onCheckedChange: (Boolean) -> Unit, title: String, description: String? = null, required: Boolean = false) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
         Checkbox(checked = checked, onCheckedChange = onCheckedChange)
-        Text(text = title, style = MaterialTheme.typography.bodyMedium)
+        Column(modifier = Modifier.padding(top = 4.dp)) {
+            Text(text = if (required) "$title *" else title, style = MaterialTheme.typography.bodyMedium)
+            if (!description.isNullOrBlank()) {
+                Text(text = description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.grifon.ui.screens.plp
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -12,6 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +25,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -30,12 +34,18 @@ import coil.request.ImageRequest
 import com.example.grifon.R
 import com.example.grifon.core.UiState
 import com.example.grifon.ui.screens.ErrorScreen
+import com.example.grifon.ui.screens.LocalCanDisplayPrices
+import com.example.grifon.ui.screens.LocalIsLoggedIn
 import com.example.grifon.ui.screens.LoadingScreen
+import com.example.grifon.ui.theme.GrifonGold
 import com.example.grifon.viewmodel.PdpViewModel
 
 @Composable
 fun ProductDetailsScreen(viewModel: PdpViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val isFavorite by viewModel.isFavorite.collectAsState()
+    val canDisplayPrices = LocalCanDisplayPrices.current
+    val isLoggedIn = LocalIsLoggedIn.current
     var showZoomDialog by remember { mutableStateOf(false) }
     var selectedImageIndex by remember { mutableIntStateOf(0) }
 
@@ -118,6 +128,24 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                     }
+
+                    if (isLoggedIn) {
+                        IconButton(
+                            onClick = { viewModel.toggleFavorite(product) },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(16.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.94f))
+                                .border(1.5.dp, GrifonGold, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = stringResource(R.string.favorite_products),
+                                tint = if (isFavorite) Color(0xFFE05050) else Color.DarkGray
+                            )
+                        }
+                    }
                 }
 
                 // Λεπτομέρειες Προϊόντος
@@ -128,10 +156,10 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
                         color = Color.Black
                     )
                     
-                    val reference = product.attributesMap["reference"] ?: ""
+                    val reference = product.attributesMap["reference"]?.firstOrNull().orEmpty()
                     if (reference.isNotEmpty()) {
                         Text(
-                            text = "Κωδικός: $reference",
+                            text = stringResource(R.string.product_code, reference),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray
                         )
@@ -139,20 +167,29 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    Text(
-                        text = "${product.price} €",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    if (canDisplayPrices && product.price != null) {
+                        Text(
+                            text = "${product.price} €",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(R.string.wholesale_prices_only),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Button(
-                        onClick = { viewModel.addToCart(product) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.medium
-                    ) {
-                        Text(text = "Προσθήκη στο καλάθι")
+                    if (canDisplayPrices && product.price != null) {
+                        Button(
+                            onClick = { viewModel.addToCart(product) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.medium
+                        ) {
+                            Text(text = stringResource(R.string.add_to_cart))
+                        }
                     }
                 }
             }
@@ -201,7 +238,7 @@ fun ImageZoomDialog(imageUrl: String, onDismiss: () -> Unit) {
                 onClick = onDismiss,
                 modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close), tint = Color.White)
             }
         }
     }

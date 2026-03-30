@@ -66,7 +66,8 @@ export const productIdSchema = z.object({
 
 export const loginBodySchema = z.object({
   email: z.string().trim().email(),
-  password: z.string().min(1)
+  password: z.string().min(1),
+  countryIso: z.string().trim().length(2).optional()
 });
 
 export const registerBodySchema = z
@@ -84,10 +85,12 @@ export const registerBodySchema = z
     phone: z.string().trim().min(1).optional(),
     company: z.string().trim().min(1).optional(),
     vatNumber: z.string().trim().min(1).optional(),
+    dni: z.string().trim().min(1).optional(), // ΠΡΟΣΘΗΚΗ DNI
     iban: z.string().trim().min(1).optional(),
     customerDataPrivacyAccepted: z.boolean().optional().default(false),
     newsletter: z.boolean().optional().default(false),
     termsAndPrivacyAccepted: z.boolean().optional().default(false),
+    wholesaleRequested: z.boolean().optional().default(false),
     partnerOffers: z.boolean().optional()
   })
   .superRefine((data, context) => {
@@ -103,3 +106,27 @@ export const registerBodySchema = z
     ...data,
     password: (data.password ?? data.passwd) as string
   }));
+
+export const productActivityBodySchema = z.object({
+  customerId: z.preprocess(toNumber, z.number().int().positive()),
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  productId: z.preprocess(toNumber, z.number().int().positive()),
+  isFavorite: z.boolean().optional(),
+  product: z.object({
+    title: z.preprocess(toOptionalString, z.string().optional()),
+    price: z.preprocess(toNumber, z.number().nonnegative().optional()),
+    currency: z.preprocess(toOptionalString, z.string().optional()),
+    imageUrl: z.preprocess(toOptionalString, z.string().optional()),
+    brand: z.preprocess(toOptionalString, z.string().optional())
+  }).optional()
+});
+
+export const customerActivityQuerySchema = z.object({
+  customerId: z.preprocess(toNumber, z.number().int().positive()),
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  limit: z.preprocess(toNumber, z.number().int().min(1).max(100).optional())
+});
+
+export const customerActivityClearBodySchema = z.object({
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)]))
+});

@@ -6,12 +6,11 @@ import com.example.grifon.domain.auth.RegisterOutcome
 import com.example.grifon.domain.auth.RegisterParams
 import com.example.grifon.domain.auth.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class RegisterViewModel(
     private val registerUseCase: RegisterUseCase,
@@ -56,11 +55,45 @@ class RegisterViewModel(
     }
 
     fun onCountryChange(value: String) {
-        _uiState.update { it.copy(country = value) }
+        val resolvedCountry = RegisterAddressCatalog.resolveCountry(value, Locale.getDefault())
+        if (resolvedCountry != null) {
+            onCountrySelected(resolvedCountry)
+            return
+        }
+
+        _uiState.update {
+            it.copy(
+                country = value,
+                countryIso = "",
+                city = "",
+                street = "",
+                postalCode = "",
+            )
+        }
+    }
+
+    fun onCountrySelected(country: CountryOption) {
+        _uiState.update { currentState ->
+            val hasChanged = currentState.countryIso != country.isoCode
+            currentState.copy(
+                country = country.displayName,
+                countryIso = country.isoCode,
+                city = if (hasChanged) "" else currentState.city,
+                street = if (hasChanged) "" else currentState.street,
+                postalCode = if (hasChanged) "" else currentState.postalCode,
+            )
+        }
     }
 
     fun onCityChange(value: String) {
-        _uiState.update { it.copy(city = value) }
+        _uiState.update { currentState ->
+            val hasChanged = currentState.city.trim() != value.trim()
+            currentState.copy(
+                city = value,
+                street = if (hasChanged) "" else currentState.street,
+                postalCode = if (hasChanged) "" else currentState.postalCode,
+            )
+        }
     }
 
     fun onStreetChange(value: String) {
@@ -95,14 +128,18 @@ class RegisterViewModel(
         _uiState.update { it.copy(termsAndPrivacyAccepted = value) }
     }
 
+    fun onWholesaleRequestedChange(value: Boolean) {
+        _uiState.update { it.copy(wholesaleRequested = value) }
+    }
+
     fun onSubmit() {
         val currentState = _uiState.value
         if (!currentState.isSubmitEnabled) return
 
-        val countryIso = normalizeCountryIso(currentState.country)
+        val countryIso = currentState.countryIso.ifBlank { normalizeCountryIso(currentState.country) }
         if (countryIso == null) {
             _uiState.update {
-                it.copy(status = RegisterStatus.Error("Συμπληρώστε έγκυρο κωδικό χώρας (π.χ. GR)."))
+                it.copy(status = RegisterStatus.Error("Επιλέξτε έγκυρη χώρα από τη λίστα."))
             }
             return
         }
@@ -127,10 +164,9 @@ class RegisterViewModel(
                 newsletter = currentState.newsletterOptIn,
                 partnerOffers = currentState.partnerOffersOptIn, // Correctly passing Partner Offers
                 termsAndPrivacyAccepted = currentState.termsAndPrivacyAccepted,
+                wholesaleRequested = currentState.wholesaleRequested,
             )
-            val result = withContext(Dispatchers.IO) {
-                registerUseCase(params)
-            }
+            val result = registerUseCase(params)
             _uiState.update {
                 when (result) {
                     is RegisterOutcome.Success -> it.copy(
@@ -170,17 +206,7 @@ class RegisterViewModel(
     }
 
     private fun normalizeCountryIso(rawCountry: String): String? {
-        val country = rawCountry.trim()
-        if (country.isBlank()) return null
-
-        if (country.length == 2) {
-            return country.uppercase()
-        }
-
-        return when (country.lowercase()) {
-            "ελλάδα", "ελλαδα", "greece", "ellada", "hellas" -> "GR"
-            else -> null
-        }
+        return RegisterAddressCatalog.resolveCountry(rawCountry, Locale.getDefault())?.isoCode
     }
 
     private fun parseNameParts(

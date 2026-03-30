@@ -1,6 +1,14 @@
 package com.example.grifon.data.repository
 
-import com.example.grifon.domain.model.*
+import com.example.grifon.domain.model.CartItem
+import com.example.grifon.domain.model.CatalogFacet
+import com.example.grifon.domain.model.Category
+import com.example.grifon.domain.model.FavoriteProduct
+import com.example.grifon.domain.model.FilterState
+import com.example.grifon.domain.model.Product
+import com.example.grifon.domain.model.RecentProduct
+import com.example.grifon.domain.model.Shop
+import com.example.grifon.domain.model.SortOption
 import kotlinx.coroutines.flow.Flow
 
 interface ShopRepository {
@@ -11,6 +19,7 @@ interface ShopRepository {
 
 interface CatalogRepository {
     fun getCategoryTree(shopId: String): Flow<List<Category>>
+    fun getCategoryFilters(shopId: String, categoryId: String): Flow<List<CatalogFacet>>
     fun getProductsByCategory(
         shopId: String,
         categoryId: String,
@@ -35,4 +44,35 @@ interface CartRepository {
     suspend fun addToCart(shopId: String, item: CartItem)
     suspend fun removeFromCart(shopId: String, productId: String)
     suspend fun updateQuantity(shopId: String, productId: String, qty: Int)
+}
+
+interface UserRepository {
+    fun isLoggedIn(): Flow<Boolean>
+    suspend fun login(email: String, pass: String): Result<Unit>
+    fun logout()
+}
+
+interface FavoriteRepository {
+    fun observeFavorites(shopId: String): Flow<List<FavoriteProduct>>
+    fun observeIsFavorite(shopId: String, productId: String): Flow<Boolean>
+    suspend fun toggleFavorite(shopId: String, product: Product): Boolean
+}
+
+interface RecentProductRepository {
+    fun observeRecentProducts(shopId: String, limit: Int = 10): Flow<List<RecentProduct>>
+    suspend fun recordVisit(shopId: String, product: Product)
+}
+
+interface WholesaleCustomerRepository {
+    suspend fun syncWholesaleCustomers(shopId: String): Int
+    fun observeIsWholesaleCustomer(shopId: String, customerId: Int?): Flow<Boolean>
+    suspend fun isWholesaleCustomer(shopId: String, customerId: Int?): Boolean
+}
+
+interface CustomerRepository {
+    suspend fun syncCustomers(shopId: String): Int
+}
+
+interface ProductRepository {
+    suspend fun syncProducts(shopId: String): Int
 }

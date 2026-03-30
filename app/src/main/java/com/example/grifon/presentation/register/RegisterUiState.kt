@@ -11,6 +11,7 @@ data class RegisterUiState(
     val companyName: String = "",
     val vatNumber: String = "",
     val country: String = "",
+    val countryIso: String = "",
     val city: String = "",
     val street: String = "",
     val postalCode: String = "",
@@ -20,6 +21,7 @@ data class RegisterUiState(
     val newsletterOptIn: Boolean = false,
     val partnerOffersOptIn: Boolean = false, // Προσθήκη για Partner Offers
     val termsAndPrivacyAccepted: Boolean = false,
+    val wholesaleRequested: Boolean = false,
     val googleDisplayName: String? = null,
     val googleAccountEmail: String? = null,
     val googleSignInError: String? = null,

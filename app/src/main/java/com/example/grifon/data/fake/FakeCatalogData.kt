@@ -23,7 +23,7 @@ object FakeCatalogData {
             brand = "Acme",
             rating = 4.4,
             inStock = true,
-            attributesMap = mapOf("RAM" to "8GB", "Storage" to "128GB"),
+            attributesMap = mapOf("RAM" to listOf("8GB"), "Storage" to listOf("128GB")),
         ),
         Product(
             id = "p2",
@@ -34,7 +34,7 @@ object FakeCatalogData {
             brand = "Techify",
             rating = 4.8,
             inStock = true,
-            attributesMap = mapOf("RAM" to "16GB", "Storage" to "512GB"),
+            attributesMap = mapOf("RAM" to listOf("16GB"), "Storage" to listOf("512GB")),
         ),
         Product(
             id = "p3",
@@ -45,14 +45,14 @@ object FakeCatalogData {
             brand = "Nike",
             rating = 4.1,
             inStock = false,
-            attributesMap = mapOf("Size" to "42", "Color" to "Black"),
+            attributesMap = mapOf("Size" to listOf("42"), "Color" to listOf("Black")),
         ),
     )
 
     val shopProducts = mapOf(
-        "shop_a" to products,
-        "shop_b" to products.map {
-            it.copy(price = it.price * 1.05, title = "${it.title} B")
+        "4" to products,
+        "1" to products.map {
+            it.copy(price = it.price?.times(1.05), title = "${it.title} B")
         },
     )
 }

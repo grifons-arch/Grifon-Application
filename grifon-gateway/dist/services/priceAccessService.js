@@ -1,8 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getGroupMembersCount = exports.getPriceAccess = void 0;
+exports.getGroupMembersCount = exports.getPriceAccess = exports.getConfiguredWholesaleGroupIds = void 0;
+const env_1 = require("../config/env");
 const prestashopParser_1 = require("./prestashopParser");
 const prestashopFields_1 = require("../utils/prestashopFields");
+const getConfiguredWholesaleGroupIds = () => {
+    return Array.from(new Set(Object.values(env_1.config.countryGroupMap).filter((groupId) => Number.isInteger(groupId) && groupId > 0)));
+};
+exports.getConfiguredWholesaleGroupIds = getConfiguredWholesaleGroupIds;
 const getPriceAccess = async (client, customerId) => {
     const data = await client.getById("customers", customerId, { display: "full" });
     const customer = (0, prestashopParser_1.extractResourceItem)("customers", data);
@@ -12,6 +17,7 @@ const getPriceAccess = async (client, customerId) => {
             active: false,
             defaultGroupId: null,
             groupShowPrices: false,
+            matchesWholesaleGroupConfig: false,
             allowed: false
         };
     }
@@ -25,12 +31,17 @@ const getPriceAccess = async (client, customerId) => {
             groupShowPrices = (0, prestashopFields_1.toBooleanFlag)(group.show_prices);
         }
     }
-    const allowed = active && groupShowPrices;
+    const configuredWholesaleGroupIds = (0, exports.getConfiguredWholesaleGroupIds)();
+    const matchesWholesaleGroupConfig = configuredWholesaleGroupIds.length === 0
+        ? groupShowPrices
+        : defaultGroupId !== null && configuredWholesaleGroupIds.includes(defaultGroupId);
+    const allowed = active && groupShowPrices && matchesWholesaleGroupConfig;
     return {
         customerId,
         active,
         defaultGroupId,
         groupShowPrices,
+        matchesWholesaleGroupConfig,
         allowed
     };
 };

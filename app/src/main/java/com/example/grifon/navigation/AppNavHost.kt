@@ -9,7 +9,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.grifon.ui.screens.*
+import com.example.grifon.RegisterScreen
+import com.example.grifon.ui.screens.AccountScreen
+import com.example.grifon.ui.screens.CartScreen
+import com.example.grifon.ui.screens.FavoritesScreen
+import com.example.grifon.ui.screens.HomeScreen
+import com.example.grifon.ui.screens.SettingsScreen
 import com.example.grifon.ui.screens.categories.CategoriesScreen
 import com.example.grifon.ui.screens.plp.ProductDetailsScreen
 import com.example.grifon.ui.screens.plp.ProductListScreen
@@ -43,15 +48,27 @@ fun AppNavHost(
         composable(Routes.CART) {
             CartScreen(viewModel = hiltViewModel())
         }
+        composable(Routes.FAVORITES) {
+            FavoritesScreen(
+                viewModel = hiltViewModel(),
+                onProductClick = { productId ->
+                    navController.navigate(Routes.productRoute(productId))
+                }
+            )
+        }
         composable(Routes.ACCOUNT) {
             AccountScreen(
                 viewModel = hiltViewModel(),
-                onSettings = { navController.navigate(Routes.SETTINGS) },
-                onRegister = { navController.navigate(Routes.REGISTER) }
+                onSettings = {
+                    navController.navigate(Routes.SETTINGS)
+                },
+                onRegister = {
+                    navController.navigate(Routes.REGISTER)
+                },
             )
         }
-        composable(Routes.FAVORITES) {
-            FavoritesScreen()
+        composable(Routes.REGISTER) {
+            RegisterScreen()
         }
         composable(Routes.REGISTER) {
             RegisterScreen()

@@ -16,8 +16,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.grifon.R
 import com.example.grifon.core.UiEvent
 import com.example.grifon.viewmodel.ScanViewModel
 
@@ -46,21 +48,21 @@ fun ScanScreen(navController: NavHostController, viewModel: ScanViewModel) {
     ) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Barcode scan", style = MaterialTheme.typography.titleMedium)
-                Text(text = "Κάμερα + ML Kit (stub)")
+                Text(text = stringResource(R.string.barcode_scan), style = MaterialTheme.typography.titleMedium)
+                Text(text = stringResource(R.string.camera_mlkit_stub))
             }
         }
         OutlinedTextField(
             value = manualCode.value,
             onValueChange = { manualCode.value = it },
-            label = { Text("Manual barcode") },
+            label = { Text(stringResource(R.string.manual_barcode)) },
             modifier = Modifier.fillMaxWidth(),
         )
         Button(
             onClick = { viewModel.submitManual(manualCode.value) },
             modifier = Modifier.align(Alignment.End),
         ) {
-            Text(text = "Αναζήτηση")
+            Text(text = stringResource(R.string.search))
         }
     }
 }

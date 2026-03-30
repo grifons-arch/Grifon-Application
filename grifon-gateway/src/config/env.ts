@@ -71,7 +71,10 @@ const envSchema = z.object({
   TIMEOUT_MS: z.string().default("8000"),
   RATE_LIMIT_PER_MIN: z.string().default("120"),
   REGISTER_RATE_LIMIT_PER_MIN: z.string().default("10"),
-  REDIS_URL: z.string().optional().default("")
+  REDIS_URL: z.string().optional().default(""),
+  WHOLESALE_NOTIFICATION_TO: z.string().optional().default("joanneper@yahoo.com"),
+  WHOLESALE_NOTIFICATION_FROM: z.string().optional().default("grifon-gateway@localhost"),
+  SENDMAIL_PATH: z.string().optional().default("/usr/sbin/sendmail")
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -173,7 +176,12 @@ export const config = {
   timeoutMs: Number(env.TIMEOUT_MS),
   rateLimitPerMin: Number(env.RATE_LIMIT_PER_MIN),
   registerRateLimitPerMin: Number(env.REGISTER_RATE_LIMIT_PER_MIN),
-  redisUrl: env.REDIS_URL
+  redisUrl: env.REDIS_URL,
+  wholesaleNotificationTo:
+    trimToUndefined(env.WHOLESALE_NOTIFICATION_TO) ?? "joanneper@yahoo.com",
+  wholesaleNotificationFrom:
+    trimToUndefined(env.WHOLESALE_NOTIFICATION_FROM) ?? "grifon-gateway@localhost",
+  sendmailPath: trimToUndefined(env.SENDMAIL_PATH) ?? "/usr/sbin/sendmail"
 };
 
 export type ShopId = 1 | 4;

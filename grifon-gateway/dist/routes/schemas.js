@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerBodySchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
+exports.customerActivityClearBodySchema = exports.customerActivityQuerySchema = exports.productActivityBodySchema = exports.registerBodySchema = exports.loginBodySchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
 const zod_1 = require("zod");
 const toNumber = (value) => {
     if (value === undefined || value === null || value === "")
@@ -16,17 +16,38 @@ const toOptionalString = (value) => {
     const trimmed = value.trim();
     return trimmed === "" ? undefined : trimmed;
 };
+const toOptionalSocialTitle = (value) => {
+    const normalizedValue = toOptionalString(value);
+    if (normalizedValue === undefined || typeof normalizedValue !== "string") {
+        return normalizedValue;
+    }
+    switch (normalizedValue.toLowerCase()) {
+        case "mr":
+        case "m":
+        case "κος":
+        case "κος.":
+            return "mr";
+        case "mrs":
+        case "ms":
+        case "f":
+        case "κα":
+        case "κα.":
+            return "mrs";
+        default:
+            return normalizedValue;
+    }
+};
 exports.shopQuerySchema = zod_1.z.object({
     shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)])).default(4),
     lang: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive().optional())
 });
 exports.paginationSchema = zod_1.z.object({
     page: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(1000)).default(1),
-    pageSize: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(200)).default(50)
+    pageSize: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(1000)).default(100)
 });
 exports.productPaginationSchema = zod_1.z.object({
     page: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(1000)).default(1),
-    pageSize: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(200)).default(20),
+    pageSize: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(1000)).default(100),
     sort: zod_1.z.string().optional().default("[id_DESC]")
 });
 exports.customerIdSchema = zod_1.z.object({
@@ -38,12 +59,17 @@ exports.categoryIdSchema = zod_1.z.object({
 exports.productIdSchema = zod_1.z.object({
     productId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive())
 });
+exports.loginBodySchema = zod_1.z.object({
+    email: zod_1.z.string().trim().email(),
+    password: zod_1.z.string().min(1),
+    countryIso: zod_1.z.string().trim().length(2).optional()
+});
 exports.registerBodySchema = zod_1.z
     .object({
     email: zod_1.z.string().trim().email(),
     password: zod_1.z.string().min(8).optional(),
     passwd: zod_1.z.string().min(8).optional(),
-    socialTitle: zod_1.z.preprocess(toOptionalString, zod_1.z.enum(["mr", "mrs"]).optional()),
+    socialTitle: zod_1.z.preprocess(toOptionalSocialTitle, zod_1.z.enum(["mr", "mrs"]).optional()),
     firstName: zod_1.z.string().trim().min(1),
     lastName: zod_1.z.string().trim().min(1),
     countryIso: zod_1.z.string().trim().length(2),
@@ -53,10 +79,12 @@ exports.registerBodySchema = zod_1.z
     phone: zod_1.z.string().trim().min(1).optional(),
     company: zod_1.z.string().trim().min(1).optional(),
     vatNumber: zod_1.z.string().trim().min(1).optional(),
+    dni: zod_1.z.string().trim().min(1).optional(), // ΠΡΟΣΘΗΚΗ DNI
     iban: zod_1.z.string().trim().min(1).optional(),
     customerDataPrivacyAccepted: zod_1.z.boolean().optional().default(false),
     newsletter: zod_1.z.boolean().optional().default(false),
     termsAndPrivacyAccepted: zod_1.z.boolean().optional().default(false),
+    wholesaleRequested: zod_1.z.boolean().optional().default(false),
     partnerOffers: zod_1.z.boolean().optional()
 })
     .superRefine((data, context) => {
@@ -70,5 +98,26 @@ exports.registerBodySchema = zod_1.z
 })
     .transform((data) => ({
     ...data,
-    password: data.password ?? data.passwd
+    password: (data.password ?? data.passwd)
 }));
+exports.productActivityBodySchema = zod_1.z.object({
+    customerId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive()),
+    shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)])),
+    productId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive()),
+    isFavorite: zod_1.z.boolean().optional(),
+    product: zod_1.z.object({
+        title: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+        price: zod_1.z.preprocess(toNumber, zod_1.z.number().nonnegative().optional()),
+        currency: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+        imageUrl: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+        brand: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional())
+    }).optional()
+});
+exports.customerActivityQuerySchema = zod_1.z.object({
+    customerId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive()),
+    shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)])),
+    limit: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(100).optional())
+});
+exports.customerActivityClearBodySchema = zod_1.z.object({
+    shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)]))
+});

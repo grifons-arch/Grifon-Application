@@ -36,6 +36,9 @@ Important for registration sync through the PrestaShop module:
 - `GRIFON_CUSTOMER_SYNC_SECRET` (recommended): shared secret configured in the `grifoncustomersync` module. If omitted, the gateway falls back to `PRESTASHOP_API_KEY`.
 - `GRIFON_CUSTOMER_SYNC_PATH`: module endpoint path (default: `/module/grifoncustomersync/sync`).
 - `UPSTREAM_HOST_ALIASES` (optional): JSON map of upstream hostname aliases to DNS-resolvable targets for local/dev networking.
+- `WHOLESALE_NOTIFICATION_TO` (default: `joanneper@yahoo.com`): recipient for wholesale account request emails.
+- `WHOLESALE_NOTIFICATION_FROM` (default: `grifon-gateway@localhost`): sender shown in wholesale request emails.
+- `SENDMAIL_PATH` (default: `/usr/sbin/sendmail`): local sendmail binary used to dispatch the wholesale request email.
 
 ## API Endpoints
 
@@ -128,6 +131,26 @@ curl "http://localhost:3000/v1/customer-groups?shopId=4&lang=1"
 
 ```bash
 curl "http://localhost:3000/v1/customers/123/price-access?shopId=4"
+```
+
+### Check Customer Activity Sync Through Gateway
+
+Inspect favorites/recent for a customer through the gateway:
+
+```bash
+python3 scripts/check_customer_activity_via_gateway.py --email=user@example.com --password=secret123 --shop-id=4
+```
+
+Seed one favorite + one recent-product event and verify they come back:
+
+```bash
+python3 scripts/check_customer_activity_via_gateway.py --email=user@example.com --password=secret123 --shop-id=4 --product-id=100 --seed
+```
+
+Clear all favorite and recent-product activity rows for a shop through the gateway:
+
+```bash
+python3 scripts/clear_customer_activity_via_gateway.py --shop-id=4
 ```
 
 ## Notes

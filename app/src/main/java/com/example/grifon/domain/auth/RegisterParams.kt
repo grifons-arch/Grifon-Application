@@ -17,5 +17,6 @@ data class RegisterParams(
     val customerDataPrivacyAccepted: Boolean = false,
     val newsletter: Boolean = false,
     val termsAndPrivacyAccepted: Boolean = false,
+    val wholesaleRequested: Boolean = false,
     val partnerOffers: Boolean? = null,
 )

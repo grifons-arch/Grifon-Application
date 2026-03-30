@@ -10,6 +10,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -112,6 +113,44 @@ class RegisterViewModelTest {
         viewModel.onSubmit()
 
         assertTrue(viewModel.uiState.value.status is RegisterStatus.Error)
+    }
+
+    @Test
+    fun `onCountryChange resolves iso and clears dependent address fields`() {
+        val viewModel = RegisterViewModel(
+            RegisterUseCase(DeferredRegisterRepository(CompletableDeferred())),
+        )
+
+        viewModel.onCityChange("Αθήνα")
+        viewModel.onStreetChange("Ερμού 1")
+        viewModel.onPostalCodeChange("10563")
+
+        viewModel.onCountryChange("Ελλάδα")
+
+        val state = viewModel.uiState.value
+        assertEquals("GR", state.countryIso)
+        assertEquals("", state.city)
+        assertEquals("", state.street)
+        assertEquals("", state.postalCode)
+    }
+
+    @Test
+    fun `onCityChange clears street and postal code when city changes`() {
+        val viewModel = RegisterViewModel(
+            RegisterUseCase(DeferredRegisterRepository(CompletableDeferred())),
+        )
+
+        viewModel.onCountryChange("Ελλάδα")
+        viewModel.onCityChange("Αθήνα")
+        viewModel.onStreetChange("Ερμού 1")
+        viewModel.onPostalCodeChange("10563")
+
+        viewModel.onCityChange("Θεσσαλονίκη")
+
+        val state = viewModel.uiState.value
+        assertEquals("Θεσσαλονίκη", state.city)
+        assertEquals("", state.street)
+        assertEquals("", state.postalCode)
     }
 
 }

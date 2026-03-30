@@ -23,7 +23,7 @@ class RegisterRepositoryImpl(
                     "iban=${params.iban}, " +
                     "customerDataPrivacyAccepted=${params.customerDataPrivacyAccepted}, " +
                     "newsletter=${params.newsletter}, termsAndPrivacyAccepted=${params.termsAndPrivacyAccepted}, " +
-                    "partnerOffers=${params.partnerOffers}",
+                    "wholesaleRequested=${params.wholesaleRequested}, partnerOffers=${params.partnerOffers}",
             )
             val response = api.register(
                 RegisterRequestDto(
@@ -43,6 +43,7 @@ class RegisterRepositoryImpl(
                     customerDataPrivacyAccepted = params.customerDataPrivacyAccepted,
                     newsletter = params.newsletter,
                     termsAndPrivacyAccepted = params.termsAndPrivacyAccepted,
+                    wholesaleRequested = params.wholesaleRequested,
                     partnerOffers = params.partnerOffers,
                 ),
             )

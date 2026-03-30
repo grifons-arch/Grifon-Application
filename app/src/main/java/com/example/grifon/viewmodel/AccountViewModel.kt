@@ -1,12 +1,14 @@
 package com.example.grifon.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.grifon.core.LoginText
 import com.example.grifon.core.UiState
 import com.example.grifon.data.repository.UserRepository
-import com.example.grifon.domain.model.User
-import com.example.grifon.domain.usecase.LoginUseCase
+import com.example.grifon.core.loginText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -14,10 +16,22 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val loginUseCase: LoginUseCase
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<AccountState>>(UiState.Loading)
     val uiState: StateFlow<UiState<AccountState>> = _uiState
+
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email
+
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password
+
+    private val _loginError = MutableStateFlow<String?>(null)
+    val loginError: StateFlow<String?> = _loginError
+
+    private val _isLoggingIn = MutableStateFlow(false)
+    val isLoggingIn: StateFlow<Boolean> = _isLoggingIn
 
     init {
         observeLoginState()
@@ -81,6 +95,40 @@ class AccountViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.logout()
         }
+    }
+
+    fun onEmailChange(newValue: String) {
+        _email.value = newValue
+    }
+
+    fun onPasswordChange(newValue: String) {
+        _password.value = newValue
+    }
+
+    fun login() {
+        if (_email.value.isBlank() || _password.value.length < 6) {
+            _loginError.value = loginText(context, LoginText.LoginValidationError)
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoggingIn.value = true
+            _loginError.value = null
+            
+            userRepository.login(_email.value, _password.value)
+                .onSuccess {
+                    // Η κατάσταση loggedIn θα ενημερωθεί αυτόματα μέσω του init block
+                    _isLoggingIn.value = false
+                }
+                .onFailure { error ->
+                    _loginError.value = error.message ?: loginText(context, LoginText.LoginFailed)
+                    _isLoggingIn.value = false
+                }
+        }
+    }
+
+    fun logout() {
+        userRepository.logout()
     }
 }
 

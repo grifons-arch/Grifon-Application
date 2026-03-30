@@ -2,11 +2,14 @@ package com.example.grifon.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.grifon.core.AppLanguage
 import com.example.grifon.core.UiState
+import com.example.grifon.core.ShopConfig
 import com.example.grifon.domain.model.Shop
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.SetActiveShopUseCase
 import com.example.grifon.data.repository.ShopRepository
+import com.example.grifon.data.local.ShopPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,18 +24,26 @@ class SettingsViewModel @Inject constructor(
     shopRepository: ShopRepository,
     getActiveShopUseCase: GetActiveShopUseCase,
     private val setActiveShopUseCase: SetActiveShopUseCase,
+    private val shopPreferences: ShopPreferences,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<SettingsState>>(UiState.Loading)
     val uiState: StateFlow<UiState<SettingsState>> = _uiState
 
     init {
-        combine(shopRepository.getShops(), getActiveShopUseCase()) { shops, activeId ->
+        combine(
+            shopRepository.getShops(), 
+            getActiveShopUseCase(),
+            shopPreferences.isDarkModeEnabled,
+            shopPreferences.appLanguage
+        ) { shops, activeId, darkMode, languageCode ->
+            val normalizedActiveId = ShopConfig.normalizeShopId(activeId)
             SettingsState(
                 shops = shops,
-                activeShopId = activeId,
-                language = "Ελληνικά",
+                activeShopId = normalizedActiveId,
+                activeShopName = ShopConfig.displayName(normalizedActiveId),
+                language = languageCode,
                 currency = "EUR",
-                darkMode = false,
+                darkMode = darkMode,
                 notificationsEnabled = true,
             )
         }.onEach { state ->
@@ -45,11 +56,26 @@ class SettingsViewModel @Inject constructor(
             setActiveShopUseCase(shop.id)
         }
     }
+
+    fun setDarkMode(enabled: Boolean) {
+        viewModelScope.launch {
+            shopPreferences.setDarkModeEnabled(enabled)
+        }
+    }
+
+    fun setLanguage(languageCode: String) {
+        viewModelScope.launch {
+            val normalizedLanguage = AppLanguage.normalize(languageCode)
+            AppLanguage.apply(normalizedLanguage)
+            shopPreferences.setLanguage(normalizedLanguage)
+        }
+    }
 }
 
 data class SettingsState(
     val shops: List<Shop>,
     val activeShopId: String,
+    val activeShopName: String,
     val language: String,
     val currency: String,
     val darkMode: Boolean,
