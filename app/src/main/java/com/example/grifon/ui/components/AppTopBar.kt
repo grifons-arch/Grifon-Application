@@ -72,7 +72,7 @@ fun AppTopBar(
                     }
                 }
                 Image(
-             t a       painter = painterResource(R.drawable.logo),
+                    painter = painterResource(R.drawable.logo),
                     contentDescription = stringResource(R.string.logo_content_description),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
