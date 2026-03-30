@@ -1,5 +1,6 @@
 package com.example.grifon.data.fake
 
+import android.util.Log
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.catalog.ShopDto
 import com.example.grifon.core.ShopConfig
@@ -24,10 +25,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
-class FakeShopRepository(
-    private val preferences: ShopPreferences,
-    private val catalogApi: CatalogApi,
-) : ShopRepository {
+class FakeShopRepository(private val preferences: ShopPreferences, private val catalogApi: CatalogApi) : ShopRepository {
     override fun getShops(): Flow<List<Shop>> = flow {
         val remoteShops = runCatching { catalogApi.getShops() }.getOrElse {
             listOf(
@@ -48,12 +46,8 @@ class FakeShopRepository(
             }
         )
     }
-
     override fun getActiveShopId(): Flow<String> = preferences.activeShopId
-
-    override suspend fun setActiveShopId(shopId: String) {
-        preferences.setActiveShopId(shopId)
-    }
+    override suspend fun setActiveShopId(shopId: String) = preferences.setActiveShopId(shopId)
 }
 
 class FakeCatalogRepository : CatalogRepository {
@@ -153,6 +147,11 @@ class FakeCatalogRepository : CatalogRepository {
 
 class FakeCartRepository : CartRepository {
     private val cartState = MutableStateFlow<Map<String, List<CartItem>>>(emptyMap())
+    override fun observeCart(shopId: String): Flow<List<CartItem>> = cartState.map { it[shopId].orEmpty() }
+    override suspend fun addToCart(shopId: String, item: CartItem) {}
+    override suspend fun removeFromCart(shopId: String, productId: String) {}
+    override suspend fun updateQuantity(shopId: String, productId: String, qty: Int) {}
+}
 
     override fun observeCart(shopId: String): Flow<List<CartItem>> =
         cartState.map { it[ShopConfig.normalizeShopId(shopId)].orEmpty() }
@@ -191,10 +190,10 @@ class FakeCartRepository : CartRepository {
         }
     }
 
-    private fun updateCart(shopId: String, updater: (List<CartItem>) -> List<CartItem>) {
-        val current = cartState.value
-        val updated = updater(current[shopId].orEmpty())
-        cartState.value = current + (shopId to updated)
+    override suspend fun updateProfile(user: User): Boolean {
+        _userDetails.value = user
+        _userName.value = "${user.firstName} ${user.lastName}"
+        return true
     }
 }
 

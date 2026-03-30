@@ -5,6 +5,8 @@ import com.example.grifon.core.ShopConfig
 import com.example.grifon.domain.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.example.grifon.BuildConfig
@@ -142,11 +144,11 @@ class ApiCatalogRepository @Inject constructor(
                         SortOption.PRICE_HIGH_LOW -> list.sortedByDescending { it.price ?: Double.MIN_VALUE }
                         else -> list
                     }
+                    Log.d("CrashLog", "Sync: ATOMIC STORE SUCCESSFUL")
                 }
-
-            emit(filteredProducts)
-        } catch (e: Exception) {
-            emit(emptyList())
+            } catch (e: Exception) {
+                Log.e("CrashLog", "Sync: FATAL ERROR", e)
+            }
         }
     }
 
@@ -213,9 +215,6 @@ class ApiCatalogRepository @Inject constructor(
                     matchesColor &&
                     matchesAttributes
             }
-            emit(filtered)
-        } catch (e: Exception) {
-            emit(emptyList())
         }
     }
 
@@ -249,4 +248,6 @@ class ApiCatalogRepository @Inject constructor(
             emit(null)
         }
     }
+
+    private fun ProductEntity.toDomain() = Product(id, title, price, currency, imageUrl, emptyList(), brand, 0.0, inStock, mapOf("reference" to reference), listOfNotNull(categoryId))
 }

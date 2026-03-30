@@ -58,6 +58,9 @@ import com.example.grifon.ui.theme.GrifonGold
 import com.example.grifon.viewmodel.PlpViewModel
 import java.util.Locale
 
+/**
+ * Screen displaying a list of products with filtering and sorting options.
+ */
 @Composable
 fun ProductListScreen(
     viewModel: PlpViewModel,
@@ -687,6 +690,10 @@ private fun ReferenceFilterItemRow(label: String, count: Int, selected: Boolean,
     }
 }
 
+/**
+ * A card representing a single product in the grid.
+ * Displays the product image with an overlay containing the title, price, and favorite icon.
+ */
 @Composable
 private fun SelectionBox(selected: Boolean) {
     Box(

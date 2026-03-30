@@ -54,7 +54,7 @@ val debugApiBaseUrl = (project.findProperty("API_BASE_URL_DEBUG") as String?) ?:
 
 android {
     namespace = "com.example.grifon"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.grifon.eshop"
@@ -141,6 +141,9 @@ dependencies {
     implementation(libs.mlkit.barcode.scanning)
     implementation(libs.google.play.services.auth)
     implementation("com.google.android.libraries.places:places:3.3.0")
+    
+    // Google Places API
+    implementation("com.google.android.libraries.places:places:3.5.0")
     
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.6.0")

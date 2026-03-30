@@ -22,6 +22,7 @@ class ShopPreferences(
     private val customerIdKey = stringPreferencesKey("current_customer_id")
     private val canViewPricesKey = booleanPreferencesKey("can_view_prices")
 
+    // Default to "4" (Grifon GR)
     val activeShopId: Flow<String> = dataStore.data.map { preferences ->
         ShopConfig.normalizeShopId(preferences[shopKey] ?: BuildConfig.SHOP_ID)
     }

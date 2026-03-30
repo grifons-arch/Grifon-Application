@@ -70,6 +70,9 @@ fun AppNavHost(
         composable(Routes.REGISTER) {
             RegisterScreen()
         }
+        composable(Routes.REGISTER) {
+            RegisterScreen()
+        }
         composable(
             route = Routes.PLP,
             arguments = listOf(
