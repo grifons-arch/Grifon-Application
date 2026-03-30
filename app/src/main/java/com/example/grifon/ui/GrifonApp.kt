@@ -38,6 +38,7 @@ fun GrifonApp() {
     val appState by appViewModel.state.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val hasBackStack = navController.previousBackStackEntry != null
     var searchQuery by remember { mutableStateOf("") }
     var forceSearchOpen by remember { mutableStateOf(false) }
     val topLevelRoutes = remember {
@@ -51,6 +52,7 @@ fun GrifonApp() {
         )
     }
     val shouldShowBackArrow = currentRoute != null && currentRoute !in topLevelRoutes
+        && hasBackStack
 
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
