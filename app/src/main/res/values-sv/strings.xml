@@ -108,7 +108,7 @@
     <string name="processing_error">Bearbetningsfel: %1$s</string>
     <string name="street_placeholder">Gata och nummer *</string>
     <string name="city_placeholder">Stad *</string>
-    <string name="country_iso_placeholder">Land (ISO, t.ex. GR) *</string>
+    <string name="country_iso_placeholder">Land *</string>
     <string name="postal_code_placeholder">Postnummer *</string>
     <string name="other_details_section">Övriga uppgifter</string>
     <string name="email_placeholder">E-post *</string>

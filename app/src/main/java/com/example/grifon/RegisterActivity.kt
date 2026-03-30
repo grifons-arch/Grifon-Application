@@ -3,12 +3,10 @@ package com.example.grifon
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -29,10 +27,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grifon.core.AppLanguage
 import com.example.grifon.core.ServiceLocator
+import com.example.grifon.presentation.register.CountryOption
+import com.example.grifon.presentation.register.RegisterAddressCatalog
 import com.example.grifon.presentation.register.RegisterStatus
 import com.example.grifon.presentation.register.RegisterViewModel
 import com.example.grifon.presentation.register.RegisterViewModelFactory
@@ -41,6 +40,7 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import java.util.Locale
 
 class RegisterActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
@@ -75,6 +75,17 @@ private fun RegisterScreen(
     var isPasswordConfirmationVisible by remember { mutableStateOf(false) }
     
     val context = LocalContext.current
+    val locale = remember(context) {
+        val locales = context.resources.configuration.locales
+        if (locales.isEmpty) Locale.getDefault() else locales[0]
+    }
+    val countries = remember(locale) { RegisterAddressCatalog.countriesFor(locale) }
+    val citySuggestions = remember(state.countryIso, state.city) {
+        RegisterAddressCatalog.citySuggestions(state.countryIso, state.city)
+    }
+    val streetSuggestions = remember(state.countryIso, state.city, state.street) {
+        RegisterAddressCatalog.streetSuggestions(state.countryIso, state.city, state.street)
+    }
     var apiErrorMessage by remember { mutableStateOf<String?>(null) }
 
     // Launcher για το Google Autocomplete Intent
@@ -87,16 +98,39 @@ private fun RegisterScreen(
                 
                 var streetName = ""
                 var streetNumber = ""
+                var selectedCity = ""
+                var selectedPostalCode = ""
+                var selectedCountryIso = ""
+                var selectedCountryName = ""
                 
                 place.addressComponents?.asList()?.forEach { component ->
                     val types = component.types
                     when {
                         types.contains("route") -> streetName = component.name
                         types.contains("street_number") -> streetNumber = component.name
-                        types.contains("locality") -> registerViewModel.onCityChange(component.name)
-                        types.contains("postal_code") -> registerViewModel.onPostalCodeChange(component.name)
-                        types.contains("country") -> registerViewModel.onCountryChange(component.shortName ?: component.name)
+                        types.contains("locality") -> selectedCity = component.name
+                        types.contains("postal_code") -> selectedPostalCode = component.name
+                        types.contains("country") -> {
+                            selectedCountryIso = component.shortName.orEmpty()
+                            selectedCountryName = component.name
+                        }
                     }
+                }
+
+                val resolvedCountry = RegisterAddressCatalog.resolveCountry(
+                    selectedCountryIso.ifBlank { selectedCountryName },
+                    locale,
+                )
+                when {
+                    resolvedCountry != null -> registerViewModel.onCountrySelected(resolvedCountry)
+                    selectedCountryName.isNotBlank() -> registerViewModel.onCountryChange(selectedCountryName)
+                }
+
+                if (selectedCity.isNotBlank()) {
+                    registerViewModel.onCityChange(selectedCity)
+                }
+                if (selectedPostalCode.isNotBlank()) {
+                    registerViewModel.onPostalCodeChange(selectedPostalCode)
                 }
                 
                 val fullStreet = if (streetNumber.isNotEmpty()) "$streetName $streetNumber" else streetName
@@ -202,9 +236,11 @@ private fun RegisterScreen(
                             apiErrorMessage = context.getString(R.string.missing_api_key)
                         } else {
                             val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS_COMPONENTS)
-                            val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
-                                .setCountries(listOf("GR")) // Νέος τρόπος περιορισμού χώρας
-                                .build(context)
+                            val builder = Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
+                            if (state.countryIso.isNotBlank()) {
+                                builder.setCountries(listOf(state.countryIso))
+                            }
+                            val intent = builder.build(context)
                             autocompleteLauncher.launch(intent)
                         }
                     } catch (e: Exception) {
@@ -213,26 +249,31 @@ private fun RegisterScreen(
                 }
         )
         
-        RegistrationTextField(
+        RegistrationDropdownField(
+            value = state.country,
+            placeholder = stringResource(R.string.country_iso_placeholder),
+            options = countries,
+            onOptionSelected = registerViewModel::onCountrySelected,
+        )
+        RegistrationAutoCompleteField(
+            value = state.city,
+            onValueChange = registerViewModel::onCityChange,
+            placeholder = stringResource(R.string.city_placeholder),
+            suggestions = citySuggestions,
+            enabled = state.countryIso.isNotBlank(),
+        )
+        RegistrationAutoCompleteField(
             value = state.street,
             onValueChange = registerViewModel::onStreetChange,
             placeholder = stringResource(R.string.street_placeholder),
+            suggestions = streetSuggestions,
+            enabled = state.countryIso.isNotBlank() && state.city.isNotBlank(),
         )
 
         apiErrorMessage?.let { message ->
             Text(text = message, color = Color.Red, style = MaterialTheme.typography.bodySmall)
         }
 
-        RegistrationTextField(
-            value = state.city,
-            onValueChange = registerViewModel::onCityChange,
-            placeholder = stringResource(R.string.city_placeholder),
-        )
-        RegistrationTextField(
-            value = state.country,
-            onValueChange = registerViewModel::onCountryChange,
-            placeholder = stringResource(R.string.country_iso_placeholder),
-        )
         RegistrationTextField(
             value = state.postalCode,
             onValueChange = registerViewModel::onPostalCodeChange,
@@ -325,6 +366,7 @@ private fun RegistrationTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
+    enabled: Boolean = true,
     isPassword: Boolean = false,
     isPasswordVisible: Boolean = false,
     onPasswordVisibilityChange: (() -> Unit)? = null,
@@ -332,6 +374,7 @@ private fun RegistrationTextField(
     TextField(
         value = value,
         onValueChange = onValueChange,
+        enabled = enabled,
         placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(10.dp),
@@ -348,6 +391,115 @@ private fun RegistrationTextField(
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RegistrationDropdownField(
+    value: String,
+    placeholder: String,
+    options: List<CountryOption>,
+    onOptionSelected: (CountryOption) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            shape = RoundedCornerShape(10.dp),
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.heightIn(max = 360.dp),
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(text = option.displayName) },
+                    onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RegistrationAutoCompleteField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    suggestions: List<String>,
+    enabled: Boolean = true,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val visibleSuggestions = remember(suggestions) { suggestions.distinct().take(8) }
+    val showMenu = enabled && expanded && visibleSuggestions.isNotEmpty()
+
+    ExposedDropdownMenuBox(
+        expanded = showMenu,
+        onExpandedChange = {
+            if (enabled && visibleSuggestions.isNotEmpty()) {
+                expanded = !expanded
+            }
+        },
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {
+                onValueChange(it)
+                expanded = true
+            },
+            enabled = enabled,
+            placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryEditable),
+            shape = RoundedCornerShape(10.dp),
+            trailingIcon = {
+                if (visibleSuggestions.isNotEmpty()) {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = showMenu)
+                }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+        )
+
+        ExposedDropdownMenu(
+            expanded = showMenu,
+            onDismissRequest = { expanded = false },
+        ) {
+            visibleSuggestions.forEach { suggestion ->
+                DropdownMenuItem(
+                    text = { Text(text = suggestion) },
+                    onClick = {
+                        onValueChange(suggestion)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
 }
 
 @Composable

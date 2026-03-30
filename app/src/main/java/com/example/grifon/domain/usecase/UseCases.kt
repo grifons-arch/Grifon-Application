@@ -25,6 +25,11 @@ class GetCategoryTreeUseCase(private val catalogRepository: CatalogRepository) {
     operator fun invoke(shopId: String) = catalogRepository.getCategoryTree(shopId)
 }
 
+class GetCategoryFiltersUseCase(private val catalogRepository: CatalogRepository) {
+    operator fun invoke(shopId: String, categoryId: String) =
+        catalogRepository.getCategoryFilters(shopId, categoryId)
+}
+
 class SearchProductsUseCase(private val catalogRepository: CatalogRepository) {
     operator fun invoke(shopId: String, query: String, filters: FilterState, sortOption: SortOption) =
         catalogRepository.searchProducts(shopId, query, filters, sortOption)

@@ -1,6 +1,7 @@
 package com.example.grifon.data.repository
 
 import com.example.grifon.domain.model.CartItem
+import com.example.grifon.domain.model.CatalogFacet
 import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.model.FavoriteProduct
 import com.example.grifon.domain.model.FilterState
@@ -18,6 +19,7 @@ interface ShopRepository {
 
 interface CatalogRepository {
     fun getCategoryTree(shopId: String): Flow<List<Category>>
+    fun getCategoryFilters(shopId: String, categoryId: String): Flow<List<CatalogFacet>>
     fun getProductsByCategory(
         shopId: String,
         categoryId: String,

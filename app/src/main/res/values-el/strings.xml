@@ -113,7 +113,7 @@
     <string name="processing_error">Σφάλμα κατά την επεξεργασία: %1$s</string>
     <string name="street_placeholder">Οδός και Αριθμός *</string>
     <string name="city_placeholder">Πόλη *</string>
-    <string name="country_iso_placeholder">Χώρα (ISO, π.χ. GR) *</string>
+    <string name="country_iso_placeholder">Χώρα *</string>
     <string name="postal_code_placeholder">Τ.Κ *</string>
     <string name="other_details_section">Άλλα στοιχεία</string>
     <string name="email_placeholder">Email *</string>

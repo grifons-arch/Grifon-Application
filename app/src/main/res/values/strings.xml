@@ -113,7 +113,7 @@
     <string name="processing_error">Processing error: %1$s</string>
     <string name="street_placeholder">Street and number *</string>
     <string name="city_placeholder">City *</string>
-    <string name="country_iso_placeholder">Country (ISO, e.g. GR) *</string>
+    <string name="country_iso_placeholder">Country *</string>
     <string name="postal_code_placeholder">Postal code *</string>
     <string name="other_details_section">Other details</string>
     <string name="email_placeholder">Email *</string>

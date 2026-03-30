@@ -12,6 +12,29 @@ data class Category(
     val childrenCount: Int,
 )
 
+data class CatalogFacet(
+    val key: String,
+    val title: String,
+    val type: CatalogFacetType,
+    val options: List<CatalogFacetOption> = emptyList(),
+    val minValue: Double? = null,
+    val maxValue: Double? = null,
+)
+
+data class CatalogFacetOption(
+    val key: String,
+    val label: String,
+    val count: Int,
+)
+
+enum class CatalogFacetType {
+    COLOR,
+    BRAND,
+    ATTRIBUTE,
+    PRICE,
+    AVAILABILITY,
+}
+
 data class Product(
     val id: String,
     val title: String,
@@ -22,7 +45,7 @@ data class Product(
     val brand: String,
     val rating: Double,
     val inStock: Boolean,
-    val attributesMap: Map<String, String>,
+    val attributesMap: Map<String, List<String>>,
 )
 
 data class FavoriteProduct(

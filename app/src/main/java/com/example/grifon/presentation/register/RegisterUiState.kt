@@ -11,6 +11,7 @@ data class RegisterUiState(
     val companyName: String = "",
     val vatNumber: String = "",
     val country: String = "",
+    val countryIso: String = "",
     val city: String = "",
     val street: String = "",
     val postalCode: String = "",

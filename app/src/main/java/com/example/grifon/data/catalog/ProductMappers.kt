@@ -1,5 +1,8 @@
 package com.example.grifon.data.catalog
 
+import com.example.grifon.domain.model.CatalogFacet
+import com.example.grifon.domain.model.CatalogFacetOption
+import com.example.grifon.domain.model.CatalogFacetType
 import com.example.grifon.domain.model.Product
 
 fun ProductDto.toDomainProduct(
@@ -40,6 +43,45 @@ fun ProductDto.toDomainProduct(
         brand = brand,
         rating = 4.5,
         inStock = true,
-        attributesMap = mapOf("reference" to (reference ?: "")),
+        attributesMap = buildMap {
+            val normalizedReference = reference?.takeIf { it.isNotBlank() }
+            if (normalizedReference != null) {
+                put("reference", listOf(normalizedReference))
+            }
+            attributes.forEach { (key, values) ->
+                val normalizedValues = values
+                    .map { it.trim() }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+                if (key.isNotBlank() && normalizedValues.isNotEmpty()) {
+                    put(key, normalizedValues)
+                }
+            }
+        },
+    )
+}
+
+fun CatalogFacetDto.toDomainFacet(): CatalogFacet {
+    val facetType = when (type.lowercase()) {
+        "color" -> CatalogFacetType.COLOR
+        "brand" -> CatalogFacetType.BRAND
+        "price" -> CatalogFacetType.PRICE
+        "availability" -> CatalogFacetType.AVAILABILITY
+        else -> CatalogFacetType.ATTRIBUTE
+    }
+
+    return CatalogFacet(
+        key = key,
+        title = title,
+        type = facetType,
+        options = options.map {
+            CatalogFacetOption(
+                key = it.key,
+                label = it.label,
+                count = it.count,
+            )
+        },
+        minValue = minValue,
+        maxValue = maxValue,
     )
 }

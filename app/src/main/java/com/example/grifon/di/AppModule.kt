@@ -199,6 +199,9 @@ object AppModule {
     fun provideGetCategoryTreeUseCase(repo: CatalogRepository) = GetCategoryTreeUseCase(repo)
 
     @Provides
+    fun provideGetCategoryFiltersUseCase(repo: CatalogRepository) = GetCategoryFiltersUseCase(repo)
+
+    @Provides
     fun provideSearchProductsUseCase(repo: CatalogRepository) = SearchProductsUseCase(repo)
 
     @Provides

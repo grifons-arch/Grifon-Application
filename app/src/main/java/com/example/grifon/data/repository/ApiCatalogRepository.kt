@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.example.grifon.BuildConfig
+import com.example.grifon.data.catalog.toDomainFacet
 import com.example.grifon.data.catalog.toDomainProduct
 import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.data.local.ShopPreferences
@@ -34,6 +35,27 @@ class ApiCatalogRepository @Inject constructor(
                     childrenCount = 0
                 ) 
             })
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override fun getCategoryFilters(shopId: String, categoryId: String): Flow<List<CatalogFacet>> = flow {
+        try {
+            val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val customerId = shopPreferences.currentCustomerId.first()
+            val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+                shopId = shopId,
+                customerId = customerId,
+                canViewPrices = shopPreferences.canViewPrices.first(),
+            )
+            val requestCustomerId = customerId?.takeIf { canDisplayPrices }
+            val response = catalogApi.getCategoryFilters(
+                categoryId = categoryId.toInt(),
+                shopId = sId,
+                customerId = requestCustomerId,
+            )
+            emit(response.items.map { it.toDomainFacet() })
         } catch (e: Exception) {
             emit(emptyList())
         }
@@ -84,7 +106,7 @@ class ApiCatalogRepository @Inject constructor(
                     val matchesColor = if (selectedColors.isNotEmpty()) {
                         selectedColors.any { color ->
                             product.title.contains(color, ignoreCase = true) ||
-                                product.attributesMap.values.any { it.contains(color, ignoreCase = true) }
+                                product.attributesMap.values.flatten().any { it.contains(color, ignoreCase = true) }
                         }
                     } else true
                     
@@ -93,8 +115,25 @@ class ApiCatalogRepository @Inject constructor(
                     val matchesMinoan = if (selectedMinoan.isNotEmpty()) {
                         selectedMinoan.any { product.title.contains(it, ignoreCase = true) }
                     } else true
+                    val genericAttributeFilters = filters.attributes.filterKeys { it != "minoan" }
+                    val matchesAttributes = genericAttributeFilters.all { (key, values) ->
+                        if (values.isEmpty()) {
+                            true
+                        } else {
+                            val productValues = product.attributesMap.entries.firstOrNull {
+                                it.key.equals(key, ignoreCase = true)
+                            }?.value.orEmpty()
+                            productValues.any { values.contains(it) }
+                        }
+                    }
 
-                    matchesPrice && matchesStock && matchesBrand && matchesRating && matchesColor && matchesMinoan
+                    matchesPrice &&
+                        matchesStock &&
+                        matchesBrand &&
+                        matchesRating &&
+                        matchesColor &&
+                        matchesMinoan &&
+                        matchesAttributes
                 }
                 .let { list ->
                     // ΕΦΑΡΜΟΓΗ ΤΑΞΙΝΟΜΗΣΗΣ
@@ -140,7 +179,7 @@ class ApiCatalogRepository @Inject constructor(
             
             val filtered = allProducts.filter { product ->
                 val matchesQuery = product.title.contains(query, ignoreCase = true) || 
-                                 product.attributesMap["reference"]?.contains(query, ignoreCase = true) == true
+                                 product.attributesMap["reference"].orEmpty().any { it.contains(query, ignoreCase = true) }
                 
                 val matchesPrice = product.price?.let {
                     it >= filters.priceRange.start && it <= filters.priceRange.endInclusive
@@ -152,11 +191,27 @@ class ApiCatalogRepository @Inject constructor(
                 val matchesColor = if (selectedColors.isNotEmpty()) {
                     selectedColors.any { color ->
                         product.title.contains(color, ignoreCase = true) ||
-                            product.attributesMap.values.any { it.contains(color, ignoreCase = true) }
+                            product.attributesMap.values.flatten().any { it.contains(color, ignoreCase = true) }
                     }
                 } else true
-                
-                matchesQuery && matchesPrice && matchesStock && matchesBrand && matchesRating && matchesColor
+                val matchesAttributes = filters.attributes.all { (key, values) ->
+                    if (values.isEmpty()) {
+                        true
+                    } else {
+                        val productValues = product.attributesMap.entries.firstOrNull {
+                            it.key.equals(key, ignoreCase = true)
+                        }?.value.orEmpty()
+                        productValues.any { values.contains(it) }
+                    }
+                }
+
+                matchesQuery &&
+                    matchesPrice &&
+                    matchesStock &&
+                    matchesBrand &&
+                    matchesRating &&
+                    matchesColor &&
+                    matchesAttributes
             }
             emit(filtered)
         } catch (e: Exception) {

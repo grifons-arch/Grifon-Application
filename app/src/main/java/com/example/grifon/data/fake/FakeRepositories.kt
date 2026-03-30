@@ -9,6 +9,9 @@ import com.example.grifon.data.repository.CartRepository
 import com.example.grifon.data.repository.ShopRepository
 import com.example.grifon.data.repository.UserRepository
 import com.example.grifon.domain.model.CartItem
+import com.example.grifon.domain.model.CatalogFacet
+import com.example.grifon.domain.model.CatalogFacetOption
+import com.example.grifon.domain.model.CatalogFacetType
 import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.model.FilterState
 import com.example.grifon.domain.model.Product
@@ -57,6 +60,32 @@ class FakeCatalogRepository : CatalogRepository {
     override fun getCategoryTree(shopId: String): Flow<List<Category>> =
         flowOf(FakeCatalogData.categories)
 
+    override fun getCategoryFilters(shopId: String, categoryId: String): Flow<List<CatalogFacet>> {
+        val normalizedShopId = ShopConfig.normalizeShopId(shopId)
+        val base = FakeCatalogData.shopProducts[normalizedShopId].orEmpty()
+        val products = base.filter { product ->
+            product.title.contains(categoryId, ignoreCase = true) || categoryId.isBlank()
+        }
+        val attributeCounts = linkedMapOf<String, MutableMap<String, Int>>()
+        products.forEach { product ->
+            product.attributesMap.forEach { (key, values) ->
+                val bucket = attributeCounts.getOrPut(key) { linkedMapOf() }
+                values.forEach { value ->
+                    bucket[value] = (bucket[value] ?: 0) + 1
+                }
+            }
+        }
+        val facets = attributeCounts.map { (key, values) ->
+            CatalogFacet(
+                key = key,
+                title = key,
+                type = if (key.equals("Color", ignoreCase = true)) CatalogFacetType.COLOR else CatalogFacetType.ATTRIBUTE,
+                options = values.map { (value, count) -> CatalogFacetOption(value, value, count) }
+            )
+        }
+        return flowOf(facets)
+    }
+
     override fun getProductsByCategory(
         shopId: String,
         categoryId: String,
@@ -103,13 +132,13 @@ class FakeCatalogRepository : CatalogRepository {
                 (filters.brands.isEmpty() || filters.brands.contains(product.brand)) &&
                 (filters.colors.isEmpty() || filters.colors.any { color ->
                     product.title.contains(color, ignoreCase = true) ||
-                        product.attributesMap.values.any { it.contains(color, ignoreCase = true) }
+                        product.attributesMap.values.flatten().any { it.contains(color, ignoreCase = true) }
                 })
         }
         filters.attributes.forEach { (key, values) ->
             if (values.isNotEmpty()) {
                 filtered = filtered.filter { product ->
-                    values.contains(product.attributesMap[key])
+                    product.attributesMap[key].orEmpty().any { values.contains(it) }
                 }
             }
         }

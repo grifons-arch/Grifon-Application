@@ -18,7 +18,13 @@ import {
 } from "./schemas";
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { listCategories } from "../services/categoryService";
-import { listProductsByCategory, getProductDetail, listAllProducts } from "../services/productService";
+import {
+  listProductsByCategory,
+  getProductDetail,
+  listAllProducts,
+  listFacetProductsByCategory,
+  buildCatalogFacets
+} from "../services/productService";
 import {
   registerCustomer,
   loginCustomer,
@@ -212,6 +218,31 @@ apiRouter.get(
       const client = new PrestaShopClient({ shopId, lang });
       const { items, tree } = await listCategories(client, page, pageSize, lang);
       res.json({ page, pageSize, items, tree });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
+  "/v1/categories/:categoryId/filters",
+  validateParams(categoryIdSchema),
+  validateQuery(shopQuerySchema.merge(customerIdSchema.partial())),
+  async (req, res, next) => {
+    try {
+      const { shopId, lang, customerId } = req.query as any;
+      const { categoryId } = req.params as any;
+      const client = new PrestaShopClient({ shopId, lang });
+      const allowPrice = await resolveAllowPrice(client, customerId ? Number(customerId) : undefined);
+      const items = await listFacetProductsByCategory(
+        client,
+        shopId,
+        Number(categoryId),
+        lang,
+        allowPrice
+      );
+      const facets = buildCatalogFacets(items, lang);
+      res.json({ items: facets });
     } catch (error) {
       next(error);
     }

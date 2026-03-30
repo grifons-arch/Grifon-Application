@@ -7,10 +7,12 @@ import com.example.grifon.core.UiState
 import com.example.grifon.core.ShopConfig
 import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.data.local.ShopPreferences
+import com.example.grifon.domain.model.CatalogFacet
 import com.example.grifon.domain.model.FilterState
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.SortOption
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
+import com.example.grifon.domain.usecase.GetCategoryFiltersUseCase
 import com.example.grifon.domain.usecase.GetProductsByCategoryUseCase
 import com.example.grifon.domain.usecase.ObserveFavoritesUseCase
 import com.example.grifon.domain.usecase.SearchProductsUseCase
@@ -25,6 +27,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class PlpViewModel @Inject constructor(
     private val getProductsByCategoryUseCase: GetProductsByCategoryUseCase,
+    private val getCategoryFiltersUseCase: GetCategoryFiltersUseCase,
     private val searchProductsUseCase: SearchProductsUseCase,
     private val observeFavoritesUseCase: ObserveFavoritesUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
@@ -113,16 +116,20 @@ class PlpViewModel @Inject constructor(
                     )
                 }
 
-                source
-                    .flatMapLatest { products ->
-                        observeFavoritesUseCase(params.shopId).map { favorites ->
-                            products to favorites.map { it.productId }.toSet()
-                        }
-                    }
-                    .map< Pair<List<Product>, Set<String>>, UiState<PlpState> > { (products, favoriteIds) ->
+                val facetsSource = if (params.category.isNotBlank()) {
+                    getCategoryFiltersUseCase(params.shopId, params.category)
+                } else {
+                    flowOf(emptyList())
+                }
+
+                combine(source, facetsSource, observeFavoritesUseCase(params.shopId)) { products, facets, favorites ->
+                    Triple(products, facets, favorites.map { it.productId }.toSet())
+                }
+                    .map<Triple<List<Product>, List<CatalogFacet>, Set<String>>, UiState<PlpState>> { (products, facets, favoriteIds) ->
                         UiState.Success(
                             PlpState(
                                 products = products,
+                                availableFacets = facets,
                                 favoriteIds = favoriteIds,
                                 filters = params.filters,
                                 sortOption = params.sortOption,
@@ -185,6 +192,7 @@ private data class PlpSessionState(
 
 data class PlpState(
     val products: List<Product>,
+    val availableFacets: List<CatalogFacet> = emptyList(),
     val favoriteIds: Set<String>,
     val filters: FilterState,
     val sortOption: SortOption,

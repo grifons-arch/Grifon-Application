@@ -52,6 +52,14 @@ interface CatalogApi {
         @Query("customerId") customerId: Int? = null,
     ): ProductsResponseDto
 
+    @GET("v1/categories/{categoryId}/filters")
+    suspend fun getCategoryFilters(
+        @Path("categoryId") categoryId: Int,
+        @Query("shopId") shopId: Int,
+        @Query("lang") lang: Int = 1,
+        @Query("customerId") customerId: Int? = null,
+    ): CatalogFacetsResponseDto
+
     @GET("v1/products/{productId}")
     suspend fun getProduct(
         @Path("productId") productId: Int,
@@ -93,6 +101,28 @@ data class ShopDto(
 @JsonClass(generateAdapter = true)
 data class CategoriesResponseDto(
     val items: List<CategoryDto> = emptyList(),
+)
+
+@JsonClass(generateAdapter = true)
+data class CatalogFacetsResponseDto(
+    val items: List<CatalogFacetDto> = emptyList(),
+)
+
+@JsonClass(generateAdapter = true)
+data class CatalogFacetDto(
+    val key: String,
+    val title: String,
+    val type: String,
+    val options: List<CatalogFacetOptionDto> = emptyList(),
+    val minValue: Double? = null,
+    val maxValue: Double? = null,
+)
+
+@JsonClass(generateAdapter = true)
+data class CatalogFacetOptionDto(
+    val key: String,
+    val label: String,
+    val count: Int,
 )
 
 @JsonClass(generateAdapter = true)
@@ -155,6 +185,7 @@ data class ProductDto(
     val name: String? = null,
     val price: Double? = null,
     val reference: String? = null,
+    val attributes: Map<String, List<String>> = emptyMap(),
     val defaultImage: ImageDto? = null,
 )
 

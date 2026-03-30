@@ -156,7 +156,7 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
                         color = Color.Black
                     )
                     
-                    val reference = product.attributesMap["reference"] ?: ""
+                    val reference = product.attributesMap["reference"]?.firstOrNull().orEmpty()
                     if (reference.isNotEmpty()) {
                         Text(
                             text = stringResource(R.string.product_code, reference),
