@@ -62,6 +62,7 @@ const createSignature = (payload: string, secret: string): { timestamp: string, 
 
 export const registerCustomer = async (request: RegisterRequest): Promise<any> => {
   const email = request.email.trim().toLowerCase();
+  const countryIso = (request.countryIso || "GR").trim().toUpperCase();
 
   const dniValue = (request.vatNumber && request.vatNumber.trim().length >= 9)
     ? request.vatNumber.trim()
@@ -73,7 +74,7 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       email,
       firstname: request.firstName,
       lastname: request.lastName,
-      password: request.password, 
+      password: request.password,
       company: request.company || "",
       newsletter: request.newsletter ? 1 : 0,
       active: 1,
@@ -81,15 +82,31 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       siret: dniValue,
       dni: dniValue
     },
+    application: request.wholesaleRequested ? {
+      requested: true,
+      status: "pending",
+      source: "grifon_gateway",
+      submittedAt: new Date().toISOString(),
+      email,
+      firstName: request.firstName,
+      lastName: request.lastName,
+      phone: request.phone || "",
+      company: request.company || "",
+      vatNumber: request.vatNumber || dniValue,
+      countryIso,
+      city: request.city || "",
+      street: request.street || "",
+      postalCode: request.postalCode || ""
+    } : undefined,
     addresses: [{
       externalAddressId: `addr_${email}`,
       alias: "Default",
-      firstname: request.firstName, 
+      firstname: request.firstName,
       lastname: request.lastName,
       address1: request.street || "Δεν δηλώθηκε οδός",
       postcode: (request.postalCode || "00000").replace(/\s/g, ""),
       city: request.city || "Δεν δηλώθηκε πόλη",
-      countryIso: (request.countryIso || "GR").toUpperCase(),
+      countryIso,
       phone: request.phone || "0000000000",
       vat_number: dniValue,
       dni: dniValue,
@@ -99,18 +116,18 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
     }]
   };
 
-  const response = await sendToPrestaShop(payload, request.countryIso || "GR");
+  const response = await sendToPrestaShop(payload, countryIso);
 
   try {
     await notifyWholesaleRequest(
       {
         ...request,
         email,
-        countryIso: (request.countryIso || "GR").toUpperCase()
+        countryIso
       },
       {
         customerId: response.psCustomerId?.toString(),
-        countryIso: (request.countryIso || "GR").toUpperCase()
+        countryIso
       }
     );
   } catch (error) {

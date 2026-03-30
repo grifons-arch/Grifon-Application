@@ -104,10 +104,22 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $customerData = (isset($payload['customer']) && is_array($payload['customer'])) ? $payload['customer'] : [];
         $addresses = (isset($payload['addresses']) && is_array($payload['addresses'])) ? $payload['addresses'] : [];
         $groups = (isset($payload['groups']) && is_array($payload['groups'])) ? $payload['groups'] : [];
+        $application = (isset($payload['application']) && is_array($payload['application'])) ? $payload['application'] : [];
 
-        $result = ['ok' => true, 'created' => false, 'updated' => false, 'psCustomerId' => null];
+        $result = [
+            'ok' => true,
+            'created' => false,
+            'updated' => false,
+            'psCustomerId' => null,
+            'wholesaleApplicationRegistered' => false,
+        ];
 
-        $idCustomer = $this->upsertCustomer($externalCustomerId, $customerData, $groups, $result);
+        $primaryAddress = [];
+        if (!empty($addresses) && isset($addresses[0]) && is_array($addresses[0])) {
+            $primaryAddress = $addresses[0];
+        }
+
+        $idCustomer = $this->upsertCustomer($externalCustomerId, $customerData, $groups, $primaryAddress, $application, $result);
         $result['psCustomerId'] = (int)$idCustomer;
 
         foreach ($addresses as $addr) {
@@ -270,7 +282,7 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         return $out;
     }
 
-    private function upsertCustomer($externalCustomerId, $customerData, $groups, &$result)
+    private function upsertCustomer($externalCustomerId, $customerData, $groups, $primaryAddress, $application, &$result)
     {
         $email = trim((string)$customerData['email']);
         $idCustomer = (int)$this->getCustomerIdByEmail($email);
@@ -316,7 +328,275 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
 
         $this->syncCustomerGroups((int)$customer->id, $resolvedGroups);
         $this->upsertCustomerMap($externalCustomerId, $customer->id, $customer->email);
+
+        try {
+            $result['wholesaleApplicationRegistered'] = $this->upsertWholesaleApplication(
+                (int)$customer->id,
+                is_array($customerData) ? $customerData : [],
+                is_array($primaryAddress) ? $primaryAddress : [],
+                is_array($application) ? $application : []
+            );
+        } catch (Exception $e) {
+            $result['wholesaleApplicationError'] = $e->getMessage();
+        }
+
         return $customer->id;
+    }
+
+    private function upsertWholesaleApplication($idCustomer, array $customerData, array $primaryAddress, array $application)
+    {
+        if (!$this->isWholesaleApplicationRequested($customerData, $application)) {
+            return false;
+        }
+
+        $tableName = $this->findWholesaleApplicationTable();
+        if ($tableName === '') {
+            return false;
+        }
+
+        $columns = $this->getTableColumns($tableName);
+        if (empty($columns)) {
+            return false;
+        }
+
+        $email = trim((string)($customerData['email'] ?? $application['email'] ?? ''));
+        $now = date('Y-m-d H:i:s');
+        $row = $this->buildWholesaleApplicationRow($columns, $idCustomer, $customerData, $primaryAddress, $application, $now);
+
+        if (empty($row)) {
+            return false;
+        }
+
+        $table = $this->stripDbPrefix($tableName);
+        $where = $this->buildWholesaleApplicationWhere($columns, $idCustomer, $email);
+
+        if ($where !== '') {
+            $existing = (int)Db::getInstance()->getValue(
+                'SELECT 1 FROM `'.bqSQL($tableName).'` WHERE '.$where.' LIMIT 1'
+            );
+            if ($existing > 0) {
+                $dateAddColumnKey = $this->getColumnName($columns, 'date_add');
+                if ($dateAddColumnKey !== null) {
+                    unset($row[$columns[$dateAddColumnKey]['name']]);
+                }
+                return (bool)Db::getInstance()->update($table, $row, $where);
+            }
+        }
+
+        return (bool)Db::getInstance()->insert($table, $row);
+    }
+
+    private function isWholesaleApplicationRequested(array $customerData, array $application)
+    {
+        $requestedValues = [
+            $application['requested'] ?? null,
+            $application['is_wholesale'] ?? null,
+            $customerData['is_wholesale'] ?? null,
+        ];
+
+        foreach ($requestedValues as $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            if (is_bool($value)) {
+                return $value;
+            }
+
+            if ((int)$value === 1) {
+                return true;
+            }
+
+            $normalized = Tools::strtolower(trim((string)$value));
+            if (in_array($normalized, ['true', 'yes', 'pending', 'requested'], true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function findWholesaleApplicationTable()
+    {
+        $candidateTables = [
+            _DB_PREFIX_.'wholesale_b2b_application',
+            _DB_PREFIX_.'wholesaleb2b_application',
+            _DB_PREFIX_.'ets_wholesale_b2b_application',
+            _DB_PREFIX_.'ets_wholesaleb2b_application',
+            _DB_PREFIX_.'wholesale_application',
+            _DB_PREFIX_.'b2b_application',
+        ];
+
+        foreach ($candidateTables as $candidateTable) {
+            if ($this->tableExists($candidateTable)) {
+                return $candidateTable;
+            }
+        }
+
+        $patterns = [
+            _DB_PREFIX_.'%wholesale%b2b%application%',
+            _DB_PREFIX_.'%wholesale%application%',
+            _DB_PREFIX_.'%b2b%application%',
+        ];
+
+        foreach ($patterns as $pattern) {
+            $tableName = (string)Db::getInstance()->getValue(
+                'SHOW TABLES LIKE \''.pSQL($pattern).'\''
+            );
+            if ($tableName !== '') {
+                return $tableName;
+            }
+        }
+
+        return '';
+    }
+
+    private function tableExists($tableName)
+    {
+        return (bool)Db::getInstance()->getValue(
+            'SHOW TABLES LIKE \''.pSQL($tableName).'\''
+        );
+    }
+
+    private function getTableColumns($tableName)
+    {
+        $rows = Db::getInstance()->executeS('SHOW COLUMNS FROM `'.bqSQL($tableName).'`');
+        if (!is_array($rows)) {
+            return [];
+        }
+
+        $columns = [];
+        foreach ($rows as $row) {
+            $field = isset($row['Field']) ? (string)$row['Field'] : '';
+            if ($field === '') {
+                continue;
+            }
+
+            $columns[Tools::strtolower($field)] = [
+                'name' => $field,
+                'type' => isset($row['Type']) ? (string)$row['Type'] : '',
+                'null' => isset($row['Null']) ? (string)$row['Null'] : 'YES',
+                'key' => isset($row['Key']) ? (string)$row['Key'] : '',
+                'default' => array_key_exists('Default', $row) ? $row['Default'] : null,
+                'extra' => isset($row['Extra']) ? (string)$row['Extra'] : '',
+            ];
+        }
+
+        return $columns;
+    }
+
+    private function buildWholesaleApplicationRow(array $columns, $idCustomer, array $customerData, array $primaryAddress, array $application, $now)
+    {
+        $row = [];
+        $email = trim((string)($customerData['email'] ?? $application['email'] ?? ''));
+        $firstName = trim((string)($customerData['firstname'] ?? $application['firstName'] ?? ''));
+        $lastName = trim((string)($customerData['lastname'] ?? $application['lastName'] ?? ''));
+        $company = trim((string)($customerData['company'] ?? $application['company'] ?? ''));
+        $phone = trim((string)($primaryAddress['phone'] ?? $application['phone'] ?? ''));
+        $vatNumber = trim((string)($primaryAddress['vat_number'] ?? $application['vatNumber'] ?? $customerData['siret'] ?? ''));
+        $street = trim((string)($primaryAddress['address1'] ?? $application['street'] ?? ''));
+        $city = trim((string)($primaryAddress['city'] ?? $application['city'] ?? ''));
+        $postalCode = trim((string)($primaryAddress['postcode'] ?? $application['postalCode'] ?? ''));
+        $countryIso = Tools::strtoupper(trim((string)($primaryAddress['countryIso'] ?? $application['countryIso'] ?? 'GR')));
+        $statusColumn = $this->getColumnName($columns, 'status');
+        $statusValue = $statusColumn ? $this->normalizeValueForColumn($columns[$statusColumn], 'pending') : null;
+
+        $fieldMap = [
+            'id_customer' => (int)$idCustomer,
+            'id_shop' => (int)Context::getContext()->shop->id,
+            'id_shop_group' => (int)Context::getContext()->shop->id_shop_group,
+            'email' => $email,
+            'firstname' => $firstName,
+            'first_name' => $firstName,
+            'lastname' => $lastName,
+            'last_name' => $lastName,
+            'company' => $company,
+            'phone' => $phone,
+            'vat_number' => $vatNumber,
+            'vat' => $vatNumber,
+            'siret' => $vatNumber,
+            'country_iso' => $countryIso,
+            'country' => $countryIso,
+            'city' => $city,
+            'street' => $street,
+            'address' => $street,
+            'address1' => $street,
+            'postcode' => $postalCode,
+            'postal_code' => $postalCode,
+            'zip' => $postalCode,
+            'status' => $statusValue,
+            'active' => 1,
+            'requested' => 1,
+            'is_wholesale' => 1,
+            'date_add' => $now,
+            'date_upd' => $now,
+            'submitted_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+            'source' => trim((string)($application['source'] ?? 'grifoncustomersync')),
+        ];
+
+        foreach ($fieldMap as $columnKey => $value) {
+            if (!isset($columns[$columnKey])) {
+                continue;
+            }
+
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $row[$columns[$columnKey]['name']] = $this->normalizeValueForColumn($columns[$columnKey], $value);
+        }
+
+        return $row;
+    }
+
+    private function buildWholesaleApplicationWhere(array $columns, $idCustomer, $email)
+    {
+        if (isset($columns['id_customer']) && (int)$idCustomer > 0) {
+            return '`'.$columns['id_customer']['name'].'` = '.(int)$idCustomer;
+        }
+
+        if (isset($columns['email']) && $email !== '') {
+            return '`'.$columns['email']['name'].'` = \''.pSQL($email).'\'';
+        }
+
+        return '';
+    }
+
+    private function getColumnName(array $columns, $columnKey)
+    {
+        $normalizedKey = Tools::strtolower((string)$columnKey);
+        return isset($columns[$normalizedKey]) ? $normalizedKey : null;
+    }
+
+    private function normalizeValueForColumn(array $column, $value)
+    {
+        $type = Tools::strtolower((string)($column['type'] ?? ''));
+
+        if (strpos($type, 'int') !== false || strpos($type, 'decimal') !== false || strpos($type, 'float') !== false || strpos($type, 'double') !== false) {
+            if (is_numeric($value)) {
+                return 0 + $value;
+            }
+
+            $normalized = Tools::strtolower(trim((string)$value));
+            if (in_array($normalized, ['pending', 'requested', 'true', 'yes'], true)) {
+                return 1;
+            }
+
+            return 0;
+        }
+
+        return (string)$value;
+    }
+
+    private function stripDbPrefix($tableName)
+    {
+        if (strpos($tableName, _DB_PREFIX_) === 0) {
+            return substr($tableName, Tools::strlen(_DB_PREFIX_));
+        }
+
+        return $tableName;
     }
 
     private function resolveCustomerGroups($groups)

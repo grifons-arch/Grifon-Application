@@ -25,6 +25,7 @@ const createSignature = (payload, secret) => {
 };
 const registerCustomer = async (request) => {
     const email = request.email.trim().toLowerCase();
+    const countryIso = (request.countryIso || "GR").trim().toUpperCase();
     const dniValue = (request.vatNumber && request.vatNumber.trim().length >= 9)
         ? request.vatNumber.trim()
         : "123456789";
@@ -42,6 +43,22 @@ const registerCustomer = async (request) => {
             siret: dniValue,
             dni: dniValue
         },
+        application: request.wholesaleRequested ? {
+            requested: true,
+            status: "pending",
+            source: "grifon_gateway",
+            submittedAt: new Date().toISOString(),
+            email,
+            firstName: request.firstName,
+            lastName: request.lastName,
+            phone: request.phone || "",
+            company: request.company || "",
+            vatNumber: request.vatNumber || dniValue,
+            countryIso,
+            city: request.city || "",
+            street: request.street || "",
+            postalCode: request.postalCode || ""
+        } : undefined,
         addresses: [{
                 externalAddressId: `addr_${email}`,
                 alias: "Default",
@@ -50,7 +67,7 @@ const registerCustomer = async (request) => {
                 address1: request.street || "Δεν δηλώθηκε οδός",
                 postcode: (request.postalCode || "00000").replace(/\s/g, ""),
                 city: request.city || "Δεν δηλώθηκε πόλη",
-                countryIso: (request.countryIso || "GR").toUpperCase(),
+                countryIso,
                 phone: request.phone || "0000000000",
                 vat_number: dniValue,
                 dni: dniValue,
@@ -59,15 +76,15 @@ const registerCustomer = async (request) => {
                 identification: dniValue
             }]
     };
-    const response = await sendToPrestaShop(payload, request.countryIso || "GR");
+    const response = await sendToPrestaShop(payload, countryIso);
     try {
         await (0, wholesaleNotificationService_1.notifyWholesaleRequest)({
             ...request,
             email,
-            countryIso: (request.countryIso || "GR").toUpperCase()
+            countryIso
         }, {
             customerId: response.psCustomerId?.toString(),
-            countryIso: (request.countryIso || "GR").toUpperCase()
+            countryIso
         });
     }
     catch (error) {

@@ -47,6 +47,14 @@ Then in PrestaShop back office:
 - set `Show prices = Yes` on the wholesale group
 - set `Show prices = No` on the retail/guest groups
 
+## Wholesale application sync
+If the registration payload contains `customer.is_wholesale = 1` or `application.requested = true`, the module now tries to mirror that request into the installed B2B wholesale application table as well.
+
+The lookup is best-effort because the external `wholesale_b2b` module is not bundled here. The sync controller:
+- searches for a table name that matches common `wholesale b2b application` patterns
+- updates an existing row by `id_customer` or `email` when possible
+- otherwise inserts a new pending application row with the customer/company/VAT/address data that is available
+
 ## Module upgrades
 The module now includes a proper upgrade script for `1.1.1`.
 
