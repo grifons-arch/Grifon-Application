@@ -49,12 +49,15 @@
     <string name="register_here">Εγγραφείτε εδώ</string>
     <string name="quantity_value">Ποσότητα: %1$d</string>
     <string name="price_amount">%1$.2f €</string>
+    <string name="price_amount_with_currency">%1$s %2$s</string>
     <string name="total_amount">Σύνολο: %1$.2f €</string>
+    <string name="total_amount_with_currency">Σύνολο: %1$s %2$s</string>
     <string name="wholesale_prices_only">Οι τιμές εμφανίζονται μόνο σε συνδεδεμένους πελάτες χονδρικής</string>
     <string name="wholesale_login_hint">Συνδεθείτε με τον εγκεκριμένο λογαριασμό χονδρικής σας για να δείτε τιμές και να καταχωρήσετε παραγγελίες.</string>
     <string name="checkout">Ολοκλήρωση αγοράς</string>
     <string name="product_code">Κωδικός: %1$s</string>
     <string name="add_to_cart">Προσθήκη στο καλάθι</string>
+    <string name="remove_from_cart">Αφαίρεση</string>
     <string name="close">Κλείσιμο</string>
     <string name="filter_by">Φιλτράρισμα κατά</string>
     <string name="filter_price">Τιμή</string>

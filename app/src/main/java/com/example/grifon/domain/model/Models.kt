@@ -70,8 +70,12 @@ data class RecentProduct(
 
 data class CartItem(
     val productId: String,
+    val title: String,
+    val productCode: String,
+    val imageUrl: String,
     val qty: Int,
     val priceSnapshot: Double,
+    val currency: String,
 )
 
 data class FilterState(

@@ -120,8 +120,20 @@ class PdpViewModel @Inject constructor(
 
     fun addToCart(product: Product) {
         val price = product.price ?: return
+        val productCode = product.attributesMap["reference"]?.firstOrNull().orEmpty().ifBlank { product.id }
         viewModelScope.launch {
-            addToCartUseCase(_shopId.value, CartItem(product.id, 1, price))
+            addToCartUseCase(
+                _shopId.value,
+                CartItem(
+                    productId = product.id,
+                    title = product.title,
+                    productCode = productCode,
+                    imageUrl = product.imageUrl,
+                    qty = 1,
+                    priceSnapshot = price,
+                    currency = product.currency,
+                )
+            )
             events.emit(UiEvent.ShowSnackbar("Προστέθηκε στο καλάθι"))
         }
     }

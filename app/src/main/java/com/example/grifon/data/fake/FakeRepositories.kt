@@ -161,7 +161,18 @@ class FakeCartRepository : CartRepository {
         updateCart(ShopConfig.normalizeShopId(shopId)) { items ->
             val existing = items.find { it.productId == item.productId }
             if (existing == null) items + item else items.map {
-                if (it.productId == item.productId) it.copy(qty = it.qty + item.qty) else it
+                if (it.productId == item.productId) {
+                    it.copy(
+                        title = item.title,
+                        productCode = item.productCode,
+                        imageUrl = item.imageUrl,
+                        qty = it.qty + item.qty,
+                        priceSnapshot = item.priceSnapshot,
+                        currency = item.currency,
+                    )
+                } else {
+                    it
+                }
             }
         }
     }

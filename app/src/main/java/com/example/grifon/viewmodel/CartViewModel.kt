@@ -55,6 +55,7 @@ class CartViewModel @Inject constructor(
                             items = items,
                             total = if (canDisplayPrices) items.sumOf { it.qty * it.priceSnapshot } else null,
                             canViewPrices = canDisplayPrices,
+                            currency = items.firstOrNull()?.currency,
                         )
                     )
                 }
@@ -74,6 +75,7 @@ data class CartState(
     val items: List<CartItem>,
     val total: Double?,
     val canViewPrices: Boolean,
+    val currency: String?,
 )
 
 private data class CartSessionState(
