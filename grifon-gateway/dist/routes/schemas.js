@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerBodySchema = exports.loginBodySchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
+exports.customerActivityClearBodySchema = exports.customerActivityQuerySchema = exports.productActivityBodySchema = exports.registerBodySchema = exports.loginBodySchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
 const zod_1 = require("zod");
 const toNumber = (value) => {
     if (value === undefined || value === null || value === "")
@@ -61,7 +61,8 @@ exports.productIdSchema = zod_1.z.object({
 });
 exports.loginBodySchema = zod_1.z.object({
     email: zod_1.z.string().trim().email(),
-    password: zod_1.z.string().min(1)
+    password: zod_1.z.string().min(1),
+    countryIso: zod_1.z.string().trim().length(2).optional()
 });
 exports.registerBodySchema = zod_1.z
     .object({
@@ -99,3 +100,24 @@ exports.registerBodySchema = zod_1.z
     ...data,
     password: (data.password ?? data.passwd)
 }));
+exports.productActivityBodySchema = zod_1.z.object({
+    customerId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive()),
+    shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)])),
+    productId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive()),
+    isFavorite: zod_1.z.boolean().optional(),
+    product: zod_1.z.object({
+        title: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+        price: zod_1.z.preprocess(toNumber, zod_1.z.number().nonnegative().optional()),
+        currency: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+        imageUrl: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+        brand: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional())
+    }).optional()
+});
+exports.customerActivityQuerySchema = zod_1.z.object({
+    customerId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive()),
+    shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)])),
+    limit: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(100).optional())
+});
+exports.customerActivityClearBodySchema = zod_1.z.object({
+    shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)]))
+});

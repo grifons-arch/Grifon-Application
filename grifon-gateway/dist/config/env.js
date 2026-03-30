@@ -57,7 +57,10 @@ const envSchema = zod_1.z.object({
     TIMEOUT_MS: zod_1.z.string().default("8000"),
     RATE_LIMIT_PER_MIN: zod_1.z.string().default("120"),
     REGISTER_RATE_LIMIT_PER_MIN: zod_1.z.string().default("10"),
-    REDIS_URL: zod_1.z.string().optional().default("")
+    REDIS_URL: zod_1.z.string().optional().default(""),
+    WHOLESALE_NOTIFICATION_TO: zod_1.z.string().optional().default("joanneper@yahoo.com"),
+    WHOLESALE_NOTIFICATION_FROM: zod_1.z.string().optional().default("grifon-gateway@localhost"),
+    SENDMAIL_PATH: zod_1.z.string().optional().default("/usr/sbin/sendmail")
 });
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
@@ -142,7 +145,10 @@ exports.config = {
     timeoutMs: Number(env.TIMEOUT_MS),
     rateLimitPerMin: Number(env.RATE_LIMIT_PER_MIN),
     registerRateLimitPerMin: Number(env.REGISTER_RATE_LIMIT_PER_MIN),
-    redisUrl: env.REDIS_URL
+    redisUrl: env.REDIS_URL,
+    wholesaleNotificationTo: trimToUndefined(env.WHOLESALE_NOTIFICATION_TO) ?? "joanneper@yahoo.com",
+    wholesaleNotificationFrom: trimToUndefined(env.WHOLESALE_NOTIFICATION_FROM) ?? "grifon-gateway@localhost",
+    sendmailPath: trimToUndefined(env.SENDMAIL_PATH) ?? "/usr/sbin/sendmail"
 };
 exports.shops = [
     { id: 4, code: "GR", domain: "grifon.gr", baseUrl: env.SHOP_GR_BASE_URL },

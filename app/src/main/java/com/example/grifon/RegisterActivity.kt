@@ -64,7 +64,7 @@ class RegisterActivity : ComponentActivity() {
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun RegisterScreen(
+fun RegisterScreen(
     registerViewModel: RegisterViewModel = viewModel(
         factory = RegisterViewModelFactory(ServiceLocator.provideRegisterUseCase()),
     ),
@@ -75,6 +75,11 @@ private fun RegisterScreen(
     var isPasswordConfirmationVisible by remember { mutableStateOf(false) }
     
     val context = LocalContext.current
+    LaunchedEffect(context) {
+        if (BuildConfig.MAPS_API_KEY.isNotEmpty() && !Places.isInitialized()) {
+            Places.initialize(context.applicationContext, BuildConfig.MAPS_API_KEY)
+        }
+    }
     val locale = remember(context) {
         val locales = context.resources.configuration.locales
         if (locales.isEmpty) Locale.getDefault() else locales[0]

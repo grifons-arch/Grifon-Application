@@ -36,6 +36,9 @@ Important for registration sync through the PrestaShop module:
 - `GRIFON_CUSTOMER_SYNC_SECRET` (recommended): shared secret configured in the `grifoncustomersync` module. If omitted, the gateway falls back to `PRESTASHOP_API_KEY`.
 - `GRIFON_CUSTOMER_SYNC_PATH`: module endpoint path (default: `/module/grifoncustomersync/sync`).
 - `UPSTREAM_HOST_ALIASES` (optional): JSON map of upstream hostname aliases to DNS-resolvable targets for local/dev networking.
+- `WHOLESALE_NOTIFICATION_TO` (default: `joanneper@yahoo.com`): recipient for wholesale account request emails.
+- `WHOLESALE_NOTIFICATION_FROM` (default: `grifon-gateway@localhost`): sender shown in wholesale request emails.
+- `SENDMAIL_PATH` (default: `/usr/sbin/sendmail`): local sendmail binary used to dispatch the wholesale request email.
 
 ## API Endpoints
 

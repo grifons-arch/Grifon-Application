@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -35,8 +36,21 @@ fun GrifonApp() {
     val navController = rememberNavController()
     val appViewModel: AppViewModel = hiltViewModel()
     val appState by appViewModel.state.collectAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
     var searchQuery by remember { mutableStateOf("") }
     var forceSearchOpen by remember { mutableStateOf(false) }
+    val topLevelRoutes = remember {
+        setOf(
+            Routes.HOME,
+            Routes.CATEGORIES,
+            Routes.CART,
+            Routes.FAVORITES,
+            Routes.ACCOUNT,
+            Routes.SETTINGS,
+        )
+    }
+    val shouldShowBackArrow = currentRoute != null && currentRoute !in topLevelRoutes
 
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
@@ -55,7 +69,9 @@ fun GrifonApp() {
                 shopLabel = appState.shopName,
                 query = searchQuery,
                 isSearchExpanded = forceSearchOpen || searchQuery.isNotEmpty(),
+                showBackArrow = shouldShowBackArrow,
                 onQueryChange = { searchQuery = it },
+                onBackClick = { navController.navigateUp() },
                 onLogoClick = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(navController.graph.findStartDestination().id)

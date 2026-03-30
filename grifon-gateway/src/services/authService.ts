@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { config } from "../config/env";
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { getPriceAccess } from "./priceAccessService";
+import { notifyWholesaleRequest } from "./wholesaleNotificationService";
 
 export interface RegisterRequest {
   email: string;
@@ -99,6 +100,23 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
   };
 
   const response = await sendToPrestaShop(payload, request.countryIso || "GR");
+
+  try {
+    await notifyWholesaleRequest(
+      {
+        ...request,
+        email,
+        countryIso: (request.countryIso || "GR").toUpperCase()
+      },
+      {
+        customerId: response.psCustomerId?.toString(),
+        countryIso: (request.countryIso || "GR").toUpperCase()
+      }
+    );
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn("Wholesale notification email failed to send:", error);
+  }
 
   // ΜΕΤΑΤΡΟΠΗ ΑΠΑΝΤΗΣΗΣ ΓΙΑ ΤΗΝ ΕΦΑΡΜΟΓΗ
   return {

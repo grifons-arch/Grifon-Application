@@ -15,6 +15,8 @@ const categoryService_1 = require("../services/categoryService");
 const productService_1 = require("../services/productService");
 const authService_1 = require("../services/authService");
 const priceAccessService_1 = require("../services/priceAccessService");
+const wholesaleCustomerService_1 = require("../services/wholesaleCustomerService");
+const customerService_1 = require("../services/customerService");
 exports.apiRouter = (0, express_1.Router)();
 const resolveAllowPrice = async (client, customerId) => {
     if (!customerId)
@@ -37,8 +39,8 @@ exports.apiRouter.get("/v1/shops", (_req, res) => {
 // LOGIN ROUTE
 exports.apiRouter.post("/v1/auth/login", authRateLimiter, (0, validate_1.validateBody)(schemas_1.loginBodySchema), async (req, res, next) => {
     try {
-        const { email, password } = req.body;
-        const result = await (0, authService_1.loginCustomer)(email, password);
+        const { email, password, countryIso } = req.body;
+        const result = await (0, authService_1.loginCustomer)(email, password, countryIso);
         res.json(result);
     }
     catch (error) {
@@ -50,6 +52,63 @@ exports.apiRouter.post("/v1/auth/register", authRateLimiter, (0, validate_1.vali
     try {
         const response = await (0, authService_1.registerCustomer)(req.body);
         res.status(201).json(response);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.post("/v1/customer-activity/favorites", (0, validate_1.validateBody)(schemas_1.productActivityBodySchema), async (req, res, next) => {
+    try {
+        const result = await (0, authService_1.syncFavoriteProduct)(req.body);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.post("/v1/customer-activity/recent-products", (0, validate_1.validateBody)(schemas_1.productActivityBodySchema.omit({ isFavorite: true })), async (req, res, next) => {
+    try {
+        const result = await (0, authService_1.recordRecentProduct)(req.body);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/customer-activity/favorites", (0, validate_1.validateQuery)(schemas_1.customerActivityQuerySchema), async (req, res, next) => {
+    try {
+        const { customerId, shopId } = req.query;
+        const result = await (0, authService_1.listFavoriteProducts)({
+            customerId: Number(customerId),
+            shopId: Number(shopId),
+        });
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/customer-activity/recent-products", (0, validate_1.validateQuery)(schemas_1.customerActivityQuerySchema), async (req, res, next) => {
+    try {
+        const { customerId, shopId, limit } = req.query;
+        const result = await (0, authService_1.listRecentProducts)({
+            customerId: Number(customerId),
+            shopId: Number(shopId),
+            limit: limit ? Number(limit) : undefined,
+        });
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.post("/v1/customer-activity/clear", (0, validate_1.validateBody)(schemas_1.customerActivityClearBodySchema), async (req, res, next) => {
+    try {
+        const { shopId } = req.body;
+        const result = await (0, authService_1.clearActivityTables)({
+            shopId: Number(shopId),
+        });
+        res.json(result);
     }
     catch (error) {
         next(error);
@@ -97,6 +156,20 @@ exports.apiRouter.get("/v1/categories", (0, validate_1.validateQuery)(schemas_1.
         next(error);
     }
 });
+exports.apiRouter.get("/v1/categories/:categoryId/filters", (0, validate_1.validateParams)(schemas_1.categoryIdSchema), (0, validate_1.validateQuery)(schemas_1.shopQuerySchema.merge(schemas_1.customerIdSchema.partial())), async (req, res, next) => {
+    try {
+        const { shopId, lang, customerId } = req.query;
+        const { categoryId } = req.params;
+        const client = new PrestaShopClient_1.PrestaShopClient({ shopId, lang });
+        const allowPrice = await resolveAllowPrice(client, customerId ? Number(customerId) : undefined);
+        const items = await (0, productService_1.listFacetProductsByCategory)(client, shopId, Number(categoryId), lang, allowPrice);
+        const facets = (0, productService_1.buildCatalogFacets)(items, lang);
+        res.json({ items: facets });
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.apiRouter.get("/v1/categories/:categoryId/products", (0, validate_1.validateParams)(schemas_1.categoryIdSchema), (0, validate_1.validateQuery)(schemas_1.shopQuerySchema.merge(schemas_1.productPaginationSchema).merge(schemas_1.customerIdSchema.partial())), async (req, res, next) => {
     try {
         const { shopId, lang, page, pageSize, sort, customerId } = req.query;
@@ -118,6 +191,28 @@ exports.apiRouter.get("/v1/products/:productId", (0, validate_1.validateParams)(
         const allowPrice = await resolveAllowPrice(client, customerId ? Number(customerId) : undefined);
         const item = await (0, productService_1.getProductDetail)(client, shopId, Number(productId), lang, allowPrice);
         res.json(item);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/wholesale-customers", (0, validate_1.validateQuery)(schemas_1.shopQuerySchema), async (req, res, next) => {
+    try {
+        const { shopId, lang } = req.query;
+        const client = new PrestaShopClient_1.PrestaShopClient({ shopId, lang });
+        const items = await (0, wholesaleCustomerService_1.listWholesaleCustomers)(client, Number(shopId), lang);
+        res.json({ items });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/customers", (0, validate_1.validateQuery)(schemas_1.shopQuerySchema), async (req, res, next) => {
+    try {
+        const { shopId, lang } = req.query;
+        const client = new PrestaShopClient_1.PrestaShopClient({ shopId, lang });
+        const items = await (0, customerService_1.listCustomers)(client, Number(shopId), lang);
+        res.json({ items });
     }
     catch (error) {
         next(error);

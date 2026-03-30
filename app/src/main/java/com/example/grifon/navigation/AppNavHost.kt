@@ -9,6 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.grifon.RegisterScreen
 import com.example.grifon.ui.screens.AccountScreen
 import com.example.grifon.ui.screens.CartScreen
 import com.example.grifon.ui.screens.FavoritesScreen
@@ -56,9 +57,18 @@ fun AppNavHost(
             )
         }
         composable(Routes.ACCOUNT) {
-            AccountScreen(viewModel = hiltViewModel()) {
-                navController.navigate(Routes.SETTINGS)
-            }
+            AccountScreen(
+                viewModel = hiltViewModel(),
+                onSettings = {
+                    navController.navigate(Routes.SETTINGS)
+                },
+                onRegister = {
+                    navController.navigate(Routes.REGISTER)
+                },
+            )
+        }
+        composable(Routes.REGISTER) {
+            RegisterScreen()
         }
         composable(
             route = Routes.PLP,

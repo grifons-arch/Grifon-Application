@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AssistChip
@@ -40,7 +41,9 @@ fun AppTopBar(
     shopLabel: String,
     query: String,
     isSearchExpanded: Boolean,
+    showBackArrow: Boolean,
     onQueryChange: (String) -> Unit,
+    onBackClick: () -> Unit,
     onLogoClick: () -> Unit,
     onSearchIconClick: () -> Unit,
     onScanClick: () -> Unit,
@@ -59,6 +62,15 @@ fun AppTopBar(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                if (showBackArrow) {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = Color.White,
+                        )
+                    }
+                }
                 Image(
                     painter = painterResource(R.drawable.logo),
                     contentDescription = stringResource(R.string.logo_content_description),

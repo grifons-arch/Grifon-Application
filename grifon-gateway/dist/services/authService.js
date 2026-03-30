@@ -3,12 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginCustomer = exports.updateProfile = exports.registerCustomer = void 0;
+exports.clearActivityTables = exports.listRecentProducts = exports.listFavoriteProducts = exports.recordRecentProduct = exports.syncFavoriteProduct = exports.loginCustomer = exports.updateProfile = exports.registerCustomer = void 0;
 const axios_1 = __importDefault(require("axios"));
 const crypto_1 = __importDefault(require("crypto"));
 const env_1 = require("../config/env");
 const PrestaShopClient_1 = require("../clients/PrestaShopClient");
 const priceAccessService_1 = require("./priceAccessService");
+const wholesaleNotificationService_1 = require("./wholesaleNotificationService");
 const resolveSyncUrl = (countryIso = "GR") => {
     const shopId = countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
     const baseUrl = env_1.config.shopBaseUrls[shopId] || env_1.config.prestashopBaseUrl;
@@ -59,6 +60,20 @@ const registerCustomer = async (request) => {
             }]
     };
     const response = await sendToPrestaShop(payload, request.countryIso || "GR");
+    try {
+        await (0, wholesaleNotificationService_1.notifyWholesaleRequest)({
+            ...request,
+            email,
+            countryIso: (request.countryIso || "GR").toUpperCase()
+        }, {
+            customerId: response.psCustomerId?.toString(),
+            countryIso: (request.countryIso || "GR").toUpperCase()
+        });
+    }
+    catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn("Wholesale notification email failed to send:", error);
+    }
     // ΜΕΤΑΤΡΟΠΗ ΑΠΑΝΤΗΣΗΣ ΓΙΑ ΤΗΝ ΕΦΑΡΜΟΓΗ
     return {
         customerId: response.psCustomerId?.toString() || "0",
@@ -83,9 +98,10 @@ const updateProfile = async (request) => {
     return sendToPrestaShop(payload, "GR");
 };
 exports.updateProfile = updateProfile;
-const loginCustomer = async (email, pass) => {
+const loginCustomer = async (email, pass, countryIso = "GR") => {
     const payload = { action: "login", email: email.trim().toLowerCase(), password: pass };
-    const response = await sendToPrestaShop(payload, "GR");
+    const normalizedCountryIso = countryIso.trim().toUpperCase() === "SE" ? "SE" : "GR";
+    const response = await sendToPrestaShop(payload, normalizedCountryIso);
     const customerId = response?.id_customer ? Number(response.id_customer) : null;
     if (!customerId) {
         return {
@@ -93,7 +109,7 @@ const loginCustomer = async (email, pass) => {
             can_view_prices: false,
         };
     }
-    const client = new PrestaShopClient_1.PrestaShopClient({ shopId: 4 });
+    const client = new PrestaShopClient_1.PrestaShopClient({ shopId: normalizedCountryIso === "SE" ? 1 : 4 });
     const priceAccess = await (0, priceAccessService_1.getPriceAccess)(client, customerId);
     return {
         ...response,
@@ -101,6 +117,51 @@ const loginCustomer = async (email, pass) => {
     };
 };
 exports.loginCustomer = loginCustomer;
+const syncFavoriteProduct = async (request) => {
+    return sendToPrestaShop({
+        action: "toggle_favorite_product",
+        customerId: request.customerId,
+        productId: request.productId,
+        shopId: request.shopId,
+        isFavorite: request.isFavorite === true,
+        product: request.product ?? {}
+    }, request.shopId === 1 ? "SE" : "GR");
+};
+exports.syncFavoriteProduct = syncFavoriteProduct;
+const recordRecentProduct = async (request) => {
+    return sendToPrestaShop({
+        action: "record_recent_product",
+        customerId: request.customerId,
+        productId: request.productId,
+        shopId: request.shopId,
+        product: request.product ?? {}
+    }, request.shopId === 1 ? "SE" : "GR");
+};
+exports.recordRecentProduct = recordRecentProduct;
+const listFavoriteProducts = async (request) => {
+    return sendToPrestaShop({
+        action: "list_favorite_products",
+        customerId: request.customerId,
+        shopId: request.shopId
+    }, request.shopId === 1 ? "SE" : "GR");
+};
+exports.listFavoriteProducts = listFavoriteProducts;
+const listRecentProducts = async (request) => {
+    return sendToPrestaShop({
+        action: "list_recent_products",
+        customerId: request.customerId,
+        shopId: request.shopId,
+        limit: request.limit ?? 20
+    }, request.shopId === 1 ? "SE" : "GR");
+};
+exports.listRecentProducts = listRecentProducts;
+const clearActivityTables = async (request) => {
+    return sendToPrestaShop({
+        action: "clear_activity_tables",
+        shopId: request.shopId
+    }, request.shopId === 1 ? "SE" : "GR");
+};
+exports.clearActivityTables = clearActivityTables;
 async function sendToPrestaShop(payload, countryIso) {
     const body = JSON.stringify(payload);
     const secret = env_1.config.customerSyncSecret || env_1.config.prestashopApiKey;

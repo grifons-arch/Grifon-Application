@@ -1,6 +1,5 @@
 package com.example.grifon.ui.screens
 
-import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,12 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.grifon.R
-import com.example.grifon.RegisterActivity
 import com.example.grifon.core.AppLanguage
 import com.example.grifon.core.LoginText
 import com.example.grifon.viewmodel.AccountViewModel
@@ -38,12 +35,15 @@ import com.example.grifon.core.loginText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountScreen(viewModel: AccountViewModel, onSettings: () -> Unit) {
+fun AccountScreen(
+    viewModel: AccountViewModel,
+    onSettings: () -> Unit,
+    onRegister: () -> Unit,
+) {
     val uiState by viewModel.uiState.collectAsState()
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val loginError by viewModel.loginError.collectAsState()
-    val context = LocalContext.current
 
     when (val state = uiState) {
         UiState.Loading -> LoadingScreen()
@@ -66,9 +66,7 @@ fun AccountScreen(viewModel: AccountViewModel, onSettings: () -> Unit) {
                     onEmailChange = viewModel::onEmailChange,
                     onPasswordChange = viewModel::onPasswordChange,
                     onLoginClick = viewModel::login,
-                    onRegisterClick = {
-                        context.startActivity(Intent(context, RegisterActivity::class.java))
-                    }
+                    onRegisterClick = onRegister,
                 )
             }
         }
