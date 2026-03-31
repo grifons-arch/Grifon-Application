@@ -462,9 +462,32 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
 
     private function upsertCustomerMap($ext, $id, $email) {
         $exists = (int)Db::getInstance()->getValue('SELECT id_grifon_customer_map FROM '._DB_PREFIX_.'grifon_customer_map WHERE external_customer_id = "'.pSQL($ext).'"');
-        $data = ['external_customer_id' => pSQL($ext), 'id_customer' => (int)$id, 'email' => pSQL($email), 'updated_at' => date('Y-m-d H:i:s')];
-        if ($exists) Db::getInstance()->update('grifon_customer_map', $data, 'id_grifon_customer_map = '.$exists);
-        else { $data['created_at'] = date('Y-m-d H:i:s'); Db::getInstance()->insert('grifon_customer_map', $data); }
+        $columns = $this->getTableColumns(_DB_PREFIX_.'grifon_customer_map');
+        $now = date('Y-m-d H:i:s');
+        $data = [
+            'external_customer_id' => pSQL($ext),
+            'id_customer' => (int)$id,
+            'email' => pSQL($email),
+        ];
+
+        if (isset($columns['date_upd'])) {
+            $data['date_upd'] = $now;
+        } elseif (isset($columns['updated_at'])) {
+            $data['updated_at'] = $now;
+        }
+
+        if ($exists) {
+            Db::getInstance()->update('grifon_customer_map', $data, 'id_grifon_customer_map = '.$exists);
+            return;
+        }
+
+        if (isset($columns['date_add'])) {
+            $data['date_add'] = $now;
+        } elseif (isset($columns['created_at'])) {
+            $data['created_at'] = $now;
+        }
+
+        Db::getInstance()->insert('grifon_customer_map', $data);
     }
 
     private function resolveCustomerGroups($g) {
