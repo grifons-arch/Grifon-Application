@@ -135,8 +135,12 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
   const message = wholesaleRequested
     ? (
         wholesaleApplicationRegistered
-          ? "Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση."
-          : "Ο λογαριασμός δημιουργήθηκε, αλλά η αίτηση χονδρικής χρειάζεται έλεγχο στο PrestaShop."
+          ? buildWholesaleSuccessMessage(wholesaleApplicationTable, wholesaleApplicationMode)
+          : buildWholesaleFailureMessage(
+              wholesaleApplicationSkippedReason,
+              wholesaleApplicationTable,
+              wholesaleApplicationError
+            )
       )
     : (response.message || "Registration successful");
 
@@ -169,6 +173,44 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
     wholesaleApplicationError: wholesaleApplicationError || undefined
   };
 };
+
+function buildWholesaleSuccessMessage(table?: string, mode?: string): string {
+  const details = [table, mode].filter(Boolean).join(" / ");
+  if (details) {
+    return `Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση. (${details})`;
+  }
+  return "Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση.";
+}
+
+function buildWholesaleFailureMessage(reason?: string, table?: string, error?: string): string {
+  if (error) {
+    return `Ο λογαριασμός δημιουργήθηκε, αλλά η αίτηση χονδρικής απέτυχε: ${error}`;
+  }
+
+  if (reason === "table_not_found") {
+    return "Ο λογαριασμός δημιουργήθηκε, αλλά δεν βρέθηκε wholesale applications table στο PrestaShop.";
+  }
+
+  if (reason === "columns_not_found") {
+    return table
+      ? `Ο λογαριασμός δημιουργήθηκε, αλλά το wholesale table ${table} δεν επέστρεψε columns.`
+      : "Ο λογαριασμός δημιουργήθηκε, αλλά το wholesale table δεν επέστρεψε columns.";
+  }
+
+  if (reason === "no_matching_columns") {
+    return table
+      ? `Ο λογαριασμός δημιουργήθηκε, αλλά τα columns του ${table} δεν ταιριάζουν με το wholesale application mapping.`
+      : "Ο λογαριασμός δημιουργήθηκε, αλλά τα columns του wholesale table δεν ταιριάζουν με το mapping.";
+  }
+
+  if (reason === "write_failed") {
+    return table
+      ? `Ο λογαριασμός δημιουργήθηκε, αλλά απέτυχε η καταχώριση στο ${table}.`
+      : "Ο λογαριασμός δημιουργήθηκε, αλλά απέτυχε η καταχώριση της αίτησης χονδρικής.";
+  }
+
+  return "Ο λογαριασμός δημιουργήθηκε, αλλά η αίτηση χονδρικής χρειάζεται έλεγχο στο PrestaShop.";
+}
 
 export const updateProfile = async (request: RegisterRequest): Promise<any> => {
   const payload = {
