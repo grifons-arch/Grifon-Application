@@ -81,7 +81,7 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
                     break;
             }
 
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->respond(500, ['ok' => false, 'error' => 'SERVER_ERROR', 'message' => $e->getMessage()]);
         }
     }
@@ -265,16 +265,19 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         if (empty($columns)) return false;
 
         $email = trim((string)($customerData['email'] ?? $application['email'] ?? ''));
-        $row = $this->buildWholesaleApplicationRow($columns, $idCustomer, $customerData, $primaryAddress, $application);
+        $row = $this->filterRowByColumns(
+            $columns,
+            $this->buildWholesaleApplicationRow($columns, $idCustomer, $customerData, $primaryAddress, $application)
+        );
         if (empty($row)) return false;
 
         $table = $this->stripDbPrefix($tableName);
         $where = $this->buildWholesaleApplicationWhere($columns, $idCustomer, $email);
 
         if ($where !== '' && (int)Db::getInstance()->getValue('SELECT 1 FROM `'.bqSQL($tableName).'` WHERE '.$where) > 0) {
-            return (bool)Db::getInstance()->update($table, $row, $where);
+            return $this->writeTableRow('update', $table, $row, $where);
         }
-        return (bool)Db::getInstance()->insert($table, $row);
+        return $this->writeTableRow('insert', $table, $row);
     }
 
     private function isWholesaleApplicationRequested($customerData, $application)
@@ -449,6 +452,64 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         return $res;
     }
 
+    private function filterRowByColumns(array $columns, array $row)
+    {
+        if (empty($columns) || empty($row)) {
+            return [];
+        }
+
+        $allowedNames = [];
+        foreach ($columns as $column) {
+            if (!isset($column['name'])) {
+                continue;
+            }
+            $allowedNames[$column['name']] = true;
+        }
+
+        $filtered = [];
+        foreach ($row as $key => $value) {
+            if (isset($allowedNames[$key])) {
+                $filtered[$key] = $value;
+            }
+        }
+
+        return $filtered;
+    }
+
+    private function writeTableRow($operation, $table, array $row, $where = '')
+    {
+        $attempt = $row;
+
+        while (!empty($attempt)) {
+            try {
+                if ($operation === 'update') {
+                    return (bool)Db::getInstance()->update($table, $attempt, $where);
+                }
+
+                return (bool)Db::getInstance()->insert($table, $attempt);
+            } catch (Throwable $e) {
+                $unknownColumn = $this->extractUnknownColumnFromException($e);
+                if ($unknownColumn === '' || !array_key_exists($unknownColumn, $attempt)) {
+                    throw $e;
+                }
+
+                unset($attempt[$unknownColumn]);
+            }
+        }
+
+        return false;
+    }
+
+    private function extractUnknownColumnFromException(Throwable $e)
+    {
+        $message = $e->getMessage();
+        if (preg_match("/Unknown column '([^']+)' in '(?:SET|field list)'/", $message, $matches)) {
+            return $matches[1];
+        }
+
+        return '';
+    }
+
     private function buildWholesaleApplicationWhere($columns, $idCustomer, $email) {
         if (isset($columns['id_customer'])) return 'id_customer = '.(int)$idCustomer;
         if (isset($columns['customer_id'])) return 'customer_id = '.(int)$idCustomer;
@@ -463,6 +524,9 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
     private function upsertCustomerMap($ext, $id, $email) {
         $exists = (int)Db::getInstance()->getValue('SELECT id_grifon_customer_map FROM '._DB_PREFIX_.'grifon_customer_map WHERE external_customer_id = "'.pSQL($ext).'"');
         $columns = $this->getTableColumns(_DB_PREFIX_.'grifon_customer_map');
+        if (empty($columns)) {
+            return;
+        }
         $now = date('Y-m-d H:i:s');
         $data = [
             'external_customer_id' => pSQL($ext),
@@ -476,8 +540,10 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
             $data['updated_at'] = $now;
         }
 
+        $data = $this->filterRowByColumns($columns, $data);
+
         if ($exists) {
-            Db::getInstance()->update('grifon_customer_map', $data, 'id_grifon_customer_map = '.$exists);
+            $this->writeTableRow('update', 'grifon_customer_map', $data, 'id_grifon_customer_map = '.$exists);
             return;
         }
 
@@ -487,7 +553,9 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
             $data['created_at'] = $now;
         }
 
-        Db::getInstance()->insert('grifon_customer_map', $data);
+        $data = $this->filterRowByColumns($columns, $data);
+
+        $this->writeTableRow('insert', 'grifon_customer_map', $data);
     }
 
     private function resolveCustomerGroups($g) {
