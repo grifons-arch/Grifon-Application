@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clearActivityTables = exports.listRecentProducts = exports.listFavoriteProducts = exports.recordRecentProduct = exports.syncFavoriteProduct = exports.loginCustomer = exports.updateProfile = exports.registerCustomer = void 0;
+exports.debugListWholesaleApplications = exports.clearActivityTables = exports.listRecentProducts = exports.listFavoriteProducts = exports.recordRecentProduct = exports.syncFavoriteProduct = exports.loginCustomer = exports.updateProfile = exports.registerCustomer = void 0;
 const axios_1 = __importDefault(require("axios"));
 const crypto_1 = __importDefault(require("crypto"));
 const env_1 = require("../config/env");
@@ -77,6 +77,16 @@ const registerCustomer = async (request) => {
             }]
     };
     const response = await sendToPrestaShop(payload, countryIso);
+    const wholesaleRequested = request.wholesaleRequested === true;
+    const wholesaleApplicationRegistered = response?.wholesaleApplicationRegistered === true;
+    const wholesaleApplicationError = typeof response?.wholesaleApplicationError === "string"
+        ? response.wholesaleApplicationError.trim()
+        : "";
+    const message = wholesaleRequested
+        ? (wholesaleApplicationRegistered
+            ? "Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση."
+            : "Ο λογαριασμός δημιουργήθηκε, αλλά η αίτηση χονδρικής χρειάζεται έλεγχο στο PrestaShop.")
+        : (response.message || "Registration successful");
     try {
         await (0, wholesaleNotificationService_1.notifyWholesaleRequest)({
             ...request,
@@ -94,8 +104,10 @@ const registerCustomer = async (request) => {
     // ΜΕΤΑΤΡΟΠΗ ΑΠΑΝΤΗΣΗΣ ΓΙΑ ΤΗΝ ΕΦΑΡΜΟΓΗ
     return {
         customerId: response.psCustomerId?.toString() || "0",
-        status: "success",
-        message: response.message || "Registration successful"
+        status: wholesaleRequested ? "pending_wholesale_approval" : "success",
+        message,
+        wholesaleApplicationRegistered,
+        wholesaleApplicationError: wholesaleApplicationError || undefined
     };
 };
 exports.registerCustomer = registerCustomer;
@@ -179,6 +191,10 @@ const clearActivityTables = async (request) => {
     }, request.shopId === 1 ? "SE" : "GR");
 };
 exports.clearActivityTables = clearActivityTables;
+const debugListWholesaleApplications = async (countryIso = "GR") => {
+    return sendToPrestaShop({ action: "list_wholesale_applications" }, countryIso);
+};
+exports.debugListWholesaleApplications = debugListWholesaleApplications;
 async function sendToPrestaShop(payload, countryIso) {
     const body = JSON.stringify(payload);
     const secret = env_1.config.customerSyncSecret || env_1.config.prestashopApiKey;

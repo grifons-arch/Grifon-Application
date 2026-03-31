@@ -161,6 +161,9 @@ python3 scripts/clear_customer_activity_via_gateway.py --shop-id=4
 - `/auth/register` uses the `grifoncustomersync` PrestaShop module endpoint to create/update customer + address records.
 - `/auth/register` hashes the submitted password with bcrypt before syncing it to the module endpoint.
 - `/auth/register` creates customers with `PENDING_WHOLESALE_APPROVAL` status (inactive or in a pending group).
+- When `wholesaleRequested=true`, the gateway also supports mirroring the request into ETS Wholesale / Prestahero application tables through the `grifoncustomersync` module's wholesale-table detection logic.
+- If the installed ETS module uses a non-standard table name, set the `Wholesale application table override` field in the PrestaShop module configuration.
+- The register response may include `wholesaleApplicationTable`, `wholesaleApplicationMode`, and `wholesaleApplicationSkippedReason` to show exactly how the wholesale application sync was handled.
 
 ## Troubleshooting
 

@@ -117,6 +117,28 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
   };
 
   const response = await sendToPrestaShop(payload, countryIso);
+  const wholesaleRequested = request.wholesaleRequested === true;
+  const wholesaleApplicationRegistered = response?.wholesaleApplicationRegistered === true;
+  const wholesaleApplicationTable = typeof response?.wholesaleApplicationTable === "string"
+    ? response.wholesaleApplicationTable.trim()
+    : "";
+  const wholesaleApplicationMode = typeof response?.wholesaleApplicationMode === "string"
+    ? response.wholesaleApplicationMode.trim()
+    : "";
+  const wholesaleApplicationSkippedReason = typeof response?.wholesaleApplicationSkippedReason === "string"
+    ? response.wholesaleApplicationSkippedReason.trim()
+    : "";
+  const wholesaleApplicationError = typeof response?.wholesaleApplicationError === "string"
+    ? response.wholesaleApplicationError.trim()
+    : "";
+
+  const message = wholesaleRequested
+    ? (
+        wholesaleApplicationRegistered
+          ? "Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση."
+          : "Ο λογαριασμός δημιουργήθηκε, αλλά η αίτηση χονδρικής χρειάζεται έλεγχο στο PrestaShop."
+      )
+    : (response.message || "Registration successful");
 
   try {
     await notifyWholesaleRequest(
@@ -138,8 +160,13 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
   // ΜΕΤΑΤΡΟΠΗ ΑΠΑΝΤΗΣΗΣ ΓΙΑ ΤΗΝ ΕΦΑΡΜΟΓΗ
   return {
     customerId: response.psCustomerId?.toString() || "0",
-    status: "success",
-    message: response.message || "Registration successful"
+    status: wholesaleRequested ? "pending_wholesale_approval" : "success",
+    message,
+    wholesaleApplicationRegistered,
+    wholesaleApplicationTable: wholesaleApplicationTable || undefined,
+    wholesaleApplicationMode: wholesaleApplicationMode || undefined,
+    wholesaleApplicationSkippedReason: wholesaleApplicationSkippedReason || undefined,
+    wholesaleApplicationError: wholesaleApplicationError || undefined
   };
 };
 

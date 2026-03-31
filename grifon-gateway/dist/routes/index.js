@@ -218,4 +218,15 @@ exports.apiRouter.get("/v1/customers", (0, validate_1.validateQuery)(schemas_1.s
         next(error);
     }
 });
+// DEBUG: List Wholesale Applications
+exports.apiRouter.get("/v1/debug/wholesale-applications", async (req, res, next) => {
+    try {
+        const countryIso = req.query.countryIso || "GR";
+        const result = await (0, authService_1.debugListWholesaleApplications)(countryIso);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.default = exports.apiRouter;
