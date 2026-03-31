@@ -245,6 +245,10 @@ export const clearActivityTables = async (request: ProductActivityClearRequest):
   );
 };
 
+export const debugListWholesaleApplications = async (countryIso: string = "GR"): Promise<any> => {
+  return sendToPrestaShop({ action: "list_wholesale_applications" }, countryIso);
+};
+
 async function sendToPrestaShop(payload: any, countryIso: string) {
   const body = JSON.stringify(payload);
   const secret = config.customerSyncSecret || config.prestashopApiKey;

@@ -32,7 +32,8 @@ import {
   recordRecentProduct,
   listFavoriteProducts,
   listRecentProducts,
-  clearActivityTables
+  clearActivityTables,
+  debugListWholesaleApplications
 } from "../services/authService";
 import { getPriceAccess } from "../services/priceAccessService";
 import { listWholesaleCustomers } from "../services/wholesaleCustomerService";
@@ -302,6 +303,17 @@ apiRouter.get("/v1/customers", validateQuery(shopQuerySchema), async (req, res, 
     const client = new PrestaShopClient({ shopId, lang });
     const items = await listCustomers(client, Number(shopId), lang);
     res.json({ items });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DEBUG: List Wholesale Applications
+apiRouter.get("/v1/debug/wholesale-applications", async (req, res, next) => {
+  try {
+    const countryIso = (req.query.countryIso as string) || "GR";
+    const result = await debugListWholesaleApplications(countryIso);
+    res.json(result);
   } catch (error) {
     next(error);
   }

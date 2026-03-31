@@ -14,6 +14,7 @@ class Grifoncustomersync extends Module
     const CFG_ALLOWED_IPS   = 'GRIFONCSYNC_ALLOWED_IPS';
     const CFG_DEFAULT_GROUP = 'GRIFONCSYNC_DEFAULT_GROUP';
     const CFG_TIME_SKEW_SEC = 'GRIFONCSYNC_TIME_SKEW_SEC';
+    const CFG_WHOLESALE_APPLICATION_TABLE = 'GRIFONCSYNC_WHOLESALE_APPLICATION_TABLE';
 
     // Default shared secret (άλλαξέ το από Configure)
     const DEFAULT_SECRET = 'GRIFON_SYNC_2026_CHANGE_ME';
@@ -22,7 +23,7 @@ class Grifoncustomersync extends Module
     {
         $this->name = 'grifoncustomersync';
         $this->tab = 'administration';
-        $this->version = '1.1.1';
+        $this->version = '1.1.2';
         $this->author = 'Grifon';
         $this->need_instance = 0;
         $this->bootstrap = true;
@@ -57,7 +58,8 @@ class Grifoncustomersync extends Module
         return Configuration::updateValue(self::CFG_SECRET, self::DEFAULT_SECRET)
             && Configuration::updateValue(self::CFG_ALLOWED_IPS, '')
             && Configuration::updateValue(self::CFG_DEFAULT_GROUP, (int)Configuration::get('PS_CUSTOMER_GROUP'))
-            && Configuration::updateValue(self::CFG_TIME_SKEW_SEC, 300);
+            && Configuration::updateValue(self::CFG_TIME_SKEW_SEC, 300)
+            && Configuration::updateValue(self::CFG_WHOLESALE_APPLICATION_TABLE, '');
     }
 
     private function uninstallConfig()
@@ -65,7 +67,8 @@ class Grifoncustomersync extends Module
         return Configuration::deleteByName(self::CFG_SECRET)
             && Configuration::deleteByName(self::CFG_ALLOWED_IPS)
             && Configuration::deleteByName(self::CFG_DEFAULT_GROUP)
-            && Configuration::deleteByName(self::CFG_TIME_SKEW_SEC);
+            && Configuration::deleteByName(self::CFG_TIME_SKEW_SEC)
+            && Configuration::deleteByName(self::CFG_WHOLESALE_APPLICATION_TABLE);
     }
 
     private function installDb()
@@ -173,6 +176,7 @@ class Grifoncustomersync extends Module
             $allowedIps = (string)Tools::getValue(self::CFG_ALLOWED_IPS);
             $defaultGroup = (int)Tools::getValue(self::CFG_DEFAULT_GROUP);
             $timeSkew = (int)Tools::getValue(self::CFG_TIME_SKEW_SEC);
+            $wholesaleApplicationTable = trim((string)Tools::getValue(self::CFG_WHOLESALE_APPLICATION_TABLE));
 
             if (Tools::strlen($secret) < 16) {
                 $output .= $this->displayError($this->l('Secret must be at least 16 characters.'));
@@ -181,6 +185,7 @@ class Grifoncustomersync extends Module
                 Configuration::updateValue(self::CFG_ALLOWED_IPS, trim($allowedIps));
                 Configuration::updateValue(self::CFG_DEFAULT_GROUP, max(1, $defaultGroup));
                 Configuration::updateValue(self::CFG_TIME_SKEW_SEC, max(30, $timeSkew));
+                Configuration::updateValue(self::CFG_WHOLESALE_APPLICATION_TABLE, $wholesaleApplicationTable);
 
                 $output .= $this->displayConfirmation($this->l('Settings updated.'));
             }
@@ -225,6 +230,13 @@ class Grifoncustomersync extends Module
                     'name' => self::CFG_TIME_SKEW_SEC,
                     'required' => true,
                 ],
+                [
+                    'type' => 'text',
+                    'label' => $this->l('Wholesale application table override'),
+                    'name' => self::CFG_WHOLESALE_APPLICATION_TABLE,
+                    'required' => false,
+                    'desc' => $this->l('Optional exact wholesale/B2B application table name. You can enter it with or without the PrestaShop DB prefix.'),
+                ],
             ],
             'submit' => [
                 'title' => $this->l('Save'),
@@ -245,6 +257,7 @@ class Grifoncustomersync extends Module
         $helper->fields_value[self::CFG_ALLOWED_IPS] = Configuration::get(self::CFG_ALLOWED_IPS);
         $helper->fields_value[self::CFG_DEFAULT_GROUP] = (int)Configuration::get(self::CFG_DEFAULT_GROUP);
         $helper->fields_value[self::CFG_TIME_SKEW_SEC] = (int)Configuration::get(self::CFG_TIME_SKEW_SEC);
+        $helper->fields_value[self::CFG_WHOLESALE_APPLICATION_TABLE] = Configuration::get(self::CFG_WHOLESALE_APPLICATION_TABLE);
 
         return $helper->generateForm($fieldsForm);
     }
