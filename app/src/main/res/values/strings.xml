@@ -130,4 +130,6 @@
     <string name="terms_privacy_title">I accept the terms and privacy policy</string>
     <string name="save">Save</string>
     <string name="submitting_request">Submitting request...</string>
+    <string name="wholesale_application_cta">Open wholesale application</string>
+    <string name="wholesale_application_hint">This opens the ETS Wholesale registration page. If needed, sign in again on the website to continue your application.</string>
 </resources>

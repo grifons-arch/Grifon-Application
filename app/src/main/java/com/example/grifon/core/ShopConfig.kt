@@ -3,6 +3,8 @@ package com.example.grifon.core
 object ShopConfig {
     const val GreekShopId = "4"
     const val SwedishShopId = "1"
+    private const val GreekStorefrontBaseUrl = "https://grifon.gr/"
+    private const val SwedishStorefrontBaseUrl = "https://grifon.se/"
 
     fun normalizeShopId(rawShopId: String?): String {
         val normalized = rawShopId?.trim().orEmpty()
@@ -38,4 +40,10 @@ object ShopConfig {
 
     fun languageLabel(rawShopId: String?): String =
         if (isSwedishShop(rawShopId)) "Svenska" else "Ελληνικά"
+
+    fun storefrontBaseUrl(rawShopId: String?): String =
+        if (isSwedishShop(rawShopId)) SwedishStorefrontBaseUrl else GreekStorefrontBaseUrl
+
+    fun wholesaleApplicationEntryUrl(rawShopId: String?): String =
+        storefrontBaseUrl(rawShopId) + "index.php?fc=module&module=ets_wholesale&controller=registration"
 }

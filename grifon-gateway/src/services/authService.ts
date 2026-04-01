@@ -318,6 +318,13 @@ export const debugListWholesaleApplications = async (countryIso: string = "GR"):
   return sendToPrestaShop({ action: "list_wholesale_applications" }, countryIso);
 };
 
+export const debugInspectPrestaShopModule = async (
+  moduleName: string,
+  countryIso: string = "GR"
+): Promise<any> => {
+  return sendToPrestaShop({ action: "inspect_module", module: moduleName }, countryIso);
+};
+
 async function sendToPrestaShop(payload: any, countryIso: string) {
   const body = JSON.stringify(payload);
   const secret = config.customerSyncSecret || config.prestashopApiKey;

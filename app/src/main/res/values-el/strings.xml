@@ -130,4 +130,6 @@
     <string name="terms_privacy_title">Αποδέχομαι τους όρους και την πολιτική απορρήτου</string>
     <string name="save">Αποθήκευση</string>
     <string name="submitting_request">Η αίτηση αποστέλλεται...</string>
+    <string name="wholesale_application_cta">Άνοιγμα αίτησης χονδρικής</string>
+    <string name="wholesale_application_hint">Αυτό ανοίγει απευθείας τη σελίδα εγγραφής του ETS Wholesale module. Αν χρειαστεί, συνδεθείτε ξανά στο site για να συνεχίσετε την αίτησή σας.</string>
 </resources>

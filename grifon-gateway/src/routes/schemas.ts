@@ -64,6 +64,10 @@ export const productIdSchema = z.object({
   productId: z.preprocess(toNumber, z.number().int().positive())
 });
 
+export const moduleNameSchema = z.object({
+  moduleName: z.string().trim().regex(/^[A-Za-z0-9_-]+$/)
+});
+
 export const loginBodySchema = z.object({
   email: z.string().trim().email(),
   password: z.string().min(1),

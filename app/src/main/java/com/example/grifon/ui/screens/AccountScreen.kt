@@ -1,5 +1,7 @@
 package com.example.grifon.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,9 +28,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.grifon.BuildConfig
 import com.example.grifon.R
 import com.example.grifon.core.AppLanguage
 import com.example.grifon.core.LoginText
+import com.example.grifon.core.ShopConfig
 import com.example.grifon.viewmodel.AccountViewModel
 import com.example.grifon.core.UiState
 import com.example.grifon.core.loginText
@@ -79,6 +83,8 @@ fun LoggedInContent(
     onLogout: () -> Unit,
 ) {
     val language = AppLanguage.currentLanguage()
+    val context = LocalContext.current
+    val wholesaleUrl = remember { ShopConfig.wholesaleApplicationEntryUrl(BuildConfig.SHOP_ID) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -95,6 +101,22 @@ fun LoggedInContent(
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(loginText(language, LoginText.AccountSettings))
         }
+
+        OutlinedButton(
+            onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(wholesaleUrl))
+                context.startActivity(intent)
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.wholesale_application_cta))
+        }
+
+        Text(
+            text = stringResource(R.string.wholesale_application_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
 
         OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.logout))

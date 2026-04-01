@@ -60,8 +60,8 @@ android {
         applicationId = "com.grifon.eshop"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 4
+        versionName = "1.3.0"
         
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKeyFromProps
         buildConfigField("String", "MAPS_API_KEY", "\"$mapsApiKeyFromProps\"")

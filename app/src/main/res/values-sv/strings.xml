@@ -125,4 +125,6 @@
     <string name="terms_privacy_title">Jag accepterar villkoren och integritetspolicyn</string>
     <string name="save">Spara</string>
     <string name="submitting_request">Begäran skickas...</string>
+    <string name="wholesale_application_cta">Öppna grossistansökan</string>
+    <string name="wholesale_application_hint">Detta öppnar ETS Wholesale-modulens registreringssida direkt. Om det behövs, logga in igen på webbplatsen för att fortsätta din ansökan.</string>
 </resources>

@@ -9,6 +9,7 @@ import {
   customerActivityQuerySchema,
   customerIdSchema,
   loginBodySchema,
+  moduleNameSchema,
   paginationSchema,
   productActivityBodySchema,
   productIdSchema,
@@ -33,7 +34,8 @@ import {
   listFavoriteProducts,
   listRecentProducts,
   clearActivityTables,
-  debugListWholesaleApplications
+  debugListWholesaleApplications,
+  debugInspectPrestaShopModule
 } from "../services/authService";
 import { getPriceAccess } from "../services/priceAccessService";
 import { listWholesaleCustomers } from "../services/wholesaleCustomerService";
@@ -318,5 +320,20 @@ apiRouter.get("/v1/debug/wholesale-applications", async (req, res, next) => {
     next(error);
   }
 });
+
+apiRouter.get(
+  "/v1/debug/modules/:moduleName",
+  validateParams(moduleNameSchema),
+  async (req, res, next) => {
+    try {
+      const { moduleName } = req.params as any;
+      const countryIso = (req.query.countryIso as string) || "GR";
+      const result = await debugInspectPrestaShopModule(moduleName, countryIso);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default apiRouter;
