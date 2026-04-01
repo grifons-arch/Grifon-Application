@@ -325,6 +325,24 @@ export const debugInspectPrestaShopModule = async (
   return sendToPrestaShop({ action: "inspect_module", module: moduleName }, countryIso);
 };
 
+export const debugInspectPrestaShopTable = async (
+  tableName: string,
+  countryIso: string = "GR"
+): Promise<any> => {
+  return sendToPrestaShop({ action: "inspect_table", table: tableName }, countryIso);
+};
+
+export const debugSearchPrestaShopModuleCode = async (
+  moduleName: string,
+  pattern: string,
+  countryIso: string = "GR"
+): Promise<any> => {
+  return sendToPrestaShop(
+    { action: "search_module_code", module: moduleName, pattern },
+    countryIso
+  );
+};
+
 async function sendToPrestaShop(payload: any, countryIso: string) {
   const body = JSON.stringify(payload);
   const secret = config.customerSyncSecret || config.prestashopApiKey;

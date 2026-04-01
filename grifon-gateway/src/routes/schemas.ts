@@ -68,6 +68,14 @@ export const moduleNameSchema = z.object({
   moduleName: z.string().trim().regex(/^[A-Za-z0-9_-]+$/)
 });
 
+export const tableNameSchema = z.object({
+  tableName: z.string().trim().regex(/^[A-Za-z0-9_]+$/)
+});
+
+export const moduleSearchQuerySchema = z.object({
+  pattern: z.string().trim().min(1).max(120)
+});
+
 export const loginBodySchema = z.object({
   email: z.string().trim().email(),
   password: z.string().min(1),

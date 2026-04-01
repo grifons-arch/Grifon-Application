@@ -10,12 +10,14 @@ import {
   customerIdSchema,
   loginBodySchema,
   moduleNameSchema,
+  moduleSearchQuerySchema,
   paginationSchema,
   productActivityBodySchema,
   productIdSchema,
   productPaginationSchema,
   registerBodySchema,
-  shopQuerySchema
+  shopQuerySchema,
+  tableNameSchema
 } from "./schemas";
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { listCategories } from "../services/categoryService";
@@ -35,7 +37,9 @@ import {
   listRecentProducts,
   clearActivityTables,
   debugListWholesaleApplications,
-  debugInspectPrestaShopModule
+  debugInspectPrestaShopModule,
+  debugInspectPrestaShopTable,
+  debugSearchPrestaShopModuleCode
 } from "../services/authService";
 import { getPriceAccess } from "../services/priceAccessService";
 import { listWholesaleCustomers } from "../services/wholesaleCustomerService";
@@ -329,6 +333,38 @@ apiRouter.get(
       const { moduleName } = req.params as any;
       const countryIso = (req.query.countryIso as string) || "GR";
       const result = await debugInspectPrestaShopModule(moduleName, countryIso);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
+  "/v1/debug/tables/:tableName",
+  validateParams(tableNameSchema),
+  async (req, res, next) => {
+    try {
+      const { tableName } = req.params as any;
+      const countryIso = (req.query.countryIso as string) || "GR";
+      const result = await debugInspectPrestaShopTable(tableName, countryIso);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
+  "/v1/debug/modules/:moduleName/search",
+  validateParams(moduleNameSchema),
+  validateQuery(moduleSearchQuerySchema),
+  async (req, res, next) => {
+    try {
+      const { moduleName } = req.params as any;
+      const { pattern } = req.query as any;
+      const countryIso = (req.query.countryIso as string) || "GR";
+      const result = await debugSearchPrestaShopModuleCode(moduleName, pattern, countryIso);
       res.json(result);
     } catch (error) {
       next(error);
