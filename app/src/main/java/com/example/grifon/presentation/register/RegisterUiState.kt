@@ -4,12 +4,16 @@ data class RegisterUiState(
     val socialTitle: String = "",
     val firstName: String = "",
     val lastName: String = "",
+    val contactPersonFullName: String = "",
     val phone: String = "",
     val iban: String = "",
     val email: String = "",
     val emailConfirmation: String = "",
     val companyName: String = "",
     val vatNumber: String = "",
+    val addressCoordinates: String = "",
+    val companyRegistrationFileName: String? = null,
+    val invoiceFileName: String? = null,
     val country: String = "",
     val countryIso: String = "",
     val city: String = "",
@@ -39,7 +43,13 @@ data class RegisterUiState(
             password.trim().length >= 8 &&
             password == passwordConfirmation &&
             customerDataPrivacyAccepted &&
-            termsAndPrivacyAccepted
+            termsAndPrivacyAccepted &&
+            (!wholesaleRequested || (
+                companyName.isNotBlank() &&
+                vatNumber.isNotBlank() &&
+                phone.isNotBlank() &&
+                contactPersonFullName.isNotBlank()
+            ))
 }
 
 sealed interface RegisterStatus {

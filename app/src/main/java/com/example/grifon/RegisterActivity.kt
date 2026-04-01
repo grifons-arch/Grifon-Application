@@ -2,7 +2,9 @@ package com.example.grifon
 
 import android.app.Activity
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -154,6 +156,18 @@ fun RegisterScreen(
         }
     }
 
+    val companyRegistrationLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        registerViewModel.onCompanyRegistrationFileSelected(resolveDocumentName(context, uri))
+    }
+
+    val invoiceLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        registerViewModel.onInvoiceFileSelected(resolveDocumentName(context, uri))
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -193,11 +207,13 @@ fun RegisterScreen(
             onValueChange = registerViewModel::onLastNameChange,
             placeholder = stringResource(R.string.last_name_placeholder),
         )
-        RegistrationTextField(
-            value = state.phone,
-            onValueChange = registerViewModel::onPhoneChange,
-            placeholder = stringResource(R.string.phone_placeholder),
-        )
+        if (!state.wholesaleRequested) {
+            RegistrationTextField(
+                value = state.phone,
+                onValueChange = registerViewModel::onPhoneChange,
+                placeholder = stringResource(R.string.phone_placeholder),
+            )
+        }
         RegistrationTextField(
             value = state.iban,
             onValueChange = registerViewModel::onIbanChange,
@@ -216,12 +232,20 @@ fun RegisterScreen(
         RegistrationTextField(
             value = state.companyName,
             onValueChange = registerViewModel::onCompanyNameChange,
-            placeholder = stringResource(R.string.company_placeholder),
+            placeholder = if (state.wholesaleRequested) {
+                stringResource(R.string.company_placeholder_required)
+            } else {
+                stringResource(R.string.company_placeholder)
+            },
         )
         RegistrationTextField(
             value = state.vatNumber,
             onValueChange = registerViewModel::onVatNumberChange,
-            placeholder = stringResource(R.string.vat_placeholder),
+            placeholder = if (state.wholesaleRequested) {
+                stringResource(R.string.vat_placeholder_required)
+            } else {
+                stringResource(R.string.vat_placeholder)
+            },
         )
 
         SectionTitle(title = stringResource(R.string.address_section))
@@ -284,6 +308,38 @@ fun RegisterScreen(
             onValueChange = registerViewModel::onPostalCodeChange,
             placeholder = stringResource(R.string.postal_code_placeholder),
         )
+
+        if (state.wholesaleRequested) {
+            RegistrationTextField(
+                value = state.addressCoordinates,
+                onValueChange = registerViewModel::onAddressCoordinatesChange,
+                placeholder = stringResource(R.string.address_coordinates_placeholder),
+            )
+
+            SectionTitle(title = stringResource(R.string.contact_person_section))
+            RegistrationTextField(
+                value = state.contactPersonFullName,
+                onValueChange = registerViewModel::onContactPersonFullNameChange,
+                placeholder = stringResource(R.string.contact_person_full_name_placeholder),
+            )
+            RegistrationTextField(
+                value = state.phone,
+                onValueChange = registerViewModel::onPhoneChange,
+                placeholder = stringResource(R.string.phone_placeholder_required),
+            )
+
+            SectionTitle(title = stringResource(R.string.supporting_documents_section))
+            DocumentPickerField(
+                label = stringResource(R.string.company_registration_document_label),
+                selectedFileName = state.companyRegistrationFileName,
+                onPickClick = { companyRegistrationLauncher.launch(arrayOf("application/pdf", "image/*")) },
+            )
+            DocumentPickerField(
+                label = stringResource(R.string.invoice_document_label),
+                selectedFileName = state.invoiceFileName,
+                onPickClick = { invoiceLauncher.launch(arrayOf("application/pdf", "image/*")) },
+            )
+        }
 
         SectionTitle(title = stringResource(R.string.other_details_section))
         RegistrationTextField(
@@ -526,4 +582,57 @@ private fun ConsentOption(checked: Boolean, onCheckedChange: (Boolean) -> Unit, 
             }
         }
     }
+}
+
+@Composable
+private fun DocumentPickerField(
+    label: String,
+    selectedFileName: String?,
+    onPickClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+        )
+        OutlinedButton(
+            onClick = onPickClick,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp),
+        ) {
+            Text(
+                text = if (selectedFileName.isNullOrBlank()) {
+                    stringResource(R.string.choose_file)
+                } else {
+                    stringResource(R.string.replace_file)
+                }
+            )
+        }
+        Text(
+            text = if (selectedFileName.isNullOrBlank()) {
+                stringResource(R.string.no_file_selected)
+            } else {
+                stringResource(R.string.selected_file_value, selectedFileName)
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+private fun resolveDocumentName(context: Context, uri: Uri?): String? {
+    if (uri == null) return null
+
+    val projection = arrayOf(OpenableColumns.DISPLAY_NAME)
+    context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+        val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        if (index >= 0 && cursor.moveToFirst()) {
+            return cursor.getString(index)
+        }
+    }
+
+    return uri.lastPathSegment?.substringAfterLast('/')
 }

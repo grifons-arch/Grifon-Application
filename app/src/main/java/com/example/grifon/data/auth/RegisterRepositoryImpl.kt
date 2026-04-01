@@ -20,7 +20,9 @@ class RegisterRepositoryImpl(
                     "firstName=${params.firstName}, lastName=${params.lastName}, countryIso=${params.countryIso}, " +
                     "street=${params.street}, city=${params.city}, postalCode=${params.postalCode}, " +
                     "phone=${params.phone}, company=${params.company}, vatNumber=${params.vatNumber}, " +
-                    "iban=${params.iban}, " +
+                    "contactPersonFullName=${params.contactPersonFullName}, addressCoordinates=${params.addressCoordinates}, " +
+                    "iban=${params.iban}, companyRegistrationFileName=${params.companyRegistrationFileName}, " +
+                    "invoiceFileName=${params.invoiceFileName}, " +
                     "customerDataPrivacyAccepted=${params.customerDataPrivacyAccepted}, " +
                     "newsletter=${params.newsletter}, termsAndPrivacyAccepted=${params.termsAndPrivacyAccepted}, " +
                     "wholesaleRequested=${params.wholesaleRequested}, partnerOffers=${params.partnerOffers}",
@@ -32,6 +34,7 @@ class RegisterRepositoryImpl(
                     socialTitle = params.socialTitle,
                     firstName = params.firstName,
                     lastName = params.lastName,
+                    contactPersonFullName = params.contactPersonFullName,
                     countryIso = params.countryIso,
                     street = params.street,
                     city = params.city,
@@ -39,7 +42,10 @@ class RegisterRepositoryImpl(
                     phone = params.phone,
                     company = params.company,
                     vatNumber = params.vatNumber,
+                    addressCoordinates = params.addressCoordinates,
                     iban = params.iban,
+                    companyRegistrationFileName = params.companyRegistrationFileName,
+                    invoiceFileName = params.invoiceFileName,
                     customerDataPrivacyAccepted = params.customerDataPrivacyAccepted,
                     newsletter = params.newsletter,
                     termsAndPrivacyAccepted = params.termsAndPrivacyAccepted,

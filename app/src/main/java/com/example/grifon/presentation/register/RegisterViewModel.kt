@@ -30,6 +30,10 @@ class RegisterViewModel(
         _uiState.update { it.copy(lastName = value) }
     }
 
+    fun onContactPersonFullNameChange(value: String) {
+        _uiState.update { it.copy(contactPersonFullName = value) }
+    }
+
     fun onPhoneChange(value: String) {
         _uiState.update { it.copy(phone = value) }
     }
@@ -52,6 +56,18 @@ class RegisterViewModel(
 
     fun onVatNumberChange(value: String) {
         _uiState.update { it.copy(vatNumber = value) }
+    }
+
+    fun onAddressCoordinatesChange(value: String) {
+        _uiState.update { it.copy(addressCoordinates = value) }
+    }
+
+    fun onCompanyRegistrationFileSelected(value: String?) {
+        _uiState.update { it.copy(companyRegistrationFileName = value) }
+    }
+
+    fun onInvoiceFileSelected(value: String?) {
+        _uiState.update { it.copy(invoiceFileName = value) }
     }
 
     fun onCountryChange(value: String) {
@@ -142,12 +158,17 @@ class RegisterViewModel(
 
         _uiState.update { it.copy(status = RegisterStatus.Loading) }
         viewModelScope.launch {
+            val contactPersonFullName = currentState.contactPersonFullName
+                .trim()
+                .ifBlank { listOf(currentState.firstName, currentState.lastName).joinToString(" ").trim() }
+                .takeIf { it.isNotBlank() }
             val params = RegisterParams(
                 email = currentState.email.trim(),
                 password = currentState.password,
                 socialTitle = currentState.socialTitle.trim().ifBlank { null },
                 firstName = currentState.firstName.trim(),
                 lastName = currentState.lastName.trim(),
+                contactPersonFullName = contactPersonFullName,
                 countryIso = countryIso,
                 street = currentState.street.trim(),
                 city = currentState.city.trim(),
@@ -155,7 +176,10 @@ class RegisterViewModel(
                 phone = currentState.phone.trim().ifBlank { null },
                 company = currentState.companyName.trim().ifBlank { null },
                 vatNumber = currentState.vatNumber.trim().ifBlank { null },
+                addressCoordinates = currentState.addressCoordinates.trim().ifBlank { null },
                 iban = currentState.iban.trim().ifBlank { null },
+                companyRegistrationFileName = currentState.companyRegistrationFileName,
+                invoiceFileName = currentState.invoiceFileName,
                 customerDataPrivacyAccepted = currentState.customerDataPrivacyAccepted,
                 newsletter = currentState.newsletterOptIn,
                 termsAndPrivacyAccepted = currentState.termsAndPrivacyAccepted,
