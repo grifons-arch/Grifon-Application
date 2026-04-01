@@ -148,12 +148,8 @@ class RegisterViewModel(
         val currentState = _uiState.value
         if (!currentState.isSubmitEnabled) return
 
-        val countryIso = currentState.countryIso.ifBlank { normalizeCountryIso(currentState.country) }
-        if (countryIso == null) {
-            _uiState.update {
-                it.copy(status = RegisterStatus.Error("Επιλέξτε έγκυρη χώρα από τη λίστα."))
-            }
-            return
+        val countryIso = currentState.countryIso.ifBlank {
+            normalizeCountryIso(currentState.country) ?: defaultCountryIso()
         }
 
         _uiState.update { it.copy(status = RegisterStatus.Loading) }
@@ -162,6 +158,13 @@ class RegisterViewModel(
                 .trim()
                 .ifBlank { listOf(currentState.firstName, currentState.lastName).joinToString(" ").trim() }
                 .takeIf { it.isNotBlank() }
+            val fallbackStreet = currentState.street.trim().ifBlank { "Online registration" }
+            val fallbackCity = currentState.city.trim().ifBlank {
+                if (countryIso == "SE") "Stockholm" else "Athens"
+            }
+            val fallbackPostalCode = currentState.postalCode.trim().ifBlank {
+                if (countryIso == "SE") "11122" else "10552"
+            }
             val params = RegisterParams(
                 email = currentState.email.trim(),
                 password = currentState.password,
@@ -170,9 +173,9 @@ class RegisterViewModel(
                 lastName = currentState.lastName.trim(),
                 contactPersonFullName = contactPersonFullName,
                 countryIso = countryIso,
-                street = currentState.street.trim(),
-                city = currentState.city.trim(),
-                postalCode = currentState.postalCode.trim(),
+                street = fallbackStreet,
+                city = fallbackCity,
+                postalCode = fallbackPostalCode,
                 phone = currentState.phone.trim().ifBlank { null },
                 company = currentState.companyName.trim().ifBlank { null },
                 vatNumber = currentState.vatNumber.trim().ifBlank { null },
@@ -226,6 +229,15 @@ class RegisterViewModel(
 
     private fun normalizeCountryIso(rawCountry: String): String? {
         return RegisterAddressCatalog.resolveCountry(rawCountry, Locale.getDefault())?.isoCode
+    }
+
+    private fun defaultCountryIso(): String {
+        val locale = Locale.getDefault()
+        val region = locale.country.uppercase(Locale.ROOT)
+        if (region in setOf("GR", "SE")) {
+            return region
+        }
+        return if (locale.language.equals("sv", ignoreCase = true)) "SE" else "GR"
     }
 
     private fun parseNameParts(

@@ -32,23 +32,18 @@ data class RegisterUiState(
 ) {
     val isSubmitEnabled: Boolean
         get() = status !is RegisterStatus.Loading &&
+            socialTitle.isNotBlank() &&
             firstName.isNotBlank() &&
             lastName.isNotBlank() &&
-            country.isNotBlank() &&
-            city.isNotBlank() &&
-            street.isNotBlank() &&
-            postalCode.isNotBlank() &&
             email.isNotBlank() &&
-            email == emailConfirmation &&
             password.trim().length >= 8 &&
-            password == passwordConfirmation &&
-            customerDataPrivacyAccepted &&
             termsAndPrivacyAccepted &&
             (!wholesaleRequested || (
-                companyName.isNotBlank() &&
-                vatNumber.isNotBlank() &&
-                phone.isNotBlank() &&
-                contactPersonFullName.isNotBlank()
+                customerDataPrivacyAccepted
+            )) &&
+            (wholesaleRequested || (
+                email == emailConfirmation &&
+                password == passwordConfirmation
             ))
 }
 
