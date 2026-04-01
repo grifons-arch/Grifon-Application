@@ -343,6 +343,49 @@ export const debugSearchPrestaShopModuleCode = async (
   );
 };
 
+export const debugReadPrestaShopModuleFile = async (
+  moduleName: string,
+  filePath: string,
+  start: number = 1,
+  lines: number = 80,
+  countryIso: string = "GR"
+): Promise<any> => {
+  return sendToPrestaShop(
+    { action: "read_module_file", module: moduleName, path: filePath, start, lines },
+    countryIso
+  );
+};
+
+export const debugInspectEtsWholesaleApplicationVisibility = async (
+  customerId: number,
+  countryIso: string = "GR"
+): Promise<any> => {
+  return sendToPrestaShop(
+    { action: "inspect_ets_wholesale_application_visibility", customerId },
+    countryIso
+  );
+};
+
+export const debugInspectEtsWholesaleApplication = async (
+  customerId: number,
+  countryIso: string = "GR"
+): Promise<any> => {
+  return sendToPrestaShop(
+    { action: "inspect_ets_wholesale_application", customerId },
+    countryIso
+  );
+};
+
+export const debugInspectEtsWholesaleFormFields = async (
+  formType?: "registration" | "add_information",
+  countryIso: string = "GR"
+): Promise<any> => {
+  return sendToPrestaShop(
+    { action: "inspect_ets_wholesale_form_fields", formType },
+    countryIso
+  );
+};
+
 async function sendToPrestaShop(payload: any, countryIso: string) {
   const body = JSON.stringify(payload);
   const secret = config.customerSyncSecret || config.prestashopApiKey;

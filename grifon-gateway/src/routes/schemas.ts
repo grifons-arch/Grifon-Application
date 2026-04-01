@@ -76,6 +76,19 @@ export const moduleSearchQuerySchema = z.object({
   pattern: z.string().trim().min(1).max(120)
 });
 
+export const moduleFileQuerySchema = z.object({
+  path: z.string().trim().min(1).max(300),
+  start: z.preprocess(toNumber, z.number().int().min(1).max(10000)).default(1),
+  lines: z.preprocess(toNumber, z.number().int().min(1).max(200)).default(80)
+});
+
+export const etsWholesaleFormFieldsQuerySchema = z.object({
+  formType: z.preprocess(
+    toOptionalString,
+    z.enum(["registration", "add_information"]).optional()
+  )
+});
+
 export const loginBodySchema = z.object({
   email: z.string().trim().email(),
   password: z.string().min(1),

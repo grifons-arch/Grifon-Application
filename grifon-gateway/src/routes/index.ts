@@ -8,7 +8,9 @@ import {
   categoryIdSchema,
   customerActivityQuerySchema,
   customerIdSchema,
+  etsWholesaleFormFieldsQuerySchema,
   loginBodySchema,
+  moduleFileQuerySchema,
   moduleNameSchema,
   moduleSearchQuerySchema,
   paginationSchema,
@@ -37,6 +39,9 @@ import {
   listRecentProducts,
   clearActivityTables,
   debugListWholesaleApplications,
+  debugInspectEtsWholesaleApplication,
+  debugInspectEtsWholesaleFormFields,
+  debugReadPrestaShopModuleFile,
   debugInspectPrestaShopModule,
   debugInspectPrestaShopTable,
   debugSearchPrestaShopModuleCode
@@ -326,6 +331,36 @@ apiRouter.get("/v1/debug/wholesale-applications", async (req, res, next) => {
 });
 
 apiRouter.get(
+  "/v1/debug/ets-wholesale/application/:customerId",
+  validateParams(customerIdSchema),
+  async (req, res, next) => {
+    try {
+      const { customerId } = req.params as any;
+      const countryIso = (req.query.countryIso as string) || "GR";
+      const result = await debugInspectEtsWholesaleApplication(Number(customerId), countryIso);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
+  "/v1/debug/ets-wholesale/form-fields",
+  validateQuery(etsWholesaleFormFieldsQuerySchema),
+  async (req, res, next) => {
+    try {
+      const { formType } = req.query as any;
+      const countryIso = (req.query.countryIso as string) || "GR";
+      const result = await debugInspectEtsWholesaleFormFields(formType, countryIso);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
   "/v1/debug/modules/:moduleName",
   validateParams(moduleNameSchema),
   async (req, res, next) => {
@@ -365,6 +400,29 @@ apiRouter.get(
       const { pattern } = req.query as any;
       const countryIso = (req.query.countryIso as string) || "GR";
       const result = await debugSearchPrestaShopModuleCode(moduleName, pattern, countryIso);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
+  "/v1/debug/modules/:moduleName/file",
+  validateParams(moduleNameSchema),
+  validateQuery(moduleFileQuerySchema),
+  async (req, res, next) => {
+    try {
+      const { moduleName } = req.params as any;
+      const { path, start, lines } = req.query as any;
+      const countryIso = (req.query.countryIso as string) || "GR";
+      const result = await debugReadPrestaShopModuleFile(
+        moduleName,
+        path,
+        Number(start),
+        Number(lines),
+        countryIso
+      );
       res.json(result);
     } catch (error) {
       next(error);
