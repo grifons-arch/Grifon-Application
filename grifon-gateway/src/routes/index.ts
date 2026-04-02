@@ -40,6 +40,7 @@ import {
   clearActivityTables,
   debugListWholesaleApplications,
   debugInspectEtsWholesaleApplication,
+  debugInspectEtsWholesaleApplicationVisibility,
   debugInspectEtsWholesaleFormFields,
   debugReadPrestaShopModuleFile,
   debugInspectPrestaShopModule,
@@ -338,6 +339,21 @@ apiRouter.get(
       const { customerId } = req.params as any;
       const countryIso = (req.query.countryIso as string) || "GR";
       const result = await debugInspectEtsWholesaleApplication(Number(customerId), countryIso);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
+  "/v1/debug/ets-wholesale/application-visibility/:customerId",
+  validateParams(customerIdSchema),
+  async (req, res, next) => {
+    try {
+      const { customerId } = req.params as any;
+      const countryIso = (req.query.countryIso as string) || "GR";
+      const result = await debugInspectEtsWholesaleApplicationVisibility(Number(customerId), countryIso);
       res.json(result);
     } catch (error) {
       next(error);
