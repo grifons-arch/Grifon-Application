@@ -158,12 +158,25 @@ class RegisterViewModel(
                 .trim()
                 .ifBlank { listOf(currentState.firstName, currentState.lastName).joinToString(" ").trim() }
                 .takeIf { it.isNotBlank() }
-            val fallbackStreet = currentState.street.trim().ifBlank { "Online registration" }
-            val fallbackCity = currentState.city.trim().ifBlank {
-                if (countryIso == "SE") "Stockholm" else "Athens"
+            val requiresStructuredAddress = currentState.wholesaleRequested
+            val resolvedStreet = if (requiresStructuredAddress) {
+                currentState.street.trim()
+            } else {
+                currentState.street.trim().ifBlank { "Online registration" }
             }
-            val fallbackPostalCode = currentState.postalCode.trim().ifBlank {
-                if (countryIso == "SE") "11122" else "10552"
+            val resolvedCity = if (requiresStructuredAddress) {
+                currentState.city.trim()
+            } else {
+                currentState.city.trim().ifBlank {
+                    if (countryIso == "SE") "Stockholm" else "Athens"
+                }
+            }
+            val resolvedPostalCode = if (requiresStructuredAddress) {
+                currentState.postalCode.trim()
+            } else {
+                currentState.postalCode.trim().ifBlank {
+                    if (countryIso == "SE") "11122" else "10552"
+                }
             }
             val params = RegisterParams(
                 email = currentState.email.trim(),
@@ -173,9 +186,9 @@ class RegisterViewModel(
                 lastName = currentState.lastName.trim(),
                 contactPersonFullName = contactPersonFullName,
                 countryIso = countryIso,
-                street = fallbackStreet,
-                city = fallbackCity,
-                postalCode = fallbackPostalCode,
+                street = resolvedStreet,
+                city = resolvedCity,
+                postalCode = resolvedPostalCode,
                 phone = currentState.phone.trim().ifBlank { null },
                 company = currentState.companyName.trim().ifBlank { null },
                 vatNumber = currentState.vatNumber.trim().ifBlank { null },

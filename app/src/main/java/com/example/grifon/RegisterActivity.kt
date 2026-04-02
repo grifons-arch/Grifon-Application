@@ -15,19 +15,23 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grifon.core.AppLanguage
 import com.example.grifon.core.ServiceLocator
+import com.example.grifon.presentation.register.CountryOption
+import com.example.grifon.presentation.register.RegisterAddressCatalog
 import com.example.grifon.presentation.register.RegisterStatus
 import com.example.grifon.presentation.register.RegisterViewModel
 import com.example.grifon.presentation.register.RegisterViewModelFactory
 import com.example.grifon.ui.theme.GrifonTheme
+import java.util.Locale
 
 class RegisterActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
@@ -54,8 +58,22 @@ fun RegisterScreen(
 ) {
     val state by registerViewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    val configuration = LocalConfiguration.current
+    val locale = remember(configuration) {
+        val locales = configuration.locales
+        if (!locales.isEmpty) locales.get(0) else Locale.getDefault()
+    }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isPasswordConfirmationVisible by remember { mutableStateOf(false) }
+    val countrySuggestions = remember(locale, state.country) {
+        RegisterAddressCatalog.countrySuggestions(locale, state.country).take(12)
+    }
+    val citySuggestions = remember(state.countryIso, state.city) {
+        RegisterAddressCatalog.citySuggestions(state.countryIso, state.city).take(12)
+    }
+    val streetSuggestions = remember(state.countryIso, state.city, state.street) {
+        RegisterAddressCatalog.streetSuggestions(state.countryIso, state.city, state.street).take(12)
+    }
 
     Column(
         modifier = Modifier
@@ -121,6 +139,46 @@ fun RegisterScreen(
                 value = state.vatNumber,
                 onValueChange = registerViewModel::onVatNumberChange,
                 placeholder = stringResource(R.string.identification_placeholder_optional),
+            )
+            SectionTitle(title = stringResource(R.string.address_section))
+            SearchableCountryField(
+                value = state.country,
+                onValueChange = registerViewModel::onCountryChange,
+                onOptionSelected = registerViewModel::onCountrySelected,
+                options = countrySuggestions,
+                placeholder = stringResource(R.string.country_iso_placeholder),
+            )
+            SearchableSuggestionField(
+                value = state.city,
+                onValueChange = registerViewModel::onCityChange,
+                onOptionSelected = registerViewModel::onCityChange,
+                options = citySuggestions,
+                placeholder = stringResource(R.string.city_placeholder),
+                enabled = state.countryIso.isNotBlank(),
+                supportingText = if (state.countryIso.isBlank()) {
+                    stringResource(R.string.select_country_first)
+                } else {
+                    null
+                },
+            )
+            SearchableSuggestionField(
+                value = state.street,
+                onValueChange = registerViewModel::onStreetChange,
+                onOptionSelected = registerViewModel::onStreetChange,
+                options = streetSuggestions,
+                placeholder = stringResource(R.string.street_placeholder),
+                enabled = state.countryIso.isNotBlank() && state.city.isNotBlank(),
+                supportingText = if (state.city.isBlank()) {
+                    stringResource(R.string.select_city_first)
+                } else {
+                    null
+                },
+            )
+            RegistrationTextField(
+                value = state.postalCode,
+                onValueChange = registerViewModel::onPostalCodeChange,
+                placeholder = stringResource(R.string.postal_code_placeholder),
+                keyboardType = KeyboardType.Text,
             )
             RegistrationTextField(
                 value = state.email,
@@ -238,6 +296,7 @@ private fun RegistrationTextField(
     isPassword: Boolean = false,
     isPasswordVisible: Boolean = false,
     onPasswordVisibilityChange: (() -> Unit)? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
 ) {
     TextField(
         value = value,
@@ -254,6 +313,7 @@ private fun RegistrationTextField(
                 }
             }
         } else null,
+        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = keyboardType),
         supportingText = if (!supportingText.isNullOrBlank()) {
             { Text(text = supportingText, style = MaterialTheme.typography.bodySmall) }
         } else null,
@@ -262,6 +322,120 @@ private fun RegistrationTextField(
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
     )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun SearchableCountryField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onOptionSelected: (CountryOption) -> Unit,
+    options: List<CountryOption>,
+    placeholder: String,
+    enabled: Boolean = true,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val shouldShowMenu = expanded && options.isNotEmpty()
+
+    ExposedDropdownMenuBox(
+        expanded = shouldShowMenu,
+        onExpandedChange = { expanded = !expanded && enabled },
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {
+                onValueChange(it)
+                expanded = enabled
+            },
+            enabled = enabled,
+            placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
+            shape = RoundedCornerShape(10.dp),
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = shouldShowMenu)
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+        )
+
+        ExposedDropdownMenu(
+            expanded = shouldShowMenu,
+            onDismissRequest = { expanded = false },
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option.displayName) },
+                    onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun SearchableSuggestionField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onOptionSelected: (String) -> Unit,
+    options: List<String>,
+    placeholder: String,
+    enabled: Boolean = true,
+    supportingText: String? = null,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val shouldShowMenu = expanded && enabled && options.isNotEmpty()
+
+    ExposedDropdownMenuBox(
+        expanded = shouldShowMenu,
+        onExpandedChange = { expanded = !expanded && enabled },
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {
+                onValueChange(it)
+                expanded = enabled
+            },
+            enabled = enabled,
+            placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
+            shape = RoundedCornerShape(10.dp),
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = shouldShowMenu)
+            },
+            supportingText = if (!supportingText.isNullOrBlank()) {
+                { Text(text = supportingText, style = MaterialTheme.typography.bodySmall) }
+            } else null,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+        )
+
+        ExposedDropdownMenu(
+            expanded = shouldShowMenu,
+            onDismissRequest = { expanded = false },
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
 }
 
 @Composable

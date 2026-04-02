@@ -110,7 +110,7 @@
     <string name="vat_placeholder">Momsnummer</string>
     <string name="identification_placeholder_optional">Identifikationsnummer (Valfritt)</string>
     <string name="vat_placeholder_required">Momsnummer *</string>
-    <string name="address_section">Adress +</string>
+    <string name="address_section">Adress</string>
     <string name="search_address_on_map">Sök adress på kartan (klicka här)</string>
     <string name="missing_api_key">API-nyckel saknas</string>
     <string name="open_map_failed">Det gick inte att öppna kartan: %1$s</string>
@@ -120,6 +120,8 @@
     <string name="city_placeholder">Stad *</string>
     <string name="country_iso_placeholder">Land *</string>
     <string name="postal_code_placeholder">Postnummer *</string>
+    <string name="select_country_first">Välj land först</string>
+    <string name="select_city_first">Välj stad först</string>
     <string name="address_coordinates_placeholder">Adresskoordinater</string>
     <string name="contact_person_section">Kontaktperson</string>
     <string name="contact_person_full_name_placeholder">Fullständigt namn *</string>

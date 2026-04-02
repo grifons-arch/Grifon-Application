@@ -115,7 +115,7 @@
     <string name="vat_placeholder">VAT number</string>
     <string name="identification_placeholder_optional">Identification number (Optional)</string>
     <string name="vat_placeholder_required">VAT number *</string>
-    <string name="address_section">Address +</string>
+    <string name="address_section">Address</string>
     <string name="search_address_on_map">Search address on map (click here)</string>
     <string name="missing_api_key">API key is missing</string>
     <string name="open_map_failed">Failed to open map: %1$s</string>
@@ -125,6 +125,8 @@
     <string name="city_placeholder">City *</string>
     <string name="country_iso_placeholder">Country *</string>
     <string name="postal_code_placeholder">Postal code *</string>
+    <string name="select_country_first">Select country first</string>
+    <string name="select_city_first">Select city first</string>
     <string name="address_coordinates_placeholder">Address coordinates</string>
     <string name="contact_person_section">Contact person</string>
     <string name="contact_person_full_name_placeholder">Full name *</string>

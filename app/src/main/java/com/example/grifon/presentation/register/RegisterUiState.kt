@@ -39,7 +39,11 @@ data class RegisterUiState(
             password.trim().length >= 8 &&
             termsAndPrivacyAccepted &&
             (!wholesaleRequested || (
-                customerDataPrivacyAccepted
+                customerDataPrivacyAccepted &&
+                    countryIso.isNotBlank() &&
+                    city.isNotBlank() &&
+                    street.isNotBlank() &&
+                    postalCode.isNotBlank()
             )) &&
             (wholesaleRequested || (
                 email == emailConfirmation &&

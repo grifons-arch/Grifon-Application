@@ -132,6 +132,15 @@ object RegisterAddressCatalog {
         )
     }
 
+    fun countrySuggestions(locale: Locale, query: String = ""): List<CountryOption> {
+        val normalizedQuery = normalizeKey(query)
+        return countriesFor(locale).filter { option ->
+            normalizedQuery.isBlank() ||
+                normalizeKey(option.displayName).contains(normalizedQuery) ||
+                option.isoCode.contains(query.trim(), ignoreCase = true)
+        }
+    }
+
     fun citySuggestions(countryIso: String, query: String = ""): List<String> {
         return filterSuggestions(citySuggestionsByCountry[countryIso].orEmpty(), query)
     }
