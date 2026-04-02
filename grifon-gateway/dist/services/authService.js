@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.debugListWholesaleApplications = exports.clearActivityTables = exports.listRecentProducts = exports.listFavoriteProducts = exports.recordRecentProduct = exports.syncFavoriteProduct = exports.loginCustomer = exports.updateProfile = exports.registerCustomer = void 0;
+exports.debugInspectEtsWholesaleFormFields = exports.debugInspectEtsWholesaleApplication = exports.debugInspectEtsWholesaleApplicationVisibility = exports.debugReadPrestaShopModuleFile = exports.debugSearchPrestaShopModuleCode = exports.debugInspectPrestaShopTable = exports.debugInspectPrestaShopModule = exports.debugListWholesaleApplications = exports.clearActivityTables = exports.listRecentProducts = exports.listFavoriteProducts = exports.recordRecentProduct = exports.syncFavoriteProduct = exports.loginCustomer = exports.updateProfile = exports.registerCustomer = void 0;
 const axios_1 = __importDefault(require("axios"));
 const crypto_1 = __importDefault(require("crypto"));
 const env_1 = require("../config/env");
@@ -79,13 +79,22 @@ const registerCustomer = async (request) => {
     const response = await sendToPrestaShop(payload, countryIso);
     const wholesaleRequested = request.wholesaleRequested === true;
     const wholesaleApplicationRegistered = response?.wholesaleApplicationRegistered === true;
+    const wholesaleApplicationTable = typeof response?.wholesaleApplicationTable === "string"
+        ? response.wholesaleApplicationTable.trim()
+        : "";
+    const wholesaleApplicationMode = typeof response?.wholesaleApplicationMode === "string"
+        ? response.wholesaleApplicationMode.trim()
+        : "";
+    const wholesaleApplicationSkippedReason = typeof response?.wholesaleApplicationSkippedReason === "string"
+        ? response.wholesaleApplicationSkippedReason.trim()
+        : "";
     const wholesaleApplicationError = typeof response?.wholesaleApplicationError === "string"
         ? response.wholesaleApplicationError.trim()
         : "";
     const message = wholesaleRequested
         ? (wholesaleApplicationRegistered
-            ? "Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση."
-            : "Ο λογαριασμός δημιουργήθηκε, αλλά η αίτηση χονδρικής χρειάζεται έλεγχο στο PrestaShop.")
+            ? buildWholesaleSuccessMessage(wholesaleApplicationTable, wholesaleApplicationMode)
+            : buildWholesaleFailureMessage(wholesaleApplicationSkippedReason, wholesaleApplicationTable, wholesaleApplicationError))
         : (response.message || "Registration successful");
     try {
         await (0, wholesaleNotificationService_1.notifyWholesaleRequest)({
@@ -107,10 +116,44 @@ const registerCustomer = async (request) => {
         status: wholesaleRequested ? "pending_wholesale_approval" : "success",
         message,
         wholesaleApplicationRegistered,
+        wholesaleApplicationTable: wholesaleApplicationTable || undefined,
+        wholesaleApplicationMode: wholesaleApplicationMode || undefined,
+        wholesaleApplicationSkippedReason: wholesaleApplicationSkippedReason || undefined,
         wholesaleApplicationError: wholesaleApplicationError || undefined
     };
 };
 exports.registerCustomer = registerCustomer;
+function buildWholesaleSuccessMessage(table, mode) {
+    const details = [table, mode].filter(Boolean).join(" / ");
+    if (details) {
+        return `Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση. (${details})`;
+    }
+    return "Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση.";
+}
+function buildWholesaleFailureMessage(reason, table, error) {
+    if (error) {
+        return `Ο λογαριασμός δημιουργήθηκε, αλλά η αίτηση χονδρικής απέτυχε: ${error}`;
+    }
+    if (reason === "table_not_found") {
+        return "Ο λογαριασμός δημιουργήθηκε, αλλά δεν βρέθηκε wholesale applications table στο PrestaShop.";
+    }
+    if (reason === "columns_not_found") {
+        return table
+            ? `Ο λογαριασμός δημιουργήθηκε, αλλά το wholesale table ${table} δεν επέστρεψε columns.`
+            : "Ο λογαριασμός δημιουργήθηκε, αλλά το wholesale table δεν επέστρεψε columns.";
+    }
+    if (reason === "no_matching_columns") {
+        return table
+            ? `Ο λογαριασμός δημιουργήθηκε, αλλά τα columns του ${table} δεν ταιριάζουν με το wholesale application mapping.`
+            : "Ο λογαριασμός δημιουργήθηκε, αλλά τα columns του wholesale table δεν ταιριάζουν με το mapping.";
+    }
+    if (reason === "write_failed") {
+        return table
+            ? `Ο λογαριασμός δημιουργήθηκε, αλλά απέτυχε η καταχώριση στο ${table}.`
+            : "Ο λογαριασμός δημιουργήθηκε, αλλά απέτυχε η καταχώριση της αίτησης χονδρικής.";
+    }
+    return "Ο λογαριασμός δημιουργήθηκε, αλλά η αίτηση χονδρικής χρειάζεται έλεγχο στο PrestaShop.";
+}
 const updateProfile = async (request) => {
     const payload = {
         action: "sync",
@@ -195,6 +238,34 @@ const debugListWholesaleApplications = async (countryIso = "GR") => {
     return sendToPrestaShop({ action: "list_wholesale_applications" }, countryIso);
 };
 exports.debugListWholesaleApplications = debugListWholesaleApplications;
+const debugInspectPrestaShopModule = async (moduleName, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "inspect_module", module: moduleName }, countryIso);
+};
+exports.debugInspectPrestaShopModule = debugInspectPrestaShopModule;
+const debugInspectPrestaShopTable = async (tableName, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "inspect_table", table: tableName }, countryIso);
+};
+exports.debugInspectPrestaShopTable = debugInspectPrestaShopTable;
+const debugSearchPrestaShopModuleCode = async (moduleName, pattern, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "search_module_code", module: moduleName, pattern }, countryIso);
+};
+exports.debugSearchPrestaShopModuleCode = debugSearchPrestaShopModuleCode;
+const debugReadPrestaShopModuleFile = async (moduleName, filePath, start = 1, lines = 80, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "read_module_file", module: moduleName, path: filePath, start, lines }, countryIso);
+};
+exports.debugReadPrestaShopModuleFile = debugReadPrestaShopModuleFile;
+const debugInspectEtsWholesaleApplicationVisibility = async (customerId, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "inspect_ets_wholesale_application_visibility", customerId }, countryIso);
+};
+exports.debugInspectEtsWholesaleApplicationVisibility = debugInspectEtsWholesaleApplicationVisibility;
+const debugInspectEtsWholesaleApplication = async (customerId, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "inspect_ets_wholesale_application", customerId }, countryIso);
+};
+exports.debugInspectEtsWholesaleApplication = debugInspectEtsWholesaleApplication;
+const debugInspectEtsWholesaleFormFields = async (formType, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "inspect_ets_wholesale_form_fields", formType }, countryIso);
+};
+exports.debugInspectEtsWholesaleFormFields = debugInspectEtsWholesaleFormFields;
 async function sendToPrestaShop(payload, countryIso) {
     const body = JSON.stringify(payload);
     const secret = env_1.config.customerSyncSecret || env_1.config.prestashopApiKey;

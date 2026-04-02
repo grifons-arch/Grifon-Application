@@ -72,9 +72,19 @@ const envSchema = z.object({
   RATE_LIMIT_PER_MIN: z.string().default("120"),
   REGISTER_RATE_LIMIT_PER_MIN: z.string().default("10"),
   REDIS_URL: z.string().optional().default(""),
+  WHOLESALE_NOTIFICATION_TRANSPORT: z
+    .enum(["auto", "smtp", "sendmail", "disabled"])
+    .default("auto"),
   WHOLESALE_NOTIFICATION_TO: z.string().optional().default("joanneper@yahoo.com"),
   WHOLESALE_NOTIFICATION_FROM: z.string().optional().default("grifon-gateway@localhost"),
-  SENDMAIL_PATH: z.string().optional().default("/usr/sbin/sendmail")
+  SENDMAIL_PATH: z.string().optional().default("/usr/sbin/sendmail"),
+  SMTP_HOST: z.string().optional().default(""),
+  SMTP_PORT: z.string().optional().default("587"),
+  SMTP_SECURE: z.string().optional().default("false"),
+  SMTP_REQUIRE_TLS: z.string().optional().default("false"),
+  SMTP_USER: z.string().optional().default(""),
+  SMTP_PASS: z.string().optional().default(""),
+  SMTP_HELO_NAME: z.string().optional().default("")
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -86,6 +96,15 @@ if (!parsed.success) {
 }
 
 const env = parsed.data;
+
+const parseBoolean = (value: string | undefined, fallback = false): boolean => {
+  const normalized = trimToUndefined(value)?.toLowerCase();
+  if (!normalized) {
+    return fallback;
+  }
+
+  return ["1", "true", "yes", "on"].includes(normalized);
+};
 
 const parseCountryGroupMap = (value: string): Record<string, number> => {
   if (!value) return {};
@@ -177,11 +196,19 @@ export const config = {
   rateLimitPerMin: Number(env.RATE_LIMIT_PER_MIN),
   registerRateLimitPerMin: Number(env.REGISTER_RATE_LIMIT_PER_MIN),
   redisUrl: env.REDIS_URL,
+  wholesaleNotificationTransport: env.WHOLESALE_NOTIFICATION_TRANSPORT,
   wholesaleNotificationTo:
     trimToUndefined(env.WHOLESALE_NOTIFICATION_TO) ?? "joanneper@yahoo.com",
   wholesaleNotificationFrom:
     trimToUndefined(env.WHOLESALE_NOTIFICATION_FROM) ?? "grifon-gateway@localhost",
-  sendmailPath: trimToUndefined(env.SENDMAIL_PATH) ?? "/usr/sbin/sendmail"
+  sendmailPath: trimToUndefined(env.SENDMAIL_PATH) ?? "/usr/sbin/sendmail",
+  smtpHost: trimToUndefined(env.SMTP_HOST),
+  smtpPort: Number(env.SMTP_PORT),
+  smtpSecure: parseBoolean(env.SMTP_SECURE),
+  smtpRequireTls: parseBoolean(env.SMTP_REQUIRE_TLS),
+  smtpUser: trimToUndefined(env.SMTP_USER),
+  smtpPass: trimToUndefined(env.SMTP_PASS),
+  smtpHeloName: trimToUndefined(env.SMTP_HELO_NAME)
 };
 
 export type ShopId = 1 | 4;

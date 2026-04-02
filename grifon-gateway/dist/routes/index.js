@@ -229,4 +229,83 @@ exports.apiRouter.get("/v1/debug/wholesale-applications", async (req, res, next)
         next(error);
     }
 });
+exports.apiRouter.get("/v1/debug/ets-wholesale/application/:customerId", (0, validate_1.validateParams)(schemas_1.customerIdSchema), async (req, res, next) => {
+    try {
+        const { customerId } = req.params;
+        const countryIso = req.query.countryIso || "GR";
+        const result = await (0, authService_1.debugInspectEtsWholesaleApplication)(Number(customerId), countryIso);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/debug/ets-wholesale/application-visibility/:customerId", (0, validate_1.validateParams)(schemas_1.customerIdSchema), async (req, res, next) => {
+    try {
+        const { customerId } = req.params;
+        const countryIso = req.query.countryIso || "GR";
+        const result = await (0, authService_1.debugInspectEtsWholesaleApplicationVisibility)(Number(customerId), countryIso);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/debug/ets-wholesale/form-fields", (0, validate_1.validateQuery)(schemas_1.etsWholesaleFormFieldsQuerySchema), async (req, res, next) => {
+    try {
+        const { formType } = req.query;
+        const countryIso = req.query.countryIso || "GR";
+        const result = await (0, authService_1.debugInspectEtsWholesaleFormFields)(formType, countryIso);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/debug/modules/:moduleName", (0, validate_1.validateParams)(schemas_1.moduleNameSchema), async (req, res, next) => {
+    try {
+        const { moduleName } = req.params;
+        const countryIso = req.query.countryIso || "GR";
+        const result = await (0, authService_1.debugInspectPrestaShopModule)(moduleName, countryIso);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/debug/tables/:tableName", (0, validate_1.validateParams)(schemas_1.tableNameSchema), async (req, res, next) => {
+    try {
+        const { tableName } = req.params;
+        const countryIso = req.query.countryIso || "GR";
+        const result = await (0, authService_1.debugInspectPrestaShopTable)(tableName, countryIso);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/debug/modules/:moduleName/search", (0, validate_1.validateParams)(schemas_1.moduleNameSchema), (0, validate_1.validateQuery)(schemas_1.moduleSearchQuerySchema), async (req, res, next) => {
+    try {
+        const { moduleName } = req.params;
+        const { pattern } = req.query;
+        const countryIso = req.query.countryIso || "GR";
+        const result = await (0, authService_1.debugSearchPrestaShopModuleCode)(moduleName, pattern, countryIso);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/debug/modules/:moduleName/file", (0, validate_1.validateParams)(schemas_1.moduleNameSchema), (0, validate_1.validateQuery)(schemas_1.moduleFileQuerySchema), async (req, res, next) => {
+    try {
+        const { moduleName } = req.params;
+        const { path, start, lines } = req.query;
+        const countryIso = req.query.countryIso || "GR";
+        const result = await (0, authService_1.debugReadPrestaShopModuleFile)(moduleName, path, Number(start), Number(lines), countryIso);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.default = exports.apiRouter;

@@ -58,9 +58,19 @@ const envSchema = zod_1.z.object({
     RATE_LIMIT_PER_MIN: zod_1.z.string().default("120"),
     REGISTER_RATE_LIMIT_PER_MIN: zod_1.z.string().default("10"),
     REDIS_URL: zod_1.z.string().optional().default(""),
+    WHOLESALE_NOTIFICATION_TRANSPORT: zod_1.z
+        .enum(["auto", "smtp", "sendmail", "disabled"])
+        .default("auto"),
     WHOLESALE_NOTIFICATION_TO: zod_1.z.string().optional().default("joanneper@yahoo.com"),
     WHOLESALE_NOTIFICATION_FROM: zod_1.z.string().optional().default("grifon-gateway@localhost"),
-    SENDMAIL_PATH: zod_1.z.string().optional().default("/usr/sbin/sendmail")
+    SENDMAIL_PATH: zod_1.z.string().optional().default("/usr/sbin/sendmail"),
+    SMTP_HOST: zod_1.z.string().optional().default(""),
+    SMTP_PORT: zod_1.z.string().optional().default("587"),
+    SMTP_SECURE: zod_1.z.string().optional().default("false"),
+    SMTP_REQUIRE_TLS: zod_1.z.string().optional().default("false"),
+    SMTP_USER: zod_1.z.string().optional().default(""),
+    SMTP_PASS: zod_1.z.string().optional().default(""),
+    SMTP_HELO_NAME: zod_1.z.string().optional().default("")
 });
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
@@ -69,6 +79,13 @@ if (!parsed.success) {
     process.exit(1);
 }
 const env = parsed.data;
+const parseBoolean = (value, fallback = false) => {
+    const normalized = trimToUndefined(value)?.toLowerCase();
+    if (!normalized) {
+        return fallback;
+    }
+    return ["1", "true", "yes", "on"].includes(normalized);
+};
 const parseCountryGroupMap = (value) => {
     if (!value)
         return {};
@@ -146,9 +163,17 @@ exports.config = {
     rateLimitPerMin: Number(env.RATE_LIMIT_PER_MIN),
     registerRateLimitPerMin: Number(env.REGISTER_RATE_LIMIT_PER_MIN),
     redisUrl: env.REDIS_URL,
+    wholesaleNotificationTransport: env.WHOLESALE_NOTIFICATION_TRANSPORT,
     wholesaleNotificationTo: trimToUndefined(env.WHOLESALE_NOTIFICATION_TO) ?? "joanneper@yahoo.com",
     wholesaleNotificationFrom: trimToUndefined(env.WHOLESALE_NOTIFICATION_FROM) ?? "grifon-gateway@localhost",
-    sendmailPath: trimToUndefined(env.SENDMAIL_PATH) ?? "/usr/sbin/sendmail"
+    sendmailPath: trimToUndefined(env.SENDMAIL_PATH) ?? "/usr/sbin/sendmail",
+    smtpHost: trimToUndefined(env.SMTP_HOST),
+    smtpPort: Number(env.SMTP_PORT),
+    smtpSecure: parseBoolean(env.SMTP_SECURE),
+    smtpRequireTls: parseBoolean(env.SMTP_REQUIRE_TLS),
+    smtpUser: trimToUndefined(env.SMTP_USER),
+    smtpPass: trimToUndefined(env.SMTP_PASS),
+    smtpHeloName: trimToUndefined(env.SMTP_HELO_NAME)
 };
 exports.shops = [
     { id: 4, code: "GR", domain: "grifon.gr", baseUrl: env.SHOP_GR_BASE_URL },

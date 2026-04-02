@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.customerActivityClearBodySchema = exports.customerActivityQuerySchema = exports.productActivityBodySchema = exports.registerBodySchema = exports.loginBodySchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
+exports.customerActivityClearBodySchema = exports.customerActivityQuerySchema = exports.productActivityBodySchema = exports.registerBodySchema = exports.loginBodySchema = exports.etsWholesaleFormFieldsQuerySchema = exports.moduleFileQuerySchema = exports.moduleSearchQuerySchema = exports.tableNameSchema = exports.moduleNameSchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
 const zod_1 = require("zod");
 const toNumber = (value) => {
     if (value === undefined || value === null || value === "")
@@ -58,6 +58,23 @@ exports.categoryIdSchema = zod_1.z.object({
 });
 exports.productIdSchema = zod_1.z.object({
     productId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive())
+});
+exports.moduleNameSchema = zod_1.z.object({
+    moduleName: zod_1.z.string().trim().regex(/^[A-Za-z0-9_-]+$/)
+});
+exports.tableNameSchema = zod_1.z.object({
+    tableName: zod_1.z.string().trim().regex(/^[A-Za-z0-9_]+$/)
+});
+exports.moduleSearchQuerySchema = zod_1.z.object({
+    pattern: zod_1.z.string().trim().min(1).max(120)
+});
+exports.moduleFileQuerySchema = zod_1.z.object({
+    path: zod_1.z.string().trim().min(1).max(300),
+    start: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(10000)).default(1),
+    lines: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(200)).default(80)
+});
+exports.etsWholesaleFormFieldsQuerySchema = zod_1.z.object({
+    formType: zod_1.z.preprocess(toOptionalString, zod_1.z.enum(["registration", "add_information"]).optional())
 });
 exports.loginBodySchema = zod_1.z.object({
     email: zod_1.z.string().trim().email(),
