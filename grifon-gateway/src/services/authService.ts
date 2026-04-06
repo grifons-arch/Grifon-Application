@@ -6,10 +6,13 @@ import { getPriceAccess } from "./priceAccessService";
 import { notifyWholesaleRequest } from "./wholesaleNotificationService";
 
 export interface RegisterRequest {
+  customerId?: number;
   email: string;
   password?: string;
   firstName: string;
   lastName: string;
+  contactPersonFullName?: string;
+  country?: string;
   countryIso?: string;
   street?: string;
   city?: string;
@@ -17,6 +20,12 @@ export interface RegisterRequest {
   phone?: string;
   company?: string;
   vatNumber?: string;
+  addressCoordinates?: string;
+  companyRegistrationFileName?: string;
+  invoiceFileName?: string;
+  customerDataPrivacyAccepted?: boolean;
+  termsAndPrivacyAccepted?: boolean;
+  partnerOffers?: boolean;
   newsletter?: boolean;
   wholesaleRequested?: boolean;
 }
@@ -60,9 +69,77 @@ const createSignature = (payload: string, secret: string): { timestamp: string, 
   return { timestamp, signature };
 };
 
+const normalizeCountryIso = (countryIso?: string): string =>
+  countryIso?.trim().toUpperCase() === "SE" ? "SE" : "GR";
+
+const resolveCountryLabel = (request: RegisterRequest, countryIso: string): string => {
+  const explicitCountry = request.country?.trim();
+  if (explicitCountry) {
+    return explicitCountry;
+  }
+
+  switch (countryIso) {
+    case "SE":
+      return "Sweden";
+    case "GR":
+      return "Greece";
+    default:
+      return countryIso;
+  }
+};
+
+const readWholesaleResponseMetadata = (response: any) => {
+  const wholesaleApplicationRegistered = response?.wholesaleApplicationRegistered === true;
+  const wholesaleApplicationTable = typeof response?.wholesaleApplicationTable === "string"
+    ? response.wholesaleApplicationTable.trim()
+    : "";
+  const wholesaleApplicationMode = typeof response?.wholesaleApplicationMode === "string"
+    ? response.wholesaleApplicationMode.trim()
+    : "";
+  const wholesaleApplicationSkippedReason = typeof response?.wholesaleApplicationSkippedReason === "string"
+    ? response.wholesaleApplicationSkippedReason.trim()
+    : "";
+  const wholesaleApplicationError = typeof response?.wholesaleApplicationError === "string"
+    ? response.wholesaleApplicationError.trim()
+    : "";
+
+  return {
+    wholesaleApplicationRegistered,
+    wholesaleApplicationTable,
+    wholesaleApplicationMode,
+    wholesaleApplicationSkippedReason,
+    wholesaleApplicationError
+  };
+};
+
+const buildWholesaleSubmissionResponse = (
+  response: any,
+  fallbackMessage: string
+) => {
+  const metadata = readWholesaleResponseMetadata(response);
+  const message = metadata.wholesaleApplicationRegistered
+    ? buildWholesaleSuccessMessage(metadata.wholesaleApplicationTable, metadata.wholesaleApplicationMode)
+    : buildWholesaleFailureMessage(
+        metadata.wholesaleApplicationSkippedReason,
+        metadata.wholesaleApplicationTable,
+        metadata.wholesaleApplicationError
+      );
+
+  return {
+    customerId: response.psCustomerId?.toString() || "0",
+    status: "pending_wholesale_approval",
+    message: message || fallbackMessage,
+    wholesaleApplicationRegistered: metadata.wholesaleApplicationRegistered,
+    wholesaleApplicationTable: metadata.wholesaleApplicationTable || undefined,
+    wholesaleApplicationMode: metadata.wholesaleApplicationMode || undefined,
+    wholesaleApplicationSkippedReason: metadata.wholesaleApplicationSkippedReason || undefined,
+    wholesaleApplicationError: metadata.wholesaleApplicationError || undefined
+  };
+};
+
 export const registerCustomer = async (request: RegisterRequest): Promise<any> => {
   const email = request.email.trim().toLowerCase();
-  const countryIso = (request.countryIso || "GR").trim().toUpperCase();
+  const countryIso = normalizeCountryIso(request.countryIso);
 
   const dniValue = (request.vatNumber && request.vatNumber.trim().length >= 9)
     ? request.vatNumber.trim()
@@ -90,13 +167,18 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
       email,
       firstName: request.firstName,
       lastName: request.lastName,
+      country: resolveCountryLabel(request, countryIso),
       phone: request.phone || "",
       company: request.company || "",
       vatNumber: request.vatNumber || dniValue,
       countryIso,
       city: request.city || "",
       street: request.street || "",
-      postalCode: request.postalCode || ""
+      postalCode: request.postalCode || "",
+      contactPersonFullName: request.contactPersonFullName || "",
+      addressCoordinates: request.addressCoordinates || "",
+      companyRegistrationFileName: request.companyRegistrationFileName || "",
+      invoiceFileName: request.invoiceFileName || ""
     } : undefined,
     addresses: [{
       externalAddressId: `addr_${email}`,
@@ -118,28 +200,19 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
 
   const response = await sendToPrestaShop(payload, countryIso);
   const wholesaleRequested = request.wholesaleRequested === true;
-  const wholesaleApplicationRegistered = response?.wholesaleApplicationRegistered === true;
-  const wholesaleApplicationTable = typeof response?.wholesaleApplicationTable === "string"
-    ? response.wholesaleApplicationTable.trim()
-    : "";
-  const wholesaleApplicationMode = typeof response?.wholesaleApplicationMode === "string"
-    ? response.wholesaleApplicationMode.trim()
-    : "";
-  const wholesaleApplicationSkippedReason = typeof response?.wholesaleApplicationSkippedReason === "string"
-    ? response.wholesaleApplicationSkippedReason.trim()
-    : "";
-  const wholesaleApplicationError = typeof response?.wholesaleApplicationError === "string"
-    ? response.wholesaleApplicationError.trim()
-    : "";
+  const wholesaleMetadata = readWholesaleResponseMetadata(response);
 
   const message = wholesaleRequested
     ? (
-        wholesaleApplicationRegistered
-          ? buildWholesaleSuccessMessage(wholesaleApplicationTable, wholesaleApplicationMode)
+        wholesaleMetadata.wholesaleApplicationRegistered
+          ? buildWholesaleSuccessMessage(
+              wholesaleMetadata.wholesaleApplicationTable,
+              wholesaleMetadata.wholesaleApplicationMode
+            )
           : buildWholesaleFailureMessage(
-              wholesaleApplicationSkippedReason,
-              wholesaleApplicationTable,
-              wholesaleApplicationError
+              wholesaleMetadata.wholesaleApplicationSkippedReason,
+              wholesaleMetadata.wholesaleApplicationTable,
+              wholesaleMetadata.wholesaleApplicationError
             )
       )
     : (response.message || "Registration successful");
@@ -166,12 +239,102 @@ export const registerCustomer = async (request: RegisterRequest): Promise<any> =
     customerId: response.psCustomerId?.toString() || "0",
     status: wholesaleRequested ? "pending_wholesale_approval" : "success",
     message,
-    wholesaleApplicationRegistered,
-    wholesaleApplicationTable: wholesaleApplicationTable || undefined,
-    wholesaleApplicationMode: wholesaleApplicationMode || undefined,
-    wholesaleApplicationSkippedReason: wholesaleApplicationSkippedReason || undefined,
-    wholesaleApplicationError: wholesaleApplicationError || undefined
+    wholesaleApplicationRegistered: wholesaleMetadata.wholesaleApplicationRegistered,
+    wholesaleApplicationTable: wholesaleMetadata.wholesaleApplicationTable || undefined,
+    wholesaleApplicationMode: wholesaleMetadata.wholesaleApplicationMode || undefined,
+    wholesaleApplicationSkippedReason: wholesaleMetadata.wholesaleApplicationSkippedReason || undefined,
+    wholesaleApplicationError: wholesaleMetadata.wholesaleApplicationError || undefined
   };
+};
+
+export const submitWholesaleApplication = async (request: RegisterRequest): Promise<any> => {
+  const email = request.email.trim().toLowerCase();
+  const countryIso = normalizeCountryIso(request.countryIso);
+  const vatNumber = request.vatNumber?.trim() || "123456789";
+  const contactPersonFullName = request.contactPersonFullName?.trim()
+    || `${request.firstName} ${request.lastName}`.trim();
+  const countryLabel = resolveCountryLabel(request, countryIso);
+
+  const payload = {
+    externalCustomerId: request.customerId
+      ? `customer_${request.customerId}_${email}`
+      : email,
+    customer: {
+      email,
+      firstname: request.firstName,
+      lastname: request.lastName,
+      company: request.company || "",
+      newsletter: request.newsletter ? 1 : 0,
+      active: 1,
+      is_wholesale: 1,
+      siret: vatNumber,
+      dni: vatNumber
+    },
+    application: {
+      requested: true,
+      status: "pending",
+      source: "grifon_account_app",
+      submittedAt: new Date().toISOString(),
+      email,
+      firstName: request.firstName,
+      lastName: request.lastName,
+      fullName: contactPersonFullName,
+      contactPersonFullName,
+      phone: request.phone || "",
+      company: request.company || "",
+      vatNumber,
+      country: countryLabel,
+      countryIso,
+      city: request.city || "",
+      street: request.street || "",
+      postalCode: request.postalCode || "",
+      addressCoordinates: request.addressCoordinates || "",
+      companyRegistrationFileName: request.companyRegistrationFileName || "",
+      invoiceFileName: request.invoiceFileName || ""
+    },
+    addresses: [{
+      externalAddressId: `wholesale_addr_${request.customerId ?? email}`,
+      alias: "Wholesale application",
+      firstname: request.firstName,
+      lastname: request.lastName,
+      address1: request.street || "Δεν δηλώθηκε οδός",
+      postcode: (request.postalCode || "00000").replace(/\s/g, ""),
+      city: request.city || "Δεν δηλώθηκε πόλη",
+      countryIso,
+      phone: request.phone || "0000000000",
+      vat_number: vatNumber,
+      dni: vatNumber,
+      identification_number: vatNumber,
+      dni_number: vatNumber,
+      identification: vatNumber
+    }]
+  };
+
+  const response = await sendToPrestaShop(payload, countryIso);
+
+  try {
+    await notifyWholesaleRequest(
+      {
+        ...request,
+        email,
+        country: countryLabel,
+        countryIso,
+        wholesaleRequested: true
+      },
+      {
+        customerId: response.psCustomerId?.toString(),
+        countryIso
+      }
+    );
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn("Wholesale notification email failed to send:", error);
+  }
+
+  return buildWholesaleSubmissionResponse(
+    response,
+    "Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση."
+  );
 };
 
 function buildWholesaleSuccessMessage(table?: string, mode?: string): string {

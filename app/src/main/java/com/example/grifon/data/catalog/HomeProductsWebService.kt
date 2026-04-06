@@ -1,6 +1,7 @@
 package com.example.grifon.data.catalog
 
 import android.util.Log
+import com.example.grifon.core.PrestaLanguage
 import com.example.grifon.domain.model.Product
 import com.example.grifon.core.ShopConfig
 import javax.inject.Inject
@@ -19,6 +20,7 @@ class HomeProductsWebService @Inject constructor(
     suspend fun fetchProductsForShop(shopKey: String): List<Product> {
         val shops = catalogApi.getShops()
         val selectedShop = resolveShop(shops, shopKey) ?: throw Exception("Shop not found: $shopKey")
+        val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
 
         Log.d("GrifonAPI", "Fetching products for shop: ${selectedShop.id} (${selectedShop.code})")
         val customerId = shopPreferences.currentCustomerId.first()
@@ -32,6 +34,7 @@ class HomeProductsWebService @Inject constructor(
         // Προσπάθεια για γενικά προϊόντα
         val productsResponse = catalogApi.getProducts(
             shopId = selectedShop.id,
+            lang = langId,
             pageSize = 50,
             customerId = requestCustomerId,
         )
@@ -51,6 +54,7 @@ class HomeProductsWebService @Inject constructor(
         val fallbackResponse = catalogApi.getCategoryProducts(
             categoryId = 2,
             shopId = selectedShop.id,
+            lang = langId,
             pageSize = 50,
             customerId = requestCustomerId,
         )

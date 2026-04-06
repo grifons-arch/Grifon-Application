@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.LoginText
 import com.example.grifon.core.UiState
+import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.UserRepository
 import com.example.grifon.core.loginText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val shopPreferences: ShopPreferences,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<AccountState>>(UiState.Loading)
@@ -34,9 +36,17 @@ class AccountViewModel @Inject constructor(
     val isLoggingIn: StateFlow<Boolean> = _isLoggingIn
 
     init {
-        userRepository.isLoggedIn()
-            .onEach { loggedIn ->
-                _uiState.value = UiState.Success(AccountState(loggedIn))
+        combine(
+            userRepository.isLoggedIn(),
+            shopPreferences.canViewPrices,
+        ) { loggedIn, canViewPrices ->
+            AccountState(
+                loggedIn = loggedIn,
+                canViewPrices = canViewPrices,
+            )
+        }
+            .onEach { state ->
+                _uiState.value = UiState.Success(state)
             }
             .launchIn(viewModelScope)
     }
@@ -78,4 +88,5 @@ class AccountViewModel @Inject constructor(
 
 data class AccountState(
     val loggedIn: Boolean,
+    val canViewPrices: Boolean,
 )

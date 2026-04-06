@@ -190,7 +190,19 @@ const buildProductAttributeLookup = async (client, products, lang) => {
     });
     return attributeLookup;
 };
-const listAllProducts = async (client, shopId, page, pageSize, sort, lang, allowPrice = true) => {
+const listAllProducts = async (client, shopId, page, pageSize, sort, lang, allowPrice = true, filters = {}) => {
+    const requiresFullFiltering = hasBasicProductFilters(filters) || sort.includes("price");
+    if (requiresFullFiltering) {
+        const data = await client.get("products", {
+            "filter[active]": 1,
+            display: "full",
+            limit: "5000"
+        });
+        const items = (0, prestashopParser_1.extractResourceList)("products", data);
+        const attributeLookup = await buildProductAttributeLookup(client, items, lang);
+        const normalizedItems = items.map((product) => normalizeProduct(product, shopId, lang, allowPrice, attributeLookup.get(Number(product.id)) ?? {}));
+        return paginateProducts(sortProducts(applyBasicProductFilters(normalizedItems, filters), sort), page, pageSize);
+    }
     const data = await client.get("products", {
         "filter[active]": 1,
         sort,
@@ -226,7 +238,7 @@ async function getAllCategoryDescendants(client, parentId) {
     await fetchChildren(parentId);
     return results;
 }
-const listProductsByCategory = async (client, shopId, categoryId, page, pageSize, sort, lang, allowPrice = true) => {
+const listProductsByCategory = async (client, shopId, categoryId, page, pageSize, sort, lang, allowPrice = true, filters = {}) => {
     // 0. Λήψη συνολικού πλήθους προϊόντων καταστήματος (για log)
     try {
         const shopData = await client.get("products", {
@@ -241,7 +253,7 @@ const listProductsByCategory = async (client, shopId, categoryId, page, pageSize
     console.log(`\n--- [CategoryFetch Start] ---`);
     console.log(`Target Category: ${categoryId} | Shop: ${shopId}`);
     if (categoryId === 2) {
-        const items = await (0, exports.listAllProducts)(client, shopId, page, pageSize, sort, lang, allowPrice);
+        const items = await (0, exports.listAllProducts)(client, shopId, page, pageSize, sort, lang, allowPrice, filters);
         console.log(`[CategoryFetch] Shop Root (2) Results: ${items.length} products`);
         console.log(`--- [CategoryFetch End] ---\n`);
         return items;
@@ -289,6 +301,14 @@ const listProductsByCategory = async (client, shopId, categoryId, page, pageSize
         console.log(`--- [CategoryFetch End] ---\n`);
         return [];
     }
+    const requiresFullFiltering = hasBasicProductFilters(filters) || sort.includes("price");
+    if (requiresFullFiltering) {
+        const normalizedItems = await fetchNormalizedProductsByIds(client, shopId, allIds, lang, allowPrice);
+        const filteredAndSortedItems = sortProducts(applyBasicProductFilters(normalizedItems, filters), sort);
+        console.log(`[CategoryFetch] Filtered Results: ${filteredAndSortedItems.length} products`);
+        console.log(`--- [CategoryFetch End] ---\n`);
+        return paginateProducts(filteredAndSortedItems, page, pageSize);
+    }
     // 3. Simple ID-based pagination
     const start = (page - 1) * pageSize;
     const pageIds = allIds.slice(start, start + pageSize);
@@ -318,7 +338,7 @@ const listProductsByCategory = async (client, shopId, categoryId, page, pageSize
 };
 exports.listProductsByCategory = listProductsByCategory;
 const listFacetProductsByCategory = async (client, shopId, categoryId, lang, allowPrice = true) => {
-    return (0, exports.listProductsByCategory)(client, shopId, categoryId, 1, 1000, "[id_DESC]", lang, allowPrice);
+    return (0, exports.listProductsByCategory)(client, shopId, categoryId, 1, 1000, "[id_DESC]", lang, allowPrice, {});
 };
 exports.listFacetProductsByCategory = listFacetProductsByCategory;
 const countByValue = (values) => {
@@ -332,6 +352,144 @@ const colorAliases = ["color", "colour", "χρώμα", "χρωματισμός",
 const isColorAttributeKey = (key) => {
     const normalized = key.trim().toLowerCase();
     return colorAliases.some((alias) => normalized.includes(alias));
+};
+const colorValueAliases = {
+    white: ["white", "λευκ", "ασπρ", "vit"],
+    gray: ["gray", "grey", "γκρι", "grå", "grafit"],
+    black: ["black", "μαυρ", "svart"],
+    red: ["red", "κόκ", "κοκκ", "röd", "bordo", "burgundy", "bordeaux"],
+    pink: ["pink", "ροζ", "fuchsia", "φουξ", "rosa"],
+    purple: ["purple", "μωβ", "λιλά", "lila", "violet"],
+    beige: ["beige", "μπεζ", "sand", "εκρού", "ecru"],
+    brown: ["brown", "καφέ", "brun", "camel", "tabac"],
+    yellow: ["yellow", "κίτρ", "κιτρ", "gul", "mustard", "μουσταρδ"],
+    orange: ["orange", "πορτοκαλ"],
+    green: ["green", "πράσ", "πρασ", "grön", "khaki", "χακί", "olive"],
+    blue: ["blue", "μπλε", "blå", "navy", "γαλάζ", "σιελ"],
+    turquoise: ["turquoise", "τυρκ", "turkos", "petrol", "aqua"],
+    silver: ["silver", "ασημ"],
+    gold: ["gold", "χρυσ", "guld", "ochre", "ώχρα"],
+    multicolor: ["multi", "multicolor", "πολύχρ", "flerfär"],
+};
+const normalizeText = (value) => value.trim().toLowerCase();
+const matchesColorFilter = (product, selectedColors) => {
+    if (selectedColors.length === 0) {
+        return true;
+    }
+    const colorValues = Object.entries(product.attributes)
+        .filter(([key]) => isColorAttributeKey(key))
+        .flatMap(([, values]) => values.map((value) => normalizeText(value)));
+    if (colorValues.length === 0) {
+        return false;
+    }
+    return selectedColors.some((selectedColor) => {
+        const aliases = colorValueAliases[normalizeText(selectedColor)] ?? [normalizeText(selectedColor)];
+        return colorValues.some((value) => aliases.some((alias) => value.includes(alias)));
+    });
+};
+const matchesAttributeFilters = (product, attributeFilters) => {
+    const activeFilters = Object.entries(attributeFilters).filter(([, values]) => values.length > 0);
+    if (activeFilters.length === 0) {
+        return true;
+    }
+    return activeFilters.every(([key, values]) => {
+        const productValues = Object.entries(product.attributes).find(([productKey]) => normalizeText(productKey) === normalizeText(key))?.[1] ?? [];
+        if (productValues.length === 0) {
+            return false;
+        }
+        return values.some((value) => productValues.some((productValue) => normalizeText(productValue) === normalizeText(value)));
+    });
+};
+const matchesSearchFilter = (product, search) => {
+    if (!search) {
+        return true;
+    }
+    const needle = normalizeText(search);
+    const haystacks = [
+        product.name ?? "",
+        product.reference ?? "",
+        ...Object.keys(product.attributes),
+        ...Object.values(product.attributes).flat(),
+    ].map(normalizeText);
+    return haystacks.some((value) => value.includes(needle));
+};
+const applyBasicProductFilters = (products, filters = {}) => {
+    const selectedColors = filters.colors?.filter((value) => value.trim() !== "") ?? [];
+    const attributeFilters = Object.entries(filters.attributeFilters ?? {}).reduce((acc, [key, values]) => {
+        const normalizedValues = values.filter((value) => value.trim() !== "");
+        if (key.trim() !== "" && normalizedValues.length > 0) {
+            acc[key] = normalizedValues;
+        }
+        return acc;
+    }, {});
+    return products.filter((product) => {
+        const matchesPriceMin = filters.priceMin === undefined || product.price === null || product.price >= filters.priceMin;
+        const matchesPriceMax = filters.priceMax === undefined || product.price === null || product.price <= filters.priceMax;
+        return (matchesSearchFilter(product, filters.search) &&
+            matchesPriceMin &&
+            matchesPriceMax &&
+            matchesColorFilter(product, selectedColors) &&
+            matchesAttributeFilters(product, attributeFilters));
+    });
+};
+const hasBasicProductFilters = (filters = {}) => {
+    return Boolean(filters.search ||
+        filters.priceMin !== undefined ||
+        filters.priceMax !== undefined ||
+        (filters.colors?.length ?? 0) > 0 ||
+        Object.values(filters.attributeFilters ?? {}).some((values) => values.length > 0));
+};
+const sortProducts = (products, sort) => {
+    const items = [...products];
+    if (sort.includes("price")) {
+        const desc = sort.includes("DESC");
+        items.sort((a, b) => {
+            const priceA = a.price ?? (desc ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY);
+            const priceB = b.price ?? (desc ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY);
+            return desc ? priceB - priceA : priceA - priceB;
+        });
+        return items;
+    }
+    if (sort.includes("name")) {
+        const desc = sort.includes("DESC");
+        items.sort((a, b) => {
+            const nameA = a.name ?? "";
+            const nameB = b.name ?? "";
+            return desc ? nameB.localeCompare(nameA) : nameA.localeCompare(nameB);
+        });
+        return items;
+    }
+    const desc = !sort.includes("ASC");
+    items.sort((a, b) => (desc ? b.id - a.id : a.id - b.id));
+    return items;
+};
+const paginateProducts = (products, page, pageSize) => {
+    const start = (page - 1) * pageSize;
+    return products.slice(start, start + pageSize);
+};
+const chunkArray = (items, size) => {
+    const chunks = [];
+    for (let index = 0; index < items.length; index += size) {
+        chunks.push(items.slice(index, index + size));
+    }
+    return chunks;
+};
+const fetchNormalizedProductsByIds = async (client, shopId, productIds, lang, allowPrice = true) => {
+    if (productIds.length === 0) {
+        return [];
+    }
+    const rawProducts = [];
+    for (const batch of chunkArray(productIds, 100)) {
+        const batchData = await client.get("products", {
+            "filter[id]": `[${batch.join("|")}]`,
+            "filter[active]": 1,
+            display: "full",
+            limit: batch.length.toString(),
+        });
+        rawProducts.push(...(0, prestashopParser_1.extractResourceList)("products", batchData));
+    }
+    const attributeLookup = await buildProductAttributeLookup(client, rawProducts, lang);
+    return rawProducts.map((product) => normalizeProduct(product, shopId, lang, allowPrice, attributeLookup.get(Number(product.id)) ?? {}));
 };
 const buildCatalogFacets = (products, lang) => {
     const facets = [];

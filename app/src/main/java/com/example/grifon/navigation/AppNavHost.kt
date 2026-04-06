@@ -2,6 +2,7 @@ package com.example.grifon.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -15,12 +16,15 @@ import com.example.grifon.ui.screens.CartScreen
 import com.example.grifon.ui.screens.FavoritesScreen
 import com.example.grifon.ui.screens.HomeScreen
 import com.example.grifon.ui.screens.SettingsScreen
+import com.example.grifon.ui.screens.WholesaleApplicationScreen
 import com.example.grifon.ui.screens.categories.CategoriesScreen
 import com.example.grifon.ui.screens.plp.ProductDetailsScreen
 import com.example.grifon.ui.screens.plp.ProductListScreen
 import com.example.grifon.ui.screens.scan.ScanScreen
 import com.example.grifon.viewmodel.PdpViewModel
 import com.example.grifon.viewmodel.PlpViewModel
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun AppNavHost(
@@ -65,10 +69,16 @@ fun AppNavHost(
                 onRegister = {
                     navController.navigate(Routes.REGISTER)
                 },
+                onWholesaleApplication = {
+                    navController.navigate(Routes.WHOLESALE_APPLICATION)
+                },
             )
         }
         composable(Routes.REGISTER) {
             RegisterScreen()
+        }
+        composable(Routes.WHOLESALE_APPLICATION) {
+            WholesaleApplicationScreen(viewModel = hiltViewModel())
         }
         composable(
             route = Routes.PLP,
@@ -83,11 +93,17 @@ fun AppNavHost(
                 },
             ),
         ) { backStackEntry ->
-            val query = backStackEntry.arguments?.getString("query") ?: ""
-            val category = backStackEntry.arguments?.getString("category") ?: ""
+            val query = backStackEntry.arguments?.getString("query")
+                ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+                .orEmpty()
+            val category = backStackEntry.arguments?.getString("category")
+                ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+                .orEmpty()
             val viewModel: PlpViewModel = hiltViewModel()
-            viewModel.updateQuery(query)
-            viewModel.updateCategory(category)
+            LaunchedEffect(query, category) {
+                viewModel.updateQuery(query)
+                viewModel.updateCategory(category)
+            }
             ProductListScreen(viewModel = viewModel) { productId ->
                 navController.navigate(Routes.productRoute(productId))
             }

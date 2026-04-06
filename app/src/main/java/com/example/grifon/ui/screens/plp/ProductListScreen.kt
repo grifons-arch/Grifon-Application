@@ -165,6 +165,14 @@ fun ProductGridItem(
         Text(text = product.title.uppercase(), style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, fontWeight = FontWeight.Medium), maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color.Black)
         if (canDisplayPrices && product.price != null) {
             Text(text = "${product.price} €", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary))
+        } else {
+            Text(
+                text = stringResource(R.string.wholesale_prices_only),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

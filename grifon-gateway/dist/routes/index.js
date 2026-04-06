@@ -18,6 +18,44 @@ const priceAccessService_1 = require("../services/priceAccessService");
 const wholesaleCustomerService_1 = require("../services/wholesaleCustomerService");
 const customerService_1 = require("../services/customerService");
 exports.apiRouter = (0, express_1.Router)();
+const parseCsvValues = (value) => {
+    if (typeof value !== "string") {
+        return [];
+    }
+    return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+};
+const parseAttributeFilters = (value) => {
+    if (typeof value !== "string" || value.trim() === "") {
+        return {};
+    }
+    try {
+        const parsed = JSON.parse(value);
+        return Object.entries(parsed).reduce((acc, [key, rawValue]) => {
+            if (Array.isArray(rawValue)) {
+                const values = rawValue
+                    .map((item) => (typeof item === "string" ? item.trim() : ""))
+                    .filter(Boolean);
+                if (values.length > 0) {
+                    acc[key] = values;
+                }
+            }
+            return acc;
+        }, {});
+    }
+    catch {
+        return {};
+    }
+};
+const toBasicProductFilters = (query) => ({
+    search: typeof query.search === "string" ? query.search.trim() : undefined,
+    priceMin: typeof query.priceMin === "number" ? query.priceMin : undefined,
+    priceMax: typeof query.priceMax === "number" ? query.priceMax : undefined,
+    colors: parseCsvValues(query.colors),
+    attributeFilters: parseAttributeFilters(query.attributes)
+});
 const resolveAllowPrice = async (client, customerId) => {
     if (!customerId)
         return false;
@@ -51,6 +89,15 @@ exports.apiRouter.post("/v1/auth/login", authRateLimiter, (0, validate_1.validat
 exports.apiRouter.post("/v1/auth/register", authRateLimiter, (0, validate_1.validateBody)(schemas_1.registerBodySchema), async (req, res, next) => {
     try {
         const response = await (0, authService_1.registerCustomer)(req.body);
+        res.status(201).json(response);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.post("/v1/auth/wholesale-application", authRateLimiter, (0, validate_1.validateBody)(schemas_1.wholesaleApplicationBodySchema), async (req, res, next) => {
+    try {
+        const response = await (0, authService_1.submitWholesaleApplication)(req.body);
         res.status(201).json(response);
     }
     catch (error) {
@@ -133,12 +180,15 @@ exports.apiRouter.get("/v1/images/products/:productId/:imageId", async (req, res
     }
 });
 // ALL PRODUCTS ROUTE
-exports.apiRouter.get("/v1/products", (0, validate_1.validateQuery)(schemas_1.shopQuerySchema.merge(schemas_1.productPaginationSchema).merge(schemas_1.customerIdSchema.partial())), async (req, res, next) => {
+exports.apiRouter.get("/v1/products", (0, validate_1.validateQuery)(schemas_1.shopQuerySchema
+    .merge(schemas_1.productPaginationSchema)
+    .merge(schemas_1.productFilterQuerySchema)
+    .merge(schemas_1.customerIdSchema.partial())), async (req, res, next) => {
     try {
         const { shopId, lang, page, pageSize, sort, customerId } = req.query;
         const client = new PrestaShopClient_1.PrestaShopClient({ shopId, lang });
         const allowPrice = await resolveAllowPrice(client, customerId ? Number(customerId) : undefined);
-        const items = await (0, productService_1.listAllProducts)(client, shopId, page, pageSize, sort, lang, allowPrice);
+        const items = await (0, productService_1.listAllProducts)(client, shopId, page, pageSize, sort, lang, allowPrice, toBasicProductFilters(req.query));
         res.json({ page, pageSize, items });
     }
     catch (error) {
@@ -170,13 +220,16 @@ exports.apiRouter.get("/v1/categories/:categoryId/filters", (0, validate_1.valid
         next(error);
     }
 });
-exports.apiRouter.get("/v1/categories/:categoryId/products", (0, validate_1.validateParams)(schemas_1.categoryIdSchema), (0, validate_1.validateQuery)(schemas_1.shopQuerySchema.merge(schemas_1.productPaginationSchema).merge(schemas_1.customerIdSchema.partial())), async (req, res, next) => {
+exports.apiRouter.get("/v1/categories/:categoryId/products", (0, validate_1.validateParams)(schemas_1.categoryIdSchema), (0, validate_1.validateQuery)(schemas_1.shopQuerySchema
+    .merge(schemas_1.productPaginationSchema)
+    .merge(schemas_1.productFilterQuerySchema)
+    .merge(schemas_1.customerIdSchema.partial())), async (req, res, next) => {
     try {
         const { shopId, lang, page, pageSize, sort, customerId } = req.query;
         const { categoryId } = req.params;
         const client = new PrestaShopClient_1.PrestaShopClient({ shopId, lang });
         const allowPrice = await resolveAllowPrice(client, customerId ? Number(customerId) : undefined);
-        const items = await (0, productService_1.listProductsByCategory)(client, shopId, Number(categoryId), page, pageSize, sort, lang, allowPrice);
+        const items = await (0, productService_1.listProductsByCategory)(client, shopId, Number(categoryId), page, pageSize, sort, lang, allowPrice, toBasicProductFilters(req.query));
         res.json({ page, pageSize, items });
     }
     catch (error) {

@@ -21,6 +21,10 @@ class ShopPreferences(
     private val languageKey = stringPreferencesKey("app_language")
     private val customerIdKey = stringPreferencesKey("current_customer_id")
     private val canViewPricesKey = booleanPreferencesKey("can_view_prices")
+    private val customerEmailKey = stringPreferencesKey("current_customer_email")
+    private val customerFirstNameKey = stringPreferencesKey("current_customer_first_name")
+    private val customerLastNameKey = stringPreferencesKey("current_customer_last_name")
+    private val customerCompanyKey = stringPreferencesKey("current_customer_company")
 
     val activeShopId: Flow<String> = dataStore.data.map { preferences ->
         ShopConfig.normalizeShopId(preferences[shopKey] ?: BuildConfig.SHOP_ID)
@@ -40,6 +44,22 @@ class ShopPreferences(
 
     val canViewPrices: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[canViewPricesKey] ?: false
+    }
+
+    val currentCustomerEmail: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[customerEmailKey]
+    }
+
+    val currentCustomerFirstName: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[customerFirstNameKey]
+    }
+
+    val currentCustomerLastName: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[customerLastNameKey]
+    }
+
+    val currentCustomerCompany: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[customerCompanyKey]
     }
 
     suspend fun setActiveShopId(shopId: String) {
@@ -62,10 +82,21 @@ class ShopPreferences(
         }
     }
 
-    suspend fun setCustomerSession(customerId: Int, canViewPrices: Boolean) {
+    suspend fun setCustomerSession(
+        customerId: Int,
+        canViewPrices: Boolean,
+        email: String? = null,
+        firstName: String? = null,
+        lastName: String? = null,
+        company: String? = null,
+    ) {
         dataStore.edit { preferences ->
             preferences[customerIdKey] = customerId.toString()
             preferences[canViewPricesKey] = canViewPrices
+            email?.let { preferences[customerEmailKey] = it }
+            firstName?.let { preferences[customerFirstNameKey] = it }
+            lastName?.let { preferences[customerLastNameKey] = it }
+            company?.let { preferences[customerCompanyKey] = it }
         }
     }
 
@@ -73,6 +104,10 @@ class ShopPreferences(
         dataStore.edit { preferences ->
             preferences.remove(customerIdKey)
             preferences.remove(canViewPricesKey)
+            preferences.remove(customerEmailKey)
+            preferences.remove(customerFirstNameKey)
+            preferences.remove(customerLastNameKey)
+            preferences.remove(customerCompanyKey)
         }
     }
 }

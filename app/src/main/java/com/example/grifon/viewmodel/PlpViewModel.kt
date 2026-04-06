@@ -49,11 +49,13 @@ class PlpViewModel @Inject constructor(
             getActiveShopUseCase(),
             shopPreferences.currentCustomerId,
             shopPreferences.canViewPrices,
-        ) { shopId, customerId, canViewPrices ->
+            shopPreferences.appLanguage,
+        ) { shopId, customerId, canViewPrices, languageCode ->
             PlpSessionState(
                 shopId = ShopConfig.normalizeShopId(shopId),
                 customerId = customerId,
                 canViewPrices = canViewPrices,
+                languageCode = languageCode,
             )
         }
 
@@ -67,6 +69,7 @@ class PlpViewModel @Inject constructor(
                 shopId = session.shopId,
                 customerId = session.customerId,
                 canViewPrices = session.canViewPrices,
+                languageCode = session.languageCode,
                 query = query,
                 category = category,
                 filters = filters,
@@ -81,6 +84,7 @@ class PlpViewModel @Inject constructor(
                     shopId = session.shopId,
                     customerId = session.customerId,
                     canViewPrices = canDisplayPrices,
+                    languageCode = session.languageCode,
                     query = session.query,
                     category = session.category,
                     filters = session.filters,
@@ -93,6 +97,7 @@ class PlpViewModel @Inject constructor(
                 shopId = baseQuery.shopId,
                 customerId = baseQuery.customerId,
                 canViewPrices = baseQuery.canViewPrices,
+                languageCode = baseQuery.languageCode,
                 query = baseQuery.query,
                 category = baseQuery.category,
                 filters = baseQuery.filters,
@@ -100,7 +105,15 @@ class PlpViewModel @Inject constructor(
             )
         }.distinctUntilChanged()
             .flatMapLatest { params ->
-                val source = if (params.category.isNotBlank()) {
+                val hasSearchQuery = params.query.isNotBlank()
+                val source = if (hasSearchQuery) {
+                    searchProductsUseCase(
+                        params.shopId,
+                        params.query,
+                        params.filters,
+                        params.sortOption,
+                    )
+                } else if (params.category.isNotBlank()) {
                     getProductsByCategoryUseCase(
                         params.shopId,
                         params.category,
@@ -116,7 +129,7 @@ class PlpViewModel @Inject constructor(
                     )
                 }
 
-                val facetsSource = if (params.category.isNotBlank()) {
+                val facetsSource = if (!hasSearchQuery && params.category.isNotBlank()) {
                     getCategoryFiltersUseCase(params.shopId, params.category)
                 } else {
                     flowOf(emptyList())
@@ -160,6 +173,7 @@ private data class ProductQuery(
     val shopId: String,
     val customerId: Int?,
     val canViewPrices: Boolean,
+    val languageCode: String,
     val query: String,
     val category: String,
     val filters: FilterState,
@@ -170,6 +184,7 @@ private data class BaseProductQuery(
     val shopId: String,
     val customerId: Int?,
     val canViewPrices: Boolean,
+    val languageCode: String,
     val query: String,
     val category: String,
     val filters: FilterState,
@@ -179,6 +194,7 @@ private data class SessionProductQuery(
     val shopId: String,
     val customerId: Int?,
     val canViewPrices: Boolean,
+    val languageCode: String,
     val query: String,
     val category: String,
     val filters: FilterState,
@@ -188,6 +204,7 @@ private data class PlpSessionState(
     val shopId: String,
     val customerId: Int?,
     val canViewPrices: Boolean,
+    val languageCode: String,
 )
 
 data class PlpState(

@@ -30,6 +30,11 @@ interface CatalogApi {
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 50,
         @Query("sort") sort: String = "[id_DESC]",
+        @Query("search") search: String? = null,
+        @Query("priceMin") priceMin: Double? = null,
+        @Query("priceMax") priceMax: Double? = null,
+        @Query("colors") colors: String? = null,
+        @Query("attributes") attributes: String? = null,
         @Query("customerId") customerId: Int? = null,
     ): ProductsResponseDto
 
@@ -49,6 +54,10 @@ interface CatalogApi {
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 100,
         @Query("sort") sort: String = "[id_DESC]",
+        @Query("priceMin") priceMin: Double? = null,
+        @Query("priceMax") priceMax: Double? = null,
+        @Query("colors") colors: String? = null,
+        @Query("attributes") attributes: String? = null,
         @Query("customerId") customerId: Int? = null,
     ): ProductsResponseDto
 

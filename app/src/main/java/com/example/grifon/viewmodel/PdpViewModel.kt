@@ -69,12 +69,14 @@ class PdpViewModel @Inject constructor(
             getActiveShopUseCase(),
             shopPreferences.currentCustomerId,
             shopPreferences.canViewPrices,
+            shopPreferences.appLanguage,
             _productId,
-        ) { shopId, customerId, canViewPrices, productId ->
+        ) { shopId, customerId, canViewPrices, languageCode, productId ->
             SessionProductRequest(
                 shopId = ShopConfig.normalizeShopId(shopId),
                 customerId = customerId,
                 canViewPrices = canViewPrices,
+                languageCode = languageCode,
                 productId = productId,
             )
         }.flatMapLatest { request ->
@@ -87,6 +89,7 @@ class PdpViewModel @Inject constructor(
                     shopId = request.shopId,
                     customerId = request.customerId,
                     canViewPrices = canDisplayPrices,
+                    languageCode = request.languageCode,
                     productId = request.productId,
                 )
             }
@@ -150,6 +153,7 @@ private data class ProductRequest(
     val shopId: String,
     val customerId: Int?,
     val canViewPrices: Boolean,
+    val languageCode: String,
     val productId: String,
 )
 
@@ -157,5 +161,6 @@ private data class SessionProductRequest(
     val shopId: String,
     val customerId: Int?,
     val canViewPrices: Boolean,
+    val languageCode: String,
     val productId: String,
 )

@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.example.grifon.R
 import com.example.grifon.BuildConfig
+import com.example.grifon.core.PrestaLanguage
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -84,17 +85,19 @@ class HomeViewModel @Inject constructor(
                 getActiveShopUseCase(),
                 shopPreferences.currentCustomerId,
                 shopPreferences.canViewPrices,
-            ) { shopId, customerId, canViewPrices ->
-                HomeSessionState(ShopConfig.normalizeShopId(shopId), customerId, canViewPrices)
+                shopPreferences.appLanguage,
+            ) { shopId, customerId, canViewPrices, languageCode ->
+                HomeSessionState(ShopConfig.normalizeShopId(shopId), customerId, canViewPrices, languageCode)
             }.flatMapLatest { session ->
                 localPriceAccessService.observeCanDisplayPrices(
                     shopId = session.shopId,
                     customerId = session.customerId,
                     canViewPrices = session.canViewPrices,
-                ).map { canDisplayPrices -> session.shopId to canDisplayPrices }
+                ).map { canDisplayPrices -> session.shopId to canDisplayPrices to session.languageCode }
             }
                 .distinctUntilChanged()
-                .collect { (shopId, _) ->
+                .collect { (shopState, languageCode) ->
+                    val (shopId, _) = shopState
                     currentShopId = shopId
                     loadInitialData()
                 }
@@ -158,6 +161,7 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun getCategoryProducts(categoryId: String?): List<Product> {
         val shopId = currentShopId.toInt()
+        val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
         val customerId = shopPreferences.currentCustomerId.first()
         val canDisplayPrices = localPriceAccessService.canDisplayPrices(
             shopId = currentShopId,
@@ -166,11 +170,17 @@ class HomeViewModel @Inject constructor(
         )
         val requestCustomerId = customerId?.takeIf { canDisplayPrices }
         val response = if (categoryId.isNullOrBlank()) {
-            catalogApi.getProducts(shopId = shopId, pageSize = 50, customerId = requestCustomerId)
+            catalogApi.getProducts(
+                shopId = shopId,
+                lang = langId,
+                pageSize = 50,
+                customerId = requestCustomerId
+            )
         } else {
             catalogApi.getCategoryProducts(
                 categoryId = categoryId.toInt(),
                 shopId = shopId,
+                lang = langId,
                 pageSize = 50,
                 customerId = requestCustomerId,
             )
@@ -248,4 +258,5 @@ private data class HomeSessionState(
     val shopId: String,
     val customerId: Int?,
     val canViewPrices: Boolean,
+    val languageCode: String,
 )

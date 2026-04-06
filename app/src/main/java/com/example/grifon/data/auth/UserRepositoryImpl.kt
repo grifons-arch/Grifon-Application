@@ -58,6 +58,10 @@ class UserRepositoryImpl @Inject constructor(
                 preferences.setCustomerSession(
                     customerId = response.idCustomer,
                     canViewPrices = response.canViewPrices == true,
+                    email = response.email,
+                    firstName = response.firstname,
+                    lastName = response.lastname,
+                    company = response.company,
                 )
                 runCatching {
                     loginCustomerActivitySyncService.syncAfterLogin(

@@ -152,6 +152,12 @@
     <string name="wholesale_terms_privacy_title">I agree to the terms and conditions and the privacy policy</string>
     <string name="save">Save</string>
     <string name="submitting_request">Submitting request...</string>
+    <string name="wholesale_application_form_cta">Request wholesale access</string>
+    <string name="wholesale_application_form_hint">Submit your wholesale request directly from your account after signing in.</string>
+    <string name="wholesale_application_already_approved">Your wholesale account is already approved. You can already view wholesale prices and place orders.</string>
+    <string name="wholesale_application_screen_title">Wholesale application</string>
+    <string name="wholesale_application_screen_subtitle">Complete the form below and we will review your account for wholesale access.</string>
+    <string name="wholesale_application_submit">Submit wholesale application</string>
     <string name="wholesale_application_cta">Open wholesale application</string>
     <string name="wholesale_application_hint">This opens the ETS Wholesale registration page. If needed, sign in again on the website to continue your application.</string>
 </resources>

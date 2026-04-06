@@ -1,6 +1,7 @@
 package com.example.grifon.data.repository
 
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.core.PrestaLanguage
 import com.example.grifon.core.ShopConfig
 import com.example.grifon.domain.model.*
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,10 @@ import com.example.grifon.data.catalog.toDomainProduct
 import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.data.local.ShopPreferences
 import kotlinx.coroutines.flow.first
+import org.json.JSONArray
+import org.json.JSONObject
+
+private val DEFAULT_FILTER_PRICE_RANGE = 0.0..500.0
 
 @Singleton
 class ApiCatalogRepository @Inject constructor(
@@ -26,7 +31,8 @@ class ApiCatalogRepository @Inject constructor(
     override fun getCategoryTree(shopId: String): Flow<List<Category>> = flow {
         try {
             val id = ShopConfig.normalizeShopId(shopId).toInt()
-            val response = catalogApi.getCategories(shopId = id)
+            val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
+            val response = catalogApi.getCategories(shopId = id, lang = langId)
             emit(response.items.map { 
                 Category(
                     id = it.id.toString(), 
@@ -43,6 +49,7 @@ class ApiCatalogRepository @Inject constructor(
     override fun getCategoryFilters(shopId: String, categoryId: String): Flow<List<CatalogFacet>> = flow {
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
             val customerId = shopPreferences.currentCustomerId.first()
             val canDisplayPrices = localPriceAccessService.canDisplayPrices(
                 shopId = shopId,
@@ -53,6 +60,7 @@ class ApiCatalogRepository @Inject constructor(
             val response = catalogApi.getCategoryFilters(
                 categoryId = categoryId.toInt(),
                 shopId = sId,
+                lang = langId,
                 customerId = requestCustomerId,
             )
             emit(response.items.map { it.toDomainFacet() })
@@ -69,6 +77,7 @@ class ApiCatalogRepository @Inject constructor(
     ): Flow<List<Product>> = flow {
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
             val customerId = shopPreferences.currentCustomerId.first()
             val canDisplayPrices = localPriceAccessService.canDisplayPrices(
                 shopId = shopId,
@@ -76,75 +85,44 @@ class ApiCatalogRepository @Inject constructor(
                 canViewPrices = shopPreferences.canViewPrices.first(),
             )
             val requestCustomerId = customerId?.takeIf { canDisplayPrices }
+            val apiFilters = filters.toApiBasicFilters(canDisplayPrices)
+            val apiSort = sortOption.toApiSort()
             val response = if (categoryId == "2" || categoryId.isBlank()) {
-                catalogApi.getProducts(shopId = sId, pageSize = 100, customerId = requestCustomerId)
+                catalogApi.getProducts(
+                    shopId = sId,
+                    lang = langId,
+                    pageSize = 100,
+                    sort = apiSort,
+                    priceMin = apiFilters.priceMin,
+                    priceMax = apiFilters.priceMax,
+                    colors = apiFilters.colors,
+                    attributes = apiFilters.attributes,
+                    customerId = requestCustomerId,
+                )
             } else {
                 catalogApi.getCategoryProducts(
                     categoryId = categoryId.toInt(),
                     shopId = sId,
+                    lang = langId,
+                    sort = apiSort,
+                    priceMin = apiFilters.priceMin,
+                    priceMax = apiFilters.priceMax,
+                    colors = apiFilters.colors,
+                    attributes = apiFilters.attributes,
                     customerId = requestCustomerId,
                 )
             }
-            
-            // ΕΦΑΡΜΟΓΗ ΦΙΛΤΡΩΝ ΣΤΗ ΛΙΣΤΑ
-            val filteredProducts = response.items
+
+            val products = response.items
                 .map {
-                        it.toDomainProduct(
+                    it.toDomainProduct(
                         gatewayBaseUrl = gatewayBaseUrl,
                         brand = if (sId == 4) "Grifon GR" else "Grifon SE",
                         showPrice = canDisplayPrices,
                     )
                 }
-                .filter { product ->
-                    val matchesPrice = product.price?.let {
-                        it >= filters.priceRange.start && it <= filters.priceRange.endInclusive
-                    } ?: true
-                    val matchesStock = if (filters.inStockOnly) product.inStock else true
-                    val matchesBrand = filters.brands.isEmpty() || filters.brands.contains(product.brand)
-                    val matchesRating = product.rating >= filters.ratingMin
-                    val selectedColors = filters.colors
-                    val matchesColor = if (selectedColors.isNotEmpty()) {
-                        selectedColors.any { color ->
-                            product.title.contains(color, ignoreCase = true) ||
-                                product.attributesMap.values.flatten().any { it.contains(color, ignoreCase = true) }
-                        }
-                    } else true
-                    
-                    // Φιλτράρισμα βάσει ονόματος για τις κατηγορίες (π.χ. Μινωικά) αν δεν έχουμε attributes
-                    val selectedMinoan = filters.attributes["minoan"] ?: emptySet()
-                    val matchesMinoan = if (selectedMinoan.isNotEmpty()) {
-                        selectedMinoan.any { product.title.contains(it, ignoreCase = true) }
-                    } else true
-                    val genericAttributeFilters = filters.attributes.filterKeys { it != "minoan" }
-                    val matchesAttributes = genericAttributeFilters.all { (key, values) ->
-                        if (values.isEmpty()) {
-                            true
-                        } else {
-                            val productValues = product.attributesMap.entries.firstOrNull {
-                                it.key.equals(key, ignoreCase = true)
-                            }?.value.orEmpty()
-                            productValues.any { values.contains(it) }
-                        }
-                    }
 
-                    matchesPrice &&
-                        matchesStock &&
-                        matchesBrand &&
-                        matchesRating &&
-                        matchesColor &&
-                        matchesMinoan &&
-                        matchesAttributes
-                }
-                .let { list ->
-                    // ΕΦΑΡΜΟΓΗ ΤΑΞΙΝΟΜΗΣΗΣ
-                    when (sortOption) {
-                        SortOption.PRICE_LOW_HIGH -> list.sortedBy { it.price ?: Double.MAX_VALUE }
-                        SortOption.PRICE_HIGH_LOW -> list.sortedByDescending { it.price ?: Double.MIN_VALUE }
-                        else -> list
-                    }
-                }
-
-            emit(filteredProducts)
+            emit(products.applyFallbackFilters(filters, sortOption))
         } catch (e: Exception) {
             emit(emptyList())
         }
@@ -158,62 +136,35 @@ class ApiCatalogRepository @Inject constructor(
     ): Flow<List<Product>> = flow {
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
             val customerId = shopPreferences.currentCustomerId.first()
             val canDisplayPrices = localPriceAccessService.canDisplayPrices(
                 shopId = shopId,
                 customerId = customerId,
                 canViewPrices = shopPreferences.canViewPrices.first(),
             )
-            val response = catalogApi.getProducts(
+            val apiFilters = filters.toApiBasicFilters(canDisplayPrices, query)
+            val requestCustomerId = customerId?.takeIf { canDisplayPrices }
+            val searchCandidates = fetchSearchCandidates(
                 shopId = sId,
-                pageSize = 100,
-                customerId = customerId?.takeIf { canDisplayPrices },
+                langId = langId,
+                requestCustomerId = requestCustomerId,
+                sortOption = sortOption,
+                apiFilters = apiFilters,
             )
-            val allProducts = response.items.map {
+            val products = searchCandidates.map {
                 it.toDomainProduct(
                     gatewayBaseUrl = gatewayBaseUrl,
                     brand = if (sId == 4) "Grifon GR" else "Grifon SE",
                     showPrice = canDisplayPrices,
                 )
             }
-            
-            val filtered = allProducts.filter { product ->
-                val matchesQuery = product.title.contains(query, ignoreCase = true) || 
-                                 product.attributesMap["reference"].orEmpty().any { it.contains(query, ignoreCase = true) }
-                
-                val matchesPrice = product.price?.let {
-                    it >= filters.priceRange.start && it <= filters.priceRange.endInclusive
-                } ?: true
-                val matchesStock = if (filters.inStockOnly) product.inStock else true
-                val matchesBrand = filters.brands.isEmpty() || filters.brands.contains(product.brand)
-                val matchesRating = product.rating >= filters.ratingMin
-                val selectedColors = filters.colors
-                val matchesColor = if (selectedColors.isNotEmpty()) {
-                    selectedColors.any { color ->
-                        product.title.contains(color, ignoreCase = true) ||
-                            product.attributesMap.values.flatten().any { it.contains(color, ignoreCase = true) }
-                    }
-                } else true
-                val matchesAttributes = filters.attributes.all { (key, values) ->
-                    if (values.isEmpty()) {
-                        true
-                    } else {
-                        val productValues = product.attributesMap.entries.firstOrNull {
-                            it.key.equals(key, ignoreCase = true)
-                        }?.value.orEmpty()
-                        productValues.any { values.contains(it) }
-                    }
-                }
 
-                matchesQuery &&
-                    matchesPrice &&
-                    matchesStock &&
-                    matchesBrand &&
-                    matchesRating &&
-                    matchesColor &&
-                    matchesAttributes
-            }
-            emit(filtered)
+            emit(
+                products
+                    .filter { it.matchesSearchQuery(query) }
+                    .applyFallbackFilters(filters, sortOption)
+            )
         } catch (e: Exception) {
             emit(emptyList())
         }
@@ -222,6 +173,7 @@ class ApiCatalogRepository @Inject constructor(
     override fun getProductById(shopId: String, productId: String): Flow<Product?> = flow {
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
             val customerId = shopPreferences.currentCustomerId.first()
             val canDisplayPrices = localPriceAccessService.canDisplayPrices(
                 shopId = shopId,
@@ -236,6 +188,7 @@ class ApiCatalogRepository @Inject constructor(
             val response = catalogApi.getProduct(
                 productId = normalizedProductId,
                 shopId = sId,
+                lang = langId,
                 customerId = customerId?.takeIf { canDisplayPrices },
             )
             emit(
@@ -249,4 +202,123 @@ class ApiCatalogRepository @Inject constructor(
             emit(null)
         }
     }
+
+    private suspend fun fetchSearchCandidates(
+        shopId: Int,
+        langId: Int,
+        requestCustomerId: Int?,
+        sortOption: SortOption,
+        apiFilters: ApiBasicFilters,
+    ): List<com.example.grifon.data.catalog.ProductDto> {
+        val pageSize = 250
+        val maxPages = 20
+        val products = LinkedHashMap<Int, com.example.grifon.data.catalog.ProductDto>()
+
+        for (page in 1..maxPages) {
+            val response = catalogApi.getProducts(
+                shopId = shopId,
+                lang = langId,
+                page = page,
+                pageSize = pageSize,
+                sort = sortOption.toApiSort(),
+                search = null,
+                priceMin = apiFilters.priceMin,
+                priceMax = apiFilters.priceMax,
+                colors = apiFilters.colors,
+                attributes = apiFilters.attributes,
+                customerId = requestCustomerId,
+            )
+
+            response.items.forEach { item ->
+                products[item.id] = item
+            }
+
+            if (response.items.size < pageSize) {
+                break
+            }
+        }
+
+        return products.values.toList()
+    }
+}
+
+private data class ApiBasicFilters(
+    val search: String? = null,
+    val priceMin: Double? = null,
+    val priceMax: Double? = null,
+    val colors: String? = null,
+    val attributes: String? = null,
+)
+
+private fun FilterState.hasCustomPriceRange(): Boolean {
+    return priceRange.start != DEFAULT_FILTER_PRICE_RANGE.start ||
+        priceRange.endInclusive != DEFAULT_FILTER_PRICE_RANGE.endInclusive
+}
+
+private fun FilterState.selectedPriceRange(): ClosedFloatingPointRange<Double>? {
+    return priceRange.takeIf { hasCustomPriceRange() }
+}
+
+private fun FilterState.toApiBasicFilters(
+    canDisplayPrices: Boolean,
+    search: String? = null,
+): ApiBasicFilters {
+    val attributeJson = attributes
+        .filterValues { values -> values.isNotEmpty() }
+        .takeIf { it.isNotEmpty() }
+        ?.let { values ->
+            JSONObject().apply {
+                values.toSortedMap(String.CASE_INSENSITIVE_ORDER).forEach { (key, selectedValues) ->
+                    put(key, JSONArray(selectedValues.toList().sorted()))
+                }
+            }.toString()
+        }
+
+    val priceRange = selectedPriceRange().takeIf { canDisplayPrices }
+    return ApiBasicFilters(
+        search = search?.trim()?.takeIf { it.isNotEmpty() },
+        priceMin = priceRange?.start,
+        priceMax = priceRange?.endInclusive,
+        colors = colors.takeIf { it.isNotEmpty() }?.sorted()?.joinToString(","),
+        attributes = attributeJson,
+    )
+}
+
+private fun SortOption.toApiSort(): String = when (this) {
+    SortOption.PRICE_LOW_HIGH -> "[price_ASC]"
+    SortOption.PRICE_HIGH_LOW -> "[price_DESC]"
+    else -> "[id_DESC]"
+}
+
+private fun List<Product>.applyFallbackFilters(
+    filters: FilterState,
+    sortOption: SortOption,
+): List<Product> {
+    val filtered = filter { product ->
+        val matchesStock = if (filters.inStockOnly) product.inStock else true
+        val matchesBrand = filters.brands.isEmpty() || filters.brands.contains(product.brand)
+        val matchesRating = product.rating >= filters.ratingMin
+
+        matchesStock && matchesBrand && matchesRating
+    }
+
+    return when (sortOption) {
+        SortOption.PRICE_LOW_HIGH -> filtered.sortedBy { it.price ?: Double.MAX_VALUE }
+        SortOption.PRICE_HIGH_LOW -> filtered.sortedByDescending { it.price ?: Double.MIN_VALUE }
+        else -> filtered
+    }
+}
+
+private fun Product.matchesSearchQuery(query: String): Boolean {
+    val needle = query.trim()
+    if (needle.isEmpty()) {
+        return true
+    }
+
+    val referenceValues = attributesMap.entries
+        .filter { it.key.equals("reference", ignoreCase = true) }
+        .flatMap { it.value }
+
+    return title.contains(needle, ignoreCase = true) ||
+        referenceValues.any { it.contains(needle, ignoreCase = true) }
 }

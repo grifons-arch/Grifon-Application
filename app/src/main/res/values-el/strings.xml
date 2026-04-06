@@ -152,6 +152,12 @@
     <string name="wholesale_terms_privacy_title">Συμφωνώ με τους όρους και προϋποθέσεις και με την πολιτική απορρήτου</string>
     <string name="save">Αποθήκευση</string>
     <string name="submitting_request">Η αίτηση αποστέλλεται...</string>
+    <string name="wholesale_application_form_cta">Αίτηση πρόσβασης χονδρικής</string>
+    <string name="wholesale_application_form_hint">Υποβάλετε αίτηση χονδρικής απευθείας από τον λογαριασμό σας αφού συνδεθείτε.</string>
+    <string name="wholesale_application_already_approved">Ο λογαριασμός χονδρικής σας είναι ήδη εγκεκριμένος. Μπορείτε ήδη να βλέπετε τιμές χονδρικής και να καταχωρείτε παραγγελίες.</string>
+    <string name="wholesale_application_screen_title">Αίτηση χονδρικής</string>
+    <string name="wholesale_application_screen_subtitle">Συμπληρώστε την παρακάτω φόρμα και θα ελέγξουμε τον λογαριασμό σας για πρόσβαση χονδρικής.</string>
+    <string name="wholesale_application_submit">Υποβολή αίτησης χονδρικής</string>
     <string name="wholesale_application_cta">Άνοιγμα αίτησης χονδρικής</string>
     <string name="wholesale_application_hint">Αυτό ανοίγει απευθείας τη σελίδα εγγραφής του ETS Wholesale module. Αν χρειαστεί, συνδεθείτε ξανά στο site για να συνεχίσετε την αίτησή σας.</string>
 </resources>

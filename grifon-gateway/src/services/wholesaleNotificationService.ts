@@ -9,6 +9,7 @@ export interface WholesaleNotificationRequest {
   email: string;
   firstName: string;
   lastName: string;
+  country?: string;
   countryIso?: string;
   street?: string;
   city?: string;

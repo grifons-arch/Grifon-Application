@@ -34,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -408,10 +409,26 @@ fun ProductCard(
                 }
             }
             Column(modifier = Modifier.padding(12.dp)) {
-                Text(product.title, color = Color.White, fontSize = 13.sp, maxLines = 2, minLines = 2, lineHeight = 18.sp)
+                Text(
+                    text = product.title,
+                    color = Color.White,
+                    fontSize = 13.sp,
+                    maxLines = 2,
+                    minLines = 2,
+                    lineHeight = 18.sp,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 if (canDisplayPrices && product.price != null) {
                     Text("${product.price} €", color = Color(0xFFC5A059), fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                } else {
+                    Text(
+                        text = stringResource(R.string.wholesale_prices_only),
+                        color = Color.Gray,
+                        fontSize = 11.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }

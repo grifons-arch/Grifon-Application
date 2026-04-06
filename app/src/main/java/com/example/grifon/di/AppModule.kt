@@ -8,6 +8,7 @@ import androidx.room.Room
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.auth.AuthApi
 import com.example.grifon.data.auth.UserRepositoryImpl
+import com.example.grifon.data.auth.WholesaleApplicationRepositoryImpl
 import com.example.grifon.data.local.AppDatabase
 import com.example.grifon.data.local.CustomerDao
 import com.example.grifon.data.local.FavoriteDao
@@ -18,6 +19,10 @@ import com.example.grifon.data.local.WholesaleCustomerDao
 import com.example.grifon.data.repository.*
 import com.example.grifon.data.fake.*
 import com.example.grifon.data.sync.LoginCustomerActivitySyncService
+import com.example.grifon.domain.auth.RegisterRepository
+import com.example.grifon.domain.auth.RegisterUseCase
+import com.example.grifon.domain.auth.WholesaleApplicationRepository
+import com.example.grifon.domain.auth.SubmitWholesaleApplicationUseCase
 import com.example.grifon.domain.usecase.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -190,6 +195,18 @@ object AppModule {
     fun provideBarcodeScannerService(): BarcodeScannerService = FakeBarcodeScannerService()
 
     @Provides
+    @Singleton
+    fun provideRegisterRepository(
+        authApi: AuthApi,
+    ): RegisterRepository = com.example.grifon.data.auth.RegisterRepositoryImpl(authApi)
+
+    @Provides
+    @Singleton
+    fun provideWholesaleApplicationRepository(
+        authApi: AuthApi,
+    ): WholesaleApplicationRepository = WholesaleApplicationRepositoryImpl(authApi)
+
+    @Provides
     fun provideGetActiveShopUseCase(repo: ShopRepository) = GetActiveShopUseCase(repo)
 
     @Provides
@@ -250,4 +267,12 @@ object AppModule {
     @Provides
     fun provideSyncProductsUseCase(repo: ProductRepository) =
         SyncProductsUseCase(repo)
+
+    @Provides
+    fun provideRegisterUseCase(repo: RegisterRepository) =
+        RegisterUseCase(repo)
+
+    @Provides
+    fun provideSubmitWholesaleApplicationUseCase(repo: WholesaleApplicationRepository) =
+        SubmitWholesaleApplicationUseCase(repo)
 }

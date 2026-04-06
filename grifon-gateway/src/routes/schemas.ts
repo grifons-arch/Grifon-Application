@@ -52,6 +52,14 @@ export const productPaginationSchema = z.object({
   sort: z.string().optional().default("[id_DESC]")
 });
 
+export const productFilterQuerySchema = z.object({
+  search: z.preprocess(toOptionalString, z.string().optional()),
+  priceMin: z.preprocess(toNumber, z.number().nonnegative().optional()),
+  priceMax: z.preprocess(toNumber, z.number().nonnegative().optional()),
+  colors: z.preprocess(toOptionalString, z.string().optional()),
+  attributes: z.preprocess(toOptionalString, z.string().optional())
+});
+
 export const customerIdSchema = z.object({
   customerId: z.preprocess(toNumber, z.number().int().positive())
 });
@@ -131,6 +139,29 @@ export const registerBodySchema = z
     ...data,
     password: (data.password ?? data.passwd) as string
   }));
+
+export const wholesaleApplicationBodySchema = z.object({
+  customerId: z.preprocess(toNumber, z.number().int().positive().optional()),
+  email: z.string().trim().email(),
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1),
+  contactPersonFullName: z.preprocess(toOptionalString, z.string().min(1).optional()),
+  country: z.preprocess(toOptionalString, z.string().optional()),
+  countryIso: z.string().trim().length(2),
+  street: z.string().trim().min(1),
+  city: z.string().trim().min(1),
+  postalCode: z.string().trim().min(1),
+  phone: z.string().trim().min(1),
+  company: z.string().trim().min(1),
+  vatNumber: z.string().trim().min(1),
+  addressCoordinates: z.preprocess(toOptionalString, z.string().optional()),
+  companyRegistrationFileName: z.preprocess(toOptionalString, z.string().optional()),
+  invoiceFileName: z.preprocess(toOptionalString, z.string().optional()),
+  customerDataPrivacyAccepted: z.literal(true),
+  termsAndPrivacyAccepted: z.literal(true),
+  newsletter: z.boolean().optional().default(false),
+  partnerOffers: z.boolean().optional()
+});
 
 export const productActivityBodySchema = z.object({
   customerId: z.preprocess(toNumber, z.number().int().positive()),

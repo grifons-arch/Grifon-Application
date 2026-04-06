@@ -26,6 +26,7 @@ import com.example.grifon.ui.screens.LocalCanDisplayPrices
 import com.example.grifon.ui.screens.LocalIsLoggedIn
 import com.example.grifon.viewmodel.AppViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -56,11 +57,12 @@ fun GrifonApp() {
 
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
-            .filter { it.length >= 2 }
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
             .debounce(500)
             .distinctUntilChanged()
             .collect { query ->
-                navController.navigate(Routes.plpRoute(query = query)) { launchSingleTop = true }
+                navController.navigate(Routes.plpRoute(query = query))
             }
     }
 

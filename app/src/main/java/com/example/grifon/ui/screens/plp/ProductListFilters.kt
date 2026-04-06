@@ -199,6 +199,17 @@ fun FiltersSheet(
             buildAttributeSections(products, locale)
         }
     }
+    val showBrandSection = remember(brandOptions) { brandOptions.size > 1 }
+    val showAvailabilitySection = remember(products, serverAvailabilityFacet, useServerFacets) {
+        if (useServerFacets) {
+            serverAvailabilityFacet?.options?.firstOrNull()?.count?.let { count -> count in 1 until products.size } == true
+        } else {
+            products.any { !it.inStock }
+        }
+    }
+    val showRatingSection = remember(products, useServerFacets) {
+        !useServerFacets && products.any { it.rating < 4.0 }
+    }
     val activeSelections = remember(tempFilters) { tempFilters.activeCount() }
     Dialog(
         onDismissRequest = onDismiss,
@@ -276,7 +287,7 @@ fun FiltersSheet(
                         }
                     }
 
-                    if (brandOptions.isNotEmpty()) {
+                    if (showBrandSection) {
                         ReferenceFilterSection(title = stringResource(R.string.brand)) {
                             ReferenceFilterOptionList(
                                 options = brandOptions,
@@ -342,7 +353,7 @@ fun FiltersSheet(
                         }
                     }
 
-                    if (useServerFacets) {
+                    if (useServerFacets && showAvailabilitySection) {
                         serverAvailabilityFacet?.options?.firstOrNull()?.let { option ->
                             ReferenceFilterSection(title = serverAvailabilityFacet.title) {
                                 ReferenceFilterItemRow(
@@ -354,24 +365,28 @@ fun FiltersSheet(
                             }
                         }
                     } else {
-                        ReferenceFilterSection(title = stringResource(R.string.filter_availability)) {
-                            ReferenceFilterItemRow(
-                                label = stringResource(R.string.in_stock),
-                                count = products.count { it.inStock },
-                                selected = tempFilters.inStockOnly,
-                                onToggle = { tempFilters = tempFilters.copy(inStockOnly = !tempFilters.inStockOnly) }
-                            )
+                        if (showAvailabilitySection) {
+                            ReferenceFilterSection(title = stringResource(R.string.filter_availability)) {
+                                ReferenceFilterItemRow(
+                                    label = stringResource(R.string.in_stock),
+                                    count = products.count { it.inStock },
+                                    selected = tempFilters.inStockOnly,
+                                    onToggle = { tempFilters = tempFilters.copy(inStockOnly = !tempFilters.inStockOnly) }
+                                )
+                            }
                         }
 
-                        ReferenceFilterSection(title = stringResource(R.string.filter_rating)) {
-                            ReferenceFilterItemRow(
-                                label = stringResource(R.string.rating_four_up),
-                                count = products.count { it.rating >= 4.0 },
-                                selected = tempFilters.ratingMin >= 4.0,
-                                onToggle = {
-                                    tempFilters = tempFilters.copy(ratingMin = if (tempFilters.ratingMin >= 4.0) 0.0 else 4.0)
-                                }
-                            )
+                        if (showRatingSection) {
+                            ReferenceFilterSection(title = stringResource(R.string.filter_rating)) {
+                                ReferenceFilterItemRow(
+                                    label = stringResource(R.string.rating_four_up),
+                                    count = products.count { it.rating >= 4.0 },
+                                    selected = tempFilters.ratingMin >= 4.0,
+                                    onToggle = {
+                                        tempFilters = tempFilters.copy(ratingMin = if (tempFilters.ratingMin >= 4.0) 0.0 else 4.0)
+                                    }
+                                )
+                            }
                         }
                     }
 

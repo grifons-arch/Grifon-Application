@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.customerActivityClearBodySchema = exports.customerActivityQuerySchema = exports.productActivityBodySchema = exports.registerBodySchema = exports.loginBodySchema = exports.etsWholesaleFormFieldsQuerySchema = exports.moduleFileQuerySchema = exports.moduleSearchQuerySchema = exports.tableNameSchema = exports.moduleNameSchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
+exports.customerActivityClearBodySchema = exports.customerActivityQuerySchema = exports.productActivityBodySchema = exports.wholesaleApplicationBodySchema = exports.registerBodySchema = exports.loginBodySchema = exports.etsWholesaleFormFieldsQuerySchema = exports.moduleFileQuerySchema = exports.moduleSearchQuerySchema = exports.tableNameSchema = exports.moduleNameSchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productFilterQuerySchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
 const zod_1 = require("zod");
 const toNumber = (value) => {
     if (value === undefined || value === null || value === "")
@@ -49,6 +49,13 @@ exports.productPaginationSchema = zod_1.z.object({
     page: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(1000)).default(1),
     pageSize: zod_1.z.preprocess(toNumber, zod_1.z.number().int().min(1).max(1000)).default(100),
     sort: zod_1.z.string().optional().default("[id_DESC]")
+});
+exports.productFilterQuerySchema = zod_1.z.object({
+    search: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+    priceMin: zod_1.z.preprocess(toNumber, zod_1.z.number().nonnegative().optional()),
+    priceMax: zod_1.z.preprocess(toNumber, zod_1.z.number().nonnegative().optional()),
+    colors: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+    attributes: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional())
 });
 exports.customerIdSchema = zod_1.z.object({
     customerId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive())
@@ -117,6 +124,28 @@ exports.registerBodySchema = zod_1.z
     ...data,
     password: (data.password ?? data.passwd)
 }));
+exports.wholesaleApplicationBodySchema = zod_1.z.object({
+    customerId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive().optional()),
+    email: zod_1.z.string().trim().email(),
+    firstName: zod_1.z.string().trim().min(1),
+    lastName: zod_1.z.string().trim().min(1),
+    contactPersonFullName: zod_1.z.preprocess(toOptionalString, zod_1.z.string().min(1).optional()),
+    country: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+    countryIso: zod_1.z.string().trim().length(2),
+    street: zod_1.z.string().trim().min(1),
+    city: zod_1.z.string().trim().min(1),
+    postalCode: zod_1.z.string().trim().min(1),
+    phone: zod_1.z.string().trim().min(1),
+    company: zod_1.z.string().trim().min(1),
+    vatNumber: zod_1.z.string().trim().min(1),
+    addressCoordinates: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+    companyRegistrationFileName: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+    invoiceFileName: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+    customerDataPrivacyAccepted: zod_1.z.literal(true),
+    termsAndPrivacyAccepted: zod_1.z.literal(true),
+    newsletter: zod_1.z.boolean().optional().default(false),
+    partnerOffers: zod_1.z.boolean().optional()
+});
 exports.productActivityBodySchema = zod_1.z.object({
     customerId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive()),
     shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)])),

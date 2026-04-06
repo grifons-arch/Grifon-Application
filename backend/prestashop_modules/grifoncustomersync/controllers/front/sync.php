@@ -324,7 +324,12 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $city = trim((string)($primaryAddress['city'] ?? $application['city'] ?? ''));
         $postcode = trim((string)($primaryAddress['postcode'] ?? $application['postalCode'] ?? ''));
         $countryIso = trim((string)($primaryAddress['countryIso'] ?? $application['countryIso'] ?? ''));
+        $country = trim((string)($application['country'] ?? $countryIso));
         $source = trim((string)($application['source'] ?? 'grifoncustomersync'));
+        $contactFullName = trim((string)($application['contactPersonFullName'] ?? $application['fullName'] ?? ''));
+        $addressCoordinates = trim((string)($application['addressCoordinates'] ?? ''));
+        $companyRegistration = trim((string)($application['companyRegistrationFileName'] ?? ''));
+        $invoice = trim((string)($application['invoiceFileName'] ?? ''));
 
         $row = [];
         $this->applyColumnAliases($columns, $row, ['id_customer', 'customer_id'], (int)$idCustomer);
@@ -337,7 +342,12 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
         $this->applyColumnAliases($columns, $row, ['address', 'address1', 'street'], $address);
         $this->applyColumnAliases($columns, $row, ['city'], $city);
         $this->applyColumnAliases($columns, $row, ['postcode', 'postal_code', 'zipcode', 'zip_code'], $postcode);
+        $this->applyColumnAliases($columns, $row, ['country', 'country_name'], $country);
         $this->applyColumnAliases($columns, $row, ['country_iso', 'country_code'], $countryIso);
+        $this->applyColumnAliases($columns, $row, ['full_name', 'contact_person_full_name', 'contact_name', 'contact_person'], $contactFullName);
+        $this->applyColumnAliases($columns, $row, ['address_coordinates', 'coordinates', 'geo_coordinates', 'map_coordinates'], $addressCoordinates);
+        $this->applyColumnAliases($columns, $row, ['company_registration', 'company_registration_file', 'company_registration_document', 'registration_document', 'business_registration'], $companyRegistration);
+        $this->applyColumnAliases($columns, $row, ['invoice', 'invoice_file', 'invoice_document', 'invoice_reference'], $invoice);
         $this->applyColumnAliases($columns, $row, ['status', 'account_status', 'wholesale_customer_account_status'], 'pending');
         $this->applyColumnAliases($columns, $row, ['active'], 1);
         $this->applyColumnAliases($columns, $row, ['source'], $source);
@@ -442,7 +452,8 @@ class GrifoncustomersyncSyncModuleFrontController extends ModuleFrontController
 
     private function tableExists($tableName)
     {
-        return (bool)Db::getInstance()->getValue('SHOW TABLES LIKE "'.pSQL($tableName).'"');
+        $rows = Db::getInstance()->executeS('SHOW TABLES LIKE "'.pSQL($tableName).'"');
+        return is_array($rows) && !empty($rows);
     }
 
     private function getTableColumns($tableName) {

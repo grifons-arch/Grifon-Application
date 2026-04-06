@@ -1,7 +1,5 @@
 package com.example.grifon.ui.screens
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -28,11 +25,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.grifon.BuildConfig
 import com.example.grifon.R
 import com.example.grifon.core.AppLanguage
 import com.example.grifon.core.LoginText
-import com.example.grifon.core.ShopConfig
 import com.example.grifon.viewmodel.AccountViewModel
 import com.example.grifon.core.UiState
 import com.example.grifon.core.loginText
@@ -43,6 +38,7 @@ fun AccountScreen(
     viewModel: AccountViewModel,
     onSettings: () -> Unit,
     onRegister: () -> Unit,
+    onWholesaleApplication: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val email by viewModel.email.collectAsState()
@@ -58,7 +54,9 @@ fun AccountScreen(
             if (account.loggedIn) {
                 // ΟΘΟΝΗ ΟΤΑΝ Ο ΧΡΗΣΤΗΣ ΕΙΝΑΙ ΣΥΝΔΕΔΕΜΕΝΟΣ
                 LoggedInContent(
+                    canViewPrices = account.canViewPrices,
                     onSettings = onSettings,
+                    onWholesaleApplication = onWholesaleApplication,
                     onLogout = viewModel::logout,
                 )
             } else {
@@ -79,12 +77,12 @@ fun AccountScreen(
 
 @Composable
 fun LoggedInContent(
+    canViewPrices: Boolean,
     onSettings: () -> Unit,
+    onWholesaleApplication: () -> Unit,
     onLogout: () -> Unit,
 ) {
     val language = AppLanguage.currentLanguage()
-    val context = LocalContext.current
-    val wholesaleUrl = remember { ShopConfig.wholesaleApplicationEntryUrl(BuildConfig.SHOP_ID) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -102,21 +100,28 @@ fun LoggedInContent(
             Text(loginText(language, LoginText.AccountSettings))
         }
 
-        OutlinedButton(
-            onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(wholesaleUrl))
-                context.startActivity(intent)
-            },
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(stringResource(R.string.wholesale_application_cta))
-        }
+        if (canViewPrices) {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.wholesale_application_already_approved),
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        } else {
+            OutlinedButton(
+                onClick = onWholesaleApplication,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.wholesale_application_form_cta))
+            }
 
-        Text(
-            text = stringResource(R.string.wholesale_application_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+            Text(
+                text = stringResource(R.string.wholesale_application_form_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
 
         OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.logout))
