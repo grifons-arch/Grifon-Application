@@ -99,6 +99,13 @@ interface CatalogApi {
         @Query("shopId") shopId: Int,
         @Query("limit") limit: Int = 20,
     ): ProductActivityItemsResponseDto
+
+    @GET("v1/checkout/session")
+    suspend fun getCheckoutSession(
+        @Query("shopId") shopId: Int,
+        @Query("lang") lang: Int = 1,
+        @Query("customerId") customerId: Int? = null,
+    ): CheckoutSessionDto
 }
 
 @JsonClass(generateAdapter = true)
@@ -235,6 +242,31 @@ data class ActivityResponseDto(
 data class ProductActivityItemsResponseDto(
     val ok: Boolean = false,
     val items: List<ProductActivityItemDto> = emptyList(),
+)
+
+@JsonClass(generateAdapter = true)
+data class CheckoutSessionDto(
+    val shopId: Int,
+    val customerId: Int? = null,
+    val isLoggedIn: Boolean = false,
+    val canViewPrices: Boolean = false,
+    val canCheckout: Boolean = false,
+    val mode: String? = null,
+    val storefrontBaseUrl: String? = null,
+    val cartUrl: String? = null,
+    val checkoutUrl: String? = null,
+    val loginUrl: String? = null,
+    val paymentMethods: List<CheckoutMethodDto> = emptyList(),
+    val shippingMethods: List<CheckoutMethodDto> = emptyList(),
+    val notes: List<String> = emptyList(),
+)
+
+@JsonClass(generateAdapter = true)
+data class CheckoutMethodDto(
+    val code: String,
+    val title: String,
+    val type: String,
+    val available: Boolean = false,
 )
 
 @JsonClass(generateAdapter = true)

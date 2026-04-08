@@ -6,6 +6,8 @@ import { validateQuery, validateParams, validateBody } from "../middleware/valid
 import {
   customerActivityClearBodySchema,
   categoryIdSchema,
+  checkoutHandoffBodySchema,
+  checkoutSessionQuerySchema,
   customerActivityQuerySchema,
   customerIdSchema,
   etsWholesaleFormFieldsQuerySchema,
@@ -54,6 +56,7 @@ import {
 import { getPriceAccess } from "../services/priceAccessService";
 import { listWholesaleCustomers } from "../services/wholesaleCustomerService";
 import { listCustomers } from "../services/customerService";
+import { getCheckoutHandoffUrl, getCheckoutSession } from "../services/checkoutService";
 
 export const apiRouter = Router();
 
@@ -239,6 +242,45 @@ apiRouter.post(
         shopId: Number(shopId) as 1 | 4,
       });
       res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
+  "/v1/checkout/session",
+  validateQuery(checkoutSessionQuerySchema),
+  async (req, res, next) => {
+    try {
+      const { shopId, lang, customerId } = req.query as any;
+      const client = new PrestaShopClient({ shopId, lang });
+      const session = await getCheckoutSession(
+        client,
+        Number(shopId) as 1 | 4,
+        customerId ? Number(customerId) : undefined
+      );
+      res.json(session);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.post(
+  "/v1/checkout/handoff",
+  validateBody(checkoutHandoffBodySchema),
+  async (req, res, next) => {
+    try {
+      const { shopId, customerId, target } = req.body as any;
+      const resolvedTarget = customerId ? target : target === "checkout" ? "login" : target;
+      res.json({
+        ok: true,
+        shopId,
+        customerId: customerId ?? null,
+        target: resolvedTarget,
+        url: getCheckoutHandoffUrl(shopId, resolvedTarget),
+      });
     } catch (error) {
       next(error);
     }

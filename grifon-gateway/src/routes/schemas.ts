@@ -186,3 +186,11 @@ export const customerActivityQuerySchema = z.object({
 export const customerActivityClearBodySchema = z.object({
   shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)]))
 });
+
+export const checkoutSessionQuerySchema = shopQuerySchema.merge(customerIdSchema.partial());
+
+export const checkoutHandoffBodySchema = z.object({
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  customerId: z.preprocess(toNumber, z.number().int().positive().optional()),
+  target: z.enum(["cart", "checkout", "login"]).default("checkout")
+});
