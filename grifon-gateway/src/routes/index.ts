@@ -6,6 +6,7 @@ import { validateQuery, validateParams, validateBody } from "../middleware/valid
 import {
   customerActivityClearBodySchema,
   categoryIdSchema,
+  checkoutOrderBodySchema,
   checkoutHandoffBodySchema,
   checkoutSessionQuerySchema,
   customerActivityQuerySchema,
@@ -56,7 +57,7 @@ import {
 import { getPriceAccess } from "../services/priceAccessService";
 import { listWholesaleCustomers } from "../services/wholesaleCustomerService";
 import { listCustomers } from "../services/customerService";
-import { getCheckoutHandoffUrl, getCheckoutSession } from "../services/checkoutService";
+import { createCheckoutOrder, getCheckoutHandoffUrl, getCheckoutSession } from "../services/checkoutService";
 
 export const apiRouter = Router();
 
@@ -261,6 +262,28 @@ apiRouter.get(
         customerId ? Number(customerId) : undefined
       );
       res.json(session);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.post(
+  "/v1/checkout/orders",
+  validateBody(checkoutOrderBodySchema),
+  async (req, res, next) => {
+    try {
+      const { shopId, customerId, paymentMethodCode, shippingMethodCode, address, items } = req.body as any;
+      const client = new PrestaShopClient({ shopId });
+      const order = await createCheckoutOrder(client, {
+        shopId: Number(shopId) as 1 | 4,
+        customerId: Number(customerId),
+        paymentMethodCode,
+        shippingMethodCode,
+        address,
+        items,
+      });
+      res.status(201).json(order);
     } catch (error) {
       next(error);
     }

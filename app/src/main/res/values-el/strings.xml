@@ -83,6 +83,9 @@
     <string name="checkout_confirm_order">Επιβεβαίωση checkout</string>
     <string name="checkout_confirmation_title">Το checkout επιβεβαιώθηκε</string>
     <string name="checkout_confirmation_message">Τα στοιχεία αποστολής και τα επιλεγμένα modules αποθηκεύτηκαν μέσα στο app.</string>
+    <string name="checkout_saved_title">Τα στοιχεία checkout αποθηκεύτηκαν</string>
+    <string name="checkout_saved_message">Τα στοιχεία αποστολής και τα επιλεγμένα modules αποθηκεύτηκαν μέσα στο app.</string>
+    <string name="checkout_payment_pending_message">Η πληρωμή δεν έχει συνδεθεί ακόμα στο app. Χρειάζεται backend order και payment session bridge.</string>
     <string name="checkout_missing_address">Συμπληρώστε πρώτα τη διεύθυνση αποστολής.</string>
     <string name="checkout_empty_cart">Προσθέστε προϊόντα στο καλάθι πριν συνεχίσετε.</string>
     <string name="checkout_method_unavailable">Δεν είναι διαθέσιμο για αυτό το checkout</string>

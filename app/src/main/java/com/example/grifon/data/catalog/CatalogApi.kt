@@ -106,6 +106,11 @@ interface CatalogApi {
         @Query("lang") lang: Int = 1,
         @Query("customerId") customerId: Int? = null,
     ): CheckoutSessionDto
+
+    @POST("v1/checkout/orders")
+    suspend fun createCheckoutOrder(
+        @Body request: CheckoutOrderRequestDto,
+    ): CheckoutOrderResponseDto
 }
 
 @JsonClass(generateAdapter = true)
@@ -267,6 +272,53 @@ data class CheckoutMethodDto(
     val title: String,
     val type: String,
     val available: Boolean = false,
+)
+
+@JsonClass(generateAdapter = true)
+data class CheckoutOrderRequestDto(
+    val shopId: Int,
+    val customerId: Int,
+    val paymentMethodCode: String,
+    val shippingMethodCode: String,
+    val address: CheckoutAddressDto,
+    val items: List<CheckoutOrderItemDto>,
+)
+
+@JsonClass(generateAdapter = true)
+data class CheckoutAddressDto(
+    val recipient: String,
+    val email: String,
+    val phone: String,
+    val company: String? = null,
+    val street: String,
+    val city: String,
+    val postalCode: String,
+    val country: String,
+)
+
+@JsonClass(generateAdapter = true)
+data class CheckoutOrderItemDto(
+    val productId: Int,
+    val title: String,
+    val qty: Int,
+    val unitPrice: Double,
+    val currency: String,
+)
+
+@JsonClass(generateAdapter = true)
+data class CheckoutOrderResponseDto(
+    val orderReference: String,
+    val shopId: Int,
+    val customerId: Int,
+    val totalAmount: Double,
+    val currency: String,
+    val paymentMethodCode: String,
+    val shippingMethodCode: String,
+    val paymentStatus: String,
+    val orderStatus: String,
+    val paymentProvider: String,
+    val paymentSessionStatus: String,
+    val paymentSessionMessage: String,
 )
 
 @JsonClass(generateAdapter = true)

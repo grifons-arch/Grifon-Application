@@ -83,6 +83,9 @@
     <string name="checkout_confirm_order">Bekräfta checkout</string>
     <string name="checkout_confirmation_title">Checkout bekräftad</string>
     <string name="checkout_confirmation_message">Dina leveransuppgifter och valda moduler har sparats i appen.</string>
+    <string name="checkout_saved_title">Checkout-uppgifter sparade</string>
+    <string name="checkout_saved_message">Dina leveransuppgifter och valda moduler har sparats i appen.</string>
+    <string name="checkout_payment_pending_message">Betalning är ännu inte kopplad i appen. En backend-brygga för order och betalningssession krävs fortfarande.</string>
     <string name="checkout_missing_address">Fyll i leveransadressen innan du bekräftar checkout.</string>
     <string name="checkout_empty_cart">Lägg till produkter i varukorgen innan du fortsätter.</string>
     <string name="checkout_method_unavailable">Inte tillgänglig för denna checkout-session</string>

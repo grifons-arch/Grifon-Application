@@ -83,6 +83,9 @@
     <string name="checkout_confirm_order">Confirm checkout</string>
     <string name="checkout_confirmation_title">Checkout confirmed</string>
     <string name="checkout_confirmation_message">Your shipping details and selected modules have been saved in the app.</string>
+    <string name="checkout_saved_title">Checkout details saved</string>
+    <string name="checkout_saved_message">Your shipping details and selected modules have been saved in the app.</string>
+    <string name="checkout_payment_pending_message">Payment is not configured in the app yet. A backend order and payment session bridge is still required.</string>
     <string name="checkout_missing_address">Complete the shipping address before confirming checkout.</string>
     <string name="checkout_empty_cart">Add products to the cart before continuing.</string>
     <string name="checkout_method_unavailable">Unavailable for this checkout session</string>

@@ -32,6 +32,49 @@ export interface CheckoutSession {
   notes: string[];
 }
 
+export interface CheckoutOrderAddress {
+  recipient: string;
+  email: string;
+  phone: string;
+  company?: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+export interface CheckoutOrderItem {
+  productId: number;
+  title: string;
+  qty: number;
+  unitPrice: number;
+  currency: string;
+}
+
+export interface CreateCheckoutOrderInput {
+  shopId: ShopId;
+  customerId: number;
+  paymentMethodCode: string;
+  shippingMethodCode: string;
+  address: CheckoutOrderAddress;
+  items: CheckoutOrderItem[];
+}
+
+export interface CheckoutOrder {
+  orderReference: string;
+  shopId: ShopId;
+  customerId: number;
+  totalAmount: number;
+  currency: string;
+  paymentMethodCode: string;
+  shippingMethodCode: string;
+  paymentStatus: "requires_payment";
+  orderStatus: "draft";
+  paymentProvider: "paypal" | "stripe_cards" | "manual";
+  paymentSessionStatus: "pending_bridge";
+  paymentSessionMessage: string;
+}
+
 const withTrailingSlash = (value: string): string => {
   return value.endsWith("/") ? value : `${value}/`;
 };
@@ -69,6 +112,8 @@ const buildShippingMethods = (): CheckoutShippingMethod[] => {
     },
   ];
 };
+
+const orderStore = new Map<string, CheckoutOrder>();
 
 export const getCheckoutSession = async (
   client: PrestaShopClient,
@@ -121,4 +166,66 @@ export const getCheckoutHandoffUrl = (
     default:
       return `${storefrontBaseUrl}index.php?controller=order`;
   }
+};
+
+const resolvePaymentProvider = (paymentMethodCode: string): "paypal" | "stripe_cards" | "manual" => {
+  if (paymentMethodCode === "paypal") {
+    return "paypal";
+  }
+  if (paymentMethodCode === "stripe_cards") {
+    return "stripe_cards";
+  }
+  return "manual";
+};
+
+export const createCheckoutOrder = async (
+  client: PrestaShopClient,
+  input: CreateCheckoutOrderInput
+): Promise<CheckoutOrder> => {
+  const access = await getPriceAccess(client, input.customerId);
+  if (!access.allowed) {
+    throw Object.assign(new Error("Wholesale approval is required before checkout."), {
+      status: 403,
+      code: "CHECKOUT_NOT_ALLOWED"
+    });
+  }
+
+  if (!input.items.length) {
+    throw Object.assign(new Error("Cart is empty."), {
+      status: 400,
+      code: "EMPTY_CART"
+    });
+  }
+
+  const totalAmount = input.items.reduce((sum, item) => sum + item.qty * item.unitPrice, 0);
+  const currency = input.items[0]?.currency || "EUR";
+  const orderReference = `ORD-${Date.now().toString().slice(-8)}`;
+  const paymentProvider = resolvePaymentProvider(input.paymentMethodCode);
+
+  const order: CheckoutOrder = {
+    orderReference,
+    shopId: input.shopId,
+    customerId: input.customerId,
+    totalAmount,
+    currency,
+    paymentMethodCode: input.paymentMethodCode,
+    shippingMethodCode: input.shippingMethodCode,
+    paymentStatus: "requires_payment",
+    orderStatus: "draft",
+    paymentProvider,
+    paymentSessionStatus: "pending_bridge",
+    paymentSessionMessage:
+      paymentProvider === "paypal"
+        ? "PayPal payment bridge is not configured yet in the gateway."
+        : paymentProvider === "stripe_cards"
+          ? "Stripe card payment bridge is not configured yet in the gateway."
+          : "Payment bridge is not configured yet in the gateway."
+  };
+
+  orderStore.set(orderReference, order);
+  return order;
+};
+
+export const getCheckoutOrder = (orderReference: string): CheckoutOrder | null => {
+  return orderStore.get(orderReference) ?? null;
 };

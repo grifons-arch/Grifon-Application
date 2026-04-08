@@ -194,3 +194,29 @@ export const checkoutHandoffBodySchema = z.object({
   customerId: z.preprocess(toNumber, z.number().int().positive().optional()),
   target: z.enum(["cart", "checkout", "login"]).default("checkout")
 });
+
+export const checkoutOrderBodySchema = z.object({
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  customerId: z.preprocess(toNumber, z.number().int().positive()),
+  paymentMethodCode: z.string().trim().min(1),
+  shippingMethodCode: z.string().trim().min(1),
+  address: z.object({
+    recipient: z.string().trim().min(1),
+    email: z.string().trim().email(),
+    phone: z.string().trim().min(1),
+    company: z.preprocess(toOptionalString, z.string().optional()),
+    street: z.string().trim().min(1),
+    city: z.string().trim().min(1),
+    postalCode: z.string().trim().min(1),
+    country: z.string().trim().min(1)
+  }),
+  items: z.array(
+    z.object({
+      productId: z.preprocess(toNumber, z.number().int().positive()),
+      title: z.string().trim().min(1),
+      qty: z.preprocess(toNumber, z.number().int().positive()),
+      unitPrice: z.preprocess(toNumber, z.number().nonnegative()),
+      currency: z.string().trim().min(1)
+    })
+  ).min(1)
+});

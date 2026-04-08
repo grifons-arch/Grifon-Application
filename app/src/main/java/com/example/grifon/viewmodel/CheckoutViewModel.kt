@@ -6,7 +6,10 @@ import com.example.grifon.core.PrestaLanguage
 import com.example.grifon.core.ShopConfig
 import com.example.grifon.core.UiState
 import com.example.grifon.data.catalog.CatalogApi
+import com.example.grifon.data.catalog.CheckoutAddressDto
 import com.example.grifon.data.catalog.CheckoutMethodDto
+import com.example.grifon.data.catalog.CheckoutOrderItemDto
+import com.example.grifon.data.catalog.CheckoutOrderRequestDto
 import com.example.grifon.data.catalog.CheckoutSessionDto
 import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.data.local.ShopPreferences
@@ -101,11 +104,38 @@ class CheckoutViewModel @Inject constructor(
         if (!current.isReadyToConfirm) {
             return
         }
-
-        confirmation.value = CheckoutConfirmation(
-            reference = "APP-${System.currentTimeMillis().toString().takeLast(6)}",
-            message = "Checkout details saved in the app.",
-        )
+        viewModelScope.launch {
+            runCatching {
+                catalogApi.createCheckoutOrder(
+                    CheckoutOrderRequestDto(
+                        shopId = current.shopId.toInt(),
+                        customerId = current.customerId ?: error("Missing customer id"),
+                        paymentMethodCode = current.selectedPaymentCode ?: error("Missing payment method"),
+                        shippingMethodCode = current.selectedShippingCode ?: error("Missing shipping method"),
+                        address = current.address.toDto(),
+                        items = current.items.map { item ->
+                            CheckoutOrderItemDto(
+                                productId = item.productId.toIntOrNull() ?: 0,
+                                title = item.title,
+                                qty = item.qty,
+                                unitPrice = item.priceSnapshot,
+                                currency = item.currency,
+                            )
+                        },
+                    )
+                )
+            }.onSuccess { response ->
+                confirmation.value = CheckoutConfirmation(
+                    reference = response.orderReference,
+                    message = response.paymentSessionMessage,
+                )
+            }.onFailure { error ->
+                confirmation.value = CheckoutConfirmation(
+                    reference = "ORDER-ERROR",
+                    message = error.message ?: "Checkout order creation failed.",
+                )
+            }
+        }
     }
 
     private fun observeCheckoutDraft() {
@@ -453,5 +483,18 @@ private fun CheckoutAddress.withDefaultCountryIfMissing(shopId: String): Checkou
     if (country.isNotBlank()) return this
     return copy(
         country = if (ShopConfig.normalizeShopId(shopId) == "1") "Sweden" else "Greece"
+    )
+}
+
+private fun CheckoutAddress.toDto(): CheckoutAddressDto {
+    return CheckoutAddressDto(
+        recipient = recipient,
+        email = email,
+        phone = phone,
+        company = company.takeIf { it.isNotBlank() },
+        street = street,
+        city = city,
+        postalCode = postalCode,
+        country = country,
     )
 }
