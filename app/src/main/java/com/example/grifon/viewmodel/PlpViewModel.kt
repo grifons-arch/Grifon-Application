@@ -18,6 +18,7 @@ import com.example.grifon.domain.usecase.ObserveFavoritesUseCase
 import com.example.grifon.domain.usecase.SearchProductsUseCase
 import com.example.grifon.domain.usecase.ToggleFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.text.Normalizer
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -106,17 +107,26 @@ class PlpViewModel @Inject constructor(
         }.distinctUntilChanged()
             .flatMapLatest { params ->
                 val hasSearchQuery = params.query.isNotBlank()
-                val source = if (hasSearchQuery) {
-                    searchProductsUseCase(
-                        params.shopId,
-                        params.query,
-                        params.filters,
-                        params.sortOption,
-                    )
-                } else if (params.category.isNotBlank()) {
+                val source = if (params.category.isNotBlank()) {
                     getProductsByCategoryUseCase(
                         params.shopId,
                         params.category,
+                        params.filters,
+                        params.sortOption,
+                    ).map { products ->
+                        if (hasSearchQuery) {
+                            val filtered = products.filter { product ->
+                                product.matchesPlpQuery(params.query)
+                            }
+                            if (filtered.isNotEmpty()) filtered else products
+                        } else {
+                            products
+                        }
+                    }
+                } else if (hasSearchQuery) {
+                    searchProductsUseCase(
+                        params.shopId,
+                        params.query,
                         params.filters,
                         params.sortOption,
                     )
@@ -129,7 +139,7 @@ class PlpViewModel @Inject constructor(
                     )
                 }
 
-                val facetsSource = if (!hasSearchQuery && params.category.isNotBlank()) {
+                val facetsSource = if (params.category.isNotBlank()) {
                     getCategoryFiltersUseCase(params.shopId, params.category)
                 } else {
                     flowOf(emptyList())
@@ -215,3 +225,29 @@ data class PlpState(
     val sortOption: SortOption,
     val canLoadMore: Boolean = true
 )
+
+private fun Product.matchesPlpQuery(query: String): Boolean {
+    val normalizedQuery = query.normalizeSearchText()
+    if (normalizedQuery.isBlank()) return true
+
+    val searchableValues = buildList {
+        add(title)
+        add(id)
+        attributesMap.forEach { (key, values) ->
+            add(key)
+            addAll(values)
+        }
+    }.filter { it.isNotBlank() }
+
+    val searchableText = searchableValues.joinToString(" ") { it.normalizeSearchText() }
+    val normalizedTokens = normalizedQuery.split(Regex("\\s+")).filter { it.isNotBlank() }
+
+    return searchableText.contains(normalizedQuery) ||
+        normalizedTokens.all { token -> searchableText.contains(token) }
+}
+
+private fun String.normalizeSearchText(): String {
+    return Normalizer.normalize(trim(), Normalizer.Form.NFD)
+        .replace("\\p{M}+".toRegex(), "")
+        .lowercase()
+}
