@@ -17,7 +17,35 @@ const hasWholesaleKeyword = (name: string | null | undefined): boolean => {
     return false;
   }
 
-  return normalized.includes("wholesale");
+  return (
+    normalized.includes("wholesale") ||
+    normalized.includes("wholesales") ||
+    normalized.includes("whalesale") ||
+    normalized.includes("whalesales")
+  );
+};
+
+const extractGroupNames = (group: any): string[] => {
+  const rawName = group?.name;
+  if (!rawName) {
+    return [];
+  }
+
+  if (typeof rawName === "string") {
+    return rawName.trim() ? [rawName.trim()] : [];
+  }
+
+  const languageEntries = rawName.language;
+  if (!languageEntries) {
+    return [];
+  }
+
+  const entries = Array.isArray(languageEntries) ? languageEntries : [languageEntries];
+  return entries
+    .map((entry) => entry?.value ?? entry?.text ?? null)
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0);
 };
 
 export const getPriceAccess = async (
@@ -65,13 +93,7 @@ export const getPriceAccess = async (
       groupShowPrices = toBooleanFlag(group.show_prices);
     }
 
-    const rawName = group.name?.language?.[0]?.value
-      ?? group.name?.language?.value
-      ?? group.name
-      ?? null;
-    if (typeof rawName === "string" && rawName.trim().length > 0) {
-      groupNames.push(rawName);
-    }
+    groupNames.push(...extractGroupNames(group));
   }
 
   const hasWholesaleGroup = groupNames.some((groupName) => hasWholesaleKeyword(groupName));
