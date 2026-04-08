@@ -4,7 +4,6 @@ exports.listCustomers = void 0;
 const prestashopParser_1 = require("./prestashopParser");
 const prestashopFields_1 = require("../utils/prestashopFields");
 const pagination_1 = require("../utils/pagination");
-const priceAccessService_1 = require("./priceAccessService");
 const hasWholesaleKeyword = (name) => {
     const normalized = name?.trim().toLowerCase() ?? "";
     if (!normalized) {
@@ -33,12 +32,8 @@ const fetchGroups = async (client, lang) => {
     return groupsById;
 };
 const resolveWholesaleGroupIds = (groupsById) => {
-    const configuredWholesaleGroupIds = (0, priceAccessService_1.getConfiguredWholesaleGroupIds)();
     const ids = Array.from(groupsById.values())
-        .filter((group) => hasWholesaleKeyword(group.name) &&
-        group.showPrices &&
-        (configuredWholesaleGroupIds.length === 0 ||
-            configuredWholesaleGroupIds.includes(group.id)))
+        .filter((group) => hasWholesaleKeyword(group.name))
         .map((group) => group.id);
     return new Set(ids);
 };

@@ -2,7 +2,6 @@ import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { extractResourceList } from "./prestashopParser";
 import { getLocalizedValue, toBooleanFlag } from "../utils/prestashopFields";
 import { toLimitParam } from "../utils/pagination";
-import { getConfiguredWholesaleGroupIds } from "./priceAccessService";
 
 interface CustomerGroupItem {
   id: number;
@@ -66,15 +65,8 @@ const fetchGroups = async (
 };
 
 const resolveWholesaleGroupIds = (groupsById: Map<number, CustomerGroupItem>): Set<number> => {
-  const configuredWholesaleGroupIds = getConfiguredWholesaleGroupIds();
   const ids = Array.from(groupsById.values())
-    .filter(
-      (group) =>
-        hasWholesaleKeyword(group.name) &&
-        group.showPrices &&
-        (configuredWholesaleGroupIds.length === 0 ||
-          configuredWholesaleGroupIds.includes(group.id))
-    )
+    .filter((group) => hasWholesaleKeyword(group.name))
     .map((group) => group.id);
 
   return new Set(ids);
