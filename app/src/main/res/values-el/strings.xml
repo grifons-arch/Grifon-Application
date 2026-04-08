@@ -75,6 +75,17 @@
     <string name="checkout_secure_note">Προς το παρόν το app μεταφέρει το checkout στο ασφαλές website flow για πληρωμή και επιβεβαίωση παραγγελίας.</string>
     <string name="checkout_open_secure">Άνοιγμα ασφαλούς checkout</string>
     <string name="checkout_open_web_cart">Άνοιγμα web καλαθιού</string>
+    <string name="checkout_shipping_address_title">Διεύθυνση αποστολής</string>
+    <string name="checkout_recipient_label">Παραλήπτης</string>
+    <string name="checkout_shipping_method_title">Τρόπος αποστολής</string>
+    <string name="checkout_payment_method_title">Τρόπος πληρωμής</string>
+    <string name="checkout_notes_title">Σημειώσεις checkout</string>
+    <string name="checkout_confirm_order">Επιβεβαίωση checkout</string>
+    <string name="checkout_confirmation_title">Το checkout επιβεβαιώθηκε</string>
+    <string name="checkout_confirmation_message">Τα στοιχεία αποστολής και τα επιλεγμένα modules αποθηκεύτηκαν μέσα στο app.</string>
+    <string name="checkout_missing_address">Συμπληρώστε πρώτα τη διεύθυνση αποστολής.</string>
+    <string name="checkout_empty_cart">Προσθέστε προϊόντα στο καλάθι πριν συνεχίσετε.</string>
+    <string name="checkout_method_unavailable">Δεν είναι διαθέσιμο για αυτό το checkout</string>
     <string name="product_code">Κωδικός: %1$s</string>
     <string name="add_to_cart">Προσθήκη στο καλάθι</string>
     <string name="remove_from_cart">Αφαίρεση</string>

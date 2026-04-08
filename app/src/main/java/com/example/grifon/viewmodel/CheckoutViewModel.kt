@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CheckoutViewModel @Inject constructor(
-    getActiveShopUseCase: GetActiveShopUseCase,
+    private val getActiveShopUseCase: GetActiveShopUseCase,
     private val getCartUseCase: GetCartUseCase,
     private val shopPreferences: ShopPreferences,
     private val localPriceAccessService: LocalPriceAccessService,
@@ -109,31 +109,71 @@ class CheckoutViewModel @Inject constructor(
     }
 
     private fun observeCheckoutDraft() {
-        combine(
+        val identityFlow = combine(
             shopPreferences.currentCustomerFirstName,
             shopPreferences.currentCustomerLastName,
             shopPreferences.currentCustomerEmail,
             shopPreferences.currentCustomerCompany,
+        ) { firstName, lastName, email, customerCompany ->
+            CheckoutIdentity(
+                firstName = firstName,
+                lastName = lastName,
+                email = email,
+                company = customerCompany,
+            )
+        }
+
+        val contactDraftFlow = combine(
             shopPreferences.checkoutRecipient,
             shopPreferences.checkoutPhone,
             shopPreferences.checkoutCompany,
             shopPreferences.checkoutStreet,
+        ) { recipient, phone, company, street ->
+            CheckoutContactDraft(
+                recipient = recipient,
+                phone = phone,
+                company = company,
+                street = street,
+            )
+        }
+
+        val locationDraftFlow = combine(
             shopPreferences.checkoutCity,
             shopPreferences.checkoutPostalCode,
             shopPreferences.checkoutCountry,
-        ) { firstName, lastName, email, customerCompany, recipient, phone, company, street, city, postalCode, country ->
-            val fallbackRecipient = listOfNotNull(firstName, lastName)
+        ) { city, postalCode, country ->
+            CheckoutLocationDraft(
+                city = city,
+                postalCode = postalCode,
+                country = country,
+            )
+        }
+
+        val draftFlow = combine(contactDraftFlow, locationDraftFlow) { contact, location ->
+            CheckoutDraftValues(
+                recipient = contact.recipient,
+                phone = contact.phone,
+                company = contact.company,
+                street = contact.street,
+                city = location.city,
+                postalCode = location.postalCode,
+                country = location.country,
+            )
+        }
+
+        combine(identityFlow, draftFlow) { identity, draft ->
+            val fallbackRecipient = listOfNotNull(identity.firstName, identity.lastName)
                 .joinToString(" ")
                 .trim()
             CheckoutAddress(
-                recipient = recipient?.takeIf { it.isNotBlank() } ?: fallbackRecipient,
-                email = email.orEmpty(),
-                phone = phone.orEmpty(),
-                company = company?.takeIf { it.isNotBlank() } ?: customerCompany.orEmpty(),
-                street = street.orEmpty(),
-                city = city.orEmpty(),
-                postalCode = postalCode.orEmpty(),
-                country = country.orEmpty(),
+                recipient = draft.recipient?.takeIf { it.isNotBlank() } ?: fallbackRecipient,
+                email = identity.email.orEmpty(),
+                phone = draft.phone.orEmpty(),
+                company = draft.company?.takeIf { it.isNotBlank() } ?: identity.company.orEmpty(),
+                street = draft.street.orEmpty(),
+                city = draft.city.orEmpty(),
+                postalCode = draft.postalCode.orEmpty(),
+                country = draft.country.orEmpty(),
             )
         }.onEach { draftAddress.value = it }
             .launchIn(viewModelScope)
@@ -353,6 +393,36 @@ private data class CheckoutSessionState(
     val customerId: Int?,
     val canViewPrices: Boolean,
     val languageCode: String,
+)
+
+private data class CheckoutIdentity(
+    val firstName: String?,
+    val lastName: String?,
+    val email: String?,
+    val company: String?,
+)
+
+private data class CheckoutDraftValues(
+    val recipient: String?,
+    val phone: String?,
+    val company: String?,
+    val street: String?,
+    val city: String?,
+    val postalCode: String?,
+    val country: String?,
+)
+
+private data class CheckoutContactDraft(
+    val recipient: String?,
+    val phone: String?,
+    val company: String?,
+    val street: String?,
+)
+
+private data class CheckoutLocationDraft(
+    val city: String?,
+    val postalCode: String?,
+    val country: String?,
 )
 
 private fun CheckoutSessionDto.toBaseState(items: List<CartItem>): BaseCheckoutState {

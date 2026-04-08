@@ -75,6 +75,17 @@
     <string name="checkout_secure_note">Appen skickar för närvarande checkout vidare till den säkra webbplatsen för betalning och orderbekräftelse.</string>
     <string name="checkout_open_secure">Öppna säker checkout</string>
     <string name="checkout_open_web_cart">Öppna webbkorg</string>
+    <string name="checkout_shipping_address_title">Leveransadress</string>
+    <string name="checkout_recipient_label">Mottagare</string>
+    <string name="checkout_shipping_method_title">Fraktsätt</string>
+    <string name="checkout_payment_method_title">Betalningsmetod</string>
+    <string name="checkout_notes_title">Checkout-noteringar</string>
+    <string name="checkout_confirm_order">Bekräfta checkout</string>
+    <string name="checkout_confirmation_title">Checkout bekräftad</string>
+    <string name="checkout_confirmation_message">Dina leveransuppgifter och valda moduler har sparats i appen.</string>
+    <string name="checkout_missing_address">Fyll i leveransadressen innan du bekräftar checkout.</string>
+    <string name="checkout_empty_cart">Lägg till produkter i varukorgen innan du fortsätter.</string>
+    <string name="checkout_method_unavailable">Inte tillgänglig för denna checkout-session</string>
     <string name="product_code">Kod: %1$s</string>
     <string name="add_to_cart">Lägg i varukorgen</string>
     <string name="remove_from_cart">Ta bort</string>
