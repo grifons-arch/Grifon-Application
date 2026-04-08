@@ -25,6 +25,13 @@ class ShopPreferences(
     private val customerFirstNameKey = stringPreferencesKey("current_customer_first_name")
     private val customerLastNameKey = stringPreferencesKey("current_customer_last_name")
     private val customerCompanyKey = stringPreferencesKey("current_customer_company")
+    private val checkoutRecipientKey = stringPreferencesKey("checkout_recipient")
+    private val checkoutPhoneKey = stringPreferencesKey("checkout_phone")
+    private val checkoutCompanyKey = stringPreferencesKey("checkout_company")
+    private val checkoutStreetKey = stringPreferencesKey("checkout_street")
+    private val checkoutCityKey = stringPreferencesKey("checkout_city")
+    private val checkoutPostalCodeKey = stringPreferencesKey("checkout_postal_code")
+    private val checkoutCountryKey = stringPreferencesKey("checkout_country")
 
     val activeShopId: Flow<String> = dataStore.data.map { preferences ->
         ShopConfig.normalizeShopId(preferences[shopKey] ?: BuildConfig.SHOP_ID)
@@ -60,6 +67,34 @@ class ShopPreferences(
 
     val currentCustomerCompany: Flow<String?> = dataStore.data.map { preferences ->
         preferences[customerCompanyKey]
+    }
+
+    val checkoutRecipient: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[checkoutRecipientKey]
+    }
+
+    val checkoutPhone: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[checkoutPhoneKey]
+    }
+
+    val checkoutCompany: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[checkoutCompanyKey]
+    }
+
+    val checkoutStreet: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[checkoutStreetKey]
+    }
+
+    val checkoutCity: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[checkoutCityKey]
+    }
+
+    val checkoutPostalCode: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[checkoutPostalCodeKey]
+    }
+
+    val checkoutCountry: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[checkoutCountryKey]
     }
 
     suspend fun setActiveShopId(shopId: String) {
@@ -108,6 +143,26 @@ class ShopPreferences(
             preferences.remove(customerFirstNameKey)
             preferences.remove(customerLastNameKey)
             preferences.remove(customerCompanyKey)
+        }
+    }
+
+    suspend fun setCheckoutDraft(
+        recipient: String? = null,
+        phone: String? = null,
+        company: String? = null,
+        street: String? = null,
+        city: String? = null,
+        postalCode: String? = null,
+        country: String? = null,
+    ) {
+        dataStore.edit { preferences ->
+            recipient?.let { preferences[checkoutRecipientKey] = it }
+            phone?.let { preferences[checkoutPhoneKey] = it }
+            company?.let { preferences[checkoutCompanyKey] = it }
+            street?.let { preferences[checkoutStreetKey] = it }
+            city?.let { preferences[checkoutCityKey] = it }
+            postalCode?.let { preferences[checkoutPostalCodeKey] = it }
+            country?.let { preferences[checkoutCountryKey] = it }
         }
     }
 }
