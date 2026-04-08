@@ -52,6 +52,7 @@ class CartViewModel @Inject constructor(
                 getCartUseCase(normalizedShopId).map { items ->
                     UiState.Success(
                         CartState(
+                            shopId = normalizedShopId,
                             items = items,
                             total = if (canDisplayPrices) items.sumOf { it.qty * it.priceSnapshot } else null,
                             canViewPrices = canDisplayPrices,
@@ -72,6 +73,7 @@ class CartViewModel @Inject constructor(
 }
 
 data class CartState(
+    val shopId: String,
     val items: List<CartItem>,
     val total: Double?,
     val canViewPrices: Boolean,

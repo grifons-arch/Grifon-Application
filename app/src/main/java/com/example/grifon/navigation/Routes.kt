@@ -7,6 +7,7 @@ object Routes {
     const val HOME = "home"
     const val CATEGORIES = "categories"
     const val CART = "cart"
+    const val CHECKOUT = "checkout"
     const val FAVORITES = "favorites"
     const val ACCOUNT = "account"
     const val REGISTER = "register"

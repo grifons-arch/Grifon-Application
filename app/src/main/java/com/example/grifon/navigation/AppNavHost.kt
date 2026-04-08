@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import com.example.grifon.RegisterScreen
 import com.example.grifon.ui.screens.AccountScreen
 import com.example.grifon.ui.screens.CartScreen
+import com.example.grifon.ui.screens.CheckoutScreen
 import com.example.grifon.ui.screens.FavoritesScreen
 import com.example.grifon.ui.screens.HomeScreen
 import com.example.grifon.ui.screens.SettingsScreen
@@ -65,7 +66,15 @@ fun AppNavHost(
             }
         }
         composable(Routes.CART) {
-            CartScreen(viewModel = hiltViewModel())
+            CartScreen(
+                viewModel = hiltViewModel(),
+                onCheckout = {
+                    navController.navigate(Routes.CHECKOUT)
+                },
+            )
+        }
+        composable(Routes.CHECKOUT) {
+            CheckoutScreen(viewModel = hiltViewModel())
         }
         composable(Routes.FAVORITES) {
             FavoritesScreen(

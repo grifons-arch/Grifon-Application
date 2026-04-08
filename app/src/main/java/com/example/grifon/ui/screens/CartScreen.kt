@@ -43,7 +43,10 @@ import com.example.grifon.viewmodel.CartViewModel
 import java.util.Locale
 
 @Composable
-fun CartScreen(viewModel: CartViewModel) {
+fun CartScreen(
+    viewModel: CartViewModel,
+    onCheckout: () -> Unit,
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     when (val state = uiState) {
@@ -74,7 +77,7 @@ fun CartScreen(viewModel: CartViewModel) {
                             style = MaterialTheme.typography.titleMedium,
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-                        Button(onClick = {}) {
+                        Button(onClick = onCheckout) {
                             Text(text = stringResource(R.string.checkout))
                         }
                     } else {

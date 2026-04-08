@@ -44,6 +44,12 @@ object ShopConfig {
     fun storefrontBaseUrl(rawShopId: String?): String =
         if (isSwedishShop(rawShopId)) SwedishStorefrontBaseUrl else GreekStorefrontBaseUrl
 
+    fun storefrontCartUrl(rawShopId: String?): String =
+        storefrontBaseUrl(rawShopId) + "index.php?controller=cart"
+
+    fun storefrontCheckoutUrl(rawShopId: String?): String =
+        storefrontBaseUrl(rawShopId) + "index.php?controller=order"
+
     fun wholesaleApplicationEntryUrl(rawShopId: String?): String =
         storefrontBaseUrl(rawShopId) + "index.php?fc=module&module=ets_wholesale&controller=registration"
 }
