@@ -41,7 +41,13 @@ fun AppNavHost(
                 viewModel = hiltViewModel(),
                 onProductClick = { productId ->
                     navController.navigate(Routes.productRoute(productId))
-                }
+                },
+                onSearch = { query ->
+                    navController.navigate(Routes.plpRoute(query = query))
+                },
+                onCategoryClick = { categoryId ->
+                    navController.navigate(Routes.plpRoute(category = categoryId))
+                },
             )
         }
         composable(Routes.CATEGORIES) {

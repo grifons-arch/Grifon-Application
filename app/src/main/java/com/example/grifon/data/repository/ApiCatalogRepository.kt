@@ -16,6 +16,7 @@ import com.example.grifon.data.local.ShopPreferences
 import kotlinx.coroutines.flow.first
 import org.json.JSONArray
 import org.json.JSONObject
+import java.text.Normalizer
 
 private val DEFAULT_FILTER_PRICE_RANGE = 0.0..500.0
 
@@ -143,8 +144,26 @@ class ApiCatalogRepository @Inject constructor(
                 customerId = customerId,
                 canViewPrices = shopPreferences.canViewPrices.first(),
             )
+            val normalizedQuery = query.trim()
             val apiFilters = filters.toApiBasicFilters(canDisplayPrices, query)
             val requestCustomerId = customerId?.takeIf { canDisplayPrices }
+            val backendSearchMatches = if (normalizedQuery.isNotEmpty()) {
+                catalogApi.getProducts(
+                    shopId = sId,
+                    lang = langId,
+                    page = 1,
+                    pageSize = 100,
+                    sort = sortOption.toApiSort(),
+                    search = normalizedQuery,
+                    priceMin = apiFilters.priceMin,
+                    priceMax = apiFilters.priceMax,
+                    colors = apiFilters.colors,
+                    attributes = apiFilters.attributes,
+                    customerId = requestCustomerId,
+                ).items
+            } else {
+                emptyList()
+            }
             val searchCandidates = fetchSearchCandidates(
                 shopId = sId,
                 langId = langId,
@@ -152,7 +171,11 @@ class ApiCatalogRepository @Inject constructor(
                 sortOption = sortOption,
                 apiFilters = apiFilters,
             )
-            val products = searchCandidates.map {
+            val dtoById = LinkedHashMap<Int, com.example.grifon.data.catalog.ProductDto>()
+            backendSearchMatches.forEach { dtoById[it.id] = it }
+            searchCandidates.forEach { dtoById[it.id] = it }
+            val backendMatchIds = backendSearchMatches.map { it.id.toString() }.toSet()
+            val products = dtoById.values.map {
                 it.toDomainProduct(
                     gatewayBaseUrl = gatewayBaseUrl,
                     brand = if (sId == 4) "Grifon GR" else "Grifon SE",
@@ -162,7 +185,9 @@ class ApiCatalogRepository @Inject constructor(
 
             emit(
                 products
-                    .filter { it.matchesSearchQuery(query) }
+                    .filter { product ->
+                        backendMatchIds.contains(product.id) || product.matchesSearchQuery(normalizedQuery)
+                    }
                     .applyFallbackFilters(filters, sortOption)
             )
         } catch (e: Exception) {
@@ -310,15 +335,50 @@ private fun List<Product>.applyFallbackFilters(
 }
 
 private fun Product.matchesSearchQuery(query: String): Boolean {
-    val needle = query.trim()
+    val needle = query.normalizeSearchText()
+    val needleCode = query.normalizeCodeText()
     if (needle.isEmpty()) {
         return true
     }
 
-    val referenceValues = attributesMap.entries
-        .filter { it.key.equals("reference", ignoreCase = true) }
-        .flatMap { it.value }
+    val searchableValues = buildList {
+        add(title)
+        add(id)
+        attributesMap.forEach { (key, values) ->
+            add(key)
+            addAll(values)
+        }
+    }.filter { it.isNotBlank() }
 
-    return title.contains(needle, ignoreCase = true) ||
-        referenceValues.any { it.contains(needle, ignoreCase = true) }
+    val searchableText = searchableValues.joinToString(" ") { it.normalizeSearchText() }
+    val searchableCode = searchableValues.joinToString("") { it.normalizeCodeText() }
+    val textTokens = needle.split(Regex("\\s+")).filter { it.isNotBlank() }
+    val codeTokens = extractCodeFragments(query)
+
+    val matchesText = searchableText.contains(needle) ||
+        textTokens.all { token -> searchableText.contains(token) }
+    val matchesCode = needleCode.isNotEmpty() && (
+        searchableCode.contains(needleCode) ||
+            codeTokens.all { token -> searchableCode.contains(token) }
+        )
+
+    return matchesText || matchesCode
+}
+
+private fun String.normalizeSearchText(): String {
+    return Normalizer.normalize(trim(), Normalizer.Form.NFD)
+        .replace("\\p{M}+".toRegex(), "")
+        .lowercase()
+}
+
+private fun String.normalizeCodeText(): String {
+    return normalizeSearchText()
+        .replace("[^\\p{L}\\p{N}]".toRegex(), "")
+}
+
+private fun extractCodeFragments(query: String): List<String> {
+    return query
+        .split(Regex("[\\s\\-_/.,]+"))
+        .map { it.normalizeCodeText() }
+        .filter { it.isNotBlank() }
 }

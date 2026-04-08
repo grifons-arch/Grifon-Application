@@ -63,6 +63,7 @@ class AppViewModel @Inject constructor(
                     favoriteCount = favorites.size,
                     canDisplayPrices = sessionState.canDisplayPrices,
                     isLoggedIn = sessionState.isLoggedIn,
+                    languageCode = sessionState.languageCode,
                 )
             }
         }
@@ -78,6 +79,7 @@ data class AppState(
     val favoriteCount: Int = 0,
     val canDisplayPrices: Boolean = false,
     val isLoggedIn: Boolean = false,
+    val languageCode: String = "el",
 )
 
 private data class SessionAwareAppState(

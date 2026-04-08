@@ -25,6 +25,7 @@ import com.example.grifon.ui.components.AppTopBar
 import com.example.grifon.ui.screens.LocalCanDisplayPrices
 import com.example.grifon.ui.screens.LocalIsLoggedIn
 import com.example.grifon.viewmodel.AppViewModel
+import com.example.grifon.viewmodel.SettingsViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.debounce
@@ -36,6 +37,7 @@ import kotlinx.coroutines.flow.filter
 fun GrifonApp() {
     val navController = rememberNavController()
     val appViewModel: AppViewModel = hiltViewModel()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
     val appState by appViewModel.state.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -74,6 +76,8 @@ fun GrifonApp() {
                 query = searchQuery,
                 isSearchExpanded = forceSearchOpen || searchQuery.isNotEmpty(),
                 showBackArrow = shouldShowBackArrow,
+                showHomeInfoBanner = currentRoute == Routes.HOME,
+                currentLanguage = appState.languageCode,
                 onQueryChange = { searchQuery = it },
                 onBackClick = { navController.navigateUp() },
                 onLogoClick = {
@@ -82,8 +86,17 @@ fun GrifonApp() {
                         launchSingleTop = true
                     }
                 },
-                onSearchIconClick = { forceSearchOpen = true },
+                onSearchIconClick = { forceSearchOpen = !forceSearchOpen },
                 onScanClick = { navController.navigate(Routes.SCAN) },
+                onLanguageSelect = { settingsViewModel.setLanguage(it) },
+                onDismissSearch = {
+                    forceSearchOpen = false
+                    searchQuery = ""
+                },
+                onSearchSubmit = { submittedQuery ->
+                    searchQuery = submittedQuery
+                    navController.navigate(Routes.plpRoute(query = submittedQuery))
+                },
             )
         },
         bottomBar = {
