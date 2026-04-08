@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -98,10 +99,14 @@ fun HomeScreen(
     onProductClick: (String) -> Unit,
     onSearch: (String) -> Unit,
     onCategoryClick: (String) -> Unit,
+    onOpenAccount: () -> Unit = {},
+    onOpenFavorites: () -> Unit = {},
+    onOpenCart: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val canDisplayPrices = LocalCanDisplayPrices.current
     val isLoggedIn = LocalIsLoggedIn.current
+    val uriHandler = LocalUriHandler.current
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -162,6 +167,10 @@ fun HomeScreen(
                         MobileHeaderSection(
                             isLoggedIn = isLoggedIn,
                             canDisplayPrices = canDisplayPrices,
+                            onSearch = onSearch,
+                            onOpenAccount = onOpenAccount,
+                            onOpenFavorites = onOpenFavorites,
+                            onOpenCart = onOpenCart,
                         )
                     }
                     item {
@@ -184,10 +193,13 @@ fun HomeScreen(
                         CustomOrdersSection(
                             canDisplayPrices = canDisplayPrices,
                             onCategoryClick = onCategoryClick,
+                            onOpenExternal = { uriHandler.openUri(it) },
                         )
                     }
                     item {
-                        VisitUsSection()
+                        VisitUsSection(
+                            onOpenExternal = { uriHandler.openUri(it) },
+                        )
                     }
                     item {
                         HomeProductTabsSection(
@@ -201,7 +213,10 @@ fun HomeScreen(
                         NewsletterSection()
                     }
                     item {
-                        FooterLinksSection()
+                        FooterLinksSection(
+                            onCategoryClick = onCategoryClick,
+                            onOpenExternal = { uriHandler.openUri(it) },
+                        )
                     }
                     item {
                         SupportSection()
@@ -214,8 +229,6 @@ fun HomeScreen(
         }
     }
 
-    @Suppress("UNUSED_VARIABLE")
-    val ignoredSearchCallback = onSearch
 }
 
 @Composable
@@ -254,6 +267,8 @@ private fun MobileWholesaleStrip(canDisplayPrices: Boolean) {
 
 @Composable
 private fun UtilityLinksSection() {
+    val uriHandler = LocalUriHandler.current
+
     Column(
         modifier = Modifier.padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -268,6 +283,7 @@ private fun UtilityLinksSection() {
                     english = "Swedish store",
                     swedish = "Svensk butik",
                 ),
+                onClick = { uriHandler.openUri("https://replica.grifon.gr/sv/") },
             )
             QuickLinkChip(
                 label = localizedText(
@@ -275,6 +291,7 @@ private fun UtilityLinksSection() {
                     english = "Retail stores",
                     swedish = "Butiker",
                 ),
+                onClick = { uriHandler.openUri("https://replica.grifon.gr/katastimata") },
             )
             QuickLinkChip(
                 label = localizedText(
@@ -282,6 +299,7 @@ private fun UtilityLinksSection() {
                     english = "Orders",
                     swedish = "Beställningar",
                 ),
+                onClick = { uriHandler.openUri("https://replica.grifon.gr/istoriko-apo-tis-paraggelies-sas") },
             )
         }
     }
@@ -291,6 +309,10 @@ private fun UtilityLinksSection() {
 private fun MobileHeaderSection(
     isLoggedIn: Boolean,
     canDisplayPrices: Boolean,
+    onSearch: (String) -> Unit,
+    onOpenAccount: () -> Unit,
+    onOpenFavorites: () -> Unit,
+    onOpenCart: () -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -339,6 +361,8 @@ private fun MobileHeaderSection(
                 }
             }
 
+            FauxSearchBar(onClick = { onSearch("") })
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -359,6 +383,7 @@ private fun MobileHeaderSection(
                         )
                     },
                     modifier = Modifier.weight(1f),
+                    onClick = onOpenAccount,
                 )
                 HeaderActionPill(
                     icon = Icons.Outlined.FavoriteBorder,
@@ -368,6 +393,7 @@ private fun MobileHeaderSection(
                         swedish = "Önskelista",
                     ),
                     modifier = Modifier.weight(1f),
+                    onClick = onOpenFavorites,
                 )
                 HeaderActionPill(
                     icon = Icons.Filled.ShoppingCart,
@@ -385,6 +411,7 @@ private fun MobileHeaderSection(
                         )
                     },
                     modifier = Modifier.weight(1f),
+                    onClick = onOpenCart,
                 )
             }
         }
@@ -525,6 +552,7 @@ private fun FeatureHighlightsSection() {
 private fun CustomOrdersSection(
     canDisplayPrices: Boolean,
     onCategoryClick: (String) -> Unit,
+    onOpenExternal: (String) -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -588,6 +616,7 @@ private fun CustomOrdersSection(
                         english = "The website includes a 360 viewer. In the mobile app we preserve it as a promotional block.",
                         swedish = "Webbplatsen har en 360-visare. I mobilappen behåller vi det som ett kampanjblock.",
                     ),
+                    onClick = { onOpenExternal("https://360.vfigures.gr/360/400030-1.01.html") },
                 )
                 CompactInfoCard(
                     modifier = Modifier.weight(1f),
@@ -610,6 +639,7 @@ private fun CustomOrdersSection(
                             swedish = "Priser och beställning låses upp efter kontogodkännande.",
                         )
                     },
+                    onClick = { onOpenExternal("https://replica.grifon.gr/o-logargiasmos-mou") },
                 )
             }
         }
@@ -617,7 +647,9 @@ private fun CustomOrdersSection(
 }
 
 @Composable
-private fun VisitUsSection() {
+private fun VisitUsSection(
+    onOpenExternal: (String) -> Unit,
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -660,6 +692,7 @@ private fun VisitUsSection() {
                         english = "Video presentation of the showroom and products.",
                         swedish = "Videopresentation av showroom och produkter.",
                     ),
+                    onClick = { onOpenExternal("https://replica.grifon.gr/content/gia-emas") },
                 )
                 CompactInfoCard(
                     modifier = Modifier.weight(1f),
@@ -674,6 +707,7 @@ private fun VisitUsSection() {
                         english = "Heraklion, Crete, with contact details and easy access.",
                         swedish = "Heraklion, Kreta, med kontaktuppgifter och enkel åtkomst.",
                     ),
+                    onClick = { onOpenExternal("https://replica.grifon.gr/epikinoniste-mazi-mas") },
                 )
             }
         }
@@ -859,7 +893,10 @@ fun WholesaleLoginBanner(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun FooterLinksSection() {
+private fun FooterLinksSection(
+    onCategoryClick: (String) -> Unit,
+    onOpenExternal: (String) -> Unit,
+) {
     val linkGroups = remember { footerLinkGroups() }
 
     Column(
@@ -883,10 +920,10 @@ private fun FooterLinksSection() {
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     )
                     group.items.forEachIndexed { index, item ->
-                        Text(
-                            text = item,
-                            color = HomeMuted,
-                            style = MaterialTheme.typography.bodyMedium,
+                        FooterLinkRow(
+                            item = item,
+                            onCategoryClick = onCategoryClick,
+                            onOpenExternal = onOpenExternal,
                         )
                         if (index != group.items.lastIndex) {
                             HorizontalDivider(color = HomeBorder)
@@ -1174,9 +1211,10 @@ private fun CompactInfoCard(
     title: String,
     body: String,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
     ) {
@@ -1329,11 +1367,15 @@ private fun EmptyProductsState() {
 }
 
 @Composable
-private fun QuickLinkChip(label: String) {
+private fun QuickLinkChip(
+    label: String,
+    onClick: () -> Unit = {},
+) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(999.dp))
             .background(HomeSoftBlue)
+            .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 8.dp),
     ) {
         Text(
@@ -1349,11 +1391,13 @@ private fun HeaderActionPill(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
 ) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFF7F8FB))
+            .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -1370,6 +1414,87 @@ private fun HeaderActionPill(
             color = HomeText,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
             maxLines = 1,
+        )
+    }
+}
+
+@Composable
+private fun FauxSearchBar(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(Color(0xFFF7F8FB))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Category,
+            contentDescription = null,
+            tint = HomeBlue,
+            modifier = Modifier.size(18.dp),
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = localizedText(
+                    greek = "Αναζήτηση ανά κατηγορία ή κωδικό",
+                    english = "Search by category or code",
+                    swedish = "Sök efter kategori eller kod",
+                ),
+                color = HomeText,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            )
+            Text(
+                text = localizedText(
+                    greek = "Όπως το search block του PrestaShop mobile header",
+                    english = "Like the search block in the PrestaShop mobile header",
+                    swedish = "Som sökblocket i PrestaShops mobila header",
+                ),
+                color = HomeMuted,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            tint = HomeBlue,
+            modifier = Modifier.size(18.dp),
+        )
+    }
+}
+
+@Composable
+private fun FooterLinkRow(
+    item: FooterLinkItem,
+    onCategoryClick: (String) -> Unit,
+    onOpenExternal: (String) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                when {
+                    item.categoryId != null -> onCategoryClick(item.categoryId)
+                    item.url != null -> onOpenExternal(item.url)
+                }
+            }
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = item.label,
+            color = HomeMuted,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f),
+        )
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            tint = HomeBlue,
+            modifier = Modifier.size(16.dp),
         )
     }
 }
@@ -1532,28 +1657,28 @@ private fun footerLinkGroups(): List<FooterLinkGroup> {
         FooterLinkGroup(
             title = "Κεραμικά",
             items = listOf(
-                "Διακοσμητικά Κεραμικά",
-                "Φανάρια, Κεριά",
+                FooterLinkItem(label = "Διακοσμητικά Κεραμικά", categoryId = "4000"),
+                FooterLinkItem(label = "Φανάρια, Κεριά", categoryId = "4000"),
             ),
         ),
         FooterLinkGroup(
             title = "Αγαλματίδια κ.λπ.",
             items = listOf(
-                "Βερονέζ",
-                "Μπρούντζινα",
-                "Πολυεστέρικα",
-                "Γύψινα, Πωρόλιθος, Μαρμάρινα",
+                FooterLinkItem(label = "Βερονέζ", categoryId = "4500"),
+                FooterLinkItem(label = "Μπρούντζινα", categoryId = "4500"),
+                FooterLinkItem(label = "Πολυεστέρικα", categoryId = "4500"),
+                FooterLinkItem(label = "Γύψινα, Πωρόλιθος, Μαρμάρινα", categoryId = "4500"),
             ),
         ),
         FooterLinkGroup(
             title = "Περισσότερα",
             items = listOf(
-                "Τάβλι, Σκάκι",
-                "Σαπούνια",
-                "Ύφασμα και τσάντες",
-                "Όροι χρήσης",
-                "Πολιτική Απορρήτου",
-                "Σχετικά με εμάς",
+                FooterLinkItem(label = "Τάβλι, Σκάκι", categoryId = "7000"),
+                FooterLinkItem(label = "Σαπούνια", categoryId = "7500"),
+                FooterLinkItem(label = "Ύφασμα και τσάντες", categoryId = "8000"),
+                FooterLinkItem(label = "Όροι χρήσης", url = "https://replica.grifon.gr/content/oroi-kai-proipotheseis"),
+                FooterLinkItem(label = "Πολιτική Απορρήτου", url = "https://replica.grifon.gr/content/genikos-kanonismos-prostasias-dedomenon-gdpr"),
+                FooterLinkItem(label = "Σχετικά με εμάς", url = "https://replica.grifon.gr/content/gia-emas"),
             ),
         ),
     )
@@ -1724,7 +1849,13 @@ data class HomeFeature(
 
 data class FooterLinkGroup(
     val title: String,
-    val items: List<String>,
+    val items: List<FooterLinkItem>,
+)
+
+data class FooterLinkItem(
+    val label: String,
+    val categoryId: String? = null,
+    val url: String? = null,
 )
 
 data class HomeProductTab(
