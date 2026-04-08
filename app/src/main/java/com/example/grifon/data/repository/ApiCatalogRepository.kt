@@ -34,14 +34,30 @@ class ApiCatalogRepository @Inject constructor(
             val id = ShopConfig.normalizeShopId(shopId).toInt()
             val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
             val response = catalogApi.getCategories(shopId = id, lang = langId)
-            emit(response.items.map { 
-                Category(
-                    id = it.id.toString(), 
-                    name = it.name ?: "",
-                    parentId = null,
-                    childrenCount = 0
-                ) 
-            })
+            val activeItems = response.items.filter { (it.active ?: 1) != 0 }
+            val childrenCountByParent = activeItems
+                .mapNotNull { it.parentId?.toString() }
+                .groupingBy { it }
+                .eachCount()
+
+            emit(
+                activeItems
+                    .map {
+                        Category(
+                            id = it.id.toString(),
+                            name = it.name ?: "",
+                            parentId = it.parentId?.toString(),
+                            childrenCount = childrenCountByParent[it.id.toString()] ?: 0,
+                            position = it.position,
+                            slug = it.slug,
+                        )
+                    }
+                    .sortedWith(
+                        compareBy<Category> { it.parentId ?: "" }
+                            .thenBy { it.position ?: Int.MAX_VALUE }
+                            .thenBy { it.name.lowercase() }
+                    )
+            )
         } catch (e: Exception) {
             emit(emptyList())
         }

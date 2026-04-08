@@ -138,6 +138,10 @@ data class CatalogFacetOptionDto(
 data class CategoryDto(
     val id: Int,
     val name: String? = null,
+    val parentId: Int? = null,
+    val position: Int? = null,
+    val active: Int? = null,
+    val slug: String? = null,
 )
 
 @JsonClass(generateAdapter = true)

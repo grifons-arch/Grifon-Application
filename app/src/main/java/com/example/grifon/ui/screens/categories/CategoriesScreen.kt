@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.grifon.R
 import com.example.grifon.core.UiState
+import com.example.grifon.domain.model.Category
 import com.example.grifon.ui.screens.ErrorScreen
 import com.example.grifon.ui.screens.LoadingScreen
 import com.example.grifon.viewmodel.CategoriesState
@@ -45,7 +46,7 @@ import com.example.grifon.viewmodel.CategoriesViewModel
 @Composable
 fun CategoriesScreen(
     viewModel: CategoriesViewModel,
-    onCategorySelected: (String, String) -> Unit,
+    onCategorySelected: (String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     when (uiState) {
@@ -53,7 +54,7 @@ fun CategoriesScreen(
         is UiState.Error -> ErrorScreen(message = stringResource(R.string.categories_load_error))
         is UiState.Success -> {
             val state = (uiState as UiState.Success<CategoriesState>).data
-            val menuGroups = remember { categoryMenuGroups() }
+            val menuGroups = remember(state.categories) { categoryMenuGroups(state.categories) }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
@@ -101,7 +102,7 @@ private fun CategoryGroupCard(
     group: CategoryMenuGroup,
     expanded: Boolean,
     onToggle: () -> Unit,
-    onCategorySelected: (String, String) -> Unit,
+    onCategorySelected: (String) -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -159,14 +160,14 @@ private fun CategoryGroupCard(
                     CategoryLinkRow(
                         title = "Όλα τα ${group.title}",
                         emphasized = true,
-                        onClick = { onCategorySelected(group.categoryId, "") },
+                        onClick = { onCategorySelected(group.categoryId) },
                     )
                     HorizontalDivider(color = Color(0xFFE2E6EE))
                     group.children.forEachIndexed { index, child ->
                         CategoryLinkRow(
                             title = child.title,
                             emphasized = false,
-                            onClick = { onCategorySelected(child.categoryId, child.query) },
+                            onClick = { onCategorySelected(child.categoryId) },
                         )
                         if (index != group.children.lastIndex) {
                             HorizontalDivider(color = Color(0xFFE2E6EE))
@@ -221,74 +222,80 @@ private data class CategoryMenuGroup(
 private data class CategoryMenuChild(
     val title: String,
     val categoryId: String,
-    val query: String = "",
 )
 
-private fun categoryMenuGroups(): List<CategoryMenuGroup> {
-    return listOf(
-        CategoryMenuGroup(
-            id = "4000",
-            title = "Κεραμικά",
-            categoryId = "4000",
-            iconRes = R.drawable.kersmiks_diskodmhtiks,
-            children = listOf(
-                CategoryMenuChild("Διακοσμητικά Κεραμικά", "4000", "Διακοσμητικά Κεραμικά"),
-                CategoryMenuChild("Φανάρια, Καντήλια", "4000", "Φανάρια, Καντήλια"),
-            ),
-        ),
-        CategoryMenuGroup(
-            id = "4500",
-            title = "Αγαλματίδια κ.α.",
-            categoryId = "4500",
-            iconRes = R.drawable.veroza,
-            children = listOf(
-                CategoryMenuChild("Βερονέζ", "4500", "Βερονέζ"),
-                CategoryMenuChild("Αλαβάστρινα", "4500", "Αλαβάστρινα"),
-                CategoryMenuChild("Μπρούτζινα", "4500", "Μπρούτζινα"),
-                CategoryMenuChild("Πολυεστερικά", "4500", "Πολυεστερικά"),
-                CategoryMenuChild("Γύψινα, Πωρόλιθος, Μαρμάρινα", "4500", "Γύψινα Πωρόλιθος Μαρμάρινα"),
-            ),
-        ),
-        CategoryMenuGroup(
-            id = "5000",
-            title = "Διακοσμητικά",
-            categoryId = "5000",
-            iconRes = R.drawable.diakosmitika_keramikago,
-            children = listOf(
-                CategoryMenuChild("Φανάρια, Καντήλια", "5000", "Φανάρια Καντήλια"),
-                CategoryMenuChild("Φωτιστικά", "5000", "Φωτιστικά"),
-                CategoryMenuChild("Ρολόγια", "5000", "Ρολόγια"),
-                CategoryMenuChild("Επιτραπέζια", "5000", "Επιτραπέζια"),
-            ),
-        ),
-        CategoryMenuGroup(
-            id = "7500",
-            title = "Για χρήση",
-            categoryId = "7500",
-            iconRes = R.drawable.sapounia,
-            children = listOf(
-                CategoryMenuChild("Κουζίνας κ υαλικά", "7500", "Κουζίνας υαλικά"),
-                CategoryMenuChild("Σαπούνια", "7500", "Σαπούνια"),
-            ),
-        ),
-        CategoryMenuGroup(
-            id = "7000",
-            title = "Χόμπι και παιχνίδια",
-            categoryId = "7000",
-            iconRes = R.drawable.paixnidiarouytrina,
-            children = listOf(
-                CategoryMenuChild("Τάβλι, Σκάκι", "7000", "Τάβλι Σκάκι"),
-                CategoryMenuChild("Παιχνίδια, Λούτρινα", "7000", "Παιχνίδια Λούτρινα"),
-            ),
-        ),
-        CategoryMenuGroup(
-            id = "8000",
-            title = "Αξεσουάρ",
-            categoryId = "8000",
-            iconRes = R.drawable.yfasmatina,
-            children = listOf(
-                CategoryMenuChild("Υφασμάτινα και τσάντες", "8000", "Υφασμάτινα τσάντες"),
-            ),
-        ),
+private fun categoryMenuGroups(categories: List<Category>): List<CategoryMenuGroup> {
+    val filteredCategories = categories.filter { it.id != "1" && it.id != "2" }
+    val rootCandidates = filteredCategories.filter { it.parentId == "2" }
+    val topLevelCategories = if (rootCandidates.isNotEmpty()) rootCandidates else filteredCategories.filter { it.parentId == null }
+    val childrenByParent = filteredCategories.groupBy { it.parentId }
+
+    val preferredOrder = listOf(
+        "Κεραμικά",
+        "Αγαλματίδια",
+        "Διακοσμητικά",
+        "Για χρήση",
+        "Χόμπι και παιχνίδια",
+        "Αξεσουάρ",
     )
+
+    return topLevelCategories
+        .filter { categoryIconRes(it) != null }
+        .sortedWith(
+            compareBy<Category> { category ->
+                preferredOrder.indexOfFirst { keyword ->
+                    normalizeCategoryText(category.name).contains(normalizeCategoryText(keyword))
+                }.let { if (it == -1) Int.MAX_VALUE else it }
+            }.thenBy { it.position ?: Int.MAX_VALUE }
+             .thenBy { it.name.lowercase() }
+        )
+        .map { parent ->
+            val children = childrenByParent[parent.id]
+                .orEmpty()
+                .sortedWith(compareBy<Category> { it.position ?: Int.MAX_VALUE }.thenBy { it.name.lowercase() })
+
+            CategoryMenuGroup(
+                id = parent.id,
+                title = parent.name,
+                categoryId = parent.id,
+                iconRes = categoryIconRes(parent) ?: R.drawable.logo,
+                children = children.map { child ->
+                    CategoryMenuChild(
+                        title = child.name,
+                        categoryId = child.id,
+                    )
+                },
+            )
+        }
+        .filter { it.children.isNotEmpty() || it.categoryId.isNotBlank() }
+}
+
+private fun categoryIconRes(category: Category): Int? {
+    val normalized = normalizeCategoryText(listOfNotNull(category.name, category.slug).joinToString(" "))
+    return when {
+        normalized.contains("κεραμ") || normalized.contains("keram") -> R.drawable.kersmiks_diskodmhtiks
+        normalized.contains("αγαλμ") || normalized.contains("figur") || normalized.contains("agalm") -> R.drawable.veroza
+        normalized.contains("διακοσμ") || normalized.contains("decor") -> R.drawable.diakosmitika_keramikago
+        normalized.contains("χρηση") || normalized.contains("for use") || normalized.contains("for-use") || normalized.contains("σαπουν") -> R.drawable.sapounia
+        normalized.contains("παιχν") || normalized.contains("hobbies") || normalized.contains("games") || normalized.contains("chess") -> R.drawable.paixnidiarouytrina
+        normalized.contains("αξεσ") || normalized.contains("accessor") || normalized.contains("bag") || normalized.contains("textile") -> R.drawable.yfasmatina
+        else -> null
+    }
+}
+
+private fun normalizeCategoryText(value: String): String {
+    return value
+        .lowercase()
+        .replace("ά", "α")
+        .replace("έ", "ε")
+        .replace("ή", "η")
+        .replace("ί", "ι")
+        .replace("ό", "ο")
+        .replace("ύ", "υ")
+        .replace("ώ", "ω")
+        .replace("ϊ", "ι")
+        .replace("ΐ", "ι")
+        .replace("ϋ", "υ")
+        .replace("ΰ", "υ")
+        .trim()
 }

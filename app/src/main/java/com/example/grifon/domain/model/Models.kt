@@ -10,6 +10,8 @@ data class Category(
     val name: String,
     val parentId: String?,
     val childrenCount: Int,
+    val position: Int? = null,
+    val slug: String? = null,
 )
 
 data class CatalogFacet(

@@ -60,8 +60,8 @@ fun AppNavHost(
             )
         }
         composable(Routes.CATEGORIES) {
-            CategoriesScreen(viewModel = hiltViewModel()) { categoryId, query ->
-                navController.navigate(Routes.plpRoute(query = query, category = categoryId))
+            CategoriesScreen(viewModel = hiltViewModel()) { categoryId ->
+                navController.navigate(Routes.plpRoute(category = categoryId))
             }
         }
         composable(Routes.CART) {
