@@ -175,7 +175,9 @@ fun ProductDetailsScreen(viewModel: PdpViewModel) {
                         )
                     } else {
                         Text(
-                            text = stringResource(R.string.wholesale_prices_only),
+                            text = stringResource(
+                                if (canDisplayPrices) R.string.price_unavailable else R.string.wholesale_prices_only
+                            ),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray
                         )

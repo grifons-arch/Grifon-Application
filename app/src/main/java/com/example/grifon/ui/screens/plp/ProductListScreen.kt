@@ -167,7 +167,9 @@ fun ProductGridItem(
             Text(text = "${product.price} €", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary))
         } else {
             Text(
-                text = stringResource(R.string.wholesale_prices_only),
+                text = stringResource(
+                    if (canDisplayPrices) R.string.price_unavailable else R.string.wholesale_prices_only
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
                 maxLines = 1,

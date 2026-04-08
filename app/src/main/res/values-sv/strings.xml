@@ -54,6 +54,7 @@
     <string name="total_amount">Totalt: %1$.2f €</string>
     <string name="total_amount_with_currency">Totalt: %1$s %2$s</string>
     <string name="wholesale_prices_only">Priser visas endast för inloggade grossistkunder</string>
+    <string name="price_unavailable">Pris är inte tillgängligt just nu</string>
     <string name="wholesale_login_hint">Logga in med ditt godkända grossistkonto för att se priser och lägga beställningar.</string>
     <string name="checkout">Till kassan</string>
     <string name="product_code">Kod: %1$s</string>

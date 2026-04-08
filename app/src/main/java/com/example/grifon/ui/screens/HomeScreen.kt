@@ -1395,6 +1395,8 @@ private fun WebsiteProductCard(
                 Text(
                     text = if (canDisplayPrices && product.price != null) {
                         "${product.price} ${product.currency}"
+                    } else if (canDisplayPrices) {
+                        stringResource(R.string.price_unavailable)
                     } else {
                         localizedText(
                             greek = "Τιμές μόνο για πελάτες χονδρικής",
@@ -2034,7 +2036,9 @@ fun ProductCard(
                     )
                 } else {
                     Text(
-                        text = stringResource(R.string.wholesale_prices_only),
+                        text = stringResource(
+                            if (canDisplayPrices) R.string.price_unavailable else R.string.wholesale_prices_only
+                        ),
                         color = Color.Gray,
                         fontSize = 11.sp,
                         maxLines = 1,

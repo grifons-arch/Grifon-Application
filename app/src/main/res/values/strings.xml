@@ -54,6 +54,7 @@
     <string name="total_amount">Total: %1$.2f €</string>
     <string name="total_amount_with_currency">Total: %1$s %2$s</string>
     <string name="wholesale_prices_only">Prices are visible only to logged-in wholesale customers</string>
+    <string name="price_unavailable">Price currently unavailable</string>
     <string name="wholesale_login_hint">Sign in with your approved wholesale account to view prices and place orders.</string>
     <string name="checkout">Checkout</string>
     <string name="product_code">Code: %1$s</string>
