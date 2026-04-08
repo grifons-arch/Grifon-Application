@@ -3,7 +3,9 @@ package com.example.grifon.data.auth
 import android.content.Context
 import com.example.grifon.core.LoginText
 import com.example.grifon.core.ShopConfig
+import com.example.grifon.data.local.CustomerDao
 import com.example.grifon.data.local.ShopPreferences
+import com.example.grifon.data.repository.CustomerRepository
 import com.example.grifon.data.repository.WholesaleCustomerRepository
 import com.example.grifon.data.sync.LoginCustomerActivitySyncService
 import com.example.grifon.data.repository.UserRepository
@@ -29,6 +31,8 @@ import kotlinx.coroutines.launch
 class UserRepositoryImpl @Inject constructor(
     private val authApi: AuthApi,
     private val preferences: ShopPreferences,
+    private val customerDao: CustomerDao,
+    private val customerRepository: CustomerRepository,
     private val wholesaleCustomerRepository: WholesaleCustomerRepository,
     private val loginCustomerActivitySyncService: LoginCustomerActivitySyncService,
     @ApplicationContext private val context: Context,
@@ -57,9 +61,15 @@ class UserRepositoryImpl @Inject constructor(
             )
             // ΔΙΟΡΘΩΣΗ: Έλεγχος του ok ΚΑΙ του idCustomer (που πλέον είναι idCustomer στο DTO)
             if (response.ok && response.idCustomer != null) {
+                val normalizedShopId = ShopConfig.normalizeShopId(activeShopId)
+                val resolvedWholesaleAccess = runCatching {
+                    customerRepository.syncCustomers(activeShopId)
+                    customerDao.getCustomer(normalizedShopId, response.idCustomer)
+                        ?.hasWholesaleGroup()
+                }.getOrNull()
                 preferences.setCustomerSession(
                     customerId = response.idCustomer,
-                    canViewPrices = response.canViewPrices == true,
+                    canViewPrices = resolvedWholesaleAccess ?: (response.canViewPrices == true),
                     email = response.email,
                     firstName = response.firstname,
                     lastName = response.lastname,
@@ -130,4 +140,33 @@ class UserRepositoryImpl @Inject constructor(
             else -> normalizedMessage
         }
     }
+}
+
+private fun com.example.grifon.data.local.CustomerEntity.hasWholesaleGroup(): Boolean {
+    if (!active) {
+        return false
+    }
+
+    if (isWholesale) {
+        return true
+    }
+
+    val allGroupNames = buildList {
+        defaultGroupName?.let(::add)
+        addAll(parseJsonStringArray(groupNamesJson))
+        addAll(parseJsonStringArray(wholesaleGroupNamesJson))
+    }
+
+    return allGroupNames.any { groupName ->
+        groupName.contains("wholesale", ignoreCase = true)
+    }
+}
+
+private fun parseJsonStringArray(json: String): List<String> {
+    return runCatching {
+        val array = org.json.JSONArray(json)
+        List(array.length()) { index -> array.optString(index) }
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+    }.getOrDefault(emptyList())
 }

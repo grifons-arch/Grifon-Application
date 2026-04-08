@@ -26,6 +26,15 @@ interface CustomerDao {
     )
     suspend fun getCustomer(shopId: String, customerId: Int): CustomerEntity?
 
+    @Query(
+        """
+        SELECT * FROM customers
+        WHERE shopId = :shopId AND customerId = :customerId
+        LIMIT 1
+        """
+    )
+    fun observeCustomer(shopId: String, customerId: Int): Flow<CustomerEntity?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(customers: List<CustomerEntity>)
 

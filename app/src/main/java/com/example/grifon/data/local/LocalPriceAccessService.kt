@@ -1,15 +1,16 @@
 package com.example.grifon.data.local
 
 import com.example.grifon.core.ShopConfig
-import com.example.grifon.data.repository.WholesaleCustomerRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import org.json.JSONArray
 
 @Singleton
 class LocalPriceAccessService @Inject constructor(
-    private val wholesaleCustomerRepository: WholesaleCustomerRepository,
+    private val customerDao: CustomerDao,
 ) {
     fun observeCanDisplayPrices(
         shopId: String,
@@ -19,17 +20,13 @@ class LocalPriceAccessService @Inject constructor(
         if (customerId == null) {
             return flowOf(false)
         }
-
-        // The authenticated session flag is the authoritative source for immediate price access.
-        // Local wholesale cache can lag behind right after login, so it must not block the UI.
         if (canViewPrices) {
             return flowOf(true)
         }
-
-        return wholesaleCustomerRepository.observeIsWholesaleCustomer(
-            shopId = ShopConfig.normalizeShopId(shopId),
-            customerId = customerId,
-        )
+        val normalizedShopId = ShopConfig.normalizeShopId(shopId)
+        return customerDao.observeCustomer(normalizedShopId, customerId).map { customer ->
+            customer?.hasWholesaleGroup() == true
+        }
     }
 
     suspend fun canDisplayPrices(
@@ -40,14 +37,39 @@ class LocalPriceAccessService @Inject constructor(
         if (customerId == null) {
             return false
         }
-
         if (canViewPrices) {
             return true
         }
-
-        return wholesaleCustomerRepository.isWholesaleCustomer(
-            shopId = ShopConfig.normalizeShopId(shopId),
-            customerId = customerId,
-        )
+        val normalizedShopId = ShopConfig.normalizeShopId(shopId)
+        return customerDao.getCustomer(normalizedShopId, customerId)?.hasWholesaleGroup() == true
     }
+}
+
+private fun CustomerEntity.hasWholesaleGroup(): Boolean {
+    if (!active) {
+        return false
+    }
+
+    if (isWholesale) {
+        return true
+    }
+
+    val allGroupNames = buildList {
+        defaultGroupName?.let(::add)
+        addAll(parseJsonStringArray(groupNamesJson))
+        addAll(parseJsonStringArray(wholesaleGroupNamesJson))
+    }
+
+    return allGroupNames.any { groupName ->
+        groupName.contains("wholesale", ignoreCase = true)
+    }
+}
+
+private fun parseJsonStringArray(json: String): List<String> {
+    return runCatching {
+        val array = JSONArray(json)
+        List(array.length()) { index -> array.optString(index) }
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+    }.getOrDefault(emptyList())
 }
