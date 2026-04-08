@@ -174,6 +174,12 @@ fun HomeScreen(
                         )
                     }
                     item {
+                        PrimaryMenuSection(
+                            onCategoryClick = onCategoryClick,
+                            onOpenExternal = { uriHandler.openUri(it) },
+                        )
+                    }
+                    item {
                         CategoryCarouselSection(
                             promoCategories = promoCategories,
                             onCategoryClick = onCategoryClick,
@@ -454,6 +460,73 @@ private fun CategoryCarouselSection(
                     category = category,
                     onClick = { onCategoryClick(category.categoryId) },
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PrimaryMenuSection(
+    onCategoryClick: (String) -> Unit,
+    onOpenExternal: (String) -> Unit,
+) {
+    val menuGroups = remember { primaryMenuGroups() }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = HomeCard),
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = localizedText(
+                    greek = "Δίκτυο Grifon και Πληροφορίες",
+                    english = "Grifon Network and Information",
+                    swedish = "Grifon-nätverk och information",
+                ),
+                color = HomeText,
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            )
+            Text(
+                text = localizedText(
+                    greek = "Mobile εκδοχή του οριζόντιου menu της αρχικής, με τα sections που λείπουν από το header.",
+                    english = "Mobile version of the homepage horizontal menu, including the sections missing from the header.",
+                    swedish = "Mobil version av startsidans horisontella meny med sektionerna som saknades i headern.",
+                ),
+                color = HomeMuted,
+                style = MaterialTheme.typography.bodySmall,
+            )
+            menuGroups.forEach { group ->
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = HomeSoftGray),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = group.title,
+                            color = HomeBlue,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        )
+                        group.items.forEachIndexed { index, item ->
+                            FooterLinkRow(
+                                item = item,
+                                onCategoryClick = onCategoryClick,
+                                onOpenExternal = onOpenExternal,
+                            )
+                            if (index != group.items.lastIndex) {
+                                HorizontalDivider(color = HomeBorder)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -1679,6 +1752,31 @@ private fun footerLinkGroups(): List<FooterLinkGroup> {
                 FooterLinkItem(label = "Όροι χρήσης", url = "https://replica.grifon.gr/content/oroi-kai-proipotheseis"),
                 FooterLinkItem(label = "Πολιτική Απορρήτου", url = "https://replica.grifon.gr/content/genikos-kanonismos-prostasias-dedomenon-gdpr"),
                 FooterLinkItem(label = "Σχετικά με εμάς", url = "https://replica.grifon.gr/content/gia-emas"),
+            ),
+        ),
+    )
+}
+
+private fun primaryMenuGroups(): List<FooterLinkGroup> {
+    return listOf(
+        FooterLinkGroup(
+            title = "Δίκτυο Grifon",
+            items = listOf(
+                FooterLinkItem(label = "Χονδρικής", url = "https://replica.grifon.gr/content/pelates-xondrikis"),
+                FooterLinkItem(label = "Προμηθευτές", url = "https://replica.grifon.gr/content/Promitheutes-kai-sinergasies"),
+                FooterLinkItem(label = "Θ. Εργασίας", url = "https://replica.grifon.gr/content/theseis-ergasias"),
+            ),
+        ),
+        FooterLinkGroup(
+            title = "Πληροφορίες",
+            items = listOf(
+                FooterLinkItem(label = "Γνωρίστε μας", url = "https://replica.grifon.gr/content/gia-emas"),
+                FooterLinkItem(label = "Όροι και προϋποθέσεις", url = "https://replica.grifon.gr/content/oroi-kai-proipotheseis"),
+                FooterLinkItem(label = "Παραγγελίες & Τρόποι αποστολής", url = "https://replica.grifon.gr/content/paragelies-kai-tropoi-apostolis"),
+                FooterLinkItem(label = "Τρόποι πληρωμής", url = "https://replica.grifon.gr/content/Tropoi-pliromis"),
+                FooterLinkItem(label = "Πολιτική επιστροφών", url = "https://replica.grifon.gr/content/Politiki-epistrofon"),
+                FooterLinkItem(label = "GDPR", url = "https://replica.grifon.gr/content/genikos-kanonismos-prostasias-dedomenon-gdpr"),
+                FooterLinkItem(label = "Επικοινωνήστε μαζί μας", url = "https://replica.grifon.gr/epikinoniste-mazi-mas"),
             ),
         ),
     )

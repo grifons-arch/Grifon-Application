@@ -48,6 +48,15 @@ fun AppNavHost(
                 onCategoryClick = { categoryId ->
                     navController.navigate(Routes.plpRoute(category = categoryId))
                 },
+                onOpenAccount = {
+                    navController.navigate(Routes.ACCOUNT)
+                },
+                onOpenFavorites = {
+                    navController.navigate(Routes.FAVORITES)
+                },
+                onOpenCart = {
+                    navController.navigate(Routes.CART)
+                },
             )
         }
         composable(Routes.CATEGORIES) {
