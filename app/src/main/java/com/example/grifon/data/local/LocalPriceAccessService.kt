@@ -16,8 +16,14 @@ class LocalPriceAccessService @Inject constructor(
         customerId: Int?,
         canViewPrices: Boolean,
     ): Flow<Boolean> {
-        if (customerId == null || !canViewPrices) {
+        if (customerId == null) {
             return flowOf(false)
+        }
+
+        // The authenticated session flag is the authoritative source for immediate price access.
+        // Local wholesale cache can lag behind right after login, so it must not block the UI.
+        if (canViewPrices) {
+            return flowOf(true)
         }
 
         return wholesaleCustomerRepository.observeIsWholesaleCustomer(
@@ -31,8 +37,12 @@ class LocalPriceAccessService @Inject constructor(
         customerId: Int?,
         canViewPrices: Boolean,
     ): Boolean {
-        if (customerId == null || !canViewPrices) {
+        if (customerId == null) {
             return false
+        }
+
+        if (canViewPrices) {
+            return true
         }
 
         return wholesaleCustomerRepository.isWholesaleCustomer(

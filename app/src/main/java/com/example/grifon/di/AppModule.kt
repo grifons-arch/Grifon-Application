@@ -181,11 +181,13 @@ object AppModule {
     fun provideUserRepository(
         authApi: AuthApi,
         preferences: ShopPreferences,
+        wholesaleCustomerRepository: WholesaleCustomerRepository,
         loginCustomerActivitySyncService: LoginCustomerActivitySyncService,
         @ApplicationContext context: Context,
     ): UserRepository = UserRepositoryImpl(
         authApi,
         preferences,
+        wholesaleCustomerRepository,
         loginCustomerActivitySyncService,
         context,
     )

@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.grifon.core.LoginText
 import com.example.grifon.core.ShopConfig
 import com.example.grifon.data.local.ShopPreferences
+import com.example.grifon.data.repository.WholesaleCustomerRepository
 import com.example.grifon.data.sync.LoginCustomerActivitySyncService
 import com.example.grifon.data.repository.UserRepository
 import com.example.grifon.core.loginText
@@ -28,6 +29,7 @@ import kotlinx.coroutines.launch
 class UserRepositoryImpl @Inject constructor(
     private val authApi: AuthApi,
     private val preferences: ShopPreferences,
+    private val wholesaleCustomerRepository: WholesaleCustomerRepository,
     private val loginCustomerActivitySyncService: LoginCustomerActivitySyncService,
     @ApplicationContext private val context: Context,
 ) : UserRepository {
@@ -63,6 +65,9 @@ class UserRepositoryImpl @Inject constructor(
                     lastName = response.lastname,
                     company = response.company,
                 )
+                runCatching {
+                    wholesaleCustomerRepository.syncWholesaleCustomers(activeShopId)
+                }
                 runCatching {
                     loginCustomerActivitySyncService.syncAfterLogin(
                         customerId = response.idCustomer,
