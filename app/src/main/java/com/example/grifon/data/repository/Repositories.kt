@@ -36,6 +36,8 @@ interface CatalogRepository {
     ): Flow<List<Product>>
 
     fun getProductById(shopId: String, productId: String): Flow<Product?>
+    
+    suspend fun syncCatalog(shopId: String)
 }
 
 interface CartRepository {

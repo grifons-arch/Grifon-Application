@@ -48,7 +48,31 @@ class AccountViewModel @Inject constructor(
             .onEach { state ->
                 _uiState.value = UiState.Success(state)
             }
-            .launchIn(viewModelScope)
+        }
+    }
+
+    fun updateProfile(user: User) {
+        viewModelScope.launch {
+            val currentState = (_uiState.value as? UiState.Success)?.data ?: return@launch
+            _uiState.value = UiState.Success(currentState.copy(isLoading = true))
+            
+            val success = userRepository.updateProfile(user)
+            if (!success) {
+                updateError("Η ενημέρωση απέτυχε. Δοκιμάστε ξανά.")
+            }
+            // Η επιτυχία ενημερώνει το flow και άρα το UI αυτόματα
+        }
+    }
+
+    private fun updateError(message: String) {
+        val currentState = (_uiState.value as? UiState.Success)?.data ?: AccountState(false)
+        _uiState.value = UiState.Success(currentState.copy(loginError = message, isLoading = false))
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            userRepository.logout()
+        }
     }
 
     fun onEmailChange(newValue: String) {

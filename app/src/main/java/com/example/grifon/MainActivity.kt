@@ -61,6 +61,8 @@ class MainActivity : AppCompatActivity() {
             GrifonTheme(darkTheme = isDark) {
                 GrifonApp()
             }
+        } catch (e: Exception) {
+            Log.e("CrashLog", "MainActivity CRASH in setContent", e)
         }
     }
 }

@@ -165,6 +165,9 @@ fun AppNavHost(
         composable(Routes.WHOLESALE_APPLICATION) {
             WholesaleApplicationScreen(viewModel = hiltViewModel())
         }
+        composable(Routes.REGISTER) {
+            RegisterScreen()
+        }
         composable(
             route = Routes.PLP,
             arguments = listOf(

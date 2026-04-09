@@ -28,7 +28,7 @@ interface CatalogApi {
         @Query("shopId") shopId: Int,
         @Query("lang") lang: Int = 1,
         @Query("page") page: Int = 1,
-        @Query("pageSize") pageSize: Int = 50,
+        @Query("pageSize") pageSize: Int = 1000,
         @Query("sort") sort: String = "[id_DESC]",
         @Query("search") search: String? = null,
         @Query("priceMin") priceMin: Double? = null,
@@ -43,7 +43,7 @@ interface CatalogApi {
         @Query("shopId") shopId: Int,
         @Query("lang") lang: Int = 1,
         @Query("page") page: Int = 1,
-        @Query("pageSize") pageSize: Int = 100,
+        @Query("pageSize") pageSize: Int = 500,
     ): CategoriesResponseDto
 
     @GET("v1/categories/{categoryId}/products")
@@ -52,7 +52,7 @@ interface CatalogApi {
         @Query("shopId") shopId: Int,
         @Query("lang") lang: Int = 1,
         @Query("page") page: Int = 1,
-        @Query("pageSize") pageSize: Int = 100,
+        @Query("pageSize") pageSize: Int = 1000,
         @Query("sort") sort: String = "[id_DESC]",
         @Query("priceMin") priceMin: Double? = null,
         @Query("priceMax") priceMax: Double? = null,
@@ -222,6 +222,12 @@ data class ProductDto(
     val reference: String? = null,
     val attributes: Map<String, List<String>> = emptyMap(),
     val defaultImage: ImageDto? = null,
+    val categories: List<CategoryItemDto>? = null,
+)
+
+@JsonClass(generateAdapter = true)
+data class CategoryItemDto(
+    val id: Int,
 )
 
 @JsonClass(generateAdapter = true)

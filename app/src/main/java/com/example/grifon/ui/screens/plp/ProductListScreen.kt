@@ -41,6 +41,9 @@ import com.example.grifon.ui.screens.WholesaleLoginBanner
 import com.example.grifon.ui.theme.GrifonGold
 import com.example.grifon.viewmodel.PlpViewModel
 
+/**
+ * Screen displaying a list of products with filtering and sorting options.
+ */
 @Composable
 fun ProductListScreen(
     viewModel: PlpViewModel,

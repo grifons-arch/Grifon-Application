@@ -2,6 +2,7 @@ package com.example.grifon
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -9,6 +10,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -22,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grifon.core.AppLanguage
 import com.example.grifon.core.ServiceLocator
@@ -87,9 +91,15 @@ fun RegisterScreen(
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+        RegistrationTextField(value = state.firstName, onValueChange = registerViewModel::onFirstNameChange, placeholder = "Όνομα *")
+        RegistrationTextField(value = state.lastName, onValueChange = registerViewModel::onLastNameChange, placeholder = "Επώνυμο *")
+
+        SectionTitle(title = "Διεύθυνση")
+
+        // 1. Επιλογή Χώρας (Dropdown)
+        ExposedDropdownMenuBox(
+            expanded = countryExpanded,
+            onExpandedChange = { countryExpanded = !countryExpanded }
         ) {
             SocialTitleOption(
                 label = stringResource(R.string.social_title_mr),
@@ -102,6 +112,21 @@ fun RegisterScreen(
                 selected = state.socialTitle == "mrs",
                 onSelect = { registerViewModel.onSocialTitleChange("mrs") },
             )
+            ExposedDropdownMenu(
+                expanded = countryExpanded,
+                onDismissRequest = { countryExpanded = false }
+            ) {
+                countries.keys.forEach { name ->
+                    DropdownMenuItem(
+                        text = { Text(name) },
+                        onClick = {
+                            registerViewModel.onCountryChange(name)
+                            countryExpanded = false
+                            addressSearchQuery = "" // Reset search when country changes
+                        }
+                    )
+                }
+            }
         }
 
         RegistrationTextField(
@@ -280,10 +305,7 @@ fun RegisterScreen(
 
 @Composable
 private fun SectionTitle(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-    )
+    Text(text = title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), modifier = Modifier.padding(top = 8.dp))
 }
 
 @Composable
@@ -298,7 +320,7 @@ private fun RegistrationTextField(
     onPasswordVisibilityChange: (() -> Unit)? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
 ) {
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         enabled = enabled,
