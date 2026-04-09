@@ -273,8 +273,8 @@ apiRouter.post(
   validateBody(checkoutOrderBodySchema),
   async (req, res, next) => {
     try {
-      const { shopId, customerId, paymentMethodCode, shippingMethodCode, address, items } = req.body as any;
-      const client = new PrestaShopClient({ shopId });
+      const { shopId, lang, customerId, paymentMethodCode, shippingMethodCode, address, items } = req.body as any;
+      const client = new PrestaShopClient({ shopId, lang });
       const order = await createCheckoutOrder(client, {
         shopId: Number(shopId) as 1 | 4,
         customerId: Number(customerId),
@@ -473,6 +473,23 @@ apiRouter.get("/v1/customers", validateQuery(shopQuerySchema), async (req, res, 
     next(error);
   }
 });
+
+apiRouter.get(
+  "/v1/debug/price-access/:customerId",
+  validateParams(customerIdSchema),
+  validateQuery(shopQuerySchema),
+  async (req, res, next) => {
+    try {
+      const { customerId } = req.params as any;
+      const { shopId, lang } = req.query as any;
+      const client = new PrestaShopClient({ shopId, lang });
+      const access = await getPriceAccess(client, Number(customerId));
+      res.json(access);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // DEBUG: List Wholesale Applications
 apiRouter.get("/v1/debug/wholesale-applications", async (req, res, next) => {

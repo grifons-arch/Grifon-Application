@@ -111,6 +111,7 @@ class CheckoutViewModel @Inject constructor(
                 catalogApi.createCheckoutOrder(
                     CheckoutOrderRequestDto(
                         shopId = current.shopId.toInt(),
+                        lang = current.langId,
                         customerId = current.customerId ?: error("Missing customer id"),
                         paymentMethodCode = current.selectedPaymentCode ?: error("Missing payment method"),
                         shippingMethodCode = current.selectedShippingCode ?: error("Missing shipping method"),
@@ -267,6 +268,7 @@ class CheckoutViewModel @Inject constructor(
             UiState.Success(
                 CheckoutState(
                     shopId = base.shopId,
+                    langId = base.langId,
                     customerId = base.customerId,
                     items = base.items,
                     total = base.total,
@@ -299,7 +301,7 @@ class CheckoutViewModel @Inject constructor(
                 lang = PrestaLanguage.toLangId(session.languageCode),
                 customerId = session.customerId,
             )
-            remoteSession.toBaseState(items)
+            remoteSession.toBaseState(items, PrestaLanguage.toLangId(session.languageCode))
         } catch (_: Exception) {
             buildFallbackBaseState(session, items, localCanViewPrices)
         }
@@ -322,6 +324,7 @@ class CheckoutViewModel @Inject constructor(
 
         return BaseCheckoutState(
             shopId = session.shopId,
+            langId = PrestaLanguage.toLangId(session.languageCode),
             customerId = session.customerId,
             items = items,
             total = items.sumOf { it.qty * it.priceSnapshot }.takeIf { localCanViewPrices },
@@ -354,6 +357,7 @@ class CheckoutViewModel @Inject constructor(
 
 data class CheckoutState(
     val shopId: String,
+    val langId: Int,
     val customerId: Int?,
     val items: List<CartItem>,
     val total: Double?,
@@ -412,6 +416,7 @@ data class CheckoutConfirmation(
 
 private data class BaseCheckoutState(
     val shopId: String,
+    val langId: Int,
     val customerId: Int?,
     val items: List<CartItem>,
     val total: Double?,
@@ -462,9 +467,10 @@ private data class CheckoutLocationDraft(
     val country: String?,
 )
 
-private fun CheckoutSessionDto.toBaseState(items: List<CartItem>): BaseCheckoutState {
+private fun CheckoutSessionDto.toBaseState(items: List<CartItem>, langId: Int): BaseCheckoutState {
     return BaseCheckoutState(
         shopId = shopId.toString(),
+        langId = langId,
         customerId = customerId,
         items = items,
         total = items.sumOf { it.qty * it.priceSnapshot }.takeIf { canViewPrices },
@@ -513,9 +519,18 @@ private fun Throwable.toCheckoutErrorMessage(): String {
         if (!body.isNullOrBlank()) {
             runCatching {
                 val json = JSONObject(body)
-                val message = json.optString("message").trim()
-                val code = json.optString("code").trim()
+                val errorObject = json.optJSONObject("error") ?: json
+                val message = errorObject.optString("message").trim()
+                val code = errorObject.optString("code").trim()
+                val details = errorObject.opt("details")
+                val detailsText = when (details) {
+                    is JSONObject -> details.toString()
+                    null -> ""
+                    JSONObject.NULL -> ""
+                    else -> details.toString()
+                }.trim()
                 when {
+                    message.isNotEmpty() && detailsText.isNotEmpty() -> "$message\n$detailsText"
                     message.isNotEmpty() -> message
                     code.isNotEmpty() -> code
                     else -> "Checkout order creation failed."

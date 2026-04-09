@@ -197,6 +197,7 @@ export const checkoutHandoffBodySchema = z.object({
 
 export const checkoutOrderBodySchema = z.object({
   shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  lang: z.preprocess(toNumber, z.number().int().positive().optional()).default(1),
   customerId: z.preprocess(toNumber, z.number().int().positive()),
   paymentMethodCode: z.string().trim().min(1),
   shippingMethodCode: z.string().trim().min(1),

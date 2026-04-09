@@ -277,6 +277,7 @@ data class CheckoutMethodDto(
 @JsonClass(generateAdapter = true)
 data class CheckoutOrderRequestDto(
     val shopId: Int,
+    val lang: Int = 1,
     val customerId: Int,
     val paymentMethodCode: String,
     val shippingMethodCode: String,
