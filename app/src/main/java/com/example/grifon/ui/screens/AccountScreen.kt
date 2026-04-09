@@ -245,3 +245,60 @@ fun LoginContent(
         )
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditProfileDialog(user: User, onDismiss: () -> Unit, onSave: (User) -> Unit) {
+    var firstName by remember { mutableStateOf(user.firstName) }
+    var lastName by remember { mutableStateOf(user.lastName) }
+    var company by remember { mutableStateOf(user.company ?: "") }
+    var vat by remember { mutableStateOf(user.vatNumber ?: "") }
+    var newsletter by remember { mutableStateOf(user.newsletter) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Επεξεργασία Στοιχείων") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = firstName, onValueChange = { firstName = it }, label = { Text("Όνομα") })
+                OutlinedTextField(value = lastName, onValueChange = { lastName = it }, label = { Text("Επώνυμο") })
+                OutlinedTextField(value = company, onValueChange = { company = it }, label = { Text("Εταιρεία") })
+                OutlinedTextField(value = vat, onValueChange = { vat = it }, label = { Text("ΑΦΜ") })
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = newsletter, onCheckedChange = { newsletter = it })
+                    Text("Εγγραφή στο Newsletter")
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onSave(user.copy(firstName = firstName, lastName = lastName, company = company, vatNumber = vat, newsletter = newsletter))
+            }) { Text("Αποθήκευση") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Ακύρωση") }
+        }
+    )
+}
+
+@Composable
+fun ProfileDetailRow(label: String, value: String) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(text = label, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+        Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+        HorizontalDivider(modifier = Modifier.padding(top = 4.dp), thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.5f))
+    }
+}
+
+@Composable
+fun AccountMenuItem(title: String, icon: ImageVector, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(text = title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = Color.Gray)
+    }
+}

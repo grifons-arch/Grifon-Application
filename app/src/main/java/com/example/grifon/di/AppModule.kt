@@ -175,6 +175,7 @@ object AppModule {
     @Singleton
     fun provideCartRepository(): CartRepository = FakeCartRepository()
 
+    // ΑΛΛΑΓΗ: Χρήση πραγματικού ApiUserRepository αντί για Fake
     @Provides
     @Singleton
     fun provideOrderRepository(
