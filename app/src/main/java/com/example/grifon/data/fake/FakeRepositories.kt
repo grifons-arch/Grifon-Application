@@ -114,6 +114,8 @@ class FakeCatalogRepository : CatalogRepository {
         return flowOf(product)
     }
 
+    override suspend fun syncCatalog(shopId: String) = Unit
+
     private fun applyFiltersAndSort(
         products: List<Product>,
         filters: FilterState,
@@ -147,11 +149,6 @@ class FakeCatalogRepository : CatalogRepository {
 
 class FakeCartRepository : CartRepository {
     private val cartState = MutableStateFlow<Map<String, List<CartItem>>>(emptyMap())
-    override fun observeCart(shopId: String): Flow<List<CartItem>> = cartState.map { it[shopId].orEmpty() }
-    override suspend fun addToCart(shopId: String, item: CartItem) {}
-    override suspend fun removeFromCart(shopId: String, productId: String) {}
-    override suspend fun updateQuantity(shopId: String, productId: String, qty: Int) {}
-}
 
     override fun observeCart(shopId: String): Flow<List<CartItem>> =
         cartState.map { it[ShopConfig.normalizeShopId(shopId)].orEmpty() }

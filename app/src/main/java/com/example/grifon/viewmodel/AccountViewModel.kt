@@ -8,6 +8,7 @@ import com.example.grifon.core.UiState
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.UserRepository
 import com.example.grifon.core.loginText
+import com.example.grifon.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -48,7 +49,7 @@ class AccountViewModel @Inject constructor(
             .onEach { state ->
                 _uiState.value = UiState.Success(state)
             }
-        }
+            .launchIn(viewModelScope)
     }
 
     fun updateProfile(user: User) {
@@ -67,12 +68,6 @@ class AccountViewModel @Inject constructor(
     private fun updateError(message: String) {
         val currentState = (_uiState.value as? UiState.Success)?.data ?: AccountState(false)
         _uiState.value = UiState.Success(currentState.copy(loginError = message, isLoading = false))
-    }
-
-    fun logout() {
-        viewModelScope.launch {
-            userRepository.logout()
-        }
     }
 
     fun onEmailChange(newValue: String) {
@@ -106,11 +101,15 @@ class AccountViewModel @Inject constructor(
     }
 
     fun logout() {
-        userRepository.logout()
+        viewModelScope.launch {
+            userRepository.logout()
+        }
     }
 }
 
 data class AccountState(
     val loggedIn: Boolean,
-    val canViewPrices: Boolean,
+    val canViewPrices: Boolean = false,
+    val isLoading: Boolean = false,
+    val loginError: String? = null
 )
