@@ -184,9 +184,15 @@ export const createCheckoutOrder = async (
 ): Promise<CheckoutOrder> => {
   const access = await getPriceAccess(client, input.customerId);
   if (!access.allowed) {
-    throw Object.assign(new Error("Wholesale approval is required before checkout."), {
+    const reason = !access.active
+      ? "customer_inactive"
+      : !access.hasWholesaleGroup
+        ? "missing_wholesale_group"
+        : "checkout_not_allowed";
+    throw Object.assign(new Error(`Wholesale approval is required before checkout. (${reason})`), {
       status: 403,
-      code: "CHECKOUT_NOT_ALLOWED"
+      code: "CHECKOUT_NOT_ALLOWED",
+      details: access
     });
   }
 

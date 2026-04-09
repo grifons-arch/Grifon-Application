@@ -98,4 +98,35 @@ describe("getPriceAccess", () => {
     expect(result.hasWholesaleGroup).toBe(true);
     expect(result.allowed).toBe(true);
   });
+
+  it("allows access when localized group name contains greek wholesale keyword only", async () => {
+    const client = new FakeClient({
+      "customers:60": {
+        customers: {
+          customer: {
+            id: 60,
+            active: 1,
+            id_default_group: 9,
+          }
+        }
+      },
+      "groups:9": {
+        groups: {
+          group: {
+            id: 9,
+            name: {
+              language: [
+                { id: 2, value: "Χονδρική Ελλάδα" }
+              ]
+            },
+            show_prices: 0
+          }
+        }
+      }
+    }) as any;
+
+    const result = await getPriceAccess(client, 60);
+    expect(result.hasWholesaleGroup).toBe(true);
+    expect(result.allowed).toBe(true);
+  });
 });

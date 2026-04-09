@@ -1,29 +1,18 @@
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { extractResourceItem, extractResourceList } from "./prestashopParser";
 import { toBooleanFlag } from "../utils/prestashopFields";
+import { hasWholesaleKeyword } from "../utils/wholesaleGroups";
 
 export interface PriceAccessResult {
   customerId: number;
   active: boolean;
   defaultGroupId: number | null;
+  groupIds: number[];
+  groupNames: string[];
   groupShowPrices: boolean;
   hasWholesaleGroup: boolean;
   allowed: boolean;
 }
-
-const hasWholesaleKeyword = (name: string | null | undefined): boolean => {
-  const normalized = name?.trim().toLowerCase() ?? "";
-  if (!normalized) {
-    return false;
-  }
-
-  return (
-    normalized.includes("wholesale") ||
-    normalized.includes("wholesales") ||
-    normalized.includes("whalesale") ||
-    normalized.includes("whalesales")
-  );
-};
 
 const extractGroupNames = (group: any): string[] => {
   const rawName = group?.name;
@@ -59,6 +48,8 @@ export const getPriceAccess = async (
       customerId,
       active: false,
       defaultGroupId: null,
+      groupIds: [],
+      groupNames: [],
       groupShowPrices: false,
       hasWholesaleGroup: false,
       allowed: false
@@ -103,6 +94,8 @@ export const getPriceAccess = async (
     customerId,
     active,
     defaultGroupId,
+    groupIds,
+    groupNames,
     groupShowPrices,
     hasWholesaleGroup,
     allowed

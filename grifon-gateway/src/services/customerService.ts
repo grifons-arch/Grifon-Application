@@ -2,26 +2,13 @@ import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { extractResourceList } from "./prestashopParser";
 import { getLocalizedValue, toBooleanFlag } from "../utils/prestashopFields";
 import { toLimitParam } from "../utils/pagination";
+import { hasWholesaleKeyword } from "../utils/wholesaleGroups";
 
 interface CustomerGroupItem {
   id: number;
   name: string | null;
   showPrices: boolean;
 }
-
-const hasWholesaleKeyword = (name: string | null): boolean => {
-  const normalized = name?.trim().toLowerCase() ?? "";
-  if (!normalized) {
-    return false;
-  }
-
-  return (
-    normalized.includes("wholesale") ||
-    normalized.includes("wholesales") ||
-    normalized.includes("whalesale") ||
-    normalized.includes("whalesales")
-  );
-};
 
 export interface CustomerItem {
   customerId: number;
