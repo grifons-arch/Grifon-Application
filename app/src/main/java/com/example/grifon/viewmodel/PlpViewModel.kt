@@ -113,12 +113,12 @@ class PlpViewModel @Inject constructor(
                         params.category,
                         params.filters,
                         params.sortOption,
+                        params.query,
                     ).map { products ->
                         if (hasSearchQuery) {
-                            val filtered = products.filter { product ->
+                            products.filter { product ->
                                 product.matchesPlpQuery(params.query)
                             }
-                            if (filtered.isNotEmpty()) filtered else products
                         } else {
                             products
                         }
@@ -228,6 +228,7 @@ data class PlpState(
 
 private fun Product.matchesPlpQuery(query: String): Boolean {
     val normalizedQuery = query.normalizeSearchText()
+    val normalizedCodeQuery = query.normalizeCodeText()
     if (normalizedQuery.isBlank()) return true
 
     val searchableValues = buildList {
@@ -240,14 +241,26 @@ private fun Product.matchesPlpQuery(query: String): Boolean {
     }.filter { it.isNotBlank() }
 
     val searchableText = searchableValues.joinToString(" ") { it.normalizeSearchText() }
+    val searchableCode = searchableValues.joinToString("") { it.normalizeCodeText() }
     val normalizedTokens = normalizedQuery.split(Regex("\\s+")).filter { it.isNotBlank() }
+    val codeTokens = query
+        .split(Regex("[\\s\\-_/.,]+"))
+        .map { it.normalizeCodeText() }
+        .filter { it.isNotBlank() }
 
     return searchableText.contains(normalizedQuery) ||
-        normalizedTokens.all { token -> searchableText.contains(token) }
+        normalizedTokens.all { token -> searchableText.contains(token) } ||
+        (normalizedCodeQuery.isNotBlank() && searchableCode.contains(normalizedCodeQuery)) ||
+        (codeTokens.isNotEmpty() && codeTokens.all { token -> searchableCode.contains(token) })
 }
 
 private fun String.normalizeSearchText(): String {
     return Normalizer.normalize(trim(), Normalizer.Form.NFD)
         .replace("\\p{M}+".toRegex(), "")
         .lowercase()
+}
+
+private fun String.normalizeCodeText(): String {
+    return normalizeSearchText()
+        .replace("[^\\p{L}\\p{N}]".toRegex(), "")
 }

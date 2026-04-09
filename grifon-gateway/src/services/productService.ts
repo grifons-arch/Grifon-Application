@@ -545,7 +545,20 @@ const colorValueAliases: Record<string, string[]> = {
   multicolor: ["multi", "multicolor", "πολύχρ", "flerfär"],
 };
 
-const normalizeText = (value: string) => value.trim().toLowerCase();
+const normalizeText = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+
+const normalizeCodeText = (value: string) => normalizeText(value).replace(/[^\p{L}\p{N}]/gu, "");
+
+const splitCodeFragments = (value: string) =>
+  value
+    .split(/[\s\-_/.,]+/g)
+    .map(normalizeCodeText)
+    .filter((token) => token.length > 0);
 
 const matchesColorFilter = (product: ProductListItem, selectedColors: string[]) => {
   if (selectedColors.length === 0) {
@@ -596,15 +609,26 @@ const matchesSearchFilter = (product: ProductListItem, search?: string) => {
     return true;
   }
 
-  const needle = normalizeText(search);
-  const haystacks = [
+  const textNeedle = normalizeText(search);
+  const codeNeedle = normalizeCodeText(search);
+  const searchableValues = [
+    String(product.id),
     product.name ?? "",
     product.reference ?? "",
     ...Object.keys(product.attributes),
     ...Object.values(product.attributes).flat(),
-  ].map(normalizeText);
+  ];
+  const textHaystack = searchableValues.map(normalizeText).join(" ");
+  const codeHaystack = searchableValues.map(normalizeCodeText).join("");
+  const textTokens = textNeedle.split(/\s+/g).filter((token) => token.length > 0);
+  const codeTokens = splitCodeFragments(search);
 
-  return haystacks.some((value) => value.includes(needle));
+  return (
+    textHaystack.includes(textNeedle) ||
+    textTokens.every((token) => textHaystack.includes(token)) ||
+    (codeNeedle.length > 0 && codeHaystack.includes(codeNeedle)) ||
+    (codeTokens.length > 0 && codeTokens.every((token) => codeHaystack.includes(token)))
+  );
 };
 
 const applyBasicProductFilters = (

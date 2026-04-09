@@ -43,7 +43,8 @@ class GetProductsByCategoryUseCase(private val catalogRepository: CatalogReposit
         categoryId: String,
         filters: FilterState,
         sortOption: SortOption,
-    ) = catalogRepository.getProductsByCategory(shopId, categoryId, filters, sortOption)
+        searchQuery: String = "",
+    ) = catalogRepository.getProductsByCategory(shopId, categoryId, filters, sortOption, searchQuery)
 }
 
 class GetProductByIdUseCase(private val catalogRepository: CatalogRepository) {

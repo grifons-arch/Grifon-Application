@@ -91,11 +91,18 @@ class FakeCatalogRepository : CatalogRepository {
         categoryId: String,
         filters: FilterState,
         sortOption: SortOption,
+        searchQuery: String,
     ): Flow<List<Product>> {
         val normalizedShopId = ShopConfig.normalizeShopId(shopId)
         val base = FakeCatalogData.shopProducts[normalizedShopId].orEmpty()
             .filter { product ->
                 product.title.contains(categoryId, ignoreCase = true) || categoryId.isBlank()
+            }
+            .filter { product ->
+                searchQuery.isBlank() ||
+                    product.title.contains(searchQuery, ignoreCase = true) ||
+                    product.id.contains(searchQuery, ignoreCase = true) ||
+                    product.attributesMap.values.flatten().any { it.contains(searchQuery, ignoreCase = true) }
             }
         return flowOf(applyFiltersAndSort(base, filters, sortOption))
     }

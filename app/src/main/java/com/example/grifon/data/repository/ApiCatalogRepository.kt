@@ -90,7 +90,8 @@ class ApiCatalogRepository @Inject constructor(
         shopId: String,
         categoryId: String,
         filters: FilterState,
-        sortOption: SortOption
+        sortOption: SortOption,
+        searchQuery: String,
     ): Flow<List<Product>> = flow {
         try {
             val sId = ShopConfig.normalizeShopId(shopId).toInt()
@@ -102,7 +103,8 @@ class ApiCatalogRepository @Inject constructor(
                 canViewPrices = shopPreferences.canViewPrices.first(),
             )
             val requestCustomerId = customerId?.takeIf { canDisplayPrices }
-            val apiFilters = filters.toApiBasicFilters(canDisplayPrices)
+            val normalizedSearchQuery = searchQuery.trim()
+            val apiFilters = filters.toApiBasicFilters(canDisplayPrices, normalizedSearchQuery)
             val apiSort = sortOption.toApiSort()
             val response = if (categoryId == "2" || categoryId.isBlank()) {
                 catalogApi.getProducts(
@@ -110,6 +112,7 @@ class ApiCatalogRepository @Inject constructor(
                     lang = langId,
                     pageSize = 100,
                     sort = apiSort,
+                    search = apiFilters.search,
                     priceMin = apiFilters.priceMin,
                     priceMax = apiFilters.priceMax,
                     colors = apiFilters.colors,
@@ -122,6 +125,7 @@ class ApiCatalogRepository @Inject constructor(
                     shopId = sId,
                     lang = langId,
                     sort = apiSort,
+                    search = apiFilters.search,
                     priceMin = apiFilters.priceMin,
                     priceMax = apiFilters.priceMax,
                     colors = apiFilters.colors,
