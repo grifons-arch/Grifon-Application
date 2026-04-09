@@ -25,8 +25,10 @@ import com.example.grifon.ui.screens.categories.CategoriesScreen
 import com.example.grifon.ui.screens.plp.ProductDetailsScreen
 import com.example.grifon.ui.screens.plp.ProductListScreen
 import com.example.grifon.ui.screens.scan.ScanScreen
+import com.example.grifon.viewmodel.PayPalCheckoutViewModel
 import com.example.grifon.viewmodel.PdpViewModel
 import com.example.grifon.viewmodel.PlpViewModel
+import com.example.grifon.viewmodel.StripeCheckoutViewModel
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -102,7 +104,7 @@ fun AppNavHost(
                 navController = navController,
                 orderReference = orderReference,
                 approvalUrl = approvalUrl,
-                viewModel = hiltViewModel(),
+                viewModel = hiltViewModel<PayPalCheckoutViewModel>(),
             )
         }
         composable(
@@ -128,7 +130,7 @@ fun AppNavHost(
                 navController = navController,
                 orderReference = orderReference,
                 checkoutUrl = checkoutUrl,
-                viewModel = hiltViewModel(),
+                viewModel = hiltViewModel<StripeCheckoutViewModel>(),
             )
         }
         composable(Routes.FAVORITES) {

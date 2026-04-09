@@ -11,6 +11,6 @@ class LoginUseCase @Inject constructor(
         Log.d("LoginDebug", "LoginUseCase: Invoking login for $email")
         val result = userRepository.login(email, pass)
         Log.d("LoginDebug", "LoginUseCase: Result is $result")
-        return result
+        return result.isSuccess
     }
 }

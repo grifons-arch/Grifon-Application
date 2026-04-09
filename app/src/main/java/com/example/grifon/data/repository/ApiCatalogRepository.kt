@@ -6,8 +6,6 @@ import com.example.grifon.core.ShopConfig
 import com.example.grifon.domain.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.example.grifon.BuildConfig
@@ -250,6 +248,8 @@ class ApiCatalogRepository @Inject constructor(
         }
     }
 
+    override suspend fun syncCatalog(shopId: String) = Unit
+
     private suspend fun fetchSearchCandidates(
         shopId: Int,
         langId: Int,
@@ -287,8 +287,6 @@ class ApiCatalogRepository @Inject constructor(
 
         return products.values.toList()
     }
-
-    private fun ProductEntity.toDomain() = Product(id, title, price, currency, imageUrl, emptyList(), brand, 0.0, inStock, mapOf("reference" to reference), listOfNotNull(categoryId))
 }
 
 private data class ApiBasicFilters(

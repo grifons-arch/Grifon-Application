@@ -312,56 +312,6 @@ private fun ExternalCheckoutScreen(
     }
 }
 
-@Composable
-fun OrdersScreen(viewModel: OrdersViewModel) {
-    val uiState by viewModel.uiState.collectAsState()
-    when (val state = uiState) {
-        UiState.Loading -> LoadingScreen()
-        is UiState.Error -> ErrorScreen(message = state.message)
-        is UiState.Success -> {
-            val orders = state.data
-            if (orders.isEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text("No orders yet.")
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    items(orders, key = { it.orderReference }) { order ->
-                        OrderCard(order)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun OrderCard(order: LocalOrder) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Text(order.orderReference, style = MaterialTheme.typography.titleMedium)
-            Text("${formatAmount(order.totalAmount)} ${order.currency}")
-            Text("Payment: ${order.paymentStatus}")
-            Text("Order: ${order.orderStatus}")
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("Items: ${order.items.sumOf { it.qty }}")
-        }
-    }
-}
-
 private fun formatAmount(amount: Double): String {
     return String.format(Locale.getDefault(), "%.2f", amount)
 }
