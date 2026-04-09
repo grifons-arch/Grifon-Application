@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.customerActivityClearBodySchema = exports.customerActivityQuerySchema = exports.productActivityBodySchema = exports.wholesaleApplicationBodySchema = exports.registerBodySchema = exports.loginBodySchema = exports.etsWholesaleFormFieldsQuerySchema = exports.moduleFileQuerySchema = exports.moduleSearchQuerySchema = exports.tableNameSchema = exports.moduleNameSchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productFilterQuerySchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
+exports.checkoutOrderBodySchema = exports.checkoutHandoffBodySchema = exports.checkoutSessionQuerySchema = exports.customerActivityClearBodySchema = exports.customerActivityQuerySchema = exports.productActivityBodySchema = exports.wholesaleApplicationBodySchema = exports.registerBodySchema = exports.loginBodySchema = exports.etsWholesaleFormFieldsQuerySchema = exports.moduleFileQuerySchema = exports.moduleSearchQuerySchema = exports.tableNameSchema = exports.moduleNameSchema = exports.checkoutOrderReferenceSchema = exports.productIdSchema = exports.categoryIdSchema = exports.customerIdSchema = exports.productFilterQuerySchema = exports.productPaginationSchema = exports.paginationSchema = exports.shopQuerySchema = void 0;
 const zod_1 = require("zod");
 const toNumber = (value) => {
     if (value === undefined || value === null || value === "")
@@ -65,6 +65,9 @@ exports.categoryIdSchema = zod_1.z.object({
 });
 exports.productIdSchema = zod_1.z.object({
     productId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive())
+});
+exports.checkoutOrderReferenceSchema = zod_1.z.object({
+    orderReference: zod_1.z.string().trim().min(1).max(80)
 });
 exports.moduleNameSchema = zod_1.z.object({
     moduleName: zod_1.z.string().trim().regex(/^[A-Za-z0-9_-]+$/)
@@ -166,4 +169,34 @@ exports.customerActivityQuerySchema = zod_1.z.object({
 });
 exports.customerActivityClearBodySchema = zod_1.z.object({
     shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)]))
+});
+exports.checkoutSessionQuerySchema = exports.shopQuerySchema.merge(exports.customerIdSchema.partial());
+exports.checkoutHandoffBodySchema = zod_1.z.object({
+    shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)])),
+    customerId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive().optional()),
+    target: zod_1.z.enum(["cart", "checkout", "login"]).default("checkout")
+});
+exports.checkoutOrderBodySchema = zod_1.z.object({
+    shopId: zod_1.z.preprocess(toNumber, zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(4)])),
+    lang: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive().optional()).default(1),
+    customerId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive()),
+    paymentMethodCode: zod_1.z.string().trim().min(1),
+    shippingMethodCode: zod_1.z.string().trim().min(1),
+    address: zod_1.z.object({
+        recipient: zod_1.z.string().trim().min(1),
+        email: zod_1.z.string().trim().email(),
+        phone: zod_1.z.string().trim().min(1),
+        company: zod_1.z.preprocess(toOptionalString, zod_1.z.string().optional()),
+        street: zod_1.z.string().trim().min(1),
+        city: zod_1.z.string().trim().min(1),
+        postalCode: zod_1.z.string().trim().min(1),
+        country: zod_1.z.string().trim().min(1)
+    }),
+    items: zod_1.z.array(zod_1.z.object({
+        productId: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive()),
+        title: zod_1.z.string().trim().min(1),
+        qty: zod_1.z.preprocess(toNumber, zod_1.z.number().int().positive()),
+        unitPrice: zod_1.z.preprocess(toNumber, zod_1.z.number().nonnegative()),
+        currency: zod_1.z.string().trim().min(1)
+    })).min(1)
 });

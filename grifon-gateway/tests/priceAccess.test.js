@@ -59,4 +59,63 @@ class FakeClient {
         (0, vitest_1.expect)(result.hasWholesaleGroup).toBe(true);
         (0, vitest_1.expect)(result.allowed).toBe(true);
     });
+    (0, vitest_1.it)("allows access when wholesale keyword exists in a localized group name", async () => {
+        const client = new FakeClient({
+            "customers:50": {
+                customers: {
+                    customer: {
+                        id: 50,
+                        active: 1,
+                        id_default_group: 8,
+                    }
+                }
+            },
+            "groups:8": {
+                groups: {
+                    group: {
+                        id: 8,
+                        name: {
+                            language: [
+                                { id: 2, value: "Χονδρική Ελλάδα" },
+                                { id: 1, value: "Wholesale Greece" }
+                            ]
+                        },
+                        show_prices: 0
+                    }
+                }
+            }
+        });
+        const result = await (0, priceAccessService_1.getPriceAccess)(client, 50);
+        (0, vitest_1.expect)(result.hasWholesaleGroup).toBe(true);
+        (0, vitest_1.expect)(result.allowed).toBe(true);
+    });
+    (0, vitest_1.it)("allows access when localized group name contains greek wholesale keyword only", async () => {
+        const client = new FakeClient({
+            "customers:60": {
+                customers: {
+                    customer: {
+                        id: 60,
+                        active: 1,
+                        id_default_group: 9,
+                    }
+                }
+            },
+            "groups:9": {
+                groups: {
+                    group: {
+                        id: 9,
+                        name: {
+                            language: [
+                                { id: 2, value: "Χονδρική Ελλάδα" }
+                            ]
+                        },
+                        show_prices: 0
+                    }
+                }
+            }
+        });
+        const result = await (0, priceAccessService_1.getPriceAccess)(client, 60);
+        (0, vitest_1.expect)(result.hasWholesaleGroup).toBe(true);
+        (0, vitest_1.expect)(result.allowed).toBe(true);
+    });
 });

@@ -4,16 +4,7 @@ exports.listCustomers = void 0;
 const prestashopParser_1 = require("./prestashopParser");
 const prestashopFields_1 = require("../utils/prestashopFields");
 const pagination_1 = require("../utils/pagination");
-const hasWholesaleKeyword = (name) => {
-    const normalized = name?.trim().toLowerCase() ?? "";
-    if (!normalized) {
-        return false;
-    }
-    return (normalized.includes("wholesale") ||
-        normalized.includes("wholesales") ||
-        normalized.includes("whalesale") ||
-        normalized.includes("whalesales"));
-};
+const wholesaleGroups_1 = require("../utils/wholesaleGroups");
 const fetchGroups = async (client, lang) => {
     const data = await client.get("groups", { display: "full", sort: "[id_ASC]" });
     const groups = (0, prestashopParser_1.extractResourceList)("groups", data);
@@ -33,7 +24,7 @@ const fetchGroups = async (client, lang) => {
 };
 const resolveWholesaleGroupIds = (groupsById) => {
     const ids = Array.from(groupsById.values())
-        .filter((group) => hasWholesaleKeyword(group.name))
+        .filter((group) => (0, wholesaleGroups_1.hasWholesaleKeyword)(group.name))
         .map((group) => group.id);
     return new Set(ids);
 };

@@ -70,7 +70,12 @@ const envSchema = zod_1.z.object({
     SMTP_REQUIRE_TLS: zod_1.z.string().optional().default("false"),
     SMTP_USER: zod_1.z.string().optional().default(""),
     SMTP_PASS: zod_1.z.string().optional().default(""),
-    SMTP_HELO_NAME: zod_1.z.string().optional().default("")
+    SMTP_HELO_NAME: zod_1.z.string().optional().default(""),
+    PAYPAL_CLIENT_ID: zod_1.z.string().optional().default(""),
+    PAYPAL_CLIENT_SECRET: zod_1.z.string().optional().default(""),
+    PAYPAL_API_BASE_URL: zod_1.z.string().url().default("https://api-m.sandbox.paypal.com"),
+    PAYPAL_RETURN_URL: zod_1.z.string().url().default("https://grifon.app/paypal/return"),
+    PAYPAL_CANCEL_URL: zod_1.z.string().url().default("https://grifon.app/paypal/cancel")
 });
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
@@ -173,7 +178,12 @@ exports.config = {
     smtpRequireTls: parseBoolean(env.SMTP_REQUIRE_TLS),
     smtpUser: trimToUndefined(env.SMTP_USER),
     smtpPass: trimToUndefined(env.SMTP_PASS),
-    smtpHeloName: trimToUndefined(env.SMTP_HELO_NAME)
+    smtpHeloName: trimToUndefined(env.SMTP_HELO_NAME),
+    paypalClientId: trimToUndefined(env.PAYPAL_CLIENT_ID),
+    paypalClientSecret: trimToUndefined(env.PAYPAL_CLIENT_SECRET),
+    paypalApiBaseUrl: env.PAYPAL_API_BASE_URL,
+    paypalReturnUrl: env.PAYPAL_RETURN_URL,
+    paypalCancelUrl: env.PAYPAL_CANCEL_URL
 };
 exports.shops = [
     { id: 4, code: "GR", domain: "grifon.gr", baseUrl: env.SHOP_GR_BASE_URL },

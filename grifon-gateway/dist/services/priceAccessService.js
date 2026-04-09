@@ -3,12 +3,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getGroupMembersCount = exports.getPriceAccess = void 0;
 const prestashopParser_1 = require("./prestashopParser");
 const prestashopFields_1 = require("../utils/prestashopFields");
-const hasWholesaleKeyword = (name) => {
-    const normalized = name?.trim().toLowerCase() ?? "";
-    if (!normalized) {
-        return false;
+const wholesaleGroups_1 = require("../utils/wholesaleGroups");
+const extractGroupNames = (group) => {
+    const rawName = group?.name;
+    if (!rawName) {
+        return [];
     }
-    return normalized.includes("wholesale");
+    if (typeof rawName === "string") {
+        return rawName.trim() ? [rawName.trim()] : [];
+    }
+    const languageEntries = rawName.language;
+    if (!languageEntries) {
+        return [];
+    }
+    const entries = Array.isArray(languageEntries) ? languageEntries : [languageEntries];
+    return entries
+        .map((entry) => entry?.value ?? entry?.text ?? null)
+        .filter((value) => typeof value === "string")
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0);
 };
 const getPriceAccess = async (client, customerId) => {
     const data = await client.getById("customers", customerId, { display: "full" });
@@ -18,6 +31,8 @@ const getPriceAccess = async (client, customerId) => {
             customerId,
             active: false,
             defaultGroupId: null,
+            groupIds: [],
+            groupNames: [],
             groupShowPrices: false,
             hasWholesaleGroup: false,
             allowed: false
@@ -42,20 +57,16 @@ const getPriceAccess = async (client, customerId) => {
         if (groupId === defaultGroupId) {
             groupShowPrices = (0, prestashopFields_1.toBooleanFlag)(group.show_prices);
         }
-        const rawName = group.name?.language?.[0]?.value
-            ?? group.name?.language?.value
-            ?? group.name
-            ?? null;
-        if (typeof rawName === "string" && rawName.trim().length > 0) {
-            groupNames.push(rawName);
-        }
+        groupNames.push(...extractGroupNames(group));
     }
-    const hasWholesaleGroup = groupNames.some((groupName) => hasWholesaleKeyword(groupName));
+    const hasWholesaleGroup = groupNames.some((groupName) => (0, wholesaleGroups_1.hasWholesaleKeyword)(groupName));
     const allowed = active && hasWholesaleGroup;
     return {
         customerId,
         active,
         defaultGroupId,
+        groupIds,
+        groupNames,
         groupShowPrices,
         hasWholesaleGroup,
         allowed

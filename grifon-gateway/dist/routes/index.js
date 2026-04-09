@@ -17,6 +17,7 @@ const authService_1 = require("../services/authService");
 const priceAccessService_1 = require("../services/priceAccessService");
 const wholesaleCustomerService_1 = require("../services/wholesaleCustomerService");
 const customerService_1 = require("../services/customerService");
+const checkoutService_1 = require("../services/checkoutService");
 exports.apiRouter = (0, express_1.Router)();
 const parseCsvValues = (value) => {
     if (typeof value !== "string") {
@@ -161,6 +162,80 @@ exports.apiRouter.post("/v1/customer-activity/clear", (0, validate_1.validateBod
         next(error);
     }
 });
+exports.apiRouter.get("/v1/checkout/session", (0, validate_1.validateQuery)(schemas_1.checkoutSessionQuerySchema), async (req, res, next) => {
+    try {
+        const { shopId, lang, customerId } = req.query;
+        const client = new PrestaShopClient_1.PrestaShopClient({ shopId, lang });
+        const session = await (0, checkoutService_1.getCheckoutSession)(client, Number(shopId), customerId ? Number(customerId) : undefined);
+        res.json(session);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.post("/v1/checkout/orders", (0, validate_1.validateBody)(schemas_1.checkoutOrderBodySchema), async (req, res, next) => {
+    try {
+        const { shopId, lang, customerId, paymentMethodCode, shippingMethodCode, address, items } = req.body;
+        const client = new PrestaShopClient_1.PrestaShopClient({ shopId, lang });
+        const order = await (0, checkoutService_1.createCheckoutOrder)(client, {
+            shopId: Number(shopId),
+            customerId: Number(customerId),
+            paymentMethodCode,
+            shippingMethodCode,
+            address,
+            items,
+        });
+        res.status(201).json(order);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/checkout/orders/:orderReference", (0, validate_1.validateParams)(schemas_1.checkoutOrderReferenceSchema), async (req, res, next) => {
+    try {
+        const { orderReference } = req.params;
+        const order = (0, checkoutService_1.getCheckoutOrder)(orderReference);
+        if (!order) {
+            res.status(404).json({
+                error: {
+                    code: "CHECKOUT_ORDER_NOT_FOUND",
+                    message: "Checkout order was not found."
+                }
+            });
+            return;
+        }
+        res.json(order);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.post("/v1/checkout/orders/:orderReference/capture", (0, validate_1.validateParams)(schemas_1.checkoutOrderReferenceSchema), async (req, res, next) => {
+    try {
+        const { orderReference } = req.params;
+        const order = await (0, checkoutService_1.captureCheckoutOrder)(orderReference);
+        res.json(order);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.post("/v1/checkout/handoff", (0, validate_1.validateBody)(schemas_1.checkoutHandoffBodySchema), async (req, res, next) => {
+    try {
+        const { shopId, customerId, target } = req.body;
+        const resolvedTarget = customerId ? target : target === "checkout" ? "login" : target;
+        res.json({
+            ok: true,
+            shopId,
+            customerId: customerId ?? null,
+            target: resolvedTarget,
+            url: (0, checkoutService_1.getCheckoutHandoffUrl)(shopId, resolvedTarget),
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
 // IMAGE PROXY
 exports.apiRouter.get("/v1/images/products/:productId/:imageId", async (req, res, next) => {
     try {
@@ -266,6 +341,18 @@ exports.apiRouter.get("/v1/customers", (0, validate_1.validateQuery)(schemas_1.s
         const client = new PrestaShopClient_1.PrestaShopClient({ shopId, lang });
         const items = await (0, customerService_1.listCustomers)(client, Number(shopId), lang);
         res.json({ items });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.apiRouter.get("/v1/debug/price-access/:customerId", (0, validate_1.validateParams)(schemas_1.customerIdSchema), (0, validate_1.validateQuery)(schemas_1.shopQuerySchema), async (req, res, next) => {
+    try {
+        const { customerId } = req.params;
+        const { shopId, lang } = req.query;
+        const client = new PrestaShopClient_1.PrestaShopClient({ shopId, lang });
+        const access = await (0, priceAccessService_1.getPriceAccess)(client, Number(customerId));
+        res.json(access);
     }
     catch (error) {
         next(error);

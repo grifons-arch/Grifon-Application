@@ -18,10 +18,58 @@ const getLocalizedValue = (field, lang) => {
     return first?.value ?? first?.text ?? null;
 };
 exports.getLocalizedValue = getLocalizedValue;
+const normalizeNumericString = (value) => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return null;
+    }
+    const sanitized = trimmed
+        .replace(/\s+/g, "")
+        .replace(/[^\d,.\-]/g, "");
+    if (!sanitized || sanitized === "-" || sanitized === "," || sanitized === ".") {
+        return null;
+    }
+    const lastComma = sanitized.lastIndexOf(",");
+    const lastDot = sanitized.lastIndexOf(".");
+    if (lastComma >= 0 && lastDot >= 0) {
+        const decimalIndex = Math.max(lastComma, lastDot);
+        const integerPart = sanitized.slice(0, decimalIndex).replace(/[.,]/g, "");
+        const fractionalPart = sanitized.slice(decimalIndex + 1).replace(/[.,]/g, "");
+        return fractionalPart ? `${integerPart}.${fractionalPart}` : integerPart;
+    }
+    if (lastComma >= 0) {
+        const fractionalDigits = sanitized.length - lastComma - 1;
+        if (fractionalDigits >= 1 && fractionalDigits <= 6) {
+            return sanitized.replace(/\./g, "").replace(",", ".");
+        }
+        return sanitized.replace(/,/g, "");
+    }
+    if (lastDot >= 0) {
+        const fractionalDigits = sanitized.length - lastDot - 1;
+        const dotCount = (sanitized.match(/\./g) ?? []).length;
+        if (dotCount > 1) {
+            const integerPart = sanitized.slice(0, lastDot).replace(/\./g, "");
+            const fractionalPart = sanitized.slice(lastDot + 1).replace(/\./g, "");
+            return fractionalPart ? `${integerPart}.${fractionalPart}` : integerPart;
+        }
+        if (fractionalDigits >= 1 && fractionalDigits <= 6) {
+            return sanitized;
+        }
+        return sanitized.replace(/\./g, "");
+    }
+    return sanitized;
+};
 const toNumber = (value) => {
     if (value === undefined || value === null || value === "")
         return null;
-    const num = Number(value);
+    if (typeof value === "number") {
+        return Number.isFinite(value) ? value : null;
+    }
+    const normalized = normalizeNumericString(String(value));
+    if (!normalized) {
+        return null;
+    }
+    const num = Number(normalized);
     return Number.isNaN(num) ? null : num;
 };
 exports.toNumber = toNumber;
