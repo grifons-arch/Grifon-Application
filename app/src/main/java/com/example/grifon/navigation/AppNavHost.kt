@@ -16,6 +16,7 @@ import com.example.grifon.ui.screens.CartScreen
 import com.example.grifon.ui.screens.CheckoutScreen
 import com.example.grifon.ui.screens.FavoritesScreen
 import com.example.grifon.ui.screens.HomeScreen
+import com.example.grifon.ui.screens.OrdersScreen
 import com.example.grifon.ui.screens.PayPalCheckoutScreen
 import com.example.grifon.ui.screens.SettingsScreen
 import com.example.grifon.ui.screens.StripeCheckoutScreen
@@ -144,6 +145,9 @@ fun AppNavHost(
                 onSettings = {
                     navController.navigate(Routes.SETTINGS)
                 },
+                onOrders = {
+                    navController.navigate(Routes.ORDERS)
+                },
                 onRegister = {
                     navController.navigate(Routes.REGISTER)
                 },
@@ -151,6 +155,9 @@ fun AppNavHost(
                     navController.navigate(Routes.WHOLESALE_APPLICATION)
                 },
             )
+        }
+        composable(Routes.ORDERS) {
+            OrdersScreen(viewModel = hiltViewModel())
         }
         composable(Routes.REGISTER) {
             RegisterScreen()

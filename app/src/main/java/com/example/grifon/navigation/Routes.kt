@@ -12,6 +12,7 @@ object Routes {
     const val STRIPE_CHECKOUT = "stripe-checkout?orderReference={orderReference}&checkoutUrl={checkoutUrl}"
     const val FAVORITES = "favorites"
     const val ACCOUNT = "account"
+    const val ORDERS = "orders"
     const val REGISTER = "register"
     const val WHOLESALE_APPLICATION = "wholesale-application"
     const val PRODUCT = "product/{id}"

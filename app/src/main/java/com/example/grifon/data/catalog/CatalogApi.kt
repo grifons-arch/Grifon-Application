@@ -321,6 +321,7 @@ data class CheckoutOrderResponseDto(
     val orderReference: String,
     val shopId: Int,
     val customerId: Int,
+    val items: List<CheckoutOrderItemDto> = emptyList(),
     val totalAmount: Double,
     val currency: String,
     val paymentMethodCode: String,

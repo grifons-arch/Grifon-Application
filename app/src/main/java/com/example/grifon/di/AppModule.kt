@@ -175,6 +175,13 @@ object AppModule {
     @Singleton
     fun provideCartRepository(): CartRepository = FakeCartRepository()
 
+    @Provides
+    @Singleton
+    fun provideOrderRepository(
+        preferences: ShopPreferences,
+        moshi: Moshi,
+    ): OrderRepository = LocalOrderRepository(preferences, moshi)
+
     // ΕΔΩ ΕΠΙΒΑΛΛΟΥΜΕ ΤΗΝ ΠΡΑΓΜΑΤΙΚΗ ΥΛΟΠΟΙΗΣΗ ΤΟΥ USER
     @Provides
     @Singleton
@@ -245,6 +252,15 @@ object AppModule {
 
     @Provides
     fun provideGetCartUseCase(repo: CartRepository) = GetCartUseCase(repo)
+
+    @Provides
+    fun provideClearCartUseCase(repo: CartRepository) = ClearCartUseCase(repo)
+
+    @Provides
+    fun provideObserveOrdersUseCase(repo: OrderRepository) = ObserveOrdersUseCase(repo)
+
+    @Provides
+    fun provideSaveOrderUseCase(repo: OrderRepository) = SaveOrderUseCase(repo)
 
     @Provides
     fun provideObserveFavoritesUseCase(repo: FavoriteRepository) = ObserveFavoritesUseCase(repo)

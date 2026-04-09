@@ -5,6 +5,7 @@ import com.example.grifon.domain.model.CatalogFacet
 import com.example.grifon.domain.model.Category
 import com.example.grifon.domain.model.FavoriteProduct
 import com.example.grifon.domain.model.FilterState
+import com.example.grifon.domain.model.LocalOrder
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.RecentProduct
 import com.example.grifon.domain.model.Shop
@@ -42,6 +43,12 @@ interface CartRepository {
     suspend fun addToCart(shopId: String, item: CartItem)
     suspend fun removeFromCart(shopId: String, productId: String)
     suspend fun updateQuantity(shopId: String, productId: String, qty: Int)
+    suspend fun clearCart(shopId: String)
+}
+
+interface OrderRepository {
+    fun observeOrders(shopId: String, customerId: Int?): Flow<List<LocalOrder>>
+    suspend fun saveOrder(order: LocalOrder)
 }
 
 interface UserRepository {

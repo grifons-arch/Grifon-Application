@@ -75,7 +75,11 @@ const envSchema = zod_1.z.object({
     PAYPAL_CLIENT_SECRET: zod_1.z.string().optional().default(""),
     PAYPAL_API_BASE_URL: zod_1.z.string().url().default("https://api-m.sandbox.paypal.com"),
     PAYPAL_RETURN_URL: zod_1.z.string().url().default("https://grifon.app/paypal/return"),
-    PAYPAL_CANCEL_URL: zod_1.z.string().url().default("https://grifon.app/paypal/cancel")
+    PAYPAL_CANCEL_URL: zod_1.z.string().url().default("https://grifon.app/paypal/cancel"),
+    STRIPE_SECRET_KEY: zod_1.z.string().optional().default(""),
+    STRIPE_API_BASE_URL: zod_1.z.string().url().default("https://api.stripe.com"),
+    STRIPE_RETURN_URL: zod_1.z.string().url().default("https://grifon.app/stripe/return"),
+    STRIPE_CANCEL_URL: zod_1.z.string().url().default("https://grifon.app/stripe/cancel")
 });
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
@@ -183,7 +187,11 @@ exports.config = {
     paypalClientSecret: trimToUndefined(env.PAYPAL_CLIENT_SECRET),
     paypalApiBaseUrl: env.PAYPAL_API_BASE_URL,
     paypalReturnUrl: env.PAYPAL_RETURN_URL,
-    paypalCancelUrl: env.PAYPAL_CANCEL_URL
+    paypalCancelUrl: env.PAYPAL_CANCEL_URL,
+    stripeSecretKey: trimToUndefined(env.STRIPE_SECRET_KEY),
+    stripeApiBaseUrl: env.STRIPE_API_BASE_URL,
+    stripeReturnUrl: env.STRIPE_RETURN_URL,
+    stripeCancelUrl: env.STRIPE_CANCEL_URL
 };
 exports.shops = [
     { id: 4, code: "GR", domain: "grifon.gr", baseUrl: env.SHOP_GR_BASE_URL },
