@@ -66,6 +66,7 @@ export interface CheckoutOrder {
   orderReference: string;
   shopId: ShopId;
   customerId: number;
+  items: CheckoutOrderItem[];
   totalAmount: number;
   currency: string;
   paymentMethodCode: string;
@@ -217,6 +218,7 @@ export const createCheckoutOrder = async (
     orderReference,
     shopId: input.shopId,
     customerId: input.customerId,
+    items: input.items,
     totalAmount,
     currency,
     paymentMethodCode: input.paymentMethodCode,

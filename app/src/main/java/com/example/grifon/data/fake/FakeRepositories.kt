@@ -191,6 +191,10 @@ class FakeCartRepository : CartRepository {
         }
     }
 
+    override suspend fun clearCart(shopId: String) {
+        updateCart(ShopConfig.normalizeShopId(shopId)) { emptyList() }
+    }
+
     private fun updateCart(shopId: String, updater: (List<CartItem>) -> List<CartItem>) {
         val current = cartState.value
         val updated = updater(current[shopId].orEmpty())

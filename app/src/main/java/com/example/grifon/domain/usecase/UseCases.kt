@@ -3,6 +3,7 @@ package com.example.grifon.domain.usecase
 import com.example.grifon.data.repository.CatalogRepository
 import com.example.grifon.data.repository.CartRepository
 import com.example.grifon.data.repository.FavoriteRepository
+import com.example.grifon.data.repository.OrderRepository
 import com.example.grifon.data.repository.ProductRepository
 import com.example.grifon.data.repository.RecentProductRepository
 import com.example.grifon.data.repository.ShopRepository
@@ -10,6 +11,7 @@ import com.example.grifon.data.repository.CustomerRepository
 import com.example.grifon.data.repository.WholesaleCustomerRepository
 import com.example.grifon.domain.model.CartItem
 import com.example.grifon.domain.model.FilterState
+import com.example.grifon.domain.model.LocalOrder
 import com.example.grifon.domain.model.Product
 import com.example.grifon.domain.model.SortOption
 
@@ -64,6 +66,19 @@ class RemoveFromCartUseCase(private val cartRepository: CartRepository) {
 
 class GetCartUseCase(private val cartRepository: CartRepository) {
     operator fun invoke(shopId: String) = cartRepository.observeCart(shopId)
+}
+
+class ClearCartUseCase(private val cartRepository: CartRepository) {
+    suspend operator fun invoke(shopId: String) = cartRepository.clearCart(shopId)
+}
+
+class ObserveOrdersUseCase(private val orderRepository: OrderRepository) {
+    operator fun invoke(shopId: String, customerId: Int?) =
+        orderRepository.observeOrders(shopId, customerId)
+}
+
+class SaveOrderUseCase(private val orderRepository: OrderRepository) {
+    suspend operator fun invoke(order: LocalOrder) = orderRepository.saveOrder(order)
 }
 
 class ObserveFavoritesUseCase(private val favoriteRepository: FavoriteRepository) {

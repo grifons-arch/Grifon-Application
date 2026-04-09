@@ -32,6 +32,7 @@ class ShopPreferences(
     private val checkoutCityKey = stringPreferencesKey("checkout_city")
     private val checkoutPostalCodeKey = stringPreferencesKey("checkout_postal_code")
     private val checkoutCountryKey = stringPreferencesKey("checkout_country")
+    private val ordersJsonKey = stringPreferencesKey("orders_json")
 
     val activeShopId: Flow<String> = dataStore.data.map { preferences ->
         ShopConfig.normalizeShopId(preferences[shopKey] ?: BuildConfig.SHOP_ID)
@@ -95,6 +96,10 @@ class ShopPreferences(
 
     val checkoutCountry: Flow<String?> = dataStore.data.map { preferences ->
         preferences[checkoutCountryKey]
+    }
+
+    val ordersJson: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[ordersJsonKey]
     }
 
     suspend fun setActiveShopId(shopId: String) {
@@ -163,6 +168,12 @@ class ShopPreferences(
             city?.let { preferences[checkoutCityKey] = it }
             postalCode?.let { preferences[checkoutPostalCodeKey] = it }
             country?.let { preferences[checkoutCountryKey] = it }
+        }
+    }
+
+    suspend fun setOrdersJson(json: String) {
+        dataStore.edit { preferences ->
+            preferences[ordersJsonKey] = json
         }
     }
 }

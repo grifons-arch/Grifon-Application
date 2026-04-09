@@ -80,6 +80,28 @@ data class CartItem(
     val currency: String,
 )
 
+data class LocalOrder(
+    val orderReference: String,
+    val shopId: String,
+    val customerId: Int,
+    val totalAmount: Double,
+    val currency: String,
+    val paymentProvider: String,
+    val paymentMethodCode: String,
+    val paymentStatus: String,
+    val orderStatus: String,
+    val createdAt: Long,
+    val items: List<LocalOrderItem>,
+)
+
+data class LocalOrderItem(
+    val productId: String,
+    val title: String,
+    val qty: Int,
+    val unitPrice: Double,
+    val currency: String,
+)
+
 data class FilterState(
     val priceRange: ClosedFloatingPointRange<Double> = 0.0..500.0,
     val brands: Set<String> = emptySet(),

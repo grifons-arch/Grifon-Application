@@ -37,6 +37,7 @@ import com.example.grifon.core.loginText
 fun AccountScreen(
     viewModel: AccountViewModel,
     onSettings: () -> Unit,
+    onOrders: () -> Unit,
     onRegister: () -> Unit,
     onWholesaleApplication: () -> Unit,
 ) {
@@ -56,6 +57,7 @@ fun AccountScreen(
                 LoggedInContent(
                     canViewPrices = account.canViewPrices,
                     onSettings = onSettings,
+                    onOrders = onOrders,
                     onWholesaleApplication = onWholesaleApplication,
                     onLogout = viewModel::logout,
                 )
@@ -79,6 +81,7 @@ fun AccountScreen(
 fun LoggedInContent(
     canViewPrices: Boolean,
     onSettings: () -> Unit,
+    onOrders: () -> Unit,
     onWholesaleApplication: () -> Unit,
     onLogout: () -> Unit,
 ) {
@@ -98,6 +101,10 @@ fun LoggedInContent(
 
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(loginText(language, LoginText.AccountSettings))
+        }
+
+        OutlinedButton(onClick = onOrders, modifier = Modifier.fillMaxWidth()) {
+            Text("Οι παραγγελίες μου")
         }
 
         if (canViewPrices) {
