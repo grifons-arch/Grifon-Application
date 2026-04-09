@@ -3,223 +3,412 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerCustomer = void 0;
+exports.debugInspectEtsWholesaleFormFields = exports.debugInspectEtsWholesaleApplication = exports.debugInspectEtsWholesaleApplicationVisibility = exports.debugReadPrestaShopModuleFile = exports.debugSearchPrestaShopModuleCode = exports.debugInspectPrestaShopTable = exports.debugInspectPrestaShopModule = exports.debugListWholesaleApplications = exports.clearActivityTables = exports.listRecentProducts = exports.listFavoriteProducts = exports.recordRecentProduct = exports.syncFavoriteProduct = exports.loginCustomer = exports.updateProfile = exports.submitWholesaleApplication = exports.registerCustomer = void 0;
 const axios_1 = __importDefault(require("axios"));
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const crypto_1 = __importDefault(require("crypto"));
-const dns_1 = __importDefault(require("dns"));
-const http_1 = __importDefault(require("http"));
-const https_1 = __importDefault(require("https"));
 const env_1 = require("../config/env");
-const networkErrors_1 = require("../utils/networkErrors");
-const PENDING_STATUS = "PENDING_WHOLESALE_APPROVAL";
-const PASSWORD_SALT_ROUNDS = 10;
-const resolveGroupIds = (countryIso) => {
-    const groupIds = new Set();
-    if (env_1.config.pendingWholesaleGroupId) {
-        groupIds.add(env_1.config.pendingWholesaleGroupId);
-    }
-    const countryGroupId = env_1.config.countryGroupMap[countryIso.toUpperCase()];
-    if (countryGroupId) {
-        groupIds.add(countryGroupId);
-    }
-    return Array.from(groupIds);
-};
-const createDnsLookup = () => {
-    const alias = env_1.config.replicaHostname?.trim();
-    const resolveTo = env_1.config.replicaResolveTo?.trim();
-    if (!alias || !resolveTo) {
-        return undefined;
-    }
-    const normalizedAlias = alias.toLowerCase();
-    return (hostname, options, callback) => {
-        const host = String(hostname).toLowerCase();
-        const targetHost = host === normalizedAlias ? resolveTo : String(hostname);
-        return dns_1.default.lookup(targetHost, options, callback);
-    };
-};
-const normalizeEnvKey = (key) => key.replace(/[^A-Za-z0-9]/g, "_").replace(/_+/g, "_").toUpperCase();
-const readEnvAliasRuntime = (...keys) => {
-    for (const key of keys) {
-        const value = process.env[key];
-        if (typeof value === "string" && value.trim().length > 0) {
-            return value.trim();
-        }
-    }
-    const normalizedCandidates = new Set(keys.map(normalizeEnvKey));
-    for (const [key, value] of Object.entries(process.env)) {
-        if (!normalizedCandidates.has(normalizeEnvKey(key))) {
-            continue;
-        }
-        if (typeof value === "string" && value.trim().length > 0) {
-            return value.trim();
-        }
-    }
-    return undefined;
-};
-const resolveCustomerSyncSecret = () => (typeof env_1.config.customerSyncSecret === "string" && env_1.config.customerSyncSecret.trim().length > 0
-    ? env_1.config.customerSyncSecret.trim()
-    : undefined) ??
-    readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_SECRET", "GRIFON.CUSTOMER.SYNC.SECRET", "GRIFON__CUSTOMER__SYNC__SECRET") ??
-    (typeof env_1.config.prestashopApiKey === "string" && env_1.config.prestashopApiKey.trim().length > 0
-        ? env_1.config.prestashopApiKey.trim()
-        : undefined);
-const resolveCustomerSyncPath = () => readEnvAliasRuntime("GRIFON_CUSTOMER_SYNC_PATH", "GRIFON.CUSTOMER.SYNC.PATH", "GRIFON__CUSTOMER__SYNC__PATH") ?? env_1.config.customerSyncPath ?? "/module/grifoncustomersync/sync";
-const resolveShopIdForCountry = (countryIso) => countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
-const resolveSyncUrl = (countryIso) => {
-    const shopId = resolveShopIdForCountry(countryIso);
-    const baseUrl = env_1.config.shopBaseUrls[shopId] || env_1.config.shopBaseUrls[env_1.config.defaultShopId] || env_1.config.prestashopBaseUrl;
+const PrestaShopClient_1 = require("../clients/PrestaShopClient");
+const priceAccessService_1 = require("./priceAccessService");
+const wholesaleNotificationService_1 = require("./wholesaleNotificationService");
+const resolveSyncUrl = (countryIso = "GR") => {
+    const shopId = countryIso.trim().toUpperCase() === "SE" ? 1 : 4;
+    const baseUrl = env_1.config.shopBaseUrls[shopId] || env_1.config.prestashopBaseUrl;
     const url = new URL(baseUrl);
-    const customerSyncPath = resolveCustomerSyncPath();
-    const configuredPath = customerSyncPath.startsWith("/")
-        ? customerSyncPath
-        : `/${customerSyncPath}`;
-    const pathname = url.pathname.replace(/\/+$/, "");
-    if (pathname.endsWith("/api")) {
-        url.pathname = `${pathname.slice(0, -4)}${configuredPath}`;
-    }
-    else {
-        url.pathname = `${pathname}${configuredPath}`;
-    }
-    const replicaHost = env_1.config.replicaHostname?.trim().toLowerCase();
-    const replicaResolveTo = env_1.config.replicaResolveTo?.trim();
-    const currentHost = url.hostname.toLowerCase();
-    if (replicaHost && !replicaResolveTo && currentHost === replicaHost) {
-        const segments = url.pathname.split("/").filter(Boolean);
-        const candidateDomain = segments[0]?.toLowerCase();
-        if (candidateDomain && candidateDomain.includes(".")) {
-            url.hostname = candidateDomain;
-            url.pathname = `/${segments.slice(1).join("/")}`;
-        }
-        else {
-            const selectedShop = env_1.shops.find((shop) => shop.id === shopId);
-            const defaultShop = env_1.shops.find((shop) => shop.id === env_1.config.defaultShopId);
-            const fallbackDomain = selectedShop?.domain ?? defaultShop?.domain;
-            if (fallbackDomain) {
-                url.hostname = fallbackDomain;
-            }
-        }
-    }
-    return url.toString();
+    const rootUrl = url.origin + url.pathname.replace(/\/api\/?$/, "");
+    return `${rootUrl}/index.php?fc=module&module=grifoncustomersync&controller=sync`;
 };
-const resolveSyncHostname = (syncUrl) => {
-    try {
-        return new URL(syncUrl).hostname;
-    }
-    catch {
-        return undefined;
-    }
-};
-const createModuleHeaders = (payload) => {
-    const customerSyncSecret = resolveCustomerSyncSecret();
-    if (!customerSyncSecret) {
-        throw {
-            status: 500,
-            code: "CONFIG_ERROR",
-            message: "GRIFON.CUSTOMER.SYNC.SECRET is required for customer registration sync (aliases: GRIFON_CUSTOMER_SYNC_SECRET, GRIFON__CUSTOMER__SYNC__SECRET). Fallback uses PRESTASHOP_API_KEY when provided."
-        };
-    }
+const createSignature = (payload, secret) => {
     const timestamp = Math.floor(Date.now() / 1000).toString();
-    const signatureBase = `${timestamp}\n${payload}`;
-    const signature = crypto_1.default
-        .createHmac("sha256", customerSyncSecret)
-        .update(signatureBase, "utf8")
-        .digest("base64");
+    const base = timestamp + payload;
+    const signature = crypto_1.default.createHmac("sha256", secret).update(base).digest("base64");
+    return { timestamp, signature };
+};
+const normalizeCountryIso = (countryIso) => countryIso?.trim().toUpperCase() === "SE" ? "SE" : "GR";
+const resolveCountryLabel = (request, countryIso) => {
+    const explicitCountry = request.country?.trim();
+    if (explicitCountry) {
+        return explicitCountry;
+    }
+    switch (countryIso) {
+        case "SE":
+            return "Sweden";
+        case "GR":
+            return "Greece";
+        default:
+            return countryIso;
+    }
+};
+const readWholesaleResponseMetadata = (response) => {
+    const wholesaleApplicationRegistered = response?.wholesaleApplicationRegistered === true;
+    const wholesaleApplicationTable = typeof response?.wholesaleApplicationTable === "string"
+        ? response.wholesaleApplicationTable.trim()
+        : "";
+    const wholesaleApplicationMode = typeof response?.wholesaleApplicationMode === "string"
+        ? response.wholesaleApplicationMode.trim()
+        : "";
+    const wholesaleApplicationSkippedReason = typeof response?.wholesaleApplicationSkippedReason === "string"
+        ? response.wholesaleApplicationSkippedReason.trim()
+        : "";
+    const wholesaleApplicationError = typeof response?.wholesaleApplicationError === "string"
+        ? response.wholesaleApplicationError.trim()
+        : "";
     return {
-        "Content-Type": "application/json",
-        "X-Grifon-Timestamp": timestamp,
-        "X-Grifon-Signature": signature
+        wholesaleApplicationRegistered,
+        wholesaleApplicationTable,
+        wholesaleApplicationMode,
+        wholesaleApplicationSkippedReason,
+        wholesaleApplicationError
     };
 };
-const hashCustomerPassword = async (password) => bcryptjs_1.default.hash(password, PASSWORD_SALT_ROUNDS);
-const buildSyncPayload = (request, hashedPassword) => {
-    const groupIds = resolveGroupIds(request.countryIso);
+const buildWholesaleSubmissionResponse = (response, fallbackMessage) => {
+    const metadata = readWholesaleResponseMetadata(response);
+    const message = metadata.wholesaleApplicationRegistered
+        ? buildWholesaleSuccessMessage(metadata.wholesaleApplicationTable, metadata.wholesaleApplicationMode)
+        : buildWholesaleFailureMessage(metadata.wholesaleApplicationSkippedReason, metadata.wholesaleApplicationTable, metadata.wholesaleApplicationError);
     return {
+        customerId: response.psCustomerId?.toString() || "0",
+        status: "pending_wholesale_approval",
+        message: message || fallbackMessage,
+        wholesaleApplicationRegistered: metadata.wholesaleApplicationRegistered,
+        wholesaleApplicationTable: metadata.wholesaleApplicationTable || undefined,
+        wholesaleApplicationMode: metadata.wholesaleApplicationMode || undefined,
+        wholesaleApplicationSkippedReason: metadata.wholesaleApplicationSkippedReason || undefined,
+        wholesaleApplicationError: metadata.wholesaleApplicationError || undefined
+    };
+};
+const registerCustomer = async (request) => {
+    const email = request.email.trim().toLowerCase();
+    const countryIso = normalizeCountryIso(request.countryIso);
+    const dniValue = (request.vatNumber && request.vatNumber.trim().length >= 9)
+        ? request.vatNumber.trim()
+        : "123456789";
+    const payload = {
+        externalCustomerId: email,
+        customer: {
+            email,
+            firstname: request.firstName,
+            lastname: request.lastName,
+            password: request.password,
+            company: request.company || "",
+            newsletter: request.newsletter ? 1 : 0,
+            active: 1,
+            is_wholesale: request.wholesaleRequested ? 1 : 0,
+            siret: dniValue,
+            dni: dniValue
+        },
+        application: request.wholesaleRequested ? {
+            requested: true,
+            status: "pending",
+            source: "grifon_gateway",
+            submittedAt: new Date().toISOString(),
+            email,
+            firstName: request.firstName,
+            lastName: request.lastName,
+            country: resolveCountryLabel(request, countryIso),
+            phone: request.phone || "",
+            company: request.company || "",
+            vatNumber: request.vatNumber || dniValue,
+            countryIso,
+            city: request.city || "",
+            street: request.street || "",
+            postalCode: request.postalCode || "",
+            contactPersonFullName: request.contactPersonFullName || "",
+            addressCoordinates: request.addressCoordinates || "",
+            companyRegistrationFileName: request.companyRegistrationFileName || "",
+            invoiceFileName: request.invoiceFileName || ""
+        } : undefined,
+        addresses: [{
+                externalAddressId: `addr_${email}`,
+                alias: "Default",
+                firstname: request.firstName,
+                lastname: request.lastName,
+                address1: request.street || "Δεν δηλώθηκε οδός",
+                postcode: (request.postalCode || "00000").replace(/\s/g, ""),
+                city: request.city || "Δεν δηλώθηκε πόλη",
+                countryIso,
+                phone: request.phone || "0000000000",
+                vat_number: dniValue,
+                dni: dniValue,
+                identification_number: dniValue,
+                dni_number: dniValue,
+                identification: dniValue
+            }]
+    };
+    const response = await sendToPrestaShop(payload, countryIso);
+    const wholesaleRequested = request.wholesaleRequested === true;
+    const wholesaleMetadata = readWholesaleResponseMetadata(response);
+    const message = wholesaleRequested
+        ? (wholesaleMetadata.wholesaleApplicationRegistered
+            ? buildWholesaleSuccessMessage(wholesaleMetadata.wholesaleApplicationTable, wholesaleMetadata.wholesaleApplicationMode)
+            : buildWholesaleFailureMessage(wholesaleMetadata.wholesaleApplicationSkippedReason, wholesaleMetadata.wholesaleApplicationTable, wholesaleMetadata.wholesaleApplicationError))
+        : (response.message || "Registration successful");
+    try {
+        await (0, wholesaleNotificationService_1.notifyWholesaleRequest)({
+            ...request,
+            email,
+            countryIso
+        }, {
+            customerId: response.psCustomerId?.toString(),
+            countryIso
+        });
+    }
+    catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn("Wholesale notification email failed to send:", error);
+    }
+    // ΜΕΤΑΤΡΟΠΗ ΑΠΑΝΤΗΣΗΣ ΓΙΑ ΤΗΝ ΕΦΑΡΜΟΓΗ
+    return {
+        customerId: response.psCustomerId?.toString() || "0",
+        status: wholesaleRequested ? "pending_wholesale_approval" : "success",
+        message,
+        wholesaleApplicationRegistered: wholesaleMetadata.wholesaleApplicationRegistered,
+        wholesaleApplicationTable: wholesaleMetadata.wholesaleApplicationTable || undefined,
+        wholesaleApplicationMode: wholesaleMetadata.wholesaleApplicationMode || undefined,
+        wholesaleApplicationSkippedReason: wholesaleMetadata.wholesaleApplicationSkippedReason || undefined,
+        wholesaleApplicationError: wholesaleMetadata.wholesaleApplicationError || undefined
+    };
+};
+exports.registerCustomer = registerCustomer;
+const submitWholesaleApplication = async (request) => {
+    const email = request.email.trim().toLowerCase();
+    const countryIso = normalizeCountryIso(request.countryIso);
+    const vatNumber = request.vatNumber?.trim() || "123456789";
+    const contactPersonFullName = request.contactPersonFullName?.trim()
+        || `${request.firstName} ${request.lastName}`.trim();
+    const countryLabel = resolveCountryLabel(request, countryIso);
+    const payload = {
+        externalCustomerId: request.customerId
+            ? `customer_${request.customerId}_${email}`
+            : email,
+        customer: {
+            email,
+            firstname: request.firstName,
+            lastname: request.lastName,
+            company: request.company || "",
+            newsletter: request.newsletter ? 1 : 0,
+            active: 1,
+            is_wholesale: 1,
+            siret: vatNumber,
+            dni: vatNumber
+        },
+        application: {
+            requested: true,
+            status: "pending",
+            source: "grifon_account_app",
+            submittedAt: new Date().toISOString(),
+            email,
+            firstName: request.firstName,
+            lastName: request.lastName,
+            fullName: contactPersonFullName,
+            contactPersonFullName,
+            phone: request.phone || "",
+            company: request.company || "",
+            vatNumber,
+            country: countryLabel,
+            countryIso,
+            city: request.city || "",
+            street: request.street || "",
+            postalCode: request.postalCode || "",
+            addressCoordinates: request.addressCoordinates || "",
+            companyRegistrationFileName: request.companyRegistrationFileName || "",
+            invoiceFileName: request.invoiceFileName || ""
+        },
+        addresses: [{
+                externalAddressId: `wholesale_addr_${request.customerId ?? email}`,
+                alias: "Wholesale application",
+                firstname: request.firstName,
+                lastname: request.lastName,
+                address1: request.street || "Δεν δηλώθηκε οδός",
+                postcode: (request.postalCode || "00000").replace(/\s/g, ""),
+                city: request.city || "Δεν δηλώθηκε πόλη",
+                countryIso,
+                phone: request.phone || "0000000000",
+                vat_number: vatNumber,
+                dni: vatNumber,
+                identification_number: vatNumber,
+                dni_number: vatNumber,
+                identification: vatNumber
+            }]
+    };
+    const response = await sendToPrestaShop(payload, countryIso);
+    try {
+        await (0, wholesaleNotificationService_1.notifyWholesaleRequest)({
+            ...request,
+            email,
+            country: countryLabel,
+            countryIso,
+            wholesaleRequested: true
+        }, {
+            customerId: response.psCustomerId?.toString(),
+            countryIso
+        });
+    }
+    catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn("Wholesale notification email failed to send:", error);
+    }
+    return buildWholesaleSubmissionResponse(response, "Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση.");
+};
+exports.submitWholesaleApplication = submitWholesaleApplication;
+function buildWholesaleSuccessMessage(table, mode) {
+    const details = [table, mode].filter(Boolean).join(" / ");
+    if (details) {
+        return `Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση. (${details})`;
+    }
+    return "Η αίτηση χονδρικής καταχωρήθηκε και εκκρεμεί έγκριση.";
+}
+function buildWholesaleFailureMessage(reason, table, error) {
+    if (error) {
+        return `Ο λογαριασμός δημιουργήθηκε, αλλά η αίτηση χονδρικής απέτυχε: ${error}`;
+    }
+    if (reason === "table_not_found") {
+        return "Ο λογαριασμός δημιουργήθηκε, αλλά δεν βρέθηκε wholesale applications table στο PrestaShop.";
+    }
+    if (reason === "columns_not_found") {
+        return table
+            ? `Ο λογαριασμός δημιουργήθηκε, αλλά το wholesale table ${table} δεν επέστρεψε columns.`
+            : "Ο λογαριασμός δημιουργήθηκε, αλλά το wholesale table δεν επέστρεψε columns.";
+    }
+    if (reason === "no_matching_columns") {
+        return table
+            ? `Ο λογαριασμός δημιουργήθηκε, αλλά τα columns του ${table} δεν ταιριάζουν με το wholesale application mapping.`
+            : "Ο λογαριασμός δημιουργήθηκε, αλλά τα columns του wholesale table δεν ταιριάζουν με το mapping.";
+    }
+    if (reason === "write_failed") {
+        return table
+            ? `Ο λογαριασμός δημιουργήθηκε, αλλά απέτυχε η καταχώριση στο ${table}.`
+            : "Ο λογαριασμός δημιουργήθηκε, αλλά απέτυχε η καταχώριση της αίτησης χονδρικής.";
+    }
+    return "Ο λογαριασμός δημιουργήθηκε, αλλά η αίτηση χονδρικής χρειάζεται έλεγχο στο PrestaShop.";
+}
+const updateProfile = async (request) => {
+    const payload = {
+        action: "sync",
         externalCustomerId: request.email.trim().toLowerCase(),
         customer: {
             email: request.email.trim().toLowerCase(),
             firstname: request.firstName,
             lastname: request.lastName,
-            password: hashedPassword,
-            company: request.company,
+            company: request.company || "",
             newsletter: request.newsletter ? 1 : 0,
-            optin: request.partnerOffers ? 1 : 0,
-            active: 0
-        },
-        groups: {
-            default: env_1.config.pendingWholesaleGroupId,
-            list: groupIds
-        },
-        addresses: [
-            {
-                externalAddressId: `${request.email.trim().toLowerCase()}::default`,
-                alias: "Default",
-                address1: request.street,
-                postcode: request.postalCode,
-                city: request.city,
-                countryIso: request.countryIso,
-                vat_number: request.vatNumber,
-                phone: request.phone,
-                other: request.iban ? `IBAN: ${request.iban}` : undefined,
-                company: request.company
-            }
-        ]
+            siret: request.vatNumber || ""
+        }
+    };
+    return sendToPrestaShop(payload, "GR");
+};
+exports.updateProfile = updateProfile;
+const loginCustomer = async (email, pass, countryIso = "GR") => {
+    const payload = { action: "login", email: email.trim().toLowerCase(), password: pass };
+    const normalizedCountryIso = countryIso.trim().toUpperCase() === "SE" ? "SE" : "GR";
+    const response = await sendToPrestaShop(payload, normalizedCountryIso);
+    const customerId = response?.id_customer ? Number(response.id_customer) : null;
+    if (!customerId) {
+        return {
+            ...response,
+            can_view_prices: false,
+        };
+    }
+    const client = new PrestaShopClient_1.PrestaShopClient({ shopId: normalizedCountryIso === "SE" ? 1 : 4 });
+    const priceAccess = await (0, priceAccessService_1.getPriceAccess)(client, customerId);
+    return {
+        ...response,
+        can_view_prices: priceAccess.allowed,
     };
 };
-const registerCustomer = async (request) => {
-    const email = request.email.trim().toLowerCase();
-    const hashedPassword = await hashCustomerPassword(request.password);
-    const payload = buildSyncPayload({ ...request, email }, hashedPassword);
-    const body = JSON.stringify(payload);
-    const headers = createModuleHeaders(body);
-    const lookup = createDnsLookup();
-    const syncUrl = resolveSyncUrl(request.countryIso);
-    try {
-        const response = await axios_1.default.post(syncUrl, body, {
-            timeout: env_1.config.timeoutMs,
-            headers,
-            httpAgent: lookup ? new http_1.default.Agent({ lookup }) : undefined,
-            httpsAgent: lookup ? new https_1.default.Agent({ lookup }) : undefined,
-            validateStatus: () => true
-        });
-        if (response.status >= 200 && response.status < 300) {
-            const customerId = String(response.data?.customerId ?? response.data?.id_customer ?? response.data?.id ?? email);
-            return {
-                customerId,
-                status: response.data?.status ?? PENDING_STATUS,
-                message: response.data?.message ?? "Η αίτηση καταχωρήθηκε και βρίσκεται σε αναμονή έγκρισης."
-            };
-        }
-        const message = String(response.data?.message ?? "Failed to create customer");
-        if (message.toLowerCase().includes("email") && message.toLowerCase().includes("exists")) {
-            throw {
-                status: 409,
-                code: "EMAIL_EXISTS",
-                message: "Email already registered"
-            };
-        }
-        throw {
-            status: response.status || 502,
-            code: "UPSTREAM_ERROR",
-            message,
-            details: response.data
-        };
-    }
-    catch (error) {
-        if (error?.status) {
-            throw error;
-        }
-        const networkMessage = (0, networkErrors_1.normalizeNetworkErrorMessage)(error, {
-            fallbackHostname: resolveSyncHostname(syncUrl)
-        });
-        throw {
-            status: 502,
-            code: "UPSTREAM_ERROR",
-            message: networkMessage
-                ? `Failed to create customer: ${networkMessage}`
-                : "Failed to create customer",
-            details: networkMessage ?? String(error?.message ?? "Unknown error")
-        };
-    }
+exports.loginCustomer = loginCustomer;
+const syncFavoriteProduct = async (request) => {
+    return sendToPrestaShop({
+        action: "toggle_favorite_product",
+        customerId: request.customerId,
+        productId: request.productId,
+        shopId: request.shopId,
+        isFavorite: request.isFavorite === true,
+        product: request.product ?? {}
+    }, request.shopId === 1 ? "SE" : "GR");
 };
-exports.registerCustomer = registerCustomer;
+exports.syncFavoriteProduct = syncFavoriteProduct;
+const recordRecentProduct = async (request) => {
+    return sendToPrestaShop({
+        action: "record_recent_product",
+        customerId: request.customerId,
+        productId: request.productId,
+        shopId: request.shopId,
+        product: request.product ?? {}
+    }, request.shopId === 1 ? "SE" : "GR");
+};
+exports.recordRecentProduct = recordRecentProduct;
+const listFavoriteProducts = async (request) => {
+    return sendToPrestaShop({
+        action: "list_favorite_products",
+        customerId: request.customerId,
+        shopId: request.shopId
+    }, request.shopId === 1 ? "SE" : "GR");
+};
+exports.listFavoriteProducts = listFavoriteProducts;
+const listRecentProducts = async (request) => {
+    return sendToPrestaShop({
+        action: "list_recent_products",
+        customerId: request.customerId,
+        shopId: request.shopId,
+        limit: request.limit ?? 20
+    }, request.shopId === 1 ? "SE" : "GR");
+};
+exports.listRecentProducts = listRecentProducts;
+const clearActivityTables = async (request) => {
+    return sendToPrestaShop({
+        action: "clear_activity_tables",
+        shopId: request.shopId
+    }, request.shopId === 1 ? "SE" : "GR");
+};
+exports.clearActivityTables = clearActivityTables;
+const debugListWholesaleApplications = async (countryIso = "GR") => {
+    return sendToPrestaShop({ action: "list_wholesale_applications" }, countryIso);
+};
+exports.debugListWholesaleApplications = debugListWholesaleApplications;
+const debugInspectPrestaShopModule = async (moduleName, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "inspect_module", module: moduleName }, countryIso);
+};
+exports.debugInspectPrestaShopModule = debugInspectPrestaShopModule;
+const debugInspectPrestaShopTable = async (tableName, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "inspect_table", table: tableName }, countryIso);
+};
+exports.debugInspectPrestaShopTable = debugInspectPrestaShopTable;
+const debugSearchPrestaShopModuleCode = async (moduleName, pattern, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "search_module_code", module: moduleName, pattern }, countryIso);
+};
+exports.debugSearchPrestaShopModuleCode = debugSearchPrestaShopModuleCode;
+const debugReadPrestaShopModuleFile = async (moduleName, filePath, start = 1, lines = 80, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "read_module_file", module: moduleName, path: filePath, start, lines }, countryIso);
+};
+exports.debugReadPrestaShopModuleFile = debugReadPrestaShopModuleFile;
+const debugInspectEtsWholesaleApplicationVisibility = async (customerId, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "inspect_ets_wholesale_application_visibility", customerId }, countryIso);
+};
+exports.debugInspectEtsWholesaleApplicationVisibility = debugInspectEtsWholesaleApplicationVisibility;
+const debugInspectEtsWholesaleApplication = async (customerId, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "inspect_ets_wholesale_application", customerId }, countryIso);
+};
+exports.debugInspectEtsWholesaleApplication = debugInspectEtsWholesaleApplication;
+const debugInspectEtsWholesaleFormFields = async (formType, countryIso = "GR") => {
+    return sendToPrestaShop({ action: "inspect_ets_wholesale_form_fields", formType }, countryIso);
+};
+exports.debugInspectEtsWholesaleFormFields = debugInspectEtsWholesaleFormFields;
+async function sendToPrestaShop(payload, countryIso) {
+    const body = JSON.stringify(payload);
+    const secret = env_1.config.customerSyncSecret || env_1.config.prestashopApiKey;
+    const { timestamp, signature } = createSignature(body, secret);
+    const syncUrl = resolveSyncUrl(countryIso);
+    const response = await axios_1.default.post(syncUrl, body, {
+        timeout: 15000,
+        headers: {
+            "Content-Type": "application/json",
+            "X-Grifon-Timestamp": timestamp,
+            "X-Grifon-Signature": signature
+        },
+        transformRequest: [(data) => data],
+        validateStatus: () => true
+    });
+    if (response.status === 200 && response.data?.ok === true)
+        return response.data;
+    throw new Error(response.data?.message || response.data?.error || `PrestaShop Error: ${response.status}`);
+}

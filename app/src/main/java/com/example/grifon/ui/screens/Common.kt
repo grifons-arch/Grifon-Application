@@ -5,13 +5,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.grifon.R
+
+val LocalCanDisplayPrices = staticCompositionLocalOf { false }
+val LocalIsLoggedIn = staticCompositionLocalOf { false }
 
 @Composable
 fun LoadingScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Loading...", style = MaterialTheme.typography.bodyMedium)
+        Text(text = stringResource(R.string.loading), style = MaterialTheme.typography.bodyMedium)
     }
 }
 

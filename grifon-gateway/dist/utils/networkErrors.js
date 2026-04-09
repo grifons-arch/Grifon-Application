@@ -7,8 +7,8 @@ const normalizeNetworkErrorMessage = (error, options = {}) => {
     const hostname = axiosError.hostname ?? axiosError.cause?.hostname ?? options.fallbackHostname;
     if (code === "ENOTFOUND") {
         return hostname
-            ? `Unable to resolve upstream hostname: ${hostname}`
-            : "Unable to resolve upstream hostname";
+            ? `Unable to resolve upstream: ${hostname}`
+            : "Unable to resolve upstream";
     }
     if (code === "ECONNREFUSED") {
         return "Upstream service refused the connection";

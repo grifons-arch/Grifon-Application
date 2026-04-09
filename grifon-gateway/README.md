@@ -36,6 +36,16 @@ Important for registration sync through the PrestaShop module:
 - `GRIFON_CUSTOMER_SYNC_SECRET` (recommended): shared secret configured in the `grifoncustomersync` module. If omitted, the gateway falls back to `PRESTASHOP_API_KEY`.
 - `GRIFON_CUSTOMER_SYNC_PATH`: module endpoint path (default: `/module/grifoncustomersync/sync`).
 - `UPSTREAM_HOST_ALIASES` (optional): JSON map of upstream hostname aliases to DNS-resolvable targets for local/dev networking.
+- `WHOLESALE_NOTIFICATION_TRANSPORT` (default: `auto`): `smtp`, `sendmail`, `auto`, or `disabled`.
+- `WHOLESALE_NOTIFICATION_TO` (default: `joanneper@yahoo.com`): recipient for wholesale account request emails.
+- `WHOLESALE_NOTIFICATION_FROM` (default: `grifon-gateway@localhost`): sender shown in wholesale request emails.
+- `SENDMAIL_PATH` (default: `/usr/sbin/sendmail`): local sendmail binary used only when transport resolves to `sendmail`.
+- `SMTP_HOST`: SMTP server hostname for wholesale request emails.
+- `SMTP_PORT` (default: `587`): SMTP port.
+- `SMTP_SECURE` (default: `false`): set `true` for implicit TLS, usually port `465`.
+- `SMTP_REQUIRE_TLS` (default: `false`): set `true` when the server requires `STARTTLS`, usually port `587`.
+- `SMTP_USER` / `SMTP_PASS`: optional SMTP credentials.
+- `SMTP_HELO_NAME`: optional hostname sent in the SMTP `EHLO`.
 
 ## API Endpoints
 
@@ -130,6 +140,26 @@ curl "http://localhost:3000/v1/customer-groups?shopId=4&lang=1"
 curl "http://localhost:3000/v1/customers/123/price-access?shopId=4"
 ```
 
+### Check Customer Activity Sync Through Gateway
+
+Inspect favorites/recent for a customer through the gateway:
+
+```bash
+python3 scripts/check_customer_activity_via_gateway.py --email=user@example.com --password=secret123 --shop-id=4
+```
+
+Seed one favorite + one recent-product event and verify they come back:
+
+```bash
+python3 scripts/check_customer_activity_via_gateway.py --email=user@example.com --password=secret123 --shop-id=4 --product-id=100 --seed
+```
+
+Clear all favorite and recent-product activity rows for a shop through the gateway:
+
+```bash
+python3 scripts/clear_customer_activity_via_gateway.py --shop-id=4
+```
+
 ## Notes
 
 - Prices are only returned when a customer is active and their default group has `show_prices=1`.
@@ -138,6 +168,9 @@ curl "http://localhost:3000/v1/customers/123/price-access?shopId=4"
 - `/auth/register` uses the `grifoncustomersync` PrestaShop module endpoint to create/update customer + address records.
 - `/auth/register` hashes the submitted password with bcrypt before syncing it to the module endpoint.
 - `/auth/register` creates customers with `PENDING_WHOLESALE_APPROVAL` status (inactive or in a pending group).
+- When `wholesaleRequested=true`, the gateway also supports mirroring the request into ETS Wholesale / Prestahero application tables through the `grifoncustomersync` module's wholesale-table detection logic.
+- If the installed ETS module uses a non-standard table name, set the `Wholesale application table override` field in the PrestaShop module configuration.
+- The register response may include `wholesaleApplicationTable`, `wholesaleApplicationMode`, and `wholesaleApplicationSkippedReason` to show exactly how the wholesale application sync was handled.
 
 ## Troubleshooting
 

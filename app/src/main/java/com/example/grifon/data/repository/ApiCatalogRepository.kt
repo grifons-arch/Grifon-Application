@@ -1,8 +1,8 @@
 package com.example.grifon.data.repository
 
 import com.example.grifon.data.catalog.CatalogApi
-import com.example.grifon.data.catalog.ProductsResponseDto
-import com.example.grifon.data.local.*
+import com.example.grifon.core.PrestaLanguage
+import com.example.grifon.core.ShopConfig
 import com.example.grifon.domain.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -10,101 +10,395 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
-import android.util.Log
 import com.example.grifon.BuildConfig
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.example.grifon.data.catalog.toDomainFacet
+import com.example.grifon.data.catalog.toDomainProduct
+import com.example.grifon.data.local.LocalPriceAccessService
+import com.example.grifon.data.local.ShopPreferences
+import kotlinx.coroutines.flow.first
+import org.json.JSONArray
+import org.json.JSONObject
+import java.text.Normalizer
+
+private val DEFAULT_FILTER_PRICE_RANGE = 0.0..500.0
 
 @Singleton
 class ApiCatalogRepository @Inject constructor(
     private val catalogApi: CatalogApi,
-    private val categoryDao: CategoryDao,
-    private val productDao: ProductDao
+    private val shopPreferences: ShopPreferences,
+    private val localPriceAccessService: LocalPriceAccessService,
 ) : CatalogRepository {
 
     private val gatewayBaseUrl = BuildConfig.API_BASE_URL.removeSuffix("/")
 
-    override fun getCategoryTree(shopId: String): Flow<List<Category>> = 
-        categoryDao.getCategoriesByShop(shopId)
-            .distinctUntilChanged()
-            .map { entities -> entities.map { Category(it.id, it.name, it.parentId, 0) } }
+    override fun getCategoryTree(shopId: String): Flow<List<Category>> = flow {
+        try {
+            val id = ShopConfig.normalizeShopId(shopId).toInt()
+            val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
+            val response = catalogApi.getCategories(shopId = id, lang = langId)
+            val activeItems = response.items.filter { (it.active ?: 1) != 0 }
+            val childrenCountByParent = activeItems
+                .mapNotNull { it.parentId?.toString() }
+                .groupingBy { it }
+                .eachCount()
 
-    override suspend fun syncCatalog(shopId: String) {
-        withContext(Dispatchers.IO) {
-            try {
-                Log.d("CrashLog", "Sync: STARTING ATOMIC BATCH SYNC...")
-                val sId = shopId.toIntOrNull() ?: 4
-                
-                // 1. Fetch all data in memory first to avoid multiple DB transactions
-                val catResponse = try { catalogApi.getCategories(shopId = sId, pageSize = 500) } catch (e: Exception) { null }
-                val catEntities = catResponse?.items?.map { 
-                    val originalId = it.id.toString()
-                    CategoryEntity("${shopId}_$originalId", translateCategoryName(originalId, it.name ?: ""), it.parentId?.let { p -> "${shopId}_$p" }, 0, true, shopId)
-                } ?: emptyList()
-
-                val productsMap = mutableMapOf<String, ProductEntity>()
-                val refsSet = mutableSetOf<ProductCategoryCrossRef>()
-                val limit = 1000
-
-                val resp1 = try { catalogApi.getProducts(shopId = sId, page = 1, pageSize = limit) } catch (e: Exception) { null }
-                resp1?.let { collectIntoAtomicMaps(it, shopId, productsMap, refsSet) }
-
-                if (resp1?.items?.size ?: 0 >= limit) {
-                    val resp2 = try { catalogApi.getProducts(shopId = sId, page = 2, pageSize = limit) } catch (e: Exception) { null }
-                    resp2?.let { collectIntoAtomicMaps(it, shopId, productsMap, refsSet) }
-                }
-
-                // 2. Perform ONE single atomic write operation
-                if (catEntities.isNotEmpty() || productsMap.isNotEmpty()) {
-                    if (catEntities.isNotEmpty()) categoryDao.insertCategories(catEntities)
-                    if (productsMap.isNotEmpty()) {
-                        productDao.clearProductsByShop(shopId)
-                        productDao.insertProducts(productsMap.values.toList())
-                        categoryDao.insertProductCategoryRefs(refsSet.toList())
+            emit(
+                activeItems
+                    .map {
+                        Category(
+                            id = it.id.toString(),
+                            name = it.name ?: "",
+                            parentId = it.parentId?.toString(),
+                            childrenCount = childrenCountByParent[it.id.toString()] ?: 0,
+                            position = it.position,
+                            slug = it.slug,
+                        )
                     }
-                    Log.d("CrashLog", "Sync: ATOMIC STORE SUCCESSFUL")
-                }
-            } catch (e: Exception) {
-                Log.e("CrashLog", "Sync: FATAL ERROR", e)
-            }
-        }
-    }
-
-    private fun collectIntoAtomicMaps(response: ProductsResponseDto, shopId: String, productsMap: MutableMap<String, ProductEntity>, refsSet: MutableSet<ProductCategoryCrossRef>) {
-        response.items.forEach { dto ->
-            val pId = dto.id.toString()
-            val compositeId = "${shopId}_$pId"
-            productsMap[compositeId] = ProductEntity(
-                compositeId, dto.name ?: "", dto.price ?: 0.0, "EUR", 
-                if (dto.defaultImage?.url?.startsWith("/") == true) "$gatewayBaseUrl${dto.defaultImage.url}" else dto.defaultImage?.url ?: "", 
-                "Grifon", true, dto.reference ?: "", shopId, dto.categories?.firstOrNull()?.let { "${shopId}_${it.id}" }
+                    .sortedWith(
+                        compareBy<Category> { it.parentId ?: "" }
+                            .thenBy { it.position ?: Int.MAX_VALUE }
+                            .thenBy { it.name.lowercase() }
+                    )
             )
-            dto.categories?.forEach { cat ->
-                refsSet.add(ProductCategoryCrossRef(compositeId, "${shopId}_${cat.id}"))
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override fun getCategoryFilters(shopId: String, categoryId: String): Flow<List<CatalogFacet>> = flow {
+        try {
+            val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
+            val customerId = shopPreferences.currentCustomerId.first()
+            val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+                shopId = shopId,
+                customerId = customerId,
+                canViewPrices = shopPreferences.canViewPrices.first(),
+            )
+            val requestCustomerId = customerId?.takeIf { canDisplayPrices }
+            val response = catalogApi.getCategoryFilters(
+                categoryId = categoryId.toInt(),
+                shopId = sId,
+                lang = langId,
+                customerId = requestCustomerId,
+            )
+            emit(response.items.map { it.toDomainFacet() })
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override fun getProductsByCategory(
+        shopId: String,
+        categoryId: String,
+        filters: FilterState,
+        sortOption: SortOption
+    ): Flow<List<Product>> = flow {
+        try {
+            val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
+            val customerId = shopPreferences.currentCustomerId.first()
+            val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+                shopId = shopId,
+                customerId = customerId,
+                canViewPrices = shopPreferences.canViewPrices.first(),
+            )
+            val requestCustomerId = customerId?.takeIf { canDisplayPrices }
+            val apiFilters = filters.toApiBasicFilters(canDisplayPrices)
+            val apiSort = sortOption.toApiSort()
+            val response = if (categoryId == "2" || categoryId.isBlank()) {
+                catalogApi.getProducts(
+                    shopId = sId,
+                    lang = langId,
+                    pageSize = 100,
+                    sort = apiSort,
+                    priceMin = apiFilters.priceMin,
+                    priceMax = apiFilters.priceMax,
+                    colors = apiFilters.colors,
+                    attributes = apiFilters.attributes,
+                    customerId = requestCustomerId,
+                )
+            } else {
+                catalogApi.getCategoryProducts(
+                    categoryId = categoryId.toInt(),
+                    shopId = sId,
+                    lang = langId,
+                    sort = apiSort,
+                    priceMin = apiFilters.priceMin,
+                    priceMax = apiFilters.priceMax,
+                    colors = apiFilters.colors,
+                    attributes = apiFilters.attributes,
+                    customerId = requestCustomerId,
+                )
             }
+
+            val products = response.items
+                .map {
+                    it.toDomainProduct(
+                        gatewayBaseUrl = gatewayBaseUrl,
+                        brand = if (sId == 4) "Grifon GR" else "Grifon SE",
+                        showPrice = canDisplayPrices,
+                    )
+                }
+
+            emit(products.applyFallbackFilters(filters, sortOption))
+        } catch (e: Exception) {
+            emit(emptyList())
         }
     }
 
-    private fun translateCategoryName(id: String, default: String): String = when(id) {
-        "4000" -> "Κεραμικά"; "4500" -> "Αγαλματίδια κ.α."; "5000" -> "Διακοσμητικά"; "7500" -> "Για χρήση"; "7000" -> "Χόμπι"; "8000" -> "Αξεσουάρ"; else -> default
-    }
+    override fun searchProducts(
+        shopId: String,
+        query: String,
+        filters: FilterState,
+        sortOption: SortOption
+    ): Flow<List<Product>> = flow {
+        try {
+            val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
+            val customerId = shopPreferences.currentCustomerId.first()
+            val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+                shopId = shopId,
+                customerId = customerId,
+                canViewPrices = shopPreferences.canViewPrices.first(),
+            )
+            val normalizedQuery = query.trim()
+            val apiFilters = filters.toApiBasicFilters(canDisplayPrices, query)
+            val requestCustomerId = customerId?.takeIf { canDisplayPrices }
+            val backendSearchMatches = if (normalizedQuery.isNotEmpty()) {
+                catalogApi.getProducts(
+                    shopId = sId,
+                    lang = langId,
+                    page = 1,
+                    pageSize = 100,
+                    sort = sortOption.toApiSort(),
+                    search = normalizedQuery,
+                    priceMin = apiFilters.priceMin,
+                    priceMax = apiFilters.priceMax,
+                    colors = apiFilters.colors,
+                    attributes = apiFilters.attributes,
+                    customerId = requestCustomerId,
+                ).items
+            } else {
+                emptyList()
+            }
+            val searchCandidates = fetchSearchCandidates(
+                shopId = sId,
+                langId = langId,
+                requestCustomerId = requestCustomerId,
+                sortOption = sortOption,
+                apiFilters = apiFilters,
+            )
+            val dtoById = LinkedHashMap<Int, com.example.grifon.data.catalog.ProductDto>()
+            backendSearchMatches.forEach { dtoById[it.id] = it }
+            searchCandidates.forEach { dtoById[it.id] = it }
+            val backendMatchIds = backendSearchMatches.map { it.id.toString() }.toSet()
+            val products = dtoById.values.map {
+                it.toDomainProduct(
+                    gatewayBaseUrl = gatewayBaseUrl,
+                    brand = if (sId == 4) "Grifon GR" else "Grifon SE",
+                    showPrice = canDisplayPrices,
+                )
+            }
 
-    override fun getProductsByCategory(shopId: String, categoryId: String, filters: FilterState, sortOption: SortOption): Flow<List<Product>> {
-        return if (categoryId.isBlank() || categoryId.endsWith("_2")) {
-            productDao.getProductsByShop(shopId).map { list -> list.map { it.toDomain() } }
-        } else {
-            categoryDao.getCategoryWithProducts(categoryId).map { list -> list.map { it.toDomain() } }
+            emit(
+                products
+                    .filter { product ->
+                        backendMatchIds.contains(product.id) || product.matchesSearchQuery(normalizedQuery)
+                    }
+                    .applyFallbackFilters(filters, sortOption)
+            )
+        } catch (e: Exception) {
+            emit(emptyList())
         }
     }
-
-    override fun searchProducts(shopId: String, query: String, filters: FilterState, sortOption: SortOption): Flow<List<Product>> = 
-        productDao.getProductsByShop(shopId).map { entities ->
-            entities.filter { it.title.contains(query, ignoreCase = true) }.map { it.toDomain() }
-        }
 
     override fun getProductById(shopId: String, productId: String): Flow<Product?> = flow {
-        emit(productDao.getProductById(productId)?.toDomain())
+        try {
+            val sId = ShopConfig.normalizeShopId(shopId).toInt()
+            val langId = PrestaLanguage.toLangId(shopPreferences.appLanguage.first())
+            val customerId = shopPreferences.currentCustomerId.first()
+            val canDisplayPrices = localPriceAccessService.canDisplayPrices(
+                shopId = shopId,
+                customerId = customerId,
+                canViewPrices = shopPreferences.canViewPrices.first(),
+            )
+            val normalizedProductId = productId.substringAfterLast("_").toIntOrNull()
+            if (normalizedProductId == null) {
+                emit(null)
+                return@flow
+            }
+            val response = catalogApi.getProduct(
+                productId = normalizedProductId,
+                shopId = sId,
+                lang = langId,
+                customerId = customerId?.takeIf { canDisplayPrices },
+            )
+            emit(
+                response.toDomainProduct(
+                    gatewayBaseUrl = gatewayBaseUrl,
+                    brand = if (sId == 4) "Grifon GR" else "Grifon SE",
+                    showPrice = canDisplayPrices,
+                )
+            )
+        } catch (e: Exception) {
+            emit(null)
+        }
+    }
+
+    private suspend fun fetchSearchCandidates(
+        shopId: Int,
+        langId: Int,
+        requestCustomerId: Int?,
+        sortOption: SortOption,
+        apiFilters: ApiBasicFilters,
+    ): List<com.example.grifon.data.catalog.ProductDto> {
+        val pageSize = 250
+        val maxPages = 20
+        val products = LinkedHashMap<Int, com.example.grifon.data.catalog.ProductDto>()
+
+        for (page in 1..maxPages) {
+            val response = catalogApi.getProducts(
+                shopId = shopId,
+                lang = langId,
+                page = page,
+                pageSize = pageSize,
+                sort = sortOption.toApiSort(),
+                search = null,
+                priceMin = apiFilters.priceMin,
+                priceMax = apiFilters.priceMax,
+                colors = apiFilters.colors,
+                attributes = apiFilters.attributes,
+                customerId = requestCustomerId,
+            )
+
+            response.items.forEach { item ->
+                products[item.id] = item
+            }
+
+            if (response.items.size < pageSize) {
+                break
+            }
+        }
+
+        return products.values.toList()
     }
 
     private fun ProductEntity.toDomain() = Product(id, title, price, currency, imageUrl, emptyList(), brand, 0.0, inStock, mapOf("reference" to reference), listOfNotNull(categoryId))
+}
+
+private data class ApiBasicFilters(
+    val search: String? = null,
+    val priceMin: Double? = null,
+    val priceMax: Double? = null,
+    val colors: String? = null,
+    val attributes: String? = null,
+)
+
+private fun FilterState.hasCustomPriceRange(): Boolean {
+    return priceRange.start != DEFAULT_FILTER_PRICE_RANGE.start ||
+        priceRange.endInclusive != DEFAULT_FILTER_PRICE_RANGE.endInclusive
+}
+
+private fun FilterState.selectedPriceRange(): ClosedFloatingPointRange<Double>? {
+    return priceRange.takeIf { hasCustomPriceRange() }
+}
+
+private fun FilterState.toApiBasicFilters(
+    canDisplayPrices: Boolean,
+    search: String? = null,
+): ApiBasicFilters {
+    val attributeJson = attributes
+        .filterValues { values -> values.isNotEmpty() }
+        .takeIf { it.isNotEmpty() }
+        ?.let { values ->
+            JSONObject().apply {
+                values.toSortedMap(String.CASE_INSENSITIVE_ORDER).forEach { (key, selectedValues) ->
+                    put(key, JSONArray(selectedValues.toList().sorted()))
+                }
+            }.toString()
+        }
+
+    val priceRange = selectedPriceRange().takeIf { canDisplayPrices }
+    return ApiBasicFilters(
+        search = search?.trim()?.takeIf { it.isNotEmpty() },
+        priceMin = priceRange?.start,
+        priceMax = priceRange?.endInclusive,
+        colors = colors.takeIf { it.isNotEmpty() }?.sorted()?.joinToString(","),
+        attributes = attributeJson,
+    )
+}
+
+private fun SortOption.toApiSort(): String = when (this) {
+    SortOption.PRICE_LOW_HIGH -> "[price_ASC]"
+    SortOption.PRICE_HIGH_LOW -> "[price_DESC]"
+    else -> "[id_DESC]"
+}
+
+private fun List<Product>.applyFallbackFilters(
+    filters: FilterState,
+    sortOption: SortOption,
+): List<Product> {
+    val filtered = filter { product ->
+        val matchesStock = if (filters.inStockOnly) product.inStock else true
+        val matchesBrand = filters.brands.isEmpty() || filters.brands.contains(product.brand)
+        val matchesRating = product.rating >= filters.ratingMin
+
+        matchesStock && matchesBrand && matchesRating
+    }
+
+    return when (sortOption) {
+        SortOption.PRICE_LOW_HIGH -> filtered.sortedBy { it.price ?: Double.MAX_VALUE }
+        SortOption.PRICE_HIGH_LOW -> filtered.sortedByDescending { it.price ?: Double.MIN_VALUE }
+        else -> filtered
+    }
+}
+
+private fun Product.matchesSearchQuery(query: String): Boolean {
+    val needle = query.normalizeSearchText()
+    val needleCode = query.normalizeCodeText()
+    if (needle.isEmpty()) {
+        return true
+    }
+
+    val searchableValues = buildList {
+        add(title)
+        add(id)
+        attributesMap.forEach { (key, values) ->
+            add(key)
+            addAll(values)
+        }
+    }.filter { it.isNotBlank() }
+
+    val searchableText = searchableValues.joinToString(" ") { it.normalizeSearchText() }
+    val searchableCode = searchableValues.joinToString("") { it.normalizeCodeText() }
+    val textTokens = needle.split(Regex("\\s+")).filter { it.isNotBlank() }
+    val codeTokens = extractCodeFragments(query)
+
+    val matchesText = searchableText.contains(needle) ||
+        textTokens.all { token -> searchableText.contains(token) }
+    val matchesCode = needleCode.isNotEmpty() && (
+        searchableCode.contains(needleCode) ||
+            codeTokens.all { token -> searchableCode.contains(token) }
+        )
+
+    return matchesText || matchesCode
+}
+
+private fun String.normalizeSearchText(): String {
+    return Normalizer.normalize(trim(), Normalizer.Form.NFD)
+        .replace("\\p{M}+".toRegex(), "")
+        .lowercase()
+}
+
+private fun String.normalizeCodeText(): String {
+    return normalizeSearchText()
+        .replace("[^\\p{L}\\p{N}]".toRegex(), "")
+}
+
+private fun extractCodeFragments(query: String): List<String> {
+    return query
+        .split(Regex("[\\s\\-_/.,]+"))
+        .map { it.normalizeCodeText() }
+        .filter { it.isNotBlank() }
 }

@@ -52,6 +52,14 @@ export const productPaginationSchema = z.object({
   sort: z.string().optional().default("[id_DESC]")
 });
 
+export const productFilterQuerySchema = z.object({
+  search: z.preprocess(toOptionalString, z.string().optional()),
+  priceMin: z.preprocess(toNumber, z.number().nonnegative().optional()),
+  priceMax: z.preprocess(toNumber, z.number().nonnegative().optional()),
+  colors: z.preprocess(toOptionalString, z.string().optional()),
+  attributes: z.preprocess(toOptionalString, z.string().optional())
+});
+
 export const customerIdSchema = z.object({
   customerId: z.preprocess(toNumber, z.number().int().positive())
 });
@@ -64,9 +72,39 @@ export const productIdSchema = z.object({
   productId: z.preprocess(toNumber, z.number().int().positive())
 });
 
+export const checkoutOrderReferenceSchema = z.object({
+  orderReference: z.string().trim().min(1).max(80)
+});
+
+export const moduleNameSchema = z.object({
+  moduleName: z.string().trim().regex(/^[A-Za-z0-9_-]+$/)
+});
+
+export const tableNameSchema = z.object({
+  tableName: z.string().trim().regex(/^[A-Za-z0-9_]+$/)
+});
+
+export const moduleSearchQuerySchema = z.object({
+  pattern: z.string().trim().min(1).max(120)
+});
+
+export const moduleFileQuerySchema = z.object({
+  path: z.string().trim().min(1).max(300),
+  start: z.preprocess(toNumber, z.number().int().min(1).max(10000)).default(1),
+  lines: z.preprocess(toNumber, z.number().int().min(1).max(200)).default(80)
+});
+
+export const etsWholesaleFormFieldsQuerySchema = z.object({
+  formType: z.preprocess(
+    toOptionalString,
+    z.enum(["registration", "add_information"]).optional()
+  )
+});
+
 export const loginBodySchema = z.object({
   email: z.string().trim().email(),
-  password: z.string().min(1)
+  password: z.string().min(1),
+  countryIso: z.string().trim().length(2).optional()
 });
 
 export const registerBodySchema = z
@@ -84,10 +122,12 @@ export const registerBodySchema = z
     phone: z.string().trim().min(1).optional(),
     company: z.string().trim().min(1).optional(),
     vatNumber: z.string().trim().min(1).optional(),
+    dni: z.string().trim().min(1).optional(), // ΠΡΟΣΘΗΚΗ DNI
     iban: z.string().trim().min(1).optional(),
     customerDataPrivacyAccepted: z.boolean().optional().default(false),
     newsletter: z.boolean().optional().default(false),
     termsAndPrivacyAccepted: z.boolean().optional().default(false),
+    wholesaleRequested: z.boolean().optional().default(false),
     partnerOffers: z.boolean().optional()
   })
   .superRefine((data, context) => {
@@ -103,3 +143,85 @@ export const registerBodySchema = z
     ...data,
     password: (data.password ?? data.passwd) as string
   }));
+
+export const wholesaleApplicationBodySchema = z.object({
+  customerId: z.preprocess(toNumber, z.number().int().positive().optional()),
+  email: z.string().trim().email(),
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1),
+  contactPersonFullName: z.preprocess(toOptionalString, z.string().min(1).optional()),
+  country: z.preprocess(toOptionalString, z.string().optional()),
+  countryIso: z.string().trim().length(2),
+  street: z.string().trim().min(1),
+  city: z.string().trim().min(1),
+  postalCode: z.string().trim().min(1),
+  phone: z.string().trim().min(1),
+  company: z.string().trim().min(1),
+  vatNumber: z.string().trim().min(1),
+  addressCoordinates: z.preprocess(toOptionalString, z.string().optional()),
+  companyRegistrationFileName: z.preprocess(toOptionalString, z.string().optional()),
+  invoiceFileName: z.preprocess(toOptionalString, z.string().optional()),
+  customerDataPrivacyAccepted: z.literal(true),
+  termsAndPrivacyAccepted: z.literal(true),
+  newsletter: z.boolean().optional().default(false),
+  partnerOffers: z.boolean().optional()
+});
+
+export const productActivityBodySchema = z.object({
+  customerId: z.preprocess(toNumber, z.number().int().positive()),
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  productId: z.preprocess(toNumber, z.number().int().positive()),
+  isFavorite: z.boolean().optional(),
+  product: z.object({
+    title: z.preprocess(toOptionalString, z.string().optional()),
+    price: z.preprocess(toNumber, z.number().nonnegative().optional()),
+    currency: z.preprocess(toOptionalString, z.string().optional()),
+    imageUrl: z.preprocess(toOptionalString, z.string().optional()),
+    brand: z.preprocess(toOptionalString, z.string().optional())
+  }).optional()
+});
+
+export const customerActivityQuerySchema = z.object({
+  customerId: z.preprocess(toNumber, z.number().int().positive()),
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  limit: z.preprocess(toNumber, z.number().int().min(1).max(100).optional())
+});
+
+export const customerActivityClearBodySchema = z.object({
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)]))
+});
+
+export const checkoutSessionQuerySchema = shopQuerySchema.merge(customerIdSchema.partial());
+
+export const checkoutHandoffBodySchema = z.object({
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  customerId: z.preprocess(toNumber, z.number().int().positive().optional()),
+  target: z.enum(["cart", "checkout", "login"]).default("checkout")
+});
+
+export const checkoutOrderBodySchema = z.object({
+  shopId: z.preprocess(toNumber, z.union([z.literal(1), z.literal(4)])),
+  lang: z.preprocess(toNumber, z.number().int().positive().optional()).default(1),
+  customerId: z.preprocess(toNumber, z.number().int().positive()),
+  paymentMethodCode: z.string().trim().min(1),
+  shippingMethodCode: z.string().trim().min(1),
+  address: z.object({
+    recipient: z.string().trim().min(1),
+    email: z.string().trim().email(),
+    phone: z.string().trim().min(1),
+    company: z.preprocess(toOptionalString, z.string().optional()),
+    street: z.string().trim().min(1),
+    city: z.string().trim().min(1),
+    postalCode: z.string().trim().min(1),
+    country: z.string().trim().min(1)
+  }),
+  items: z.array(
+    z.object({
+      productId: z.preprocess(toNumber, z.number().int().positive()),
+      title: z.string().trim().min(1),
+      qty: z.preprocess(toNumber, z.number().int().positive()),
+      unitPrice: z.preprocess(toNumber, z.number().nonnegative()),
+      currency: z.string().trim().min(1)
+    })
+  ).min(1)
+});

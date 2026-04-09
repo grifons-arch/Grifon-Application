@@ -3,24 +3,25 @@ package com.example.grifon.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.grifon.domain.model.Category
+import com.example.grifon.core.ShopConfig
+import com.example.grifon.data.local.LocalPriceAccessService
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetCartUseCase
-import com.example.grifon.domain.usecase.GetCategoryTreeUseCase
-import com.example.grifon.domain.usecase.SyncCatalogUseCase
+import com.example.grifon.domain.usecase.ObserveFavoritesUseCase
+import com.example.grifon.data.local.ShopPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.Job
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    private val getActiveShopUseCase: GetActiveShopUseCase,
-    private val getCartUseCase: GetCartUseCase,
-    private val getCategoryTreeUseCase: GetCategoryTreeUseCase,
-    private val syncCatalogUseCase: SyncCatalogUseCase,
+    getActiveShopUseCase: GetActiveShopUseCase,
+    getCartUseCase: GetCartUseCase,
+    observeFavoritesUseCase: ObserveFavoritesUseCase,
+    shopPreferences: ShopPreferences,
+    localPriceAccessService: LocalPriceAccessService,
 ) : ViewModel() {
     private val _state = MutableStateFlow(AppState())
     val state: StateFlow<AppState> = _state
@@ -28,43 +29,72 @@ class AppViewModel @Inject constructor(
     private var syncJob: Job? = null
 
     init {
-        Log.d("CrashLog", "AppViewModel: Initializing init block")
-        observeAppState()
-    }
-
-    private fun observeAppState() {
-        Log.d("CrashLog", "AppViewModel: Starting observeAppState")
-        getActiveShopUseCase()
-            .onEach { shopId ->
-                Log.d("CrashLog", "AppViewModel: New shopId detected: $shopId")
-                syncJob?.cancel()
-                syncJob = viewModelScope.launch {
-                    delay(1000)
-                    Log.d("CrashLog", "AppViewModel: Triggering syncCatalogUseCase")
-                    syncCatalogUseCase(shopId)
-                }
+        combine(
+            getActiveShopUseCase(),
+            shopPreferences.appLanguage,
+            shopPreferences.currentCustomerId,
+            shopPreferences.canViewPrices,
+        ) { activeId, languageCode, customerId, canViewPrices ->
+            AppSessionState(
+                activeShopId = ShopConfig.normalizeShopId(activeId),
+                languageCode = languageCode,
+                customerId = customerId,
+                canViewPrices = canViewPrices,
+            )
+        }.flatMapLatest { sessionState ->
+            localPriceAccessService.observeCanDisplayPrices(
+                shopId = sessionState.activeShopId,
+                customerId = sessionState.customerId,
+                canViewPrices = sessionState.canViewPrices,
+            ).map { canDisplayPrices ->
+                SessionAwareAppState(
+                    activeShopId = sessionState.activeShopId,
+                    languageCode = sessionState.languageCode,
+                    canDisplayPrices = canDisplayPrices,
+                    isLoggedIn = sessionState.customerId != null,
+                )
             }
-            .flatMapLatest { shopId ->
-                combine(
-                    getCartUseCase(shopId),
-                    getCategoryTreeUseCase(shopId)
-                ) { cartItems, categories ->
-                    Log.d("CrashLog", "AppViewModel: Combining data for UI. Categories: ${categories.size}")
-                    AppState(
-                        activeShopId = shopId,
-                        cartCount = cartItems.sumOf { it.qty },
-                        categories = categories
-                    )
-                }
+        }.flatMapLatest { sessionState ->
+            combine(
+                getCartUseCase(sessionState.activeShopId),
+                observeFavoritesUseCase(sessionState.activeShopId),
+            ) { cartItems, favorites ->
+                AppState(
+                    activeShopId = sessionState.activeShopId,
+                    shopName = ShopConfig.displayName(sessionState.activeShopId),
+                    cartCount = cartItems.sumOf { it.qty },
+                    favoriteCount = favorites.size,
+                    canDisplayPrices = sessionState.canDisplayPrices,
+                    isLoggedIn = sessionState.isLoggedIn,
+                    languageCode = sessionState.languageCode,
+                )
             }
-            .onEach { appState -> _state.value = appState }
-            .catch { e -> Log.e("CrashLog", "AppViewModel: FATAL ERROR in Flow", e) }
-            .launchIn(viewModelScope)
+        }
+        .onEach { _state.value = it }
+        .launchIn(viewModelScope)
     }
 }
 
 data class AppState(
-    val activeShopId: String = "4",
+    val activeShopId: String = "",
+    val shopName: String = "",
     val cartCount: Int = 0,
-    val categories: List<Category> = emptyList()
+    val favoriteCount: Int = 0,
+    val canDisplayPrices: Boolean = false,
+    val isLoggedIn: Boolean = false,
+    val languageCode: String = "el",
+)
+
+private data class SessionAwareAppState(
+    val activeShopId: String,
+    val languageCode: String,
+    val canDisplayPrices: Boolean,
+    val isLoggedIn: Boolean,
+)
+
+private data class AppSessionState(
+    val activeShopId: String,
+    val languageCode: String,
+    val customerId: Int?,
+    val canViewPrices: Boolean,
 )

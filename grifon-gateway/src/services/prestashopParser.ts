@@ -5,7 +5,12 @@ const resourceMap: Record<string, string> = {
   groups: "group",
   content_management_system: "content_management_system",
   images: "image",
-  stock_availables: "stock_available"
+  stock_availables: "stock_available",
+  combinations: "combination",
+  product_features: "product_feature",
+  product_feature_values: "product_feature_value",
+  product_option_values: "product_option_value",
+  product_options: "product_option"
 };
 
 const asArray = <T>(value: T | T[] | undefined): T[] => {

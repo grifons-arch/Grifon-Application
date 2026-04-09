@@ -6,15 +6,18 @@ import androidx.room.RoomDatabase
 @Database(
     entities = [
         FavoriteEntity::class,
-        CategoryEntity::class,
+        RecentProductEntity::class,
+        WholesaleCustomerEntity::class,
+        CustomerEntity::class,
         ProductEntity::class,
-        ProductCategoryCrossRef::class
     ],
-    version = 8,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
-    abstract fun categoryDao(): CategoryDao
+    abstract fun recentProductDao(): RecentProductDao
+    abstract fun wholesaleCustomerDao(): WholesaleCustomerDao
+    abstract fun customerDao(): CustomerDao
     abstract fun productDao(): ProductDao
 }

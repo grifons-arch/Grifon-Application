@@ -4,13 +4,18 @@ data class RegisterUiState(
     val socialTitle: String = "",
     val firstName: String = "",
     val lastName: String = "",
+    val contactPersonFullName: String = "",
     val phone: String = "",
     val iban: String = "",
     val email: String = "",
     val emailConfirmation: String = "",
     val companyName: String = "",
     val vatNumber: String = "",
+    val addressCoordinates: String = "",
+    val companyRegistrationFileName: String? = null,
+    val invoiceFileName: String? = null,
     val country: String = "",
+    val countryIso: String = "",
     val city: String = "",
     val street: String = "",
     val postalCode: String = "",
@@ -20,6 +25,7 @@ data class RegisterUiState(
     val newsletterOptIn: Boolean = false,
     val partnerOffersOptIn: Boolean = false, // Προσθήκη για Partner Offers
     val termsAndPrivacyAccepted: Boolean = false,
+    val wholesaleRequested: Boolean = false,
     val googleDisplayName: String? = null,
     val googleAccountEmail: String? = null,
     val googleSignInError: String? = null,
@@ -27,18 +33,23 @@ data class RegisterUiState(
 ) {
     val isSubmitEnabled: Boolean
         get() = status !is RegisterStatus.Loading &&
+            socialTitle.isNotBlank() &&
             firstName.isNotBlank() &&
             lastName.isNotBlank() &&
-            country.isNotBlank() &&
-            city.isNotBlank() &&
-            street.isNotBlank() &&
-            postalCode.isNotBlank() &&
             email.isNotBlank() &&
-            email == emailConfirmation &&
             password.trim().length >= 8 &&
-            password == passwordConfirmation &&
-            customerDataPrivacyAccepted &&
-            termsAndPrivacyAccepted
+            termsAndPrivacyAccepted &&
+            (!wholesaleRequested || (
+                customerDataPrivacyAccepted &&
+                    countryIso.isNotBlank() &&
+                    city.isNotBlank() &&
+                    street.isNotBlank() &&
+                    postalCode.isNotBlank()
+            )) &&
+            (wholesaleRequested || (
+                email == emailConfirmation &&
+                password == passwordConfirmation
+            ))
 }
 
 sealed interface RegisterStatus {

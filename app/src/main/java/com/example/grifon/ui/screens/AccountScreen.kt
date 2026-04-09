@@ -1,48 +1,50 @@
 package com.example.grifon.ui.screens
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ListAlt
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Mail
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import com.example.grifon.core.UiState
-import com.example.grifon.domain.model.User
+import com.example.grifon.R
+import com.example.grifon.core.AppLanguage
+import com.example.grifon.core.LoginText
 import com.example.grifon.viewmodel.AccountViewModel
+import com.example.grifon.core.UiState
+import com.example.grifon.core.loginText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(
-    viewModel: AccountViewModel, 
+    viewModel: AccountViewModel,
     onSettings: () -> Unit,
-    onRegister: () -> Unit
+    onOrders: () -> Unit,
+    onRegister: () -> Unit,
+    onWholesaleApplication: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var showProfileDetails by remember { mutableStateOf(false) }
-    var isEditing by remember { mutableStateOf(false) }
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val loginError by viewModel.loginError.collectAsState()
 
     when (val state = uiState) {
         UiState.Loading -> LoadingScreen()
@@ -50,173 +52,197 @@ fun AccountScreen(
         is UiState.Success -> {
             val account = state.data
             
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                // Header Card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Text(
-                            text = if (account.loggedIn) "Καλώς ήρθες, ${account.userName}!" else "Ο Λογαριασμός μου", 
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
-
-                if (!account.loggedIn) {
-                    // Login Form
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Text("Σύνδεση", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            
-                            if (account.loginError != null) {
-                                Text(text = account.loginError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                            }
-
-                            OutlinedTextField(
-                                value = email,
-                                onValueChange = { email = it },
-                                label = { Text("Email") },
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                                singleLine = true
-                            )
-
-                            OutlinedTextField(
-                                value = password,
-                                onValueChange = { password = it },
-                                label = { Text("Κωδικός") },
-                                modifier = Modifier.fillMaxWidth(),
-                                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                                singleLine = true,
-                                trailingIcon = {
-                                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                        Icon(imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, contentDescription = null)
-                                    }
-                                }
-                            )
-
-                            Button(
-                                onClick = { viewModel.login(email, password) },
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = !account.isLoading
-                            ) {
-                                if (account.isLoading) CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
-                                else Text("Login")
-                            }
-
-                            val registerText = buildAnnotatedString {
-                                append("Αν δεν έχεις λογαριασμό δημιούργησε ")
-                                pushStringAnnotation(tag = "register", annotation = "register")
-                                withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
-                                    append("εδώ")
-                                }
-                                pop()
-                            }
-                            ClickableText(
-                                text = registerText,
-                                style = MaterialTheme.typography.bodyMedium,
-                                onClick = { offset ->
-                                    registerText.getStringAnnotations("register", offset, offset)
-                                        .firstOrNull()?.let { onRegister() }
-                                }
-                            )
-                        }
-                    }
-                } else {
-                    // Menu Items
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Column {
-                            AccountMenuItem(title = "Οι παραγγελίες μου", icon = Icons.AutoMirrored.Filled.ListAlt) { }
-                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
-                            AccountMenuItem(title = "Οι διευθύνσεις μου", icon = Icons.Default.LocationOn) { }
-                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
-                            AccountMenuItem(title = "Wishlist (Αγαπημένα)", icon = Icons.Default.Favorite) { }
-                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
-                            AccountMenuItem(title = "Στοιχεία Λογαριασμού", icon = Icons.Default.AccountCircle) { 
-                                showProfileDetails = !showProfileDetails
-                            }
-                        }
-                    }
-
-                    // Profile Details Section
-                    if (showProfileDetails && account.userDetails != null) {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text("Προσωπικά Στοιχεία", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                                    IconButton(onClick = { isEditing = true }) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                                    }
-                                }
-                                
-                                ProfileDetailRow("Όνομα", account.userDetails.firstName)
-                                ProfileDetailRow("Επώνυμο", account.userDetails.lastName)
-                                ProfileDetailRow("Email", account.userDetails.email)
-                                ProfileDetailRow("Τηλέφωνο", account.userDetails.phone ?: "-")
-                                ProfileDetailRow("Εταιρεία", account.userDetails.company ?: "-")
-                                ProfileDetailRow("ΑΦΜ", account.userDetails.vatNumber ?: "-")
-                                ProfileDetailRow("Newsletter", if (account.userDetails.newsletter) "Ενεργό" else "Ανενεργό")
-                                
-                                Spacer(modifier = Modifier.height(8.dp))
-                                
-                                OutlinedButton(
-                                    onClick = { isEditing = true },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("Επεξεργασία Στοιχείων")
-                                }
-                            }
-                        }
-                    }
-
-                    if (isEditing && account.userDetails != null) {
-                        EditProfileDialog(
-                            user = account.userDetails,
-                            onDismiss = { isEditing = false },
-                            onSave = { updatedUser ->
-                                viewModel.updateProfile(updatedUser)
-                                isEditing = false
-                            }
-                        )
-                    }
-
-                    Button(
-                        onClick = { viewModel.logout() }, 
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                    ) {
-                        Icon(Icons.Default.Logout, contentDescription = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Αποσύνδεση")
-                    }
-                }
-
-                OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
-                    Text("Settings")
-                }
+            if (account.loggedIn) {
+                // ΟΘΟΝΗ ΟΤΑΝ Ο ΧΡΗΣΤΗΣ ΕΙΝΑΙ ΣΥΝΔΕΔΕΜΕΝΟΣ
+                LoggedInContent(
+                    canViewPrices = account.canViewPrices,
+                    onSettings = onSettings,
+                    onOrders = onOrders,
+                    onWholesaleApplication = onWholesaleApplication,
+                    onLogout = viewModel::logout,
+                )
+            } else {
+                // ΟΘΟΝΗ LOGIN
+                LoginContent(
+                    email = email,
+                    password = password,
+                    error = loginError,
+                    onEmailChange = viewModel::onEmailChange,
+                    onPasswordChange = viewModel::onPasswordChange,
+                    onLoginClick = viewModel::login,
+                    onRegisterClick = onRegister,
+                )
             }
         }
+    }
+}
+
+@Composable
+fun LoggedInContent(
+    canViewPrices: Boolean,
+    onSettings: () -> Unit,
+    onOrders: () -> Unit,
+    onWholesaleApplication: () -> Unit,
+    onLogout: () -> Unit,
+) {
+    val language = AppLanguage.currentLanguage()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(loginText(language, LoginText.WelcomeBack), style = MaterialTheme.typography.headlineSmall)
+                Text(loginText(language, LoginText.LoggedInSuccess))
+            }
+        }
+
+        Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
+            Text(loginText(language, LoginText.AccountSettings))
+        }
+
+        OutlinedButton(onClick = onOrders, modifier = Modifier.fillMaxWidth()) {
+            Text("Οι παραγγελίες μου")
+        }
+
+        if (canViewPrices) {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.wholesale_application_already_approved),
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        } else {
+            OutlinedButton(
+                onClick = onWholesaleApplication,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.wholesale_application_form_cta))
+            }
+
+            Text(
+                text = stringResource(R.string.wholesale_application_form_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
+        OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.logout))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginContent(
+    email: String,
+    password: String,
+    error: String?,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit
+) {
+    val scrollState = rememberScrollState()
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    val language = AppLanguage.currentLanguage()
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = loginText(language, LoginText.Login),
+            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Text(
+            text = loginText(language, LoginText.LoginSubtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = onEmailChange,
+            label = { Text(loginText(language, LoginText.Email)) },
+            placeholder = { Text("example@mail.com") },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = { Icon(Icons.Default.Mail, contentDescription = null) },
+            shape = RoundedCornerShape(12.dp),
+            singleLine = true
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = password,
+            onValueChange = onPasswordChange,
+            label = { Text(loginText(language, LoginText.Password)) },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+            trailingIcon = {
+                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    Icon(
+                        imageVector = if (isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (isPasswordVisible) {
+                            loginText(language, LoginText.HidePassword)
+                        } else {
+                            loginText(language, LoginText.ShowPassword)
+                        }
+                    )
+                }
+            },
+            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            shape = RoundedCornerShape(12.dp),
+            singleLine = true
+        )
+
+        if (error != null) {
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 8.dp, start = 4.dp).fillMaxWidth(),
+                textAlign = TextAlign.Start
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = onLoginClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(loginText(language, LoginText.Login), fontWeight = FontWeight.Bold)
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        val registerText = buildAnnotatedString {
+            append(loginText(language, LoginText.LoginNoAccount))
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)) {
+                append(loginText(language, LoginText.RegisterHere))
+            }
+        }
+
+        ClickableText(
+            text = registerText,
+            onClick = { onRegisterClick() },
+            style = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center)
+        )
     }
 }
 

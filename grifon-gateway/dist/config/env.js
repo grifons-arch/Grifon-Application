@@ -47,6 +47,7 @@ const envSchema = zod_1.z.object({
     SHOP_SE_BASE_URL: zod_1.z.string().url().default("https://replica/grifon.se/api"),
     REPLICA_HOSTNAME: zod_1.z.string().default("replica"),
     REPLICA_RESOLVE_TO: zod_1.z.string().default(""),
+    UPSTREAM_HOST_ALIASES: zod_1.z.string().optional().default("{}"),
     GRIFON_CUSTOMER_SYNC_SECRET: zod_1.z.string().optional().default(customerSyncSecret ?? ""),
     GRIFON_CUSTOMER_SYNC_PATH: zod_1.z
         .string()
@@ -56,7 +57,29 @@ const envSchema = zod_1.z.object({
     TIMEOUT_MS: zod_1.z.string().default("8000"),
     RATE_LIMIT_PER_MIN: zod_1.z.string().default("120"),
     REGISTER_RATE_LIMIT_PER_MIN: zod_1.z.string().default("10"),
-    REDIS_URL: zod_1.z.string().optional().default("")
+    REDIS_URL: zod_1.z.string().optional().default(""),
+    WHOLESALE_NOTIFICATION_TRANSPORT: zod_1.z
+        .enum(["auto", "smtp", "sendmail", "disabled"])
+        .default("auto"),
+    WHOLESALE_NOTIFICATION_TO: zod_1.z.string().optional().default("joanneper@yahoo.com"),
+    WHOLESALE_NOTIFICATION_FROM: zod_1.z.string().optional().default("grifon-gateway@localhost"),
+    SENDMAIL_PATH: zod_1.z.string().optional().default("/usr/sbin/sendmail"),
+    SMTP_HOST: zod_1.z.string().optional().default(""),
+    SMTP_PORT: zod_1.z.string().optional().default("587"),
+    SMTP_SECURE: zod_1.z.string().optional().default("false"),
+    SMTP_REQUIRE_TLS: zod_1.z.string().optional().default("false"),
+    SMTP_USER: zod_1.z.string().optional().default(""),
+    SMTP_PASS: zod_1.z.string().optional().default(""),
+    SMTP_HELO_NAME: zod_1.z.string().optional().default(""),
+    PAYPAL_CLIENT_ID: zod_1.z.string().optional().default(""),
+    PAYPAL_CLIENT_SECRET: zod_1.z.string().optional().default(""),
+    PAYPAL_API_BASE_URL: zod_1.z.string().url().default("https://api-m.sandbox.paypal.com"),
+    PAYPAL_RETURN_URL: zod_1.z.string().url().default("https://grifon.app/paypal/return"),
+    PAYPAL_CANCEL_URL: zod_1.z.string().url().default("https://grifon.app/paypal/cancel"),
+    STRIPE_SECRET_KEY: zod_1.z.string().optional().default(""),
+    STRIPE_API_BASE_URL: zod_1.z.string().url().default("https://api.stripe.com"),
+    STRIPE_RETURN_URL: zod_1.z.string().url().default("https://grifon.app/stripe/return"),
+    STRIPE_CANCEL_URL: zod_1.z.string().url().default("https://grifon.app/stripe/cancel")
 });
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
@@ -65,6 +88,13 @@ if (!parsed.success) {
     process.exit(1);
 }
 const env = parsed.data;
+const parseBoolean = (value, fallback = false) => {
+    const normalized = trimToUndefined(value)?.toLowerCase();
+    if (!normalized) {
+        return fallback;
+    }
+    return ["1", "true", "yes", "on"].includes(normalized);
+};
 const parseCountryGroupMap = (value) => {
     if (!value)
         return {};
@@ -86,6 +116,35 @@ const parseCountryGroupMap = (value) => {
         return {};
     }
 };
+const parseHostAliases = (value, legacyAlias, legacyResolveTo) => {
+    const aliases = {};
+    if (legacyAlias && legacyResolveTo) {
+        const normalizedLegacyResolveTo = legacyResolveTo.trim();
+        aliases[legacyAlias.trim().toLowerCase()] = normalizedLegacyResolveTo;
+        aliases["prestashop-demo"] = normalizedLegacyResolveTo;
+    }
+    if (!value) {
+        return aliases;
+    }
+    try {
+        const parsedMap = JSON.parse(value);
+        if (typeof parsedMap !== "object" || parsedMap === null) {
+            return aliases;
+        }
+        for (const [hostname, resolveTo] of Object.entries(parsedMap)) {
+            const normalizedHostname = hostname.trim().toLowerCase();
+            const normalizedResolveTo = typeof resolveTo === "string" ? resolveTo.trim() : "";
+            if (!normalizedHostname || !normalizedResolveTo) {
+                continue;
+            }
+            aliases[normalizedHostname] = normalizedResolveTo;
+        }
+    }
+    catch {
+        return aliases;
+    }
+    return aliases;
+};
 exports.config = {
     port: Number(env.PORT),
     allowedOrigins: env.ALLOWED_ORIGINS,
@@ -97,8 +156,11 @@ exports.config = {
     },
     replicaHostname: env.REPLICA_HOSTNAME,
     replicaResolveTo: env.REPLICA_RESOLVE_TO,
+    upstreamHostAliases: parseHostAliases(env.UPSTREAM_HOST_ALIASES, env.REPLICA_HOSTNAME, env.REPLICA_RESOLVE_TO),
     customerSyncSecret: trimToUndefined(env.GRIFON_CUSTOMER_SYNC_SECRET) ?? customerSyncSecret ?? "",
-    customerSyncPath: trimToUndefined(env.GRIFON_CUSTOMER_SYNC_PATH) ?? customerSyncPath ?? "/module/grifoncustomersync/sync",
+    customerSyncPath: trimToUndefined(env.GRIFON_CUSTOMER_SYNC_PATH) ??
+        customerSyncPath ??
+        "/module/grifoncustomersync/sync",
     defaultShopId: env.DEFAULT_SHOP_ID === "1" ? 1 : 4,
     pendingWholesaleGroupId: env.PENDING_WHOLESALE_GROUP_ID
         ? Number(env.PENDING_WHOLESALE_GROUP_ID)
@@ -109,7 +171,27 @@ exports.config = {
     timeoutMs: Number(env.TIMEOUT_MS),
     rateLimitPerMin: Number(env.RATE_LIMIT_PER_MIN),
     registerRateLimitPerMin: Number(env.REGISTER_RATE_LIMIT_PER_MIN),
-    redisUrl: env.REDIS_URL
+    redisUrl: env.REDIS_URL,
+    wholesaleNotificationTransport: env.WHOLESALE_NOTIFICATION_TRANSPORT,
+    wholesaleNotificationTo: trimToUndefined(env.WHOLESALE_NOTIFICATION_TO) ?? "joanneper@yahoo.com",
+    wholesaleNotificationFrom: trimToUndefined(env.WHOLESALE_NOTIFICATION_FROM) ?? "grifon-gateway@localhost",
+    sendmailPath: trimToUndefined(env.SENDMAIL_PATH) ?? "/usr/sbin/sendmail",
+    smtpHost: trimToUndefined(env.SMTP_HOST),
+    smtpPort: Number(env.SMTP_PORT),
+    smtpSecure: parseBoolean(env.SMTP_SECURE),
+    smtpRequireTls: parseBoolean(env.SMTP_REQUIRE_TLS),
+    smtpUser: trimToUndefined(env.SMTP_USER),
+    smtpPass: trimToUndefined(env.SMTP_PASS),
+    smtpHeloName: trimToUndefined(env.SMTP_HELO_NAME),
+    paypalClientId: trimToUndefined(env.PAYPAL_CLIENT_ID),
+    paypalClientSecret: trimToUndefined(env.PAYPAL_CLIENT_SECRET),
+    paypalApiBaseUrl: env.PAYPAL_API_BASE_URL,
+    paypalReturnUrl: env.PAYPAL_RETURN_URL,
+    paypalCancelUrl: env.PAYPAL_CANCEL_URL,
+    stripeSecretKey: trimToUndefined(env.STRIPE_SECRET_KEY),
+    stripeApiBaseUrl: env.STRIPE_API_BASE_URL,
+    stripeReturnUrl: env.STRIPE_RETURN_URL,
+    stripeCancelUrl: env.STRIPE_CANCEL_URL
 };
 exports.shops = [
     { id: 4, code: "GR", domain: "grifon.gr", baseUrl: env.SHOP_GR_BASE_URL },

@@ -10,6 +10,7 @@ data class RegisterRequestDto(
     val socialTitle: String? = null,
     val firstName: String,
     val lastName: String,
+    val contactPersonFullName: String? = null,
     val countryIso: String,
     val street: String,
     val city: String,
@@ -17,10 +18,14 @@ data class RegisterRequestDto(
     val phone: String? = null,
     val company: String? = null,
     val vatNumber: String? = null,
+    val addressCoordinates: String? = null,
     val iban: String? = null,
+    val companyRegistrationFileName: String? = null,
+    val invoiceFileName: String? = null,
     val customerDataPrivacyAccepted: Boolean = false,
     val newsletter: Boolean = false,
     val termsAndPrivacyAccepted: Boolean = false,
+    val wholesaleRequested: Boolean = false,
     val partnerOffers: Boolean? = null,
 )
 

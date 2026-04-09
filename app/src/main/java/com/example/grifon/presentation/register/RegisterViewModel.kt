@@ -6,12 +6,11 @@ import com.example.grifon.domain.auth.RegisterOutcome
 import com.example.grifon.domain.auth.RegisterParams
 import com.example.grifon.domain.auth.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class RegisterViewModel(
     private val registerUseCase: RegisterUseCase,
@@ -29,6 +28,10 @@ class RegisterViewModel(
 
     fun onLastNameChange(value: String) {
         _uiState.update { it.copy(lastName = value) }
+    }
+
+    fun onContactPersonFullNameChange(value: String) {
+        _uiState.update { it.copy(contactPersonFullName = value) }
     }
 
     fun onPhoneChange(value: String) {
@@ -55,12 +58,58 @@ class RegisterViewModel(
         _uiState.update { it.copy(vatNumber = value) }
     }
 
+    fun onAddressCoordinatesChange(value: String) {
+        _uiState.update { it.copy(addressCoordinates = value) }
+    }
+
+    fun onCompanyRegistrationFileSelected(value: String?) {
+        _uiState.update { it.copy(companyRegistrationFileName = value) }
+    }
+
+    fun onInvoiceFileSelected(value: String?) {
+        _uiState.update { it.copy(invoiceFileName = value) }
+    }
+
     fun onCountryChange(value: String) {
-        _uiState.update { it.copy(country = value) }
+        val resolvedCountry = RegisterAddressCatalog.resolveCountry(value, Locale.getDefault())
+        if (resolvedCountry != null) {
+            onCountrySelected(resolvedCountry)
+            return
+        }
+
+        _uiState.update {
+            it.copy(
+                country = value,
+                countryIso = "",
+                city = "",
+                street = "",
+                postalCode = "",
+            )
+        }
+    }
+
+    fun onCountrySelected(country: CountryOption) {
+        _uiState.update { currentState ->
+            val hasChanged = currentState.countryIso != country.isoCode
+            currentState.copy(
+                country = country.displayName,
+                countryIso = country.isoCode,
+                city = if (hasChanged) "" else currentState.city,
+                street = if (hasChanged) "" else currentState.street,
+                postalCode = if (hasChanged) "" else currentState.postalCode,
+            )
+        }
     }
 
     fun onCityChange(value: String) {
-        _uiState.update { it.copy(city = value) }
+        _uiState.update { currentState ->
+            val hasChanged = currentState.city.trim() != value.trim()
+            currentState.copy(
+                city = value,
+                street = if (hasChanged) "" else currentState.street,
+                postalCode = if (hasChanged) "" else currentState.postalCode,
+            )
+        }
     }
 
     fun onStreetChange(value: String) {
@@ -95,42 +144,69 @@ class RegisterViewModel(
         _uiState.update { it.copy(termsAndPrivacyAccepted = value) }
     }
 
+    fun onWholesaleRequestedChange(value: Boolean) {
+        _uiState.update { it.copy(wholesaleRequested = value) }
+    }
+
     fun onSubmit() {
         val currentState = _uiState.value
         if (!currentState.isSubmitEnabled) return
 
-        val countryIso = normalizeCountryIso(currentState.country)
-        if (countryIso == null) {
-            _uiState.update {
-                it.copy(status = RegisterStatus.Error("Συμπληρώστε έγκυρο κωδικό χώρας (π.χ. GR)."))
-            }
-            return
+        val countryIso = currentState.countryIso.ifBlank {
+            normalizeCountryIso(currentState.country) ?: defaultCountryIso()
         }
 
         _uiState.update { it.copy(status = RegisterStatus.Loading) }
         viewModelScope.launch {
+            val contactPersonFullName = currentState.contactPersonFullName
+                .trim()
+                .ifBlank { listOf(currentState.firstName, currentState.lastName).joinToString(" ").trim() }
+                .takeIf { it.isNotBlank() }
+            val requiresStructuredAddress = currentState.wholesaleRequested
+            val resolvedStreet = if (requiresStructuredAddress) {
+                currentState.street.trim()
+            } else {
+                currentState.street.trim().ifBlank { "Online registration" }
+            }
+            val resolvedCity = if (requiresStructuredAddress) {
+                currentState.city.trim()
+            } else {
+                currentState.city.trim().ifBlank {
+                    if (countryIso == "SE") "Stockholm" else "Athens"
+                }
+            }
+            val resolvedPostalCode = if (requiresStructuredAddress) {
+                currentState.postalCode.trim()
+            } else {
+                currentState.postalCode.trim().ifBlank {
+                    if (countryIso == "SE") "11122" else "10552"
+                }
+            }
             val params = RegisterParams(
                 email = currentState.email.trim(),
                 password = currentState.password,
                 socialTitle = currentState.socialTitle.trim().ifBlank { null },
                 firstName = currentState.firstName.trim(),
                 lastName = currentState.lastName.trim(),
+                contactPersonFullName = contactPersonFullName,
                 countryIso = countryIso,
-                street = currentState.street.trim(),
-                city = currentState.city.trim(),
-                postalCode = currentState.postalCode.trim(),
+                street = resolvedStreet,
+                city = resolvedCity,
+                postalCode = resolvedPostalCode,
                 phone = currentState.phone.trim().ifBlank { null },
                 company = currentState.companyName.trim().ifBlank { null },
                 vatNumber = currentState.vatNumber.trim().ifBlank { null },
+                addressCoordinates = currentState.addressCoordinates.trim().ifBlank { null },
                 iban = currentState.iban.trim().ifBlank { null },
+                companyRegistrationFileName = currentState.companyRegistrationFileName,
+                invoiceFileName = currentState.invoiceFileName,
                 customerDataPrivacyAccepted = currentState.customerDataPrivacyAccepted,
                 newsletter = currentState.newsletterOptIn,
                 partnerOffers = currentState.partnerOffersOptIn, // Correctly passing Partner Offers
                 termsAndPrivacyAccepted = currentState.termsAndPrivacyAccepted,
+                wholesaleRequested = currentState.wholesaleRequested,
             )
-            val result = withContext(Dispatchers.IO) {
-                registerUseCase(params)
-            }
+            val result = registerUseCase(params)
             _uiState.update {
                 when (result) {
                     is RegisterOutcome.Success -> it.copy(
@@ -170,17 +246,16 @@ class RegisterViewModel(
     }
 
     private fun normalizeCountryIso(rawCountry: String): String? {
-        val country = rawCountry.trim()
-        if (country.isBlank()) return null
+        return RegisterAddressCatalog.resolveCountry(rawCountry, Locale.getDefault())?.isoCode
+    }
 
-        if (country.length == 2) {
-            return country.uppercase()
+    private fun defaultCountryIso(): String {
+        val locale = Locale.getDefault()
+        val region = locale.country.uppercase(Locale.ROOT)
+        if (region in setOf("GR", "SE")) {
+            return region
         }
-
-        return when (country.lowercase()) {
-            "ελλάδα", "ελλαδα", "greece", "ellada", "hellas" -> "GR"
-            else -> null
-        }
+        return if (locale.language.equals("sv", ignoreCase = true)) "SE" else "GR"
     }
 
     private fun parseNameParts(

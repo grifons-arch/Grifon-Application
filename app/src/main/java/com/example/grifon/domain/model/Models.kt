@@ -10,37 +10,96 @@ data class Category(
     val name: String,
     val parentId: String?,
     val childrenCount: Int,
+    val position: Int? = null,
+    val slug: String? = null,
 )
+
+data class CatalogFacet(
+    val key: String,
+    val title: String,
+    val type: CatalogFacetType,
+    val options: List<CatalogFacetOption> = emptyList(),
+    val minValue: Double? = null,
+    val maxValue: Double? = null,
+)
+
+data class CatalogFacetOption(
+    val key: String,
+    val label: String,
+    val count: Int,
+)
+
+enum class CatalogFacetType {
+    COLOR,
+    BRAND,
+    ATTRIBUTE,
+    PRICE,
+    AVAILABILITY,
+}
 
 data class Product(
     val id: String,
     val title: String,
-    val price: Double,
+    val price: Double?,
     val currency: String,
     val imageUrl: String,
     val images: List<String> = emptyList(),
     val brand: String,
     val rating: Double,
     val inStock: Boolean,
-    val attributesMap: Map<String, String>,
-    val categoryIds: List<String> = emptyList(),
+    val attributesMap: Map<String, List<String>>,
 )
 
-data class User(
-    val email: String,
-    val firstName: String,
-    val lastName: String,
-    val phone: String? = null,
-    val company: String? = null,
-    val vatNumber: String? = null,
-    val newsletter: Boolean = false,
-    val partnerOffers: Boolean = false
+data class FavoriteProduct(
+    val productId: String,
+    val title: String,
+    val price: Double?,
+    val currency: String,
+    val imageUrl: String,
+    val brand: String,
+    val shopId: String,
+)
+
+data class RecentProduct(
+    val productId: String,
+    val title: String,
+    val price: Double?,
+    val currency: String,
+    val imageUrl: String,
+    val brand: String,
+    val shopId: String,
 )
 
 data class CartItem(
     val productId: String,
+    val title: String,
+    val productCode: String,
+    val imageUrl: String,
     val qty: Int,
     val priceSnapshot: Double,
+    val currency: String,
+)
+
+data class LocalOrder(
+    val orderReference: String,
+    val shopId: String,
+    val customerId: Int,
+    val totalAmount: Double,
+    val currency: String,
+    val paymentProvider: String,
+    val paymentMethodCode: String,
+    val paymentStatus: String,
+    val orderStatus: String,
+    val createdAt: Long,
+    val items: List<LocalOrderItem>,
+)
+
+data class LocalOrderItem(
+    val productId: String,
+    val title: String,
+    val qty: Int,
+    val unitPrice: Double,
+    val currency: String,
 )
 
 data class FilterState(
