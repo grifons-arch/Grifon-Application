@@ -27,6 +27,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import retrofit2.HttpException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -132,7 +134,7 @@ class CheckoutViewModel @Inject constructor(
             }.onFailure { error ->
                 confirmation.value = CheckoutConfirmation(
                     reference = "ORDER-ERROR",
-                    message = error.message ?: "Checkout order creation failed.",
+                    message = error.toCheckoutErrorMessage(),
                 )
             }
         }
@@ -272,6 +274,7 @@ class CheckoutViewModel @Inject constructor(
                     isLoggedIn = base.isLoggedIn,
                     canViewPrices = base.canViewPrices,
                     canCheckout = base.canCheckout,
+                    sessionVerified = base.sessionVerified,
                     paymentMethods = base.paymentMethods,
                     shippingMethods = base.shippingMethods,
                     selectedPaymentCode = resolvedPaymentCode,
@@ -314,7 +317,7 @@ class CheckoutViewModel @Inject constructor(
             !localCanViewPrices ->
                 listOf("Wholesale approval is required before prices and ordering become available.")
             else ->
-                listOf("Complete shipping details, then confirm the checkout in the app.")
+                listOf("Live checkout verification from the gateway is not available yet for this session.")
         }
 
         return BaseCheckoutState(
@@ -325,7 +328,8 @@ class CheckoutViewModel @Inject constructor(
             currency = items.firstOrNull()?.currency,
             isLoggedIn = session.customerId != null,
             canViewPrices = localCanViewPrices,
-            canCheckout = canCheckout,
+            canCheckout = false,
+            sessionVerified = false,
             paymentMethods = listOf(
                 CheckoutMethod(code = "paypal", title = "PayPal", available = true),
                 CheckoutMethod(code = "stripe_cards", title = "Cards via Stripe", available = true),
@@ -357,6 +361,7 @@ data class CheckoutState(
     val isLoggedIn: Boolean,
     val canViewPrices: Boolean,
     val canCheckout: Boolean,
+    val sessionVerified: Boolean,
     val paymentMethods: List<CheckoutMethod>,
     val shippingMethods: List<CheckoutMethod>,
     val selectedPaymentCode: String?,
@@ -366,7 +371,8 @@ data class CheckoutState(
     val confirmation: CheckoutConfirmation?,
 ) {
     val isReadyToConfirm: Boolean
-        get() = canCheckout &&
+        get() = sessionVerified &&
+            canCheckout &&
             items.isNotEmpty() &&
             selectedPaymentCode != null &&
             selectedShippingCode != null &&
@@ -413,6 +419,7 @@ private data class BaseCheckoutState(
     val isLoggedIn: Boolean,
     val canViewPrices: Boolean,
     val canCheckout: Boolean,
+    val sessionVerified: Boolean,
     val paymentMethods: List<CheckoutMethod>,
     val shippingMethods: List<CheckoutMethod>,
     val notes: List<String>,
@@ -465,6 +472,7 @@ private fun CheckoutSessionDto.toBaseState(items: List<CartItem>): BaseCheckoutS
         isLoggedIn = isLoggedIn,
         canViewPrices = canViewPrices,
         canCheckout = canCheckout,
+        sessionVerified = true,
         paymentMethods = paymentMethods.map { it.toState() },
         shippingMethods = shippingMethods.map { it.toState() },
         notes = notes,
@@ -497,4 +505,24 @@ private fun CheckoutAddress.toDto(): CheckoutAddressDto {
         postalCode = postalCode,
         country = country,
     )
+}
+
+private fun Throwable.toCheckoutErrorMessage(): String {
+    if (this is HttpException) {
+        val body = response()?.errorBody()?.string()
+        if (!body.isNullOrBlank()) {
+            runCatching {
+                val json = JSONObject(body)
+                val message = json.optString("message").trim()
+                val code = json.optString("code").trim()
+                when {
+                    message.isNotEmpty() -> message
+                    code.isNotEmpty() -> code
+                    else -> "Checkout order creation failed."
+                }
+            }.getOrNull()?.let { return it }
+        }
+        return "Checkout request failed with HTTP ${code()}."
+    }
+    return message ?: "Checkout order creation failed."
 }
