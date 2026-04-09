@@ -104,37 +104,80 @@ class ApiCatalogRepository @Inject constructor(
             )
             val requestCustomerId = customerId?.takeIf { canDisplayPrices }
             val normalizedSearchQuery = searchQuery.trim()
-            val apiFilters = filters.toApiBasicFilters(canDisplayPrices, normalizedSearchQuery)
+            val apiFilters = filters.toApiBasicFilters(canDisplayPrices)
+            val searchFilters = filters.toApiBasicFilters(canDisplayPrices, normalizedSearchQuery)
             val apiSort = sortOption.toApiSort()
-            val response = if (categoryId == "2" || categoryId.isBlank()) {
+            val backendSearchItems = if (normalizedSearchQuery.isNotBlank()) {
+                runCatching {
+                    if (categoryId == "2" || categoryId.isBlank()) {
+                        catalogApi.getProducts(
+                            shopId = sId,
+                            lang = langId,
+                            pageSize = 1000,
+                            sort = apiSort,
+                            search = searchFilters.search,
+                            priceMin = searchFilters.priceMin,
+                            priceMax = searchFilters.priceMax,
+                            colors = searchFilters.colors,
+                            attributes = searchFilters.attributes,
+                            customerId = requestCustomerId,
+                        ).items
+                    } else {
+                        catalogApi.getCategoryProducts(
+                            categoryId = categoryId.toInt(),
+                            shopId = sId,
+                            lang = langId,
+                            sort = apiSort,
+                            search = searchFilters.search,
+                            priceMin = searchFilters.priceMin,
+                            priceMax = searchFilters.priceMax,
+                            colors = searchFilters.colors,
+                            attributes = searchFilters.attributes,
+                            customerId = requestCustomerId,
+                        ).items
+                    }
+                }.getOrDefault(emptyList())
+            } else {
+                emptyList()
+            }
+
+            val candidateItems = if (categoryId == "2" || categoryId.isBlank()) {
                 catalogApi.getProducts(
                     shopId = sId,
                     lang = langId,
-                    pageSize = 100,
+                    pageSize = 1000,
                     sort = apiSort,
-                    search = apiFilters.search,
+                    search = null,
                     priceMin = apiFilters.priceMin,
                     priceMax = apiFilters.priceMax,
                     colors = apiFilters.colors,
                     attributes = apiFilters.attributes,
                     customerId = requestCustomerId,
-                )
+                ).items
             } else {
                 catalogApi.getCategoryProducts(
                     categoryId = categoryId.toInt(),
                     shopId = sId,
                     lang = langId,
                     sort = apiSort,
-                    search = apiFilters.search,
+                    search = null,
                     priceMin = apiFilters.priceMin,
                     priceMax = apiFilters.priceMax,
                     colors = apiFilters.colors,
                     attributes = apiFilters.attributes,
                     customerId = requestCustomerId,
-                )
+                ).items
             }
 
-            val products = response.items
+            val dtoById = LinkedHashMap<Int, com.example.grifon.data.catalog.ProductDto>()
+            backendSearchItems.forEach { dtoById[it.id] = it }
+            candidateItems.forEach { item ->
+                if (normalizedSearchQuery.isBlank() || item.matchesSearchQuery(normalizedSearchQuery)) {
+                    dtoById[item.id] = item
+                }
+            }
+
+            val products = dtoById.values
                 .map {
                     it.toDomainProduct(
                         gatewayBaseUrl = gatewayBaseUrl,
@@ -168,19 +211,21 @@ class ApiCatalogRepository @Inject constructor(
             val apiFilters = filters.toApiBasicFilters(canDisplayPrices, query)
             val requestCustomerId = customerId?.takeIf { canDisplayPrices }
             val backendSearchMatches = if (normalizedQuery.isNotEmpty()) {
-                catalogApi.getProducts(
-                    shopId = sId,
-                    lang = langId,
-                    page = 1,
-                    pageSize = 100,
-                    sort = sortOption.toApiSort(),
-                    search = normalizedQuery,
-                    priceMin = apiFilters.priceMin,
-                    priceMax = apiFilters.priceMax,
-                    colors = apiFilters.colors,
-                    attributes = apiFilters.attributes,
-                    customerId = requestCustomerId,
-                ).items
+                runCatching {
+                    catalogApi.getProducts(
+                        shopId = sId,
+                        lang = langId,
+                        page = 1,
+                        pageSize = 1000,
+                        sort = sortOption.toApiSort(),
+                        search = normalizedQuery,
+                        priceMin = apiFilters.priceMin,
+                        priceMax = apiFilters.priceMax,
+                        colors = apiFilters.colors,
+                        attributes = apiFilters.attributes,
+                        customerId = requestCustomerId,
+                    ).items
+                }.getOrDefault(emptyList())
             } else {
                 emptyList()
             }
@@ -385,6 +430,32 @@ private fun Product.matchesSearchQuery(query: String): Boolean {
         )
 
     return matchesText || matchesCode
+}
+
+private fun com.example.grifon.data.catalog.ProductDto.matchesSearchQuery(query: String): Boolean {
+    val needle = query.normalizeSearchText()
+    val needleCode = query.normalizeCodeText()
+    if (needle.isBlank()) return true
+
+    val searchableValues = buildList {
+        add(name.orEmpty())
+        add(id.toString())
+        add(reference.orEmpty())
+        attributes.forEach { (key, values) ->
+            add(key)
+            addAll(values)
+        }
+    }.filter { it.isNotBlank() }
+
+    val searchableText = searchableValues.joinToString(" ") { it.normalizeSearchText() }
+    val searchableCode = searchableValues.joinToString("") { it.normalizeCodeText() }
+    val textTokens = needle.split(Regex("\\s+")).filter { it.isNotBlank() }
+    val codeTokens = extractCodeFragments(query)
+
+    return searchableText.contains(needle) ||
+        textTokens.all { token -> searchableText.contains(token) } ||
+        (needleCode.isNotBlank() && searchableCode.contains(needleCode)) ||
+        (codeTokens.isNotEmpty() && codeTokens.all { token -> searchableCode.contains(token) })
 }
 
 private fun String.normalizeSearchText(): String {
