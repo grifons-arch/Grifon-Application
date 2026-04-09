@@ -146,6 +146,19 @@ class CheckoutViewModel @Inject constructor(
                             )
                         )
                     )
+                } else if (
+                    response.paymentProvider == "stripe_cards" &&
+                    response.paymentSessionStatus == "approval_required" &&
+                    !approvalUrl.isNullOrBlank()
+                ) {
+                    events.emit(
+                        UiEvent.Navigate(
+                            Routes.stripeCheckoutRoute(
+                                orderReference = response.orderReference,
+                                checkoutUrl = approvalUrl
+                            )
+                        )
+                    )
                 } else {
                     confirmation.value = CheckoutConfirmation(
                         reference = response.orderReference,

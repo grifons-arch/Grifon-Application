@@ -2,6 +2,7 @@ import { ShopId, shops } from "../config/env";
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { getPriceAccess } from "./priceAccessService";
 import { capturePayPalCheckoutSession, createPayPalCheckoutSession } from "./paypalService";
+import { createStripeCheckoutSession, verifyStripeCheckoutSession } from "./stripeService";
 
 export interface CheckoutPaymentMethod {
   code: string;
@@ -247,6 +248,25 @@ export const createCheckoutOrder = async (
     }
   }
 
+  if (paymentProvider === "stripe_cards") {
+    const itemTitle = input.items.length === 1
+      ? input.items[0].title
+      : `${input.items[0].title} + ${input.items.length - 1} more item(s)`;
+    const stripeSession = await createStripeCheckoutSession({
+      orderReference,
+      totalAmount,
+      currency,
+      itemTitle
+    });
+
+    if (stripeSession) {
+      order.paymentSessionStatus = "approval_required";
+      order.paymentSessionMessage = "Complete the Stripe card payment inside the app to finish checkout.";
+      order.paymentSessionUrl = stripeSession.checkoutUrl;
+      order.paymentSessionId = stripeSession.stripeSessionId;
+    }
+  }
+
   orderStore.set(orderReference, order);
   return order;
 };
@@ -264,27 +284,45 @@ export const captureCheckoutOrder = async (orderReference: string): Promise<Chec
     });
   }
 
-  if (order.paymentProvider !== "paypal") {
-    throw Object.assign(new Error("Capture is supported only for PayPal checkout orders."), {
-      status: 400,
-      code: "PAYMENT_CAPTURE_NOT_SUPPORTED"
-    });
-  }
-
   if (!order.paymentSessionId) {
-    throw Object.assign(new Error("PayPal payment session has not been created."), {
+    throw Object.assign(new Error("Payment session has not been created."), {
       status: 409,
-      code: "PAYPAL_SESSION_MISSING"
+      code: "PAYMENT_SESSION_MISSING"
     });
   }
 
-  const capture = await capturePayPalCheckoutSession(order.paymentSessionId);
-  order.paymentStatus = "paid";
-  order.paymentSessionStatus = "paid";
-  order.paymentSessionMessage = "PayPal payment completed successfully.";
-  order.paymentCaptureId = capture.captureId ?? undefined;
-  order.orderStatus = "paid";
+  if (order.paymentProvider === "paypal") {
+    const capture = await capturePayPalCheckoutSession(order.paymentSessionId);
+    order.paymentStatus = "paid";
+    order.paymentSessionStatus = "paid";
+    order.paymentSessionMessage = "PayPal payment completed successfully.";
+    order.paymentCaptureId = capture.captureId ?? undefined;
+    order.orderStatus = "paid";
+    orderStore.set(orderReference, order);
+    return order;
+  }
 
-  orderStore.set(orderReference, order);
-  return order;
+  if (order.paymentProvider === "stripe_cards") {
+    const verification = await verifyStripeCheckoutSession(order.paymentSessionId);
+    if (verification.status !== "complete" || verification.paymentStatus !== "paid") {
+      throw Object.assign(new Error("Stripe payment has not completed yet."), {
+        status: 409,
+        code: "STRIPE_PAYMENT_INCOMPLETE",
+        details: verification
+      });
+    }
+
+    order.paymentStatus = "paid";
+    order.paymentSessionStatus = "paid";
+    order.paymentSessionMessage = "Stripe card payment completed successfully.";
+    order.paymentCaptureId = verification.stripeSessionId;
+    order.orderStatus = "paid";
+    orderStore.set(orderReference, order);
+    return order;
+  }
+
+  throw Object.assign(new Error("Capture is not supported for this payment provider."), {
+    status: 400,
+    code: "PAYMENT_CAPTURE_NOT_SUPPORTED"
+  });
 };

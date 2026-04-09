@@ -18,6 +18,7 @@ import com.example.grifon.ui.screens.FavoritesScreen
 import com.example.grifon.ui.screens.HomeScreen
 import com.example.grifon.ui.screens.PayPalCheckoutScreen
 import com.example.grifon.ui.screens.SettingsScreen
+import com.example.grifon.ui.screens.StripeCheckoutScreen
 import com.example.grifon.ui.screens.WholesaleApplicationScreen
 import com.example.grifon.ui.screens.categories.CategoriesScreen
 import com.example.grifon.ui.screens.plp.ProductDetailsScreen
@@ -100,6 +101,32 @@ fun AppNavHost(
                 navController = navController,
                 orderReference = orderReference,
                 approvalUrl = approvalUrl,
+                viewModel = hiltViewModel(),
+            )
+        }
+        composable(
+            route = Routes.STRIPE_CHECKOUT,
+            arguments = listOf(
+                navArgument("orderReference") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+                navArgument("checkoutUrl") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val orderReference = backStackEntry.arguments?.getString("orderReference")
+                ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+                .orEmpty()
+            val checkoutUrl = backStackEntry.arguments?.getString("checkoutUrl")
+                ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+                .orEmpty()
+            StripeCheckoutScreen(
+                navController = navController,
+                orderReference = orderReference,
+                checkoutUrl = checkoutUrl,
                 viewModel = hiltViewModel(),
             )
         }

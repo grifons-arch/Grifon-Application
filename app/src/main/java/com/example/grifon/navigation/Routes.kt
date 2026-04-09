@@ -9,6 +9,7 @@ object Routes {
     const val CART = "cart"
     const val CHECKOUT = "checkout"
     const val PAYPAL_CHECKOUT = "paypal-checkout?orderReference={orderReference}&approvalUrl={approvalUrl}"
+    const val STRIPE_CHECKOUT = "stripe-checkout?orderReference={orderReference}&checkoutUrl={checkoutUrl}"
     const val FAVORITES = "favorites"
     const val ACCOUNT = "account"
     const val REGISTER = "register"
@@ -29,5 +30,11 @@ object Routes {
         val encodedReference = URLEncoder.encode(orderReference, StandardCharsets.UTF_8.toString())
         val encodedApprovalUrl = URLEncoder.encode(approvalUrl, StandardCharsets.UTF_8.toString())
         return "paypal-checkout?orderReference=$encodedReference&approvalUrl=$encodedApprovalUrl"
+    }
+
+    fun stripeCheckoutRoute(orderReference: String, checkoutUrl: String): String {
+        val encodedReference = URLEncoder.encode(orderReference, StandardCharsets.UTF_8.toString())
+        val encodedCheckoutUrl = URLEncoder.encode(checkoutUrl, StandardCharsets.UTF_8.toString())
+        return "stripe-checkout?orderReference=$encodedReference&checkoutUrl=$encodedCheckoutUrl"
     }
 }
