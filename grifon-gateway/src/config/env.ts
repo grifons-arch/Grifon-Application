@@ -84,7 +84,12 @@ const envSchema = z.object({
   SMTP_REQUIRE_TLS: z.string().optional().default("false"),
   SMTP_USER: z.string().optional().default(""),
   SMTP_PASS: z.string().optional().default(""),
-  SMTP_HELO_NAME: z.string().optional().default("")
+  SMTP_HELO_NAME: z.string().optional().default(""),
+  PAYPAL_CLIENT_ID: z.string().optional().default(""),
+  PAYPAL_CLIENT_SECRET: z.string().optional().default(""),
+  PAYPAL_API_BASE_URL: z.string().url().default("https://api-m.sandbox.paypal.com"),
+  PAYPAL_RETURN_URL: z.string().url().default("https://grifon.app/paypal/return"),
+  PAYPAL_CANCEL_URL: z.string().url().default("https://grifon.app/paypal/cancel")
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -208,7 +213,12 @@ export const config = {
   smtpRequireTls: parseBoolean(env.SMTP_REQUIRE_TLS),
   smtpUser: trimToUndefined(env.SMTP_USER),
   smtpPass: trimToUndefined(env.SMTP_PASS),
-  smtpHeloName: trimToUndefined(env.SMTP_HELO_NAME)
+  smtpHeloName: trimToUndefined(env.SMTP_HELO_NAME),
+  paypalClientId: trimToUndefined(env.PAYPAL_CLIENT_ID),
+  paypalClientSecret: trimToUndefined(env.PAYPAL_CLIENT_SECRET),
+  paypalApiBaseUrl: env.PAYPAL_API_BASE_URL,
+  paypalReturnUrl: env.PAYPAL_RETURN_URL,
+  paypalCancelUrl: env.PAYPAL_CANCEL_URL
 };
 
 export type ShopId = 1 | 4;

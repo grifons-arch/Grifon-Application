@@ -3,6 +3,7 @@ package com.example.grifon.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.PrestaLanguage
+import com.example.grifon.core.UiEvent
 import com.example.grifon.core.ShopConfig
 import com.example.grifon.core.UiState
 import com.example.grifon.data.catalog.CatalogApi
@@ -16,10 +17,12 @@ import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.domain.model.CartItem
 import com.example.grifon.domain.usecase.GetActiveShopUseCase
 import com.example.grifon.domain.usecase.GetCartUseCase
+import com.example.grifon.navigation.Routes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
@@ -41,6 +44,7 @@ class CheckoutViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<CheckoutState>>(UiState.Loading)
     val uiState: StateFlow<UiState<CheckoutState>> = _uiState
+    val events = MutableSharedFlow<UiEvent>()
 
     private val baseState = MutableStateFlow<BaseCheckoutState?>(null)
     private val draftAddress = MutableStateFlow(CheckoutAddress())
@@ -128,10 +132,26 @@ class CheckoutViewModel @Inject constructor(
                     )
                 )
             }.onSuccess { response ->
-                confirmation.value = CheckoutConfirmation(
-                    reference = response.orderReference,
-                    message = response.paymentSessionMessage,
-                )
+                val approvalUrl = response.paymentSessionUrl
+                if (
+                    response.paymentProvider == "paypal" &&
+                    response.paymentSessionStatus == "approval_required" &&
+                    !approvalUrl.isNullOrBlank()
+                ) {
+                    events.emit(
+                        UiEvent.Navigate(
+                            Routes.paypalCheckoutRoute(
+                                orderReference = response.orderReference,
+                                approvalUrl = approvalUrl
+                            )
+                        )
+                    )
+                } else {
+                    confirmation.value = CheckoutConfirmation(
+                        reference = response.orderReference,
+                        message = response.paymentSessionMessage,
+                    )
+                }
             }.onFailure { error ->
                 confirmation.value = CheckoutConfirmation(
                     reference = "ORDER-ERROR",

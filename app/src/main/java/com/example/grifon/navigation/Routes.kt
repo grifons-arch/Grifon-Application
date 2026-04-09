@@ -8,6 +8,7 @@ object Routes {
     const val CATEGORIES = "categories"
     const val CART = "cart"
     const val CHECKOUT = "checkout"
+    const val PAYPAL_CHECKOUT = "paypal-checkout?orderReference={orderReference}&approvalUrl={approvalUrl}"
     const val FAVORITES = "favorites"
     const val ACCOUNT = "account"
     const val REGISTER = "register"
@@ -22,5 +23,11 @@ object Routes {
         val encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8.toString())
         val encodedCategory = URLEncoder.encode(category, StandardCharsets.UTF_8.toString())
         return "plp?query=$encodedQuery&category=$encodedCategory"
+    }
+
+    fun paypalCheckoutRoute(orderReference: String, approvalUrl: String): String {
+        val encodedReference = URLEncoder.encode(orderReference, StandardCharsets.UTF_8.toString())
+        val encodedApprovalUrl = URLEncoder.encode(approvalUrl, StandardCharsets.UTF_8.toString())
+        return "paypal-checkout?orderReference=$encodedReference&approvalUrl=$encodedApprovalUrl"
     }
 }

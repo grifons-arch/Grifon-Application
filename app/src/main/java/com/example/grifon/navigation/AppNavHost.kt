@@ -16,6 +16,7 @@ import com.example.grifon.ui.screens.CartScreen
 import com.example.grifon.ui.screens.CheckoutScreen
 import com.example.grifon.ui.screens.FavoritesScreen
 import com.example.grifon.ui.screens.HomeScreen
+import com.example.grifon.ui.screens.PayPalCheckoutScreen
 import com.example.grifon.ui.screens.SettingsScreen
 import com.example.grifon.ui.screens.WholesaleApplicationScreen
 import com.example.grifon.ui.screens.categories.CategoriesScreen
@@ -74,7 +75,33 @@ fun AppNavHost(
             )
         }
         composable(Routes.CHECKOUT) {
-            CheckoutScreen(viewModel = hiltViewModel())
+            CheckoutScreen(navController = navController, viewModel = hiltViewModel())
+        }
+        composable(
+            route = Routes.PAYPAL_CHECKOUT,
+            arguments = listOf(
+                navArgument("orderReference") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+                navArgument("approvalUrl") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val orderReference = backStackEntry.arguments?.getString("orderReference")
+                ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+                .orEmpty()
+            val approvalUrl = backStackEntry.arguments?.getString("approvalUrl")
+                ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+                .orEmpty()
+            PayPalCheckoutScreen(
+                navController = navController,
+                orderReference = orderReference,
+                approvalUrl = approvalUrl,
+                viewModel = hiltViewModel(),
+            )
         }
         composable(Routes.FAVORITES) {
             FavoritesScreen(

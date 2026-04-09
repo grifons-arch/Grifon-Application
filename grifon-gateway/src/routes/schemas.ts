@@ -72,6 +72,10 @@ export const productIdSchema = z.object({
   productId: z.preprocess(toNumber, z.number().int().positive())
 });
 
+export const checkoutOrderReferenceSchema = z.object({
+  orderReference: z.string().trim().min(1).max(80)
+});
+
 export const moduleNameSchema = z.object({
   moduleName: z.string().trim().regex(/^[A-Za-z0-9_-]+$/)
 });

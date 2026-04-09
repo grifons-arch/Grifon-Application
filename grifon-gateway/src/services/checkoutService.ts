@@ -1,6 +1,7 @@
 import { ShopId, shops } from "../config/env";
 import { PrestaShopClient } from "../clients/PrestaShopClient";
 import { getPriceAccess } from "./priceAccessService";
+import { capturePayPalCheckoutSession, createPayPalCheckoutSession } from "./paypalService";
 
 export interface CheckoutPaymentMethod {
   code: string;
@@ -68,11 +69,14 @@ export interface CheckoutOrder {
   currency: string;
   paymentMethodCode: string;
   shippingMethodCode: string;
-  paymentStatus: "requires_payment";
-  orderStatus: "draft";
+  paymentStatus: "requires_payment" | "paid";
+  orderStatus: "draft" | "paid";
   paymentProvider: "paypal" | "stripe_cards" | "manual";
-  paymentSessionStatus: "pending_bridge";
+  paymentSessionStatus: "pending_bridge" | "approval_required" | "paid";
   paymentSessionMessage: string;
+  paymentSessionUrl?: string;
+  paymentSessionId?: string;
+  paymentCaptureId?: string;
 }
 
 const withTrailingSlash = (value: string): string => {
@@ -228,10 +232,59 @@ export const createCheckoutOrder = async (
           : "Payment bridge is not configured yet in the gateway."
   };
 
+  if (paymentProvider === "paypal") {
+    const paypalSession = await createPayPalCheckoutSession({
+      orderReference,
+      totalAmount,
+      currency
+    });
+
+    if (paypalSession) {
+      order.paymentSessionStatus = "approval_required";
+      order.paymentSessionMessage = "Approve the PayPal payment inside the app to complete checkout.";
+      order.paymentSessionUrl = paypalSession.approvalUrl;
+      order.paymentSessionId = paypalSession.paypalOrderId;
+    }
+  }
+
   orderStore.set(orderReference, order);
   return order;
 };
 
 export const getCheckoutOrder = (orderReference: string): CheckoutOrder | null => {
   return orderStore.get(orderReference) ?? null;
+};
+
+export const captureCheckoutOrder = async (orderReference: string): Promise<CheckoutOrder> => {
+  const order = orderStore.get(orderReference);
+  if (!order) {
+    throw Object.assign(new Error("Checkout order was not found."), {
+      status: 404,
+      code: "CHECKOUT_ORDER_NOT_FOUND"
+    });
+  }
+
+  if (order.paymentProvider !== "paypal") {
+    throw Object.assign(new Error("Capture is supported only for PayPal checkout orders."), {
+      status: 400,
+      code: "PAYMENT_CAPTURE_NOT_SUPPORTED"
+    });
+  }
+
+  if (!order.paymentSessionId) {
+    throw Object.assign(new Error("PayPal payment session has not been created."), {
+      status: 409,
+      code: "PAYPAL_SESSION_MISSING"
+    });
+  }
+
+  const capture = await capturePayPalCheckoutSession(order.paymentSessionId);
+  order.paymentStatus = "paid";
+  order.paymentSessionStatus = "paid";
+  order.paymentSessionMessage = "PayPal payment completed successfully.";
+  order.paymentCaptureId = capture.captureId ?? undefined;
+  order.orderStatus = "paid";
+
+  orderStore.set(orderReference, order);
+  return order;
 };

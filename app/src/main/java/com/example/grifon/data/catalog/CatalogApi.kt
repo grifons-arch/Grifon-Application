@@ -111,6 +111,16 @@ interface CatalogApi {
     suspend fun createCheckoutOrder(
         @Body request: CheckoutOrderRequestDto,
     ): CheckoutOrderResponseDto
+
+    @GET("v1/checkout/orders/{orderReference}")
+    suspend fun getCheckoutOrder(
+        @Path("orderReference") orderReference: String,
+    ): CheckoutOrderResponseDto
+
+    @POST("v1/checkout/orders/{orderReference}/capture")
+    suspend fun captureCheckoutOrder(
+        @Path("orderReference") orderReference: String,
+    ): CheckoutOrderResponseDto
 }
 
 @JsonClass(generateAdapter = true)
@@ -320,6 +330,9 @@ data class CheckoutOrderResponseDto(
     val paymentProvider: String,
     val paymentSessionStatus: String,
     val paymentSessionMessage: String,
+    val paymentSessionUrl: String? = null,
+    val paymentSessionId: String? = null,
+    val paymentCaptureId: String? = null,
 )
 
 @JsonClass(generateAdapter = true)

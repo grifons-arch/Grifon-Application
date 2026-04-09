@@ -6,6 +6,7 @@ import { validateQuery, validateParams, validateBody } from "../middleware/valid
 import {
   customerActivityClearBodySchema,
   categoryIdSchema,
+  checkoutOrderReferenceSchema,
   checkoutOrderBodySchema,
   checkoutHandoffBodySchema,
   checkoutSessionQuerySchema,
@@ -57,7 +58,13 @@ import {
 import { getPriceAccess } from "../services/priceAccessService";
 import { listWholesaleCustomers } from "../services/wholesaleCustomerService";
 import { listCustomers } from "../services/customerService";
-import { createCheckoutOrder, getCheckoutHandoffUrl, getCheckoutSession } from "../services/checkoutService";
+import {
+  captureCheckoutOrder,
+  createCheckoutOrder,
+  getCheckoutHandoffUrl,
+  getCheckoutOrder,
+  getCheckoutSession
+} from "../services/checkoutService";
 
 export const apiRouter = Router();
 
@@ -284,6 +291,43 @@ apiRouter.post(
         items,
       });
       res.status(201).json(order);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.get(
+  "/v1/checkout/orders/:orderReference",
+  validateParams(checkoutOrderReferenceSchema),
+  async (req, res, next) => {
+    try {
+      const { orderReference } = req.params as any;
+      const order = getCheckoutOrder(orderReference);
+      if (!order) {
+        res.status(404).json({
+          error: {
+            code: "CHECKOUT_ORDER_NOT_FOUND",
+            message: "Checkout order was not found."
+          }
+        });
+        return;
+      }
+      res.json(order);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+apiRouter.post(
+  "/v1/checkout/orders/:orderReference/capture",
+  validateParams(checkoutOrderReferenceSchema),
+  async (req, res, next) => {
+    try {
+      const { orderReference } = req.params as any;
+      const order = await captureCheckoutOrder(orderReference);
+      res.json(order);
     } catch (error) {
       next(error);
     }
