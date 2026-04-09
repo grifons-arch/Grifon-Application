@@ -8,6 +8,7 @@ import com.example.grifon.core.UiState
 import com.example.grifon.data.local.ShopPreferences
 import com.example.grifon.data.repository.UserRepository
 import com.example.grifon.core.loginText
+import com.example.grifon.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -51,6 +52,24 @@ class AccountViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    fun updateProfile(user: User) {
+        viewModelScope.launch {
+            val currentState = (_uiState.value as? UiState.Success)?.data ?: return@launch
+            _uiState.value = UiState.Success(currentState.copy(isLoading = true))
+            
+            val success = userRepository.updateProfile(user)
+            if (!success) {
+                updateError("Η ενημέρωση απέτυχε. Δοκιμάστε ξανά.")
+            }
+            // Η επιτυχία ενημερώνει το flow και άρα το UI αυτόματα
+        }
+    }
+
+    private fun updateError(message: String) {
+        val currentState = (_uiState.value as? UiState.Success)?.data ?: AccountState(false)
+        _uiState.value = UiState.Success(currentState.copy(loginError = message, isLoading = false))
+    }
+
     fun onEmailChange(newValue: String) {
         _email.value = newValue
     }
@@ -82,11 +101,15 @@ class AccountViewModel @Inject constructor(
     }
 
     fun logout() {
-        userRepository.logout()
+        viewModelScope.launch {
+            userRepository.logout()
+        }
     }
 }
 
 data class AccountState(
     val loggedIn: Boolean,
-    val canViewPrices: Boolean,
+    val canViewPrices: Boolean = false,
+    val isLoading: Boolean = false,
+    val loginError: String? = null
 )

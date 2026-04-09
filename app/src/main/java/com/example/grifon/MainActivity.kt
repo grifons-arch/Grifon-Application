@@ -2,6 +2,7 @@ package com.example.grifon
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,15 +53,19 @@ class MainActivity : AppCompatActivity() {
                 }
         }
 
-        setContent {
-            val settingsViewModel: SettingsViewModel = hiltViewModel()
-            val settingsState by settingsViewModel.uiState.collectAsState()
+        try {
+            setContent {
+                val settingsViewModel: SettingsViewModel = hiltViewModel()
+                val settingsState by settingsViewModel.uiState.collectAsState()
 
-            val isDark = (settingsState as? com.example.grifon.core.UiState.Success)?.data?.darkMode ?: false
+                val isDark = (settingsState as? com.example.grifon.core.UiState.Success)?.data?.darkMode ?: false
 
-            GrifonTheme(darkTheme = isDark) {
-                GrifonApp()
+                GrifonTheme(darkTheme = isDark) {
+                    GrifonApp()
+                }
             }
+        } catch (e: Exception) {
+            Log.e("CrashLog", "MainActivity CRASH in setContent", e)
         }
     }
 }

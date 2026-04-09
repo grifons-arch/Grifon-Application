@@ -35,6 +35,8 @@ import kotlinx.coroutines.flow.filter
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun GrifonApp() {
+    Log.d("CrashLog", "GrifonApp: Start")
+    
     val navController = rememberNavController()
     val appViewModel: AppViewModel = hiltViewModel()
     val settingsViewModel: SettingsViewModel = hiltViewModel()

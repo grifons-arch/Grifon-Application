@@ -23,6 +23,7 @@ data class RegisterUiState(
     val passwordConfirmation: String = "",
     val customerDataPrivacyAccepted: Boolean = false,
     val newsletterOptIn: Boolean = false,
+    val partnerOffersOptIn: Boolean = false, // Προσθήκη για Partner Offers
     val termsAndPrivacyAccepted: Boolean = false,
     val wholesaleRequested: Boolean = false,
     val googleDisplayName: String? = null,

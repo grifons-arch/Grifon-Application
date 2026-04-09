@@ -1,5 +1,6 @@
 package com.example.grifon.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.grifon.core.ShopConfig
@@ -24,6 +25,8 @@ class AppViewModel @Inject constructor(
 ) : ViewModel() {
     private val _state = MutableStateFlow(AppState())
     val state: StateFlow<AppState> = _state
+    
+    private var syncJob: Job? = null
 
     init {
         combine(

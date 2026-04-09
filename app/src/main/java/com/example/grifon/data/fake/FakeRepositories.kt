@@ -1,5 +1,6 @@
 package com.example.grifon.data.fake
 
+import android.util.Log
 import com.example.grifon.data.catalog.CatalogApi
 import com.example.grifon.data.catalog.ShopDto
 import com.example.grifon.core.ShopConfig
@@ -24,10 +25,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
-class FakeShopRepository(
-    private val preferences: ShopPreferences,
-    private val catalogApi: CatalogApi,
-) : ShopRepository {
+class FakeShopRepository(private val preferences: ShopPreferences, private val catalogApi: CatalogApi) : ShopRepository {
     override fun getShops(): Flow<List<Shop>> = flow {
         val remoteShops = runCatching { catalogApi.getShops() }.getOrElse {
             listOf(
@@ -48,12 +46,8 @@ class FakeShopRepository(
             }
         )
     }
-
     override fun getActiveShopId(): Flow<String> = preferences.activeShopId
-
-    override suspend fun setActiveShopId(shopId: String) {
-        preferences.setActiveShopId(shopId)
-    }
+    override suspend fun setActiveShopId(shopId: String) = preferences.setActiveShopId(shopId)
 }
 
 class FakeCatalogRepository : CatalogRepository {
@@ -126,6 +120,8 @@ class FakeCatalogRepository : CatalogRepository {
         val product = FakeCatalogData.shopProducts[normalizedShopId].orEmpty().find { it.id == productId }
         return flowOf(product)
     }
+
+    override suspend fun syncCatalog(shopId: String) = Unit
 
     private fun applyFiltersAndSort(
         products: List<Product>,

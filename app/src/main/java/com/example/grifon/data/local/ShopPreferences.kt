@@ -34,6 +34,7 @@ class ShopPreferences(
     private val checkoutCountryKey = stringPreferencesKey("checkout_country")
     private val ordersJsonKey = stringPreferencesKey("orders_json")
 
+    // Default to "4" (Grifon GR)
     val activeShopId: Flow<String> = dataStore.data.map { preferences ->
         ShopConfig.normalizeShopId(preferences[shopKey] ?: BuildConfig.SHOP_ID)
     }
