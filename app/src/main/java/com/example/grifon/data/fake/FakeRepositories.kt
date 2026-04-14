@@ -85,11 +85,18 @@ class FakeCatalogRepository : CatalogRepository {
         categoryId: String,
         filters: FilterState,
         sortOption: SortOption,
+        searchQuery: String,
     ): Flow<List<Product>> {
         val normalizedShopId = ShopConfig.normalizeShopId(shopId)
         val base = FakeCatalogData.shopProducts[normalizedShopId].orEmpty()
             .filter { product ->
                 product.title.contains(categoryId, ignoreCase = true) || categoryId.isBlank()
+            }
+            .filter { product ->
+                searchQuery.isBlank() ||
+                    product.title.contains(searchQuery, ignoreCase = true) ||
+                    product.id.contains(searchQuery, ignoreCase = true) ||
+                    product.attributesMap.values.flatten().any { it.contains(searchQuery, ignoreCase = true) }
             }
         return flowOf(applyFiltersAndSort(base, filters, sortOption))
     }
@@ -113,6 +120,8 @@ class FakeCatalogRepository : CatalogRepository {
         val product = FakeCatalogData.shopProducts[normalizedShopId].orEmpty().find { it.id == productId }
         return flowOf(product)
     }
+
+    override suspend fun syncCatalog(shopId: String) = Unit
 
     private fun applyFiltersAndSort(
         products: List<Product>,
@@ -147,11 +156,6 @@ class FakeCatalogRepository : CatalogRepository {
 
 class FakeCartRepository : CartRepository {
     private val cartState = MutableStateFlow<Map<String, List<CartItem>>>(emptyMap())
-    override fun observeCart(shopId: String): Flow<List<CartItem>> = cartState.map { it[shopId].orEmpty() }
-    override suspend fun addToCart(shopId: String, item: CartItem) {}
-    override suspend fun removeFromCart(shopId: String, productId: String) {}
-    override suspend fun updateQuantity(shopId: String, productId: String, qty: Int) {}
-}
 
     override fun observeCart(shopId: String): Flow<List<CartItem>> =
         cartState.map { it[ShopConfig.normalizeShopId(shopId)].orEmpty() }

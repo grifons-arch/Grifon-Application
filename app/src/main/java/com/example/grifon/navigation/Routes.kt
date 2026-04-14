@@ -19,7 +19,6 @@ object Routes {
     const val PLP = "plp?query={query}&category={category}"
     const val SETTINGS = "settings"
     const val SCAN = "scan"
-    const val REGISTER = "register"
 
     fun productRoute(id: String) = "product/$id"
     fun plpRoute(query: String = "", category: String = ""): String {

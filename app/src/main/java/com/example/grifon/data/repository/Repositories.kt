@@ -26,6 +26,7 @@ interface CatalogRepository {
         categoryId: String,
         filters: FilterState,
         sortOption: SortOption,
+        searchQuery: String = "",
     ): Flow<List<Product>>
 
     fun searchProducts(

@@ -54,6 +54,7 @@ interface CatalogApi {
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 1000,
         @Query("sort") sort: String = "[id_DESC]",
+        @Query("search") search: String? = null,
         @Query("priceMin") priceMin: Double? = null,
         @Query("priceMax") priceMax: Double? = null,
         @Query("colors") colors: String? = null,

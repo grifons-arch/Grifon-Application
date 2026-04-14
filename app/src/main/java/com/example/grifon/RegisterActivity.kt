@@ -91,16 +91,7 @@ fun RegisterScreen(
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
         )
 
-        RegistrationTextField(value = state.firstName, onValueChange = registerViewModel::onFirstNameChange, placeholder = "Όνομα *")
-        RegistrationTextField(value = state.lastName, onValueChange = registerViewModel::onLastNameChange, placeholder = "Επώνυμο *")
-
-        SectionTitle(title = "Διεύθυνση")
-
-        // 1. Επιλογή Χώρας (Dropdown)
-        ExposedDropdownMenuBox(
-            expanded = countryExpanded,
-            onExpandedChange = { countryExpanded = !countryExpanded }
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             SocialTitleOption(
                 label = stringResource(R.string.social_title_mr),
                 selected = state.socialTitle == "mr",
@@ -112,21 +103,6 @@ fun RegisterScreen(
                 selected = state.socialTitle == "mrs",
                 onSelect = { registerViewModel.onSocialTitleChange("mrs") },
             )
-            ExposedDropdownMenu(
-                expanded = countryExpanded,
-                onDismissRequest = { countryExpanded = false }
-            ) {
-                countries.keys.forEach { name ->
-                    DropdownMenuItem(
-                        text = { Text(name) },
-                        onClick = {
-                            registerViewModel.onCountryChange(name)
-                            countryExpanded = false
-                            addressSearchQuery = "" // Reset search when country changes
-                        }
-                    )
-                }
-            }
         }
 
         RegistrationTextField(
